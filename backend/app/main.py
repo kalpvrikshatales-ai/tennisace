@@ -4,7 +4,7 @@ from app.routers import matches, players, tournaments
 
 app = FastAPI(title="TennisAce API", description="tennisace.live", version="1.0.0")
 
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000","https://tennisace.live"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000","https://tennisace.live","https://www.tennisace.live","https://tennisace.vercel.app"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
 app.include_router(matches.router, prefix="/matches", tags=["matches"])
 app.include_router(players.router, prefix="/players", tags=["players"])
