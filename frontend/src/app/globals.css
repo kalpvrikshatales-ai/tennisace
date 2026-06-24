@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --navy: #0B1F3A;
+  --navy-light: #112547;
+  --navy-card: #0F2A4A;
+  --green: #00C875;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--navy);
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Pulse animation for live indicator */
+@keyframes pulse-green {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.live-dot {
+  animation: pulse-green 1.4s ease-in-out infinite;
+}
+
+/* Score flash animation */
+@keyframes score-flash {
+  0% { color: #00C875; }
+  100% { color: #ffffff; }
+}
