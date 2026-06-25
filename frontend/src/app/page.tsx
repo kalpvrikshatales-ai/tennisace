@@ -3,17 +3,21 @@
 import { useState, useEffect, useCallback } from 'react'
 import MatchCard from '@/components/MatchCard'
 import TournamentCard from '@/components/TournamentCard'
-import { getLiveMatches, getTournaments } from '@/lib/api'
+import RankingsList from '@/components/RankingsList'
+import ResultCard from '@/components/ResultCard'
+import { getLiveMatches, getTournaments, getResults } from '@/lib/api'
 import type { Match, Tournament } from '@/types'
 
-type Tab = 'live' | 'tournaments'
+type Tab = 'live' | 'results' | 'tournaments' | 'rankings'
 
 export default function Home() {
   const [tab, setTab] = useState<Tab>('live')
   const [matches, setMatches] = useState<Match[]>([])
   const [tournaments, setTournaments] = useState<Tournament[]>([])
+  const [results, setResults] = useState<any[]>([])
   const [loadingMatches, setLoadingMatches] = useState(true)
   const [loadingTournaments, setLoadingTournaments] = useState(true)
+  const [loadingResults, setLoadingResults] = useState(true)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
 
   const fetchMatches = useCallback(async () => {
@@ -21,44 +25,54 @@ export default function Home() {
       const data = await getLiveMatches()
       setMatches(data.matches ?? [])
       setLastUpdated(new Date())
-    } catch {
-      // keep stale data on error
-    } finally {
-      setLoadingMatches(false)
-    }
+    } catch { }
+    finally { setLoadingMatches(false) }
   }, [])
 
   const fetchTournaments = useCallback(async () => {
     try {
       const data = await getTournaments()
       setTournaments(data.tournaments ?? [])
-    } catch {
-      // ignore
-    } finally {
-      setLoadingTournaments(false)
-    }
+    } catch { }
+    finally { setLoadingTournaments(false) }
+  }, [])
+
+  const fetchResults = useCallback(async () => {
+    try {
+      const data = await getResults(7)
+      setResults(data.results ?? [])
+    } catch { }
+    finally { setLoadingResults(false) }
   }, [])
 
   useEffect(() => {
     fetchMatches()
     fetchTournaments()
+    fetchResults()
     const interval = setInterval(fetchMatches, 30_000)
     return () => clearInterval(interval)
-  }, [fetchMatches, fetchTournaments])
+  }, [fetchMatches, fetchTournaments, fetchResults])
 
   const formatTime = (d: Date) =>
     d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+
+  const tabs: { key: Tab; label: string }[] = [
+    { key: 'live',        label: 'Live' },
+    { key: 'results',     label: 'Results' },
+    { key: 'tournaments', label: 'Tournaments' },
+    { key: 'rankings',    label: 'Rankings' },
+  ]
 
   return (
     <div className="min-h-screen bg-[#0B1F3A]">
       {/* Header */}
       <header className="sticky top-0 z-20 bg-[#0B1F3A]/95 backdrop-blur-sm border-b border-white/[0.06]">
-        <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold tracking-tight">
               Tennis<span className="text-[#00C875]">Ace</span>
             </h1>
-            <p className="text-[11px] text-white/30 mt-0.5">Feel every match. Live.</p>
+            <p className="text-[10px] text-white/30 mt-0.5">Feel every match. Live.</p>
           </div>
           {lastUpdated && (
             <div className="text-right">
@@ -66,41 +80,29 @@ export default function Home() {
                 <span className="live-dot inline-block w-1.5 h-1.5 rounded-full bg-[#00C875]" />
                 <span className="text-[11px] font-medium text-[#00C875] uppercase tracking-wider">Live</span>
               </div>
-              <span className="text-[10px] text-white/25 mt-0.5 block">
-                {formatTime(lastUpdated)}
-              </span>
+              <span className="text-[10px] text-white/25 mt-0.5 block">{formatTime(lastUpdated)}</span>
             </div>
           )}
         </div>
 
         {/* Tabs */}
-        <div className="max-w-2xl mx-auto px-4 flex gap-0">
-          {(['live', 'tournaments'] as Tab[]).map((t) => (
+        <div className="max-w-2xl mx-auto px-2 flex overflow-x-auto scrollbar-hide">
+          {tabs.map(({ key, label }) => (
             <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`pb-3 pt-1 px-4 text-sm font-semibold transition-colors duration-150 border-b-2 ${
-                tab === t
-                  ? 'border-[#00C875] text-white'
-                  : 'border-transparent text-white/40 hover:text-white/70'
+              key={key}
+              onClick={() => setTab(key)}
+              className={`pb-3 pt-1 px-3 text-sm font-semibold transition-colors duration-150 border-b-2 whitespace-nowrap flex items-center gap-1.5 ${
+                tab === key ? 'border-[#00C875] text-white' : 'border-transparent text-white/40 hover:text-white/70'
               }`}
             >
-              {t === 'live' ? (
-                <span className="flex items-center gap-1.5">
-                  <span
-                    className={`inline-block w-1.5 h-1.5 rounded-full ${
-                      tab === 'live' ? 'bg-[#00C875] live-dot' : 'bg-white/20'
-                    }`}
-                  />
-                  Live Scores
-                  {matches.length > 0 && (
-                    <span className="ml-1 text-[10px] bg-[#00C875]/20 text-[#00C875] rounded-full px-1.5 py-0.5 font-bold">
-                      {matches.length}
-                    </span>
-                  )}
+              {key === 'live' && (
+                <span className={`inline-block w-1.5 h-1.5 rounded-full ${tab === 'live' ? 'bg-[#00C875] live-dot' : 'bg-white/20'}`} />
+              )}
+              {label}
+              {key === 'live' && matches.length > 0 && (
+                <span className="text-[10px] bg-[#00C875]/20 text-[#00C875] rounded-full px-1.5 py-0.5 font-bold">
+                  {matches.length}
                 </span>
-              ) : (
-                'Tournaments'
               )}
             </button>
           ))}
@@ -109,35 +111,32 @@ export default function Home() {
 
       {/* Content */}
       <main className="max-w-2xl mx-auto px-4 py-6">
+
+        {/* LIVE */}
         {tab === 'live' && (
           <section>
             {loadingMatches ? (
               <div className="space-y-3">
-                {[...Array(4)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="rounded-xl bg-[#0F2A4A] border border-white/[0.06] h-28 animate-pulse"
-                  />
-                ))}
+                {[...Array(4)].map((_, i) => <div key={i} className="rounded-xl bg-[#0F2A4A] border border-white/[0.06] h-28 animate-pulse" />)}
               </div>
             ) : matches.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <span className="text-5xl mb-5">🎾</span>
                 <p className="text-white font-semibold text-base">No live matches right now</p>
                 <p className="text-white/35 text-sm mt-2 max-w-xs">
-                  Matches typically play from 10am–10pm local tournament time. Scores refresh every 30 seconds.
+                  Matches typically play from 10am–10pm local time. Scores refresh every 30 seconds.
                 </p>
                 <div className="mt-8 w-full max-w-sm space-y-2">
                   <p className="text-[11px] text-white/25 uppercase tracking-widest mb-3">Upcoming Grand Slams</p>
                   {[
-                    { name: 'Wimbledon',       dates: 'Jun 30 – Jul 13',  surface: '🌿', color: '#4ade80' },
-                    { name: 'US Open',         dates: 'Aug 25 – Sep 7',   surface: '🔵', color: '#60a5fa' },
-                    { name: 'Australian Open', dates: 'Jan 12 – Jan 26',  surface: '🔵', color: '#60a5fa' },
-                    { name: 'Roland Garros',   dates: 'May 25 – Jun 8',   surface: '🏺', color: '#fb923c' },
+                    { name: 'Wimbledon',       dates: 'Jun 30 – Jul 13', surface: '🌿' },
+                    { name: 'US Open',         dates: 'Aug 25 – Sep 7',  surface: '🔵' },
+                    { name: 'Australian Open', dates: 'Jan 12 – Jan 26', surface: '🔵' },
+                    { name: 'Roland Garros',   dates: 'May 25 – Jun 8',  surface: '🏺' },
                   ].map(t => (
                     <div key={t.name} className="flex items-center justify-between px-4 py-3 rounded-xl bg-[#0F2A4A] border border-white/[0.04]">
                       <div className="flex items-center gap-3">
-                        <span className="text-lg">{t.surface}</span>
+                        <span>{t.surface}</span>
                         <span className="text-sm font-semibold text-white">{t.name}</span>
                       </div>
                       <span className="text-[11px] text-white/30">{t.dates}</span>
@@ -147,42 +146,58 @@ export default function Home() {
               </div>
             ) : (
               <div className="space-y-3">
-                {matches.map((m) => (
-                  <MatchCard key={m.match_id} match={m} />
-                ))}
+                {matches.map((m) => <MatchCard key={m.match_id} match={m} />)}
               </div>
             )}
           </section>
         )}
 
+        {/* RESULTS */}
+        {tab === 'results' && (
+          <section>
+            <p className="text-[11px] text-white/25 uppercase tracking-widest mb-4">Last 7 days · ATP & WTA</p>
+            {loadingResults ? (
+              <div className="space-y-3">
+                {[...Array(6)].map((_, i) => <div key={i} className="rounded-xl bg-[#0F2A4A] border border-white/[0.06] h-24 animate-pulse" />)}
+              </div>
+            ) : results.length === 0 ? (
+              <div className="text-center py-20">
+                <span className="text-4xl">📋</span>
+                <p className="text-white/50 text-sm mt-4">No recent results found.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {results.map((r) => <ResultCard key={r.match_id} result={r} />)}
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* TOURNAMENTS */}
         {tab === 'tournaments' && (
           <section>
             {loadingTournaments ? (
               <div className="space-y-3">
-                {[...Array(4)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="rounded-xl bg-[#0F2A4A] border border-white/[0.06] h-16 animate-pulse"
-                  />
-                ))}
+                {[...Array(4)].map((_, i) => <div key={i} className="rounded-xl bg-[#0F2A4A] border border-white/[0.06] h-16 animate-pulse" />)}
               </div>
             ) : tournaments.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 text-center">
-                <span className="text-4xl mb-4">🏆</span>
-                <p className="text-white/50 text-sm">No tournaments found.</p>
+              <div className="text-center py-20">
+                <span className="text-4xl">🏆</span>
+                <p className="text-white/50 text-sm mt-4">No tournaments found.</p>
               </div>
             ) : (
               <div className="space-y-3">
-                {tournaments.map((t) => (
-                  <TournamentCard key={t.id} tournament={t} />
-                ))}
+                {tournaments.map((t) => <TournamentCard key={t.id} tournament={t} />)}
               </div>
             )}
           </section>
         )}
+
+        {/* RANKINGS */}
+        {tab === 'rankings' && <RankingsList />}
+
       </main>
 
-      {/* Footer */}
       <footer className="max-w-2xl mx-auto px-4 pb-8 mt-8 text-center">
         <p className="text-[11px] text-white/20">tennisace.live · Feel every match. Live.</p>
       </footer>
