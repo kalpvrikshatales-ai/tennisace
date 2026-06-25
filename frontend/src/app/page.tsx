@@ -121,10 +121,29 @@ export default function Home() {
                 ))}
               </div>
             ) : matches.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 text-center">
-                <span className="text-4xl mb-4">🎾</span>
-                <p className="text-white/50 text-sm">No live matches right now.</p>
-                <p className="text-white/25 text-xs mt-1">Scores refresh every 30 seconds.</p>
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <span className="text-5xl mb-5">🎾</span>
+                <p className="text-white font-semibold text-base">No live matches right now</p>
+                <p className="text-white/35 text-sm mt-2 max-w-xs">
+                  Matches typically play from 10am–10pm local tournament time. Scores refresh every 30 seconds.
+                </p>
+                <div className="mt-8 w-full max-w-sm space-y-2">
+                  <p className="text-[11px] text-white/25 uppercase tracking-widest mb-3">Upcoming Grand Slams</p>
+                  {[
+                    { name: 'Wimbledon',       dates: 'Jun 30 – Jul 13',  surface: '🌿', color: '#4ade80' },
+                    { name: 'US Open',         dates: 'Aug 25 – Sep 7',   surface: '🔵', color: '#60a5fa' },
+                    { name: 'Australian Open', dates: 'Jan 12 – Jan 26',  surface: '🔵', color: '#60a5fa' },
+                    { name: 'Roland Garros',   dates: 'May 25 – Jun 8',   surface: '🏺', color: '#fb923c' },
+                  ].map(t => (
+                    <div key={t.name} className="flex items-center justify-between px-4 py-3 rounded-xl bg-[#0F2A4A] border border-white/[0.04]">
+                      <div className="flex items-center gap-3">
+                        <span className="text-lg">{t.surface}</span>
+                        <span className="text-sm font-semibold text-white">{t.name}</span>
+                      </div>
+                      <span className="text-[11px] text-white/30">{t.dates}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             ) : (
               <div className="space-y-3">
