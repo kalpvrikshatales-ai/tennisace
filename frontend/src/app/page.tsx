@@ -9,6 +9,7 @@ import SearchBar from '@/components/SearchBar'
 import BottomNav from '@/components/BottomNav'
 import WimbledonBanner from '@/components/WimbledonBanner'
 import PushButton from '@/components/PushButton'
+import LiveTicker from '@/components/LiveTicker'
 import { getLiveMatches, getTournaments, getResults, getFixtures } from '@/lib/api'
 import { getFavourites } from '@/lib/favourites'
 import type { Match, Tournament } from '@/types'
@@ -109,8 +110,14 @@ export default function Home() {
           </div>
         </div>
 
+        {/* Live ticker — scrolls across all tabs when matches are live */}
+        <LiveTicker />
+
         {/* Tabs — hidden on mobile (use bottom nav), visible on desktop */}
-        <div className="max-w-2xl mx-auto px-2 hidden md:flex overflow-x-auto scrollbar-hide">
+        <div className="max-w-2xl mx-auto px-2 hidden md:flex overflow-x-auto scrollbar-hide items-center">
+          <Link href="/compare" className="pb-3 pt-1 px-3 text-sm font-semibold text-white/40 hover:text-white/70 border-b-2 border-transparent whitespace-nowrap transition-colors">
+            ⚔️ Compare
+          </Link>
           {tabs.map(({ key, label }) => (
             <button
               key={key}
