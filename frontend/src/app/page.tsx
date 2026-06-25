@@ -6,6 +6,7 @@ import TournamentCard from '@/components/TournamentCard'
 import RankingsList from '@/components/RankingsList'
 import ResultCard from '@/components/ResultCard'
 import SearchBar from '@/components/SearchBar'
+import BottomNav from '@/components/BottomNav'
 import { getLiveMatches, getTournaments, getResults, getFixtures } from '@/lib/api'
 import { getFavourites } from '@/lib/favourites'
 import type { Match, Tournament } from '@/types'
@@ -105,8 +106,8 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="max-w-2xl mx-auto px-2 flex overflow-x-auto scrollbar-hide">
+        {/* Tabs — hidden on mobile (use bottom nav), visible on desktop */}
+        <div className="max-w-2xl mx-auto px-2 hidden md:flex overflow-x-auto scrollbar-hide">
           {tabs.map(({ key, label }) => (
             <button
               key={key}
@@ -129,15 +130,15 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Content */}
-      <main className="max-w-2xl mx-auto px-4 py-6">
+      {/* Content — add bottom padding on mobile for the nav bar */}
+      <main className="max-w-2xl mx-auto px-4 py-6 pb-nav md:pb-6">
 
         {/* LIVE */}
         {tab === 'live' && (
           <section>
             {loadingMatches ? (
               <div className="space-y-3">
-                {[...Array(4)].map((_, i) => <div key={i} className="rounded-xl bg-[#0F2A4A] border border-white/[0.06] h-28 animate-pulse" />)}
+                {[...Array(4)].map((_, i) => <div key={i} className="rounded-xl glass border border-white/[0.06] h-28 animate-pulse" />)}
               </div>
             ) : matches.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -154,7 +155,7 @@ export default function Home() {
                     { name: 'Australian Open', dates: 'Jan 12 – Jan 26', surface: '🔵' },
                     { name: 'Roland Garros',   dates: 'May 25 – Jun 8',  surface: '🏺' },
                   ].map(t => (
-                    <div key={t.name} className="flex items-center justify-between px-4 py-3 rounded-xl bg-[#0F2A4A] border border-white/[0.04]">
+                    <div key={t.name} className="flex items-center justify-between px-4 py-3 rounded-xl glass border border-white/[0.04]">
                       <div className="flex items-center gap-3">
                         <span>{t.surface}</span>
                         <span className="text-sm font-semibold text-white">{t.name}</span>
@@ -178,7 +179,7 @@ export default function Home() {
             <p className="text-[11px] text-white/25 uppercase tracking-widest mb-4">Last 7 days · ATP & WTA</p>
             {loadingResults ? (
               <div className="space-y-3">
-                {[...Array(6)].map((_, i) => <div key={i} className="rounded-xl bg-[#0F2A4A] border border-white/[0.06] h-24 animate-pulse" />)}
+                {[...Array(6)].map((_, i) => <div key={i} className="rounded-xl glass border border-white/[0.06] h-24 animate-pulse" />)}
               </div>
             ) : results.length === 0 ? (
               <div className="text-center py-20">
@@ -198,7 +199,7 @@ export default function Home() {
           <section>
             {loadingTournaments ? (
               <div className="space-y-3">
-                {[...Array(4)].map((_, i) => <div key={i} className="rounded-xl bg-[#0F2A4A] border border-white/[0.06] h-16 animate-pulse" />)}
+                {[...Array(4)].map((_, i) => <div key={i} className="rounded-xl glass border border-white/[0.06] h-16 animate-pulse" />)}
               </div>
             ) : tournaments.length === 0 ? (
               <div className="text-center py-20">
@@ -219,7 +220,7 @@ export default function Home() {
             <p className="text-[11px] text-white/25 uppercase tracking-widest mb-4">Next 3 days · ATP & WTA</p>
             {loadingFixtures ? (
               <div className="space-y-3">
-                {[...Array(5)].map((_, i) => <div key={i} className="h-20 rounded-xl bg-[#0F2A4A] animate-pulse" />)}
+                {[...Array(5)].map((_, i) => <div key={i} className="h-20 rounded-xl glass animate-pulse" />)}
               </div>
             ) : fixtures.length === 0 ? (
               <div className="text-center py-20">
@@ -229,7 +230,7 @@ export default function Home() {
             ) : (
               <div className="space-y-2">
                 {fixtures.map((f, i) => (
-                  <div key={i} className="rounded-xl border border-white/[0.04] bg-[#0F2A4A] p-4">
+                  <div key={i} className="rounded-xl border border-white/[0.04] glass p-4">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-[11px] text-white/40 uppercase tracking-wider truncate">{f.tournament} · {f.type?.replace(' Singles','')}</span>
                       <span className="text-[10px] text-white/25 flex-shrink-0 ml-2">{f.date}</span>
@@ -265,7 +266,7 @@ export default function Home() {
                 <div className="space-y-2">
                   {favourites.map(f => (
                     <Link key={f.key} href={`/players/${f.key}`}>
-                      <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-[#0F2A4A] border border-amber-400/10 hover:border-amber-400/25 transition-colors cursor-pointer">
+                      <div className="flex items-center justify-between px-4 py-3 rounded-xl glass border border-amber-400/10 hover:border-amber-400/25 transition-colors cursor-pointer">
                         <div>
                           <p className="text-sm font-semibold text-white">{f.name}</p>
                           <p className="text-[11px] text-white/30">{f.country}</p>
@@ -287,9 +288,12 @@ export default function Home() {
 
       </main>
 
-      <footer className="max-w-2xl mx-auto px-4 pb-8 mt-8 text-center">
+      <footer className="max-w-2xl mx-auto px-4 pb-8 mt-8 text-center hidden md:block">
         <p className="text-[11px] text-white/20">tennisace.live · Feel every match. Live.</p>
       </footer>
+
+      {/* Bottom nav — mobile only */}
+      <BottomNav tab={tab} setTab={setTab} liveCount={matches.length} />
     </div>
   )
 }

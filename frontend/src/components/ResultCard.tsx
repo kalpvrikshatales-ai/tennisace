@@ -23,7 +23,7 @@ export default function ResultCard({ result }: Props) {
   const p2won = result.winner === 'Second Player'
 
   return (
-    <div className="rounded-xl border border-white/[0.06] bg-[#0F2A4A] p-4">
+    <div className="rounded-xl border border-white/[0.06] glass p-4">
       {/* Header */}
       <div className="flex items-center justify-between gap-2 mb-3">
         <span className="text-[11px] font-medium uppercase tracking-wider text-white/40 truncate">

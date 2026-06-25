@@ -65,14 +65,14 @@ export default function RankingsList() {
       {loading ? (
         <div className="space-y-2">
           {[...Array(10)].map((_, i) => (
-            <div key={i} className="h-14 rounded-xl bg-[#0F2A4A] animate-pulse" />
+            <div key={i} className="h-14 rounded-xl glass animate-pulse" />
           ))}
         </div>
       ) : (
         <div className="space-y-1.5">
           {rankings.slice(0, 50).map((r) => (
             <Link key={r.player_key} href={`/players/${r.player_key}`}>
-              <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#0F2A4A] hover:bg-[#112547] hover:border-[#00C875]/20 border border-white/[0.04] transition-all cursor-pointer">
+              <div className="flex items-center gap-3 px-4 py-3 rounded-xl glass hover:bg-[#112547] hover:border-[#00C875]/20 border border-white/[0.04] transition-all cursor-pointer">
                 {/* Rank */}
                 <div className="w-8 flex-shrink-0 text-center">
                   <span className={`text-sm font-bold tabular-nums ${

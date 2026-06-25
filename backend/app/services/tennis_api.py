@@ -20,9 +20,11 @@ def _normalize_match(raw: dict) -> dict:
         "score":      score,
         "status":     raw.get("event_status") or raw.get("status", "In Progress"),
         "tournament": raw.get("tournament_name") or raw.get("tournament", ""),
-        "serve":      raw.get("event_serve"),
-        "round":      raw.get("round_name"),
-        "game_score": raw.get("event_game_result"),  # e.g. "30-15"
+        "serve":       raw.get("event_serve"),
+        "round":       raw.get("tournament_round"),
+        "game_score":  raw.get("event_game_result"),
+        "player1_img": raw.get("event_first_player_logo"),
+        "player2_img": raw.get("event_second_player_logo"),
     }
 
 

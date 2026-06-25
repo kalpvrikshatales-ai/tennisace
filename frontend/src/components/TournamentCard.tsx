@@ -17,7 +17,7 @@ export default function TournamentCard({ tournament }: Props) {
 
   return (
     <Link href={`/tournaments/${tournament.id}`}>
-      <div className="rounded-xl border border-white/[0.06] bg-[#0F2A4A] hover:border-[#00C875]/30 hover:bg-[#112547] transition-all duration-200 p-4 flex items-center justify-between gap-4 cursor-pointer">
+      <div className="rounded-xl border border-white/[0.06] glass hover:border-[#00C875]/30 hover:bg-[#112547] transition-all duration-200 p-4 flex items-center justify-between gap-4 cursor-pointer">
         <div className="flex items-center gap-3 min-w-0">
           <span className="text-2xl flex-shrink-0">{surface.emoji}</span>
           <div className="min-w-0">

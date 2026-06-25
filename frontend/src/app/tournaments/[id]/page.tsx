@@ -82,9 +82,9 @@ export default function TournamentPage() {
       <main className="max-w-2xl mx-auto px-4 py-6">
         {loading ? (
           <div className="space-y-3">
-            <div className="h-24 rounded-xl bg-[#0F2A4A] animate-pulse" />
+            <div className="h-24 rounded-xl glass animate-pulse" />
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-28 rounded-xl bg-[#0F2A4A] animate-pulse" />
+              <div key={i} className="h-28 rounded-xl glass animate-pulse" />
             ))}
           </div>
         ) : !tournament ? (
@@ -94,7 +94,7 @@ export default function TournamentPage() {
         ) : (
           <>
             {/* Tournament hero */}
-            <div className="rounded-xl bg-[#0F2A4A] border border-white/[0.06] p-5 mb-6">
+            <div className="rounded-xl glass border border-white/[0.06] p-5 mb-6">
               <div className="flex items-center gap-4">
                 <span className="text-4xl">{surface?.emoji}</span>
                 <div>

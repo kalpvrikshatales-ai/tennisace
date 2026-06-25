@@ -60,8 +60,8 @@ export default function PlayerPage() {
       <main className="max-w-2xl mx-auto px-4 py-6">
         {loading ? (
           <div className="space-y-4">
-            <div className="h-32 rounded-xl bg-[#0F2A4A] animate-pulse" />
-            <div className="h-48 rounded-xl bg-[#0F2A4A] animate-pulse" />
+            <div className="h-32 rounded-xl glass animate-pulse" />
+            <div className="h-48 rounded-xl glass animate-pulse" />
           </div>
         ) : !player || !player.player_key ? (
           <div className="text-center py-20">
@@ -70,7 +70,7 @@ export default function PlayerPage() {
         ) : (
           <>
             {/* Profile hero */}
-            <div className="rounded-xl bg-[#0F2A4A] border border-white/[0.06] p-5 mb-5 flex items-center gap-5">
+            <div className="rounded-xl glass border border-white/[0.06] p-5 mb-5 flex items-center gap-5">
               {player.player_logo && (
                 <img
                   src={player.player_logo}
@@ -111,7 +111,7 @@ export default function PlayerPage() {
 
             {/* Win rate summary */}
             {(totalWon + totalLost) > 0 && (
-              <div className="rounded-xl bg-[#0F2A4A] border border-white/[0.06] p-4 mb-5">
+              <div className="rounded-xl glass border border-white/[0.06] p-4 mb-5">
                 <p className="text-[11px] text-white/30 uppercase tracking-widest mb-3">Career ({statType})</p>
                 <div className="flex items-center gap-4">
                   <div className="flex-1">
@@ -142,7 +142,7 @@ export default function PlayerPage() {
 
             {/* Season stats table */}
             {stats.length > 0 && (
-              <div className="rounded-xl bg-[#0F2A4A] border border-white/[0.06] overflow-hidden mb-5">
+              <div className="rounded-xl glass border border-white/[0.06] overflow-hidden mb-5">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-white/[0.06]">

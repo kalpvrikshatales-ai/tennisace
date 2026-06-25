@@ -52,7 +52,7 @@ export default function MatchPage() {
       <main className="max-w-2xl mx-auto px-4 py-6">
         {loading ? (
           <div className="space-y-4">
-            {[...Array(3)].map((_, i) => <div key={i} className="h-32 rounded-xl bg-[#0F2A4A] animate-pulse" />)}
+            {[...Array(3)].map((_, i) => <div key={i} className="h-32 rounded-xl glass animate-pulse" />)}
           </div>
         ) : !match ? (
           <div className="text-center py-20">
@@ -62,7 +62,7 @@ export default function MatchPage() {
         ) : (
           <>
             {/* Match hero */}
-            <div className="rounded-xl bg-[#0F2A4A] border border-[#00C875]/20 p-6 mb-5">
+            <div className="rounded-xl glass border border-[#00C875]/20 p-6 mb-5">
               {/* Tournament */}
               <div className="flex items-center justify-between mb-5">
                 <span className="text-[11px] text-white/40 uppercase tracking-wider">{match.tournament}{match.round ? ` · ${match.round}` : ''}</span>
@@ -156,7 +156,7 @@ export default function MatchPage() {
                   {h2h.slice(0, 5).map((m: any, i: number) => {
                     const p1won = m.event_winner === 'First Player'
                     return (
-                      <div key={i} className="rounded-xl bg-[#0F2A4A] border border-white/[0.04] p-4">
+                      <div key={i} className="rounded-xl glass border border-white/[0.04] p-4">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-[11px] text-white/30">{m.tournament_name} {m.tournament_season}</span>
                           <span className="text-[10px] text-white/20">{m.event_date}</span>

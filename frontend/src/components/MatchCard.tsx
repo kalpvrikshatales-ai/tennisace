@@ -29,7 +29,7 @@ export default function MatchCard({ match }: Props) {
 
   return (
     <Link href={`/matches/${match.match_id}`} className="block">
-    <div className="rounded-xl border border-white/[0.06] bg-[#0F2A4A] hover:border-[#00C875]/30 hover:bg-[#112547] transition-all duration-200 p-4 cursor-pointer card-glow">
+    <div className="rounded-xl border border-white/[0.06] glass hover:border-[#00C875]/30 hover:bg-[#112547] transition-all duration-200 p-4 cursor-pointer card-glow">
       {/* Header */}
       <div className="flex items-center justify-between gap-2 mb-3">
         <div className="flex items-center gap-2 min-w-0">
@@ -66,6 +66,9 @@ export default function MatchCard({ match }: Props) {
         {/* Player 1 */}
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-2 min-w-0">
+            {match.player1_img && (
+              <img src={match.player1_img} alt="" className="w-7 h-7 rounded-full object-cover bg-white/10 flex-shrink-0 border border-white/10" onError={e => e.currentTarget.style.display='none'} />
+            )}
             {serving1 && <span className="text-[10px] flex-shrink-0">🎾</span>}
             <span className={`text-sm font-semibold leading-tight truncate ${serving1 ? 'text-white' : 'text-white/80'}`}>
               {match.player1}
@@ -97,6 +100,9 @@ export default function MatchCard({ match }: Props) {
         {/* Player 2 */}
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-2 min-w-0">
+            {match.player2_img && (
+              <img src={match.player2_img} alt="" className="w-7 h-7 rounded-full object-cover bg-white/10 flex-shrink-0 border border-white/10" onError={e => e.currentTarget.style.display='none'} />
+            )}
             {serving2 && <span className="text-[10px] flex-shrink-0">🎾</span>}
             <span className={`text-sm font-semibold leading-tight truncate ${serving2 ? 'text-white' : 'text-white/80'}`}>
               {match.player2}

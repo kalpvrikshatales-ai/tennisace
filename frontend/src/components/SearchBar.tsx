@@ -67,7 +67,7 @@ export default function SearchBar() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-72 rounded-xl bg-[#0F2A4A] border border-white/10 shadow-2xl z-50">
+        <div className="absolute right-0 top-full mt-2 w-72 rounded-xl glass border border-white/10 shadow-2xl z-50">
           <div className="p-3 border-b border-white/[0.06]">
             <input
               autoFocus
