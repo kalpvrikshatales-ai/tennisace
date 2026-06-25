@@ -17,7 +17,7 @@ body {
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
   /* Mobile court image (portrait) */
-  background-image: url('/bg-mobile.jpg');
+  background-image: url('/bg-mobile.png');
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
@@ -27,22 +27,17 @@ body {
 /* Desktop: switch to landscape court image */
 @media (min-width: 768px) {
   body {
-    background-image: url('/bg-desktop.jpg');
+    background-image: url('/bg-desktop.png');
     background-position: center center;
   }
 }
 
-/* Dark overlay — low opacity so background image is clearly visible */
+/* Dark overlay — just enough to keep text readable over the court image */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(11, 31, 58, 0.45) 0%,
-    rgba(11, 31, 58, 0.35) 40%,
-    rgba(11, 31, 58, 0.45) 100%
-  );
+  background: rgba(11, 31, 58, 0.55);
   pointer-events: none;
   z-index: 0;
 }
