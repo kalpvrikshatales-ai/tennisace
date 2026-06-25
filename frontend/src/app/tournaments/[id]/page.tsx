@@ -62,7 +62,7 @@ export default function TournamentPage() {
   const surface = tournament ? (surfaceMeta[tournament.surface] ?? { color: '#ffffff40', emoji: '🎾' }) : null
 
   return (
-    <div className="min-h-screen bg-[#0B1F3A]">
+    <div className="min-h-screen">
       {/* Header */}
       <header className="sticky top-0 z-20 bg-[#0B1F3A]/95 backdrop-blur-sm border-b border-white/[0.06]">
         <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">

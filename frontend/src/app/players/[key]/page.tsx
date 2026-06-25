@@ -46,7 +46,7 @@ export default function PlayerPage() {
   const winPct = totalWon + totalLost > 0 ? Math.round(totalWon / (totalWon + totalLost) * 100) : 0
 
   return (
-    <div className="min-h-screen bg-[#0B1F3A]">
+    <div className="min-h-screen">
       <header className="sticky top-0 z-20 bg-[#0B1F3A]/95 backdrop-blur-sm border-b border-white/[0.06]">
         <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
           <button onClick={() => router.back()} className="text-white/40 hover:text-white transition-colors text-sm">
