@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 
 const WIMBLEDON_START = new Date('2026-06-29T10:00:00Z') // Monday 29 June 2026
 
@@ -40,7 +41,8 @@ export default function WimbledonBanner() {
   )
 
   return (
-    <div className="mb-5 rounded-2xl overflow-hidden relative">
+    <Link href="/wimbledon">
+    <div className="mb-5 rounded-2xl overflow-hidden relative cursor-pointer hover:opacity-90 transition-opacity">
       {/* Grass green gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#1a3a1a] via-[#0d2b0d] to-[#0B1F3A] opacity-95" />
       <div className="absolute inset-0 opacity-10"
@@ -79,5 +81,6 @@ export default function WimbledonBanner() {
         </p>
       </div>
     </div>
+    </Link>
   )
 }

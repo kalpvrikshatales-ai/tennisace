@@ -115,6 +115,9 @@ export default function Home() {
 
         {/* Tabs — hidden on mobile (use bottom nav), visible on desktop */}
         <div className="max-w-2xl mx-auto px-2 hidden md:flex overflow-x-auto scrollbar-hide items-center">
+          <Link href="/wimbledon" className="pb-3 pt-1 px-3 text-sm font-semibold text-[#4ade80]/80 hover:text-[#4ade80] border-b-2 border-transparent whitespace-nowrap transition-colors flex items-center gap-1">
+            🌿 Wimbledon
+          </Link>
           <Link href="/compare" className="pb-3 pt-1 px-3 text-sm font-semibold text-white/40 hover:text-white/70 border-b-2 border-transparent whitespace-nowrap transition-colors">
             ⚔️ Compare
           </Link>
