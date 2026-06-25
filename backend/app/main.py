@@ -1,8 +1,17 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 from app.routers import matches, players, tournaments, results, push
+from app.services.notifier import start_notifier
+import asyncio
 
-app = FastAPI(title="TennisAce API", description="tennisace.live", version="1.0.0")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    task = asyncio.create_task(start_notifier())
+    yield
+    task.cancel()
+
+app = FastAPI(title="TennisAce API", description="tennisace.live", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000","https://tennisace.live","https://www.tennisace.live","https://tennisace.vercel.app"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
