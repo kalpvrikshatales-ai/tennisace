@@ -16,12 +16,20 @@ body {
   color: #ffffff;
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
-  /* Tennis court background */
-  background-image: url('/court.svg');
-  background-size: 100% auto;
-  background-position: center top;
-  background-repeat: repeat-y;
+  /* Mobile court image (portrait) */
+  background-image: url('/bg-mobile.jpg');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
   background-attachment: fixed;
+}
+
+/* Desktop: switch to landscape court image */
+@media (min-width: 768px) {
+  body {
+    background-image: url('/bg-desktop.jpg');
+    background-position: center center;
+  }
 }
 
 /* Fade body so court lines don't fight the content */
