@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { getPlayer } from '@/lib/api'
+import FavButton from '@/components/FavButton'
 
 const surfaceColor: Record<string, string> = {
   hard: '#60a5fa', clay: '#fb923c', grass: '#4ade80', carpet: '#c084fc',
@@ -79,7 +80,15 @@ export default function PlayerPage() {
                 />
               )}
               <div className="min-w-0">
-                <h2 className="text-xl font-bold text-white">{player.player_full_name}</h2>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-xl font-bold text-white">{player.player_full_name}</h2>
+                  <FavButton player={{
+                    key: player.player_key,
+                    name: player.player_full_name,
+                    country: player.player_country,
+                    league: currentSeason?.type === 'singles' ? 'ATP' : 'WTA'
+                  }} size="sm" />
+                </div>
                 <div className="flex items-center gap-3 mt-1 flex-wrap">
                   <span className="text-white/40 text-sm">{player.player_country}</span>
                   {player.player_bday && (

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1200" viewBox="0 0 800 1200">
+  <!-- Court surface fill -->
+  <rect width="800" height="1200" fill="#0B1F3A"/>
+
+  <!-- Outer court boundary -->
+  <rect x="100" y="60" width="600" height="1080" fill="none" stroke="rgba(0,200,117,0.12)" stroke-width="2"/>
+
+  <!-- Singles sidelines (inner) -->
+  <line x1="178" y1="60" x2="178" y2="1140" stroke="rgba(0,200,117,0.07)" stroke-width="1.5"/>
+  <line x1="622" y1="60" x2="622" y2="1140" stroke="rgba(0,200,117,0.07)" stroke-width="1.5"/>
+
+  <!-- Net line (center horizontal) -->
+  <line x1="100" y1="600" x2="700" y2="600" stroke="rgba(0,200,117,0.22)" stroke-width="3"/>
+
+  <!-- Net posts -->
+  <rect x="95" y="594" width="10" height="12" fill="rgba(0,200,117,0.25)" rx="2"/>
+  <rect x="695" y="594" width="10" height="12" fill="rgba(0,200,117,0.25)" rx="2"/>
+
+  <!-- Service lines (top half) -->
+  <line x1="178" y1="330" x2="622" y2="330" stroke="rgba(0,200,117,0.07)" stroke-width="1.5"/>
+  <!-- Service lines (bottom half) -->
+  <line x1="178" y1="870" x2="622" y2="870" stroke="rgba(0,200,117,0.07)" stroke-width="1.5"/>
+
+  <!-- Center service line (top) -->
+  <line x1="400" y1="330" x2="400" y2="600" stroke="rgba(0,200,117,0.07)" stroke-width="1.5"/>
+  <!-- Center service line (bottom) -->
+  <line x1="400" y1="600" x2="400" y2="870" stroke="rgba(0,200,117,0.07)" stroke-width="1.5"/>
+
+  <!-- Center mark top baseline -->
+  <line x1="396" y1="60" x2="404" y2="60" stroke="rgba(0,200,117,0.15)" stroke-width="2"/>
+  <!-- Center mark bottom baseline -->
+  <line x1="396" y1="1140" x2="404" y2="1140" stroke="rgba(0,200,117,0.15)" stroke-width="2"/>
+
+  <!-- Net shadow / glow -->
+  <line x1="100" y1="600" x2="700" y2="600" stroke="rgba(0,200,117,0.06)" stroke-width="12"/>
+
+  <!-- Subtle corner markers -->
+  <circle cx="100" cy="60" r="3" fill="rgba(0,200,117,0.1)"/>
+  <circle cx="700" cy="60" r="3" fill="rgba(0,200,117,0.1)"/>
+  <circle cx="100" cy="1140" r="3" fill="rgba(0,200,117,0.1)"/>
+  <circle cx="700" cy="1140" r="3" fill="rgba(0,200,117,0.1)"/>
+</svg>

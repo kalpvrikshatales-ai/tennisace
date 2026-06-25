@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { getRankings } from '@/lib/api'
+import FavButton from '@/components/FavButton'
+import { getFavourites } from '@/lib/favourites'
 
 interface RankingEntry {
   place: string
@@ -24,6 +26,14 @@ export default function RankingsList() {
   const [type, setType] = useState<'ATP' | 'WTA'>('ATP')
   const [rankings, setRankings] = useState<RankingEntry[]>([])
   const [loading, setLoading] = useState(true)
+  const [favKeys, setFavKeys] = useState<number[]>([])
+
+  useEffect(() => {
+    setFavKeys(getFavourites().map(f => f.key))
+    const handler = () => setFavKeys(getFavourites().map(f => f.key))
+    window.addEventListener('storage', handler)
+    return () => window.removeEventListener('storage', handler)
+  }, [])
 
   useEffect(() => {
     setLoading(true)
@@ -91,6 +101,10 @@ export default function RankingsList() {
                   <p className="text-[10px] text-white/25">pts</p>
                 </div>
 
+                <FavButton
+                  player={{ key: r.player_key, name: r.player, country: r.country, league: type }}
+                  size="sm"
+                />
                 <span className="text-white/15 text-sm">›</span>
               </div>
             </Link>

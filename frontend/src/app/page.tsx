@@ -6,19 +6,24 @@ import TournamentCard from '@/components/TournamentCard'
 import RankingsList from '@/components/RankingsList'
 import ResultCard from '@/components/ResultCard'
 import SearchBar from '@/components/SearchBar'
-import { getLiveMatches, getTournaments, getResults } from '@/lib/api'
+import { getLiveMatches, getTournaments, getResults, getFixtures } from '@/lib/api'
+import { getFavourites } from '@/lib/favourites'
 import type { Match, Tournament } from '@/types'
+import Link from 'next/link'
 
-type Tab = 'live' | 'results' | 'tournaments' | 'rankings'
+type Tab = 'live' | 'results' | 'upcoming' | 'tournaments' | 'rankings'
 
 export default function Home() {
   const [tab, setTab] = useState<Tab>('live')
   const [matches, setMatches] = useState<Match[]>([])
   const [tournaments, setTournaments] = useState<Tournament[]>([])
   const [results, setResults] = useState<any[]>([])
+  const [fixtures, setFixtures] = useState<any[]>([])
+  const [favourites, setFavourites] = useState<any[]>([])
   const [loadingMatches, setLoadingMatches] = useState(true)
   const [loadingTournaments, setLoadingTournaments] = useState(true)
   const [loadingResults, setLoadingResults] = useState(true)
+  const [loadingFixtures, setLoadingFixtures] = useState(true)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
 
   const fetchMatches = useCallback(async () => {
@@ -46,13 +51,23 @@ export default function Home() {
     finally { setLoadingResults(false) }
   }, [])
 
+  const fetchFixtures = useCallback(async () => {
+    try {
+      const data = await getFixtures(3)
+      setFixtures(data.fixtures ?? [])
+    } catch { }
+    finally { setLoadingFixtures(false) }
+  }, [])
+
   useEffect(() => {
     fetchMatches()
     fetchTournaments()
     fetchResults()
+    fetchFixtures()
+    setFavourites(getFavourites())
     const interval = setInterval(fetchMatches, 30_000)
     return () => clearInterval(interval)
-  }, [fetchMatches, fetchTournaments, fetchResults])
+  }, [fetchMatches, fetchTournaments, fetchResults, fetchFixtures])
 
   const formatTime = (d: Date) =>
     d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
@@ -60,6 +75,7 @@ export default function Home() {
   const tabs: { key: Tab; label: string }[] = [
     { key: 'live',        label: 'Live' },
     { key: 'results',     label: 'Results' },
+    { key: 'upcoming',    label: 'Schedule' },
     { key: 'tournaments', label: 'Tournaments' },
     { key: 'rankings',    label: 'Rankings' },
   ]
@@ -197,8 +213,77 @@ export default function Home() {
           </section>
         )}
 
+        {/* UPCOMING / SCHEDULE */}
+        {tab === 'upcoming' && (
+          <section>
+            <p className="text-[11px] text-white/25 uppercase tracking-widest mb-4">Next 3 days · ATP & WTA</p>
+            {loadingFixtures ? (
+              <div className="space-y-3">
+                {[...Array(5)].map((_, i) => <div key={i} className="h-20 rounded-xl bg-[#0F2A4A] animate-pulse" />)}
+              </div>
+            ) : fixtures.length === 0 ? (
+              <div className="text-center py-20">
+                <span className="text-4xl">📅</span>
+                <p className="text-white/50 text-sm mt-4">No upcoming matches found.</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {fixtures.map((f, i) => (
+                  <div key={i} className="rounded-xl border border-white/[0.04] bg-[#0F2A4A] p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[11px] text-white/40 uppercase tracking-wider truncate">{f.tournament} · {f.type?.replace(' Singles','')}</span>
+                      <span className="text-[10px] text-white/25 flex-shrink-0 ml-2">{f.date}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        {f.player1_img && <img src={f.player1_img} alt="" className="w-6 h-6 rounded-full object-cover bg-white/10" onError={e=>e.currentTarget.style.display='none'} />}
+                        <Link href={f.player1_key ? `/players/${f.player1_key}` : '#'}>
+                          <span className="text-sm font-semibold text-white hover:text-[#00C875] transition-colors">{f.player1}</span>
+                        </Link>
+                      </div>
+                      <span className="text-[#00C875] font-bold text-xs mx-3">vs</span>
+                      <div className="flex items-center gap-2">
+                        {f.player2_img && <img src={f.player2_img} alt="" className="w-6 h-6 rounded-full object-cover bg-white/10" onError={e=>e.currentTarget.style.display='none'} />}
+                        <Link href={f.player2_key ? `/players/${f.player2_key}` : '#'}>
+                          <span className="text-sm font-semibold text-white hover:text-[#00C875] transition-colors">{f.player2}</span>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+
         {/* RANKINGS */}
-        {tab === 'rankings' && <RankingsList />}
+        {tab === 'rankings' && (
+          <>
+            {favourites.length > 0 && (
+              <div className="mb-6">
+                <p className="text-[11px] text-amber-400/70 uppercase tracking-widest mb-3">★ My Favourites</p>
+                <div className="space-y-2">
+                  {favourites.map(f => (
+                    <Link key={f.key} href={`/players/${f.key}`}>
+                      <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-[#0F2A4A] border border-amber-400/10 hover:border-amber-400/25 transition-colors cursor-pointer">
+                        <div>
+                          <p className="text-sm font-semibold text-white">{f.name}</p>
+                          <p className="text-[11px] text-white/30">{f.country}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] text-[#00C875] font-bold">{f.league}</span>
+                          <span className="text-amber-400">★</span>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+                <div className="h-px bg-white/[0.06] my-5" />
+              </div>
+            )}
+            <RankingsList />
+          </>
+        )}
 
       </main>
 

@@ -12,44 +12,87 @@
 * { box-sizing: border-box; }
 
 body {
-  background-color: var(--navy);
+  background-color: #0B1F3A;
   color: #ffffff;
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
-  /* Subtle tennis court grid texture */
-  background-image:
-    linear-gradient(rgba(0, 200, 117, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 200, 117, 0.025) 1px, transparent 1px);
-  background-size: 48px 48px;
+  /* Tennis court background */
+  background-image: url('/court.svg');
+  background-size: 100% auto;
+  background-position: center top;
+  background-repeat: repeat-y;
   background-attachment: fixed;
 }
 
-/* Court glow on header */
-header {
-  background: linear-gradient(180deg, rgba(11,31,58,0.98) 0%, rgba(11,31,58,0.95) 100%);
+/* Fade body so court lines don't fight the content */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 80% 60% at 50% 30%,
+    rgba(11, 31, 58, 0.55) 0%,
+    rgba(11, 31, 58, 0.82) 60%,
+    rgba(11, 31, 58, 0.96) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
 }
 
-/* Live pulse */
+/* All content sits above the court overlay */
+body > * { position: relative; z-index: 1; }
+
+/* Sticky header with court-glass effect */
+header {
+  background: rgba(11, 31, 58, 0.88) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border-bottom: 1px solid rgba(0, 200, 117, 0.12) !important;
+}
+
+/* Cards: slight glass finish */
+.card {
+  background: rgba(15, 42, 74, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+/* Net glow pulse on the divider */
+@keyframes net-glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(0,200,117,0.15); }
+  50%       { box-shadow: 0 0 20px rgba(0,200,117,0.35); }
+}
+
+/* Live dot pulse */
 @keyframes pulse-green {
   0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,200,117,0.4); }
-  50% { opacity: 0.5; box-shadow: 0 0 0 4px rgba(0,200,117,0); }
+  50%       { opacity: 0.5; box-shadow: 0 0 0 5px rgba(0,200,117,0); }
 }
 .live-dot { animation: pulse-green 1.4s ease-in-out infinite; }
 
-/* Score flash */
-@keyframes score-flash {
-  0% { color: #00C875; }
-  100% { color: #ffffff; }
-}
-
 /* Card hover glow */
 .card-glow:hover {
-  box-shadow: 0 0 0 1px rgba(0,200,117,0.2), 0 4px 24px rgba(0,200,117,0.06);
+  box-shadow: 0 0 0 1px rgba(0,200,117,0.25), 0 8px 32px rgba(0,200,117,0.08);
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
 }
 
-/* Hide scrollbar for tab row */
+/* Ace green glow on active elements */
+.glow-green {
+  box-shadow: 0 0 20px rgba(0,200,117,0.3);
+}
+
+/* Hide scrollbar */
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* Bottom nav safe area */
+/* iOS safe area */
 .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+/* Favourite star animation */
+@keyframes star-pop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+.star-pop { animation: star-pop 0.3s ease; }
