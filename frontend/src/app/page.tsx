@@ -5,6 +5,7 @@ import MatchCard from '@/components/MatchCard'
 import TournamentCard from '@/components/TournamentCard'
 import RankingsList from '@/components/RankingsList'
 import ResultCard from '@/components/ResultCard'
+import SearchBar from '@/components/SearchBar'
 import { getLiveMatches, getTournaments, getResults } from '@/lib/api'
 import type { Match, Tournament } from '@/types'
 
@@ -74,6 +75,8 @@ export default function Home() {
             </h1>
             <p className="text-[10px] text-white/30 mt-0.5">Feel every match. Live.</p>
           </div>
+          <div className="flex items-center gap-3">
+            <SearchBar />
           {lastUpdated && (
             <div className="text-right">
               <div className="flex items-center gap-1.5 justify-end">
@@ -83,6 +86,7 @@ export default function Home() {
               <span className="text-[10px] text-white/25 mt-0.5 block">{formatTime(lastUpdated)}</span>
             </div>
           )}
+          </div>
         </div>
 
         {/* Tabs */}

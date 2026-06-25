@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import type { Match } from '@/types'
 
 interface Props {
@@ -27,7 +28,8 @@ export default function MatchCard({ match }: Props) {
   const gameP2 = gameParts[1]?.trim()
 
   return (
-    <div className="rounded-xl border border-white/[0.06] bg-[#0F2A4A] hover:border-[#00C875]/30 transition-colors duration-200 p-4">
+    <Link href={`/matches/${match.match_id}`} className="block">
+    <div className="rounded-xl border border-white/[0.06] bg-[#0F2A4A] hover:border-[#00C875]/30 hover:bg-[#112547] transition-all duration-200 p-4 cursor-pointer card-glow">
       {/* Header */}
       <div className="flex items-center justify-between gap-2 mb-3">
         <div className="flex items-center gap-2 min-w-0">
@@ -130,5 +132,6 @@ export default function MatchCard({ match }: Props) {
         </div>
       )}
     </div>
+    </Link>
   )
 }

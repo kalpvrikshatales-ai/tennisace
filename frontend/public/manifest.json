@@ -4,18 +4,17 @@
   "description": "Feel every match. Live.",
   "start_url": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#0B1F3A",
   "theme_color": "#0B1F3A",
+  "categories": ["sports", "news"],
   "icons": [
-    {
-      "src": "/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
+    { "src": "/apple-icon", "sizes": "180x180", "type": "image/png", "purpose": "apple touch icon" },
+    { "src": "/icon", "sizes": "32x32", "type": "image/png" },
+    { "src": "/apple-icon", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Live Scores", "url": "/?tab=live", "description": "See live matches" },
+    { "name": "Rankings", "url": "/?tab=rankings", "description": "ATP & WTA rankings" }
   ]
 }
