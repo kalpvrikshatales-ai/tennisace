@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { getRankings } from '@/lib/api'
 import FavButton from '@/components/FavButton'
 import { getFavourites } from '@/lib/favourites'
+import { getFlag } from '@/lib/flags'
 
 interface RankingEntry {
   place: string
@@ -90,7 +91,7 @@ export default function RankingsList() {
                 {/* Player name + country */}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-white truncate">{r.player}</p>
-                  <p className="text-[11px] text-white/30 mt-0.5">{r.country}</p>
+                  <p className="text-[11px] text-white/30 mt-0.5">{getFlag(r.country)} {r.country}</p>
                 </div>
 
                 {/* Points */}

@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import matches, players, tournaments, results
+from app.routers import matches, players, tournaments, results, push
 
 app = FastAPI(title="TennisAce API", description="tennisace.live", version="1.0.0")
 
@@ -10,6 +10,7 @@ app.include_router(matches.router, prefix="/matches", tags=["matches"])
 app.include_router(players.router, prefix="/players", tags=["players"])
 app.include_router(tournaments.router, prefix="/tournaments", tags=["tournaments"])
 app.include_router(results.router, prefix="/feed", tags=["feed"])
+app.include_router(push.router, prefix="/push", tags=["push"])
 
 @app.get("/")
 def root(): return {"app":"TennisAce","domain":"tennisace.live","status":"live"}

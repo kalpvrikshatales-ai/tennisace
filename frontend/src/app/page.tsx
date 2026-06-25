@@ -7,6 +7,8 @@ import RankingsList from '@/components/RankingsList'
 import ResultCard from '@/components/ResultCard'
 import SearchBar from '@/components/SearchBar'
 import BottomNav from '@/components/BottomNav'
+import WimbledonBanner from '@/components/WimbledonBanner'
+import PushButton from '@/components/PushButton'
 import { getLiveMatches, getTournaments, getResults, getFixtures } from '@/lib/api'
 import { getFavourites } from '@/lib/favourites'
 import type { Match, Tournament } from '@/types'
@@ -92,7 +94,8 @@ export default function Home() {
             </h1>
             <p className="text-[10px] text-white/30 mt-0.5">Feel every match. Live.</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <PushButton />
             <SearchBar />
           {lastUpdated && (
             <div className="text-right">
@@ -136,6 +139,7 @@ export default function Home() {
         {/* LIVE */}
         {tab === 'live' && (
           <section>
+            <WimbledonBanner />
             {loadingMatches ? (
               <div className="space-y-3">
                 {[...Array(4)].map((_, i) => <div key={i} className="rounded-xl glass border border-white/[0.06] h-28 animate-pulse" />)}
