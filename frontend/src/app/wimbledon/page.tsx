@@ -1,29 +1,59 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { getPlayer, getH2H } from '@/lib/api'
+import { useRouter } from 'next/navigation'
 import { getFlag } from '@/lib/flags'
+import { getLiveMatches, getFixtures, getPlayer } from '@/lib/api'
 
-const WIMBLEDON_START = new Date('2026-06-29T10:00:00Z')
+// ─── Constants ────────────────────────────────────────────────────────────────
 
+const W_START = new Date('2026-06-29T10:00:00Z')
+const W_END   = new Date('2026-07-13T18:00:00Z')
+const NOW = () => new Date()
+
+const GREEN  = '#22C55E'
+const PURPLE = '#7C3AED'
+const GRASS_BG = '#F0FDF4'
+
+// Top 8 seeds — bracket positions
 const SEEDS = [
-  { key: 2072,  name: 'Jannik Sinner',        country: 'Italy',     seed: 1 },
-  { key: 2382,  name: 'Carlos Alcaraz',        country: 'Spain',     seed: 2 },
-  { key: 1980,  name: 'Alexander Zverev',      country: 'Germany',   seed: 3 },
-  { key: 2073,  name: 'Felix Auger-Aliassime', country: 'Canada',    seed: 4 },
-  { key: 2973,  name: 'Ben Shelton',           country: 'USA',       seed: 5 },
-  { key: 1106,  name: 'Alex De Minaur',        country: 'Australia', seed: 6 },
-  { key: 2832,  name: 'Taylor Fritz',          country: 'USA',       seed: 7 },
-  { key: 1905,  name: 'Novak Djokovic',        country: 'Serbia',    seed: 8 },
+  { key: 2072, name: 'Jannik Sinner',        short: 'Sinner',      country: 'Italy',     seed: 1, quarter: 'Q1' },
+  { key: 2382, name: 'Carlos Alcaraz',        short: 'Alcaraz',     country: 'Spain',     seed: 2, quarter: 'Q4' },
+  { key: 1980, name: 'Alexander Zverev',      short: 'Zverev',      country: 'Germany',   seed: 3, quarter: 'Q3' },
+  { key: 2073, name: 'Felix Auger-Aliassime', short: 'FAA',         country: 'Canada',    seed: 4, quarter: 'Q2' },
+  { key: 2973, name: 'Ben Shelton',           short: 'Shelton',     country: 'USA',       seed: 5, quarter: 'Q2' },
+  { key: 1106, name: 'Alex De Minaur',        short: 'De Minaur',   country: 'Australia', seed: 6, quarter: 'Q3' },
+  { key: 2832, name: 'Taylor Fritz',          short: 'Fritz',       country: 'USA',       seed: 7, quarter: 'Q1' },
+  { key: 1905, name: 'Novak Djokovic',        short: 'Djokovic',    country: 'Serbia',    seed: 8, quarter: 'Q4' },
 ]
 
+// ─── Sub-components ──────────────────────────────────────────────────────────
+
+function Pill({ label, color, bg }: { label: string; color: string; bg: string }) {
+  return (
+    <span className="text-[11px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider"
+      style={{ color, background: bg }}>
+      {label}
+    </span>
+  )
+}
+
+function LiveBadge() {
+  return (
+    <span className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest"
+      style={{ color: GREEN }}>
+      <span className="live-dot inline-block w-2 h-2 rounded-full" style={{ background: GREEN }} />
+      Live
+    </span>
+  )
+}
+
 function Countdown() {
-  const [t, setT] = useState({ d: 0, h: 0, m: 0, s: 0 })
+  const [t, setT] = useState({ d: 2, h: 0, m: 0, s: 0 })
   useEffect(() => {
     const tick = () => {
-      const diff = WIMBLEDON_START.getTime() - Date.now()
+      const diff = W_START.getTime() - NOW().getTime()
       if (diff <= 0) return
       setT({
         d: Math.floor(diff / 86400000),
@@ -32,233 +62,469 @@ function Countdown() {
         s: Math.floor((diff % 60000) / 1000),
       })
     }
-    tick()
-    const id = setInterval(tick, 1000)
-    return () => clearInterval(id)
+    tick(); const id = setInterval(tick, 1000); return () => clearInterval(id)
   }, [])
 
-  const Box = ({ v, l }: { v: number; l: string }) => (
+  const Unit = ({ v, l }: { v: number; l: string }) => (
     <div className="flex flex-col items-center">
-      <div className="glass rounded-xl px-4 py-3 min-w-[56px] text-center glow-green">
-        <span className="text-3xl font-black text-gray-900 tabular-nums">{String(v).padStart(2,'0')}</span>
+      <div className="rounded-2xl px-4 py-3 min-w-[60px] text-center border"
+        style={{ background: GRASS_BG, borderColor: `${GREEN}30` }}>
+        <span className="text-3xl font-black tabular-nums" style={{ color: GREEN }}>
+          {String(v).padStart(2, '0')}
+        </span>
       </div>
-      <span className="text-[10px] text-gray-900/40 uppercase tracking-widest mt-1">{l}</span>
+      <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-400 mt-1.5">{l}</span>
     </div>
   )
 
   return (
-    <div className="flex gap-3 justify-center">
-      <Box v={t.d} l="days" />
-      <span className="text-2xl text-[#00C875]/50 font-bold self-center pb-4">:</span>
-      <Box v={t.h} l="hours" />
-      <span className="text-2xl text-[#00C875]/50 font-bold self-center pb-4">:</span>
-      <Box v={t.m} l="min" />
-      <span className="text-2xl text-[#00C875]/50 font-bold self-center pb-4">:</span>
-      <Box v={t.s} l="sec" />
+    <div className="flex gap-3 justify-center items-end">
+      <Unit v={t.d} l="days" />
+      <span className="text-2xl font-black pb-7" style={{ color: `${GREEN}50` }}>:</span>
+      <Unit v={t.h} l="hrs" />
+      <span className="text-2xl font-black pb-7" style={{ color: `${GREEN}50` }}>:</span>
+      <Unit v={t.m} l="min" />
+      <span className="text-2xl font-black pb-7" style={{ color: `${GREEN}50` }}>:</span>
+      <Unit v={t.s} l="sec" />
+    </div>
+  )
+}
+
+function SectionHeader({ title, action, onAction }: { title: string; action?: string; onAction?: () => void }) {
+  return (
+    <div className="flex items-center justify-between mb-4">
+      <h2 className="text-[18px] font-black text-gray-900 tracking-tight">{title}</h2>
+      {action && (
+        <button onClick={onAction} className="text-[13px] font-semibold transition-colors"
+          style={{ color: GREEN }}>
+          {action} →
+        </button>
+      )}
+    </div>
+  )
+}
+
+function MatchRow({ match, isLive }: { match: any; isLive: boolean }) {
+  const scores = match.score ? match.score.split(',').map((s: string) => s.trim()) : []
+  const s1 = match.serve === 'First Player' || match.serve === '1'
+  const s2 = match.serve === 'Second Player' || match.serve === '2'
+
+  return (
+    <Link href={`/matches/${match.match_id}`}>
+      <div className="card p-4 cursor-pointer hover:border-green-200 transition-all card-glow">
+        {/* Round label */}
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+            {match.round?.split(' - ').pop() || match.tournament || 'Wimbledon'}
+          </span>
+          {isLive ? <LiveBadge /> : (
+            <span className="text-[11px] text-gray-400">
+              {match.date || 'Today'} {match.time && `· ${match.time}`}
+            </span>
+          )}
+        </div>
+
+        {/* Players + Scores */}
+        <div className="space-y-2.5">
+          {[
+            { name: match.player1, serving: s1, img: match.player1_img },
+            { name: match.player2, serving: s2, img: match.player2_img },
+          ].map((p, i) => {
+            const setScores = scores.map((s: string) => {
+              const parts = s.split('-')
+              return i === 0 ? parts[0] : parts[1]
+            })
+            const leading = scores.some((s: string) => {
+              const [a, b] = s.split('-').map(Number)
+              return i === 0 ? a > b : b > a
+            })
+            return (
+              <div key={i} className="flex items-center justify-between">
+                <div className="flex items-center gap-2 min-w-0">
+                  {p.img && (
+                    <img src={p.img} alt="" className="w-7 h-7 rounded-full object-cover bg-gray-100 flex-shrink-0"
+                      onError={e => e.currentTarget.style.display = 'none'} />
+                  )}
+                  {p.serving && <span className="text-[10px] flex-shrink-0">🎾</span>}
+                  <span className={`text-[15px] font-bold truncate ${leading && isLive ? 'text-gray-900' : 'text-gray-600'}`}>
+                    {p.name}
+                  </span>
+                </div>
+                <div className="flex gap-2 flex-shrink-0 ml-2">
+                  {setScores.map((s: string, j: number) => (
+                    <span key={j} className={`text-[17px] font-black tabular-nums w-6 text-center
+                      ${(parseInt(s) > parseInt(scores[j]?.split('-')[1 - i] ?? '0')) ? 'text-gray-900' : 'text-gray-300'}`}>
+                      {s}
+                    </span>
+                  ))}
+                  {isLive && match.game_score && (
+                    <span className={`text-[13px] font-bold ml-1 px-1.5 py-0.5 rounded
+                      ${p.serving ? 'text-green-600 bg-green-50' : 'text-gray-300'}`}>
+                      {match.game_score.split('-')[i]}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </Link>
+  )
+}
+
+function UpcomingRow({ match }: { match: any }) {
+  const time = match.time || match.date
+  const round = match.round?.split(' - ').pop() || 'R1'
+
+  return (
+    <div className="card p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex-1 min-w-0">
+          <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-1">{round}</span>
+          <p className="text-[14px] font-bold text-gray-900 truncate">{match.player1}</p>
+          <p className="text-[14px] font-semibold text-gray-500 truncate">vs {match.player2}</p>
+        </div>
+        <div className="text-right flex-shrink-0">
+          <span className="text-[13px] font-bold" style={{ color: GREEN }}>{time || 'TBD'}</span>
+          {match.date && <p className="text-[11px] text-gray-400 mt-0.5">{match.date}</p>}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function BracketQuarter({ label, top, bottom }: { label: string; top: typeof SEEDS[0]; bottom: typeof SEEDS[0] }) {
+  return (
+    <div className="card p-4">
+      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">{label}</p>
+      {[top, bottom].map(s => (
+        <Link key={s.key} href={`/players/${s.key}`}>
+          <div className="flex items-center gap-2 py-2 hover:bg-gray-50 rounded-xl px-2 -mx-2 transition-colors cursor-pointer">
+            <span className="text-[11px] font-black w-5 text-center" style={{ color: GREEN }}>{s.seed}</span>
+            <span className="text-[14px] font-bold text-gray-900">{getFlag(s.country)} {s.short}</span>
+          </div>
+        </Link>
+      ))}
+      <div className="mt-2 pt-2 border-t border-gray-100 flex items-center justify-between">
+        <span className="text-[11px] text-gray-400">QF · {label}</span>
+        <span className="text-[11px] font-semibold text-gray-400">Jul 9</span>
+      </div>
     </div>
   )
 }
 
 function SeedCard({ s }: { s: typeof SEEDS[0] }) {
   const [data, setData] = useState<any>(null)
+  useEffect(() => { getPlayer(String(s.key)).then(setData).catch(() => {}) }, [s.key])
 
-  useEffect(() => {
-    getPlayer(String(s.key)).then(setData).catch(() => {})
-  }, [s.key])
+  const grass = (data?.stats ?? [])
+    .filter((x: any) => x.type === 'singles' && (x.grass_won || x.grass_lost))
+    .sort((a: any, b: any) => parseInt(b.season) - parseInt(a.season))
+    .slice(0, 1)[0]
 
-  const getGrassStats = () => {
-    const stats = (data?.stats ?? [])
-      .filter((x: any) => x.type === 'singles' && x.grass_won)
-      .sort((a: any, b: any) => parseInt(b.season) - parseInt(a.season))
-      .slice(0, 3)
-    return stats
-  }
-
-  const grass = getGrassStats()
-  const grassWins = grass.reduce((a: number, s: any) => a + parseInt(s.grass_won || '0'), 0)
-  const grassLoss = grass.reduce((a: number, s: any) => a + parseInt(s.grass_lost || '0'), 0)
-  const grassPct = grassWins + grassLoss > 0 ? Math.round(grassWins / (grassWins + grassLoss) * 100) : 0
+  const w = parseInt(grass?.grass_won || '0')
+  const l = parseInt(grass?.grass_lost || '0')
+  const pct = w + l > 0 ? Math.round(w / (w + l) * 100) : null
 
   return (
     <Link href={`/players/${s.key}`}>
-      <div className="glass rounded-2xl p-4 hover:border-[#00C875]/30 border border-gray-200 transition-all card-glow cursor-pointer">
-        <div className="flex items-center gap-3 mb-3">
-          {data?.player_logo && (
-            <img src={data.player_logo} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-[#00C875]/20" onError={e => e.currentTarget.style.display='none'} />
-          )}
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[#00C875] font-black text-sm">#{s.seed}</span>
-              <span className="text-gray-900 font-bold text-sm">{s.name.split(' ').pop()}</span>
-            </div>
-            <p className="text-[11px] text-gray-900/40">{getFlag(s.country)} {s.country}</p>
-          </div>
-        </div>
-        {grass.length > 0 && (
-          <div>
-            <div className="flex justify-between text-[10px] text-gray-900/30 mb-1">
-              <span>Grass (last 3 seasons)</span>
-              <span className={`font-bold ${grassPct >= 75 ? 'text-[#00C875]' : grassPct >= 50 ? 'text-gray-900' : 'text-red-400'}`}>{grassPct}%</span>
-            </div>
-            <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-[#00C875] to-[#00a862] rounded-full" style={{ width: `${grassPct}%` }} />
-            </div>
-            <div className="flex gap-3 mt-1">
-              {grass.map((g: any) => (
-                <span key={g.season} className="text-[10px] text-gray-900/25">{g.season}: {g.grass_won}-{g.grass_lost}</span>
-              ))}
-            </div>
+      <div className="card p-4 cursor-pointer card-glow flex items-center gap-3">
+        {data?.player_logo && (
+          <img src={data.player_logo} alt="" className="w-12 h-12 rounded-full object-cover border-2 flex-shrink-0"
+            style={{ borderColor: `${GREEN}30` }}
+            onError={e => e.currentTarget.style.display = 'none'} />
+        )}
+        {!data?.player_logo && (
+          <div className="w-12 h-12 rounded-full bg-gray-100 flex-shrink-0 flex items-center justify-center">
+            <span className="text-lg font-black" style={{ color: GREEN }}>{s.seed}</span>
           </div>
         )}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5 mb-0.5">
+            <span className="text-[11px] font-black" style={{ color: GREEN }}>#{s.seed}</span>
+            <span className="text-[14px] font-bold text-gray-900 truncate">{s.short}</span>
+          </div>
+          <p className="text-[11px] text-gray-400">{getFlag(s.country)} {s.country}</p>
+          {pct !== null && (
+            <div className="mt-1.5">
+              <div className="flex items-center gap-2">
+                <div className="flex-1 h-1 rounded-full bg-gray-100 overflow-hidden">
+                  <div className="h-full rounded-full" style={{ width: `${pct}%`, background: GREEN }} />
+                </div>
+                <span className="text-[10px] font-bold" style={{ color: pct >= 70 ? GREEN : '#6B7280' }}>
+                  {pct}% grass
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2" strokeLinecap="round">
+          <path d="M9 18l6-6-6-6"/>
+        </svg>
       </div>
     </Link>
   )
 }
 
-function PredictionVote() {
-  const [vote, setVote] = useState<number | null>(null)
-  const [votes, setVotes] = useState<Record<number, number>>({})
+// ─── Main Page ─────────────────────────────────────────────────────────────────
 
-  useEffect(() => {
+export default function WimbledonHub() {
+  const router = useRouter()
+  const [liveMatches, setLiveMatches] = useState<any[]>([])
+  const [upcoming, setUpcoming] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [activeGender, setActiveGender] = useState<'All' | 'Men' | 'Women'>('All')
+  const [showAllUpcoming, setShowAllUpcoming] = useState(false)
+
+  const isLive   = NOW() >= W_START && NOW() <= W_END
+  const isFuture = NOW() < W_START
+
+  const fetchData = useCallback(async () => {
     try {
-      const saved = JSON.parse(localStorage.getItem('wimbledon_vote') ?? '{}')
-      if (saved.vote) setVote(saved.vote)
-      if (saved.votes) setVotes(saved.votes)
+      const [live, fix] = await Promise.all([
+        getLiveMatches(),
+        getFixtures(7),
+      ])
+      const wLive = (live.matches ?? []).filter((m: any) =>
+        (m.tournament || '').toLowerCase().includes('wimbledon') ||
+        (m.type || '').toLowerCase().includes('grand slam')
+      )
+      const wFix = (fix.fixtures ?? []).filter((f: any) =>
+        (f.tournament || '').toLowerCase().includes('wimbledon') ||
+        (f.round || '').toLowerCase().includes('wimbledon')
+      )
+      setLiveMatches(wLive)
+      setUpcoming(wFix)
     } catch {}
+    finally { setLoading(false) }
   }, [])
 
-  const cast = (key: number) => {
-    const newVotes = { ...votes, [key]: (votes[key] ?? Math.floor(Math.random() * 800 + 200)) + 1 }
-    setVote(key)
-    setVotes(newVotes)
-    localStorage.setItem('wimbledon_vote', JSON.stringify({ vote: key, votes: newVotes }))
+  useEffect(() => { fetchData(); const t = setInterval(fetchData, 30_000); return () => clearInterval(t) }, [fetchData])
+
+  const filterGender = (matches: any[]) => {
+    if (activeGender === 'All') return matches
+    if (activeGender === 'Men') return matches.filter((m: any) =>
+      !(m.type || '').toLowerCase().includes('women') && !(m.round || '').toLowerCase().includes('women'))
+    return matches.filter((m: any) =>
+      (m.type || '').toLowerCase().includes('women') || (m.round || '').toLowerCase().includes('women'))
   }
 
-  const totalVotes = Object.values(votes).reduce((a, b) => a + b, 0) || 1
+  const visibleUpcoming = filterGender(upcoming).slice(0, showAllUpcoming ? 20 : 6)
 
   return (
-    <div className="glass rounded-2xl p-5 mb-5">
-      <p className="text-[11px] text-gray-900/30 uppercase tracking-widest mb-1">Fan Prediction</p>
-      <p className="text-base font-bold text-gray-900 mb-4">Who wins Wimbledon 2026? 🏆</p>
-      <div className="space-y-2">
-        {SEEDS.slice(0, 6).map(s => {
-          const v = votes[s.key] ?? 0
-          const pct = vote ? Math.round((v / totalVotes) * 100) : 0
-          return (
-            <button
-              key={s.key}
-              onClick={() => !vote && cast(s.key)}
-              className={`w-full text-left rounded-xl overflow-hidden relative transition-all ${
-                vote ? 'cursor-default' : 'hover:border-[#00C875]/30 cursor-pointer'
-              } border ${vote === s.key ? 'border-[#00C875]/50' : 'border-gray-200'}`}
-            >
-              {vote && (
-                <div
-                  className={`absolute inset-y-0 left-0 ${vote === s.key ? 'bg-[#00C875]/20' : 'bg-white/[0.04]'} transition-all`}
-                  style={{ width: `${pct}%` }}
-                />
-              )}
-              <div className="relative flex items-center justify-between px-4 py-3">
-                <div className="flex items-center gap-2">
-                  {vote === s.key && <span className="text-[#00C875] text-sm">✓</span>}
-                  <span className="text-sm font-semibold text-gray-900">{getFlag(s.country)} {s.name}</span>
-                  <span className="text-[11px] text-gray-900/30">#{s.seed}</span>
-                </div>
-                {vote && <span className="text-xs font-bold text-gray-900/60">{pct}%</span>}
-              </div>
-            </button>
-          )
-        })}
-      </div>
-      {!vote && <p className="text-center text-[11px] text-gray-900/25 mt-3">Tap to cast your vote</p>}
-      {vote && <p className="text-center text-[11px] text-gray-900/25 mt-3">{totalVotes.toLocaleString()} votes cast</p>}
-    </div>
-  )
-}
-
-export default function WimbledonPage() {
-  const router = useRouter()
-  const [h2h, setH2h] = useState<any[]>([])
-
-  useEffect(() => {
-    getH2H('2072', '2382').then(d => setH2h(d.H2H ?? [])).catch(() => {})
-  }, [])
-
-  const sinnerWins = h2h.filter(m => m.event_winner === 'First Player').length
-  const alcarazWins = h2h.filter(m => m.event_winner === 'Second Player').length
-
-  return (
-    <div className="min-h-screen">
-      <header className="sticky top-0 z-20 bg-white">
-        <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
-          <button onClick={() => router.back()} className="text-gray-900/40 hover:text-gray-900 text-sm">← Back</button>
-          <div className="h-4 w-px bg-white/10" />
-          <h1 className="text-xl font-bold">Tennis<span className="text-[#00C875]">Ace</span></h1>
+    <div className="min-h-screen bg-white">
+      {/* Sticky Header */}
+      <header className="sticky top-0 z-20">
+        <div className="max-w-2xl mx-auto px-4 py-3.5 flex items-center gap-3">
+          <button onClick={() => router.back()}
+            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-400">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <path d="M19 12H5M12 5l-7 7 7 7"/>
+            </svg>
+          </button>
+          <img src="/logo.png" alt="TennisAce" className="h-7 w-auto" />
+          <div className="h-4 w-px bg-gray-200" />
+          <div className="flex items-center gap-2">
+            <img src="/gs-wimbledon.png" alt="Wimbledon" className="h-6 w-auto object-contain" />
+            <span className="text-[15px] font-black text-gray-900">Wimbledon 2026</span>
+          </div>
+          {isLive && <LiveBadge />}
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-4 py-6">
-        {/* Hero */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <span className="text-3xl">🌿</span>
-            <h2 className="text-2xl font-black text-gray-900 tracking-tight">Wimbledon 2026</h2>
-          </div>
-          <p className="text-gray-900/40 text-sm mb-2">The Championships · All England Club · SW19</p>
-          <p className="text-[#00C875] text-xs font-semibold mb-6">Jun 30 – Jul 13 · Grass</p>
-          <Countdown />
-        </div>
+      <main className="max-w-2xl mx-auto px-4 pb-nav md:pb-8">
 
-        {/* Prediction vote */}
-        <PredictionVote />
+        {/* ═══ HERO ════════════════════════════════════════════════════════════ */}
+        <section className="pt-4 pb-6">
+          {/* Green top stripe */}
+          <div className="h-1.5 rounded-full mb-6" style={{ background: `linear-gradient(90deg, ${GREEN}, #15803D)` }} />
 
-        {/* Sinner vs Alcaraz H2H */}
-        {h2h.length > 0 && (
-          <div className="glass rounded-2xl p-5 mb-5">
-            <p className="text-[11px] text-gray-900/30 uppercase tracking-widest mb-3">Final Preview — H2H</p>
-            <div className="flex items-center justify-between mb-4">
-              <div className="text-center flex-1">
-                <p className="text-lg font-black text-gray-900">Sinner</p>
-                <p className="text-[11px] text-gray-900/40">🇮🇹 #1 seed</p>
+          <div className="flex items-start justify-between mb-6">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <img src="/gs-wimbledon.png" alt="" className="h-10 w-auto object-contain" />
+                <div>
+                  <h1 className="text-[26px] font-black text-gray-900 leading-tight tracking-tight">
+                    The Championships
+                  </h1>
+                  <p className="text-[13px] text-gray-400 font-medium">All England Club · SW19 London</p>
+                </div>
               </div>
-              <div className="text-center px-4">
-                <p className="text-3xl font-black">
-                  <span className="text-[#00C875]">{sinnerWins}</span>
-                  <span className="text-gray-900/20 mx-2">–</span>
-                  <span className="text-gray-900/60">{alcarazWins}</span>
-                </p>
-                <p className="text-[10px] text-gray-900/30 mt-1">{h2h.length} matches</p>
-              </div>
-              <div className="text-center flex-1">
-                <p className="text-lg font-black text-gray-900">Alcaraz</p>
-                <p className="text-[11px] text-gray-900/40">🇪🇸 #2 seed</p>
+              <div className="flex items-center gap-2 flex-wrap mt-3">
+                <Pill label="Grass" color={GREEN} bg={GRASS_BG} />
+                <Pill label="Jun 30 – Jul 13" color="#374151" bg="#F9FAFB" />
+                <Pill label="£50M Prize" color={PURPLE} bg="#F5F3FF" />
+                {isLive && <LiveBadge />}
               </div>
             </div>
+          </div>
+
+          {/* Countdown or status */}
+          {isFuture && (
+            <div className="rounded-2xl p-5 mb-2 border" style={{ background: GRASS_BG, borderColor: `${GREEN}20` }}>
+              <p className="text-center text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-4">
+                Tournament starts in
+              </p>
+              <Countdown />
+              <p className="text-center text-[11px] text-gray-400 mt-4">
+                Draws published · First serve 11:00 BST
+              </p>
+            </div>
+          )}
+          {isLive && (
+            <div className="rounded-2xl p-4 border text-center" style={{ background: GRASS_BG, borderColor: `${GREEN}30` }}>
+              <span className="text-[14px] font-bold" style={{ color: GREEN }}>
+                🎾 Wimbledon is LIVE — matches in progress
+              </span>
+            </div>
+          )}
+        </section>
+
+        {/* Gender filter — appears throughout */}
+        <div className="flex gap-2 mb-5">
+          {(['All', 'Men', 'Women'] as const).map(g => (
+            <button key={g} onClick={() => setActiveGender(g)}
+              className={`px-4 py-1.5 rounded-full text-[12px] font-bold transition-all ${
+                activeGender === g
+                  ? 'text-white shadow-sm'
+                  : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+              }`}
+              style={activeGender === g ? { background: GREEN } : {}}>
+              {g}
+            </button>
+          ))}
+        </div>
+
+        {/* ═══ LIVE MATCHES ════════════════════════════════════════════════════ */}
+        <section className="mb-8">
+          <SectionHeader title="🔴 Live Matches" />
+          {loading ? (
+            <div className="space-y-3">
+              {[...Array(2)].map((_, i) => <div key={i} className="h-28 rounded-2xl animate-pulse bg-gray-100" />)}
+            </div>
+          ) : filterGender(liveMatches).length === 0 ? (
+            <div className="card p-6 text-center">
+              <p className="text-3xl mb-3">🌿</p>
+              <p className="font-bold text-gray-900 text-[15px]">
+                {isFuture ? 'Matches start June 30' : 'No matches live right now'}
+              </p>
+              <p className="text-gray-400 text-[13px] mt-1">
+                {isFuture
+                  ? 'First serve at 11:00 BST on Centre Court'
+                  : 'Check the schedule below for upcoming matches'}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {filterGender(liveMatches).map(m => <MatchRow key={m.match_id} match={m} isLive />)}
+            </div>
+          )}
+        </section>
+
+        {/* ═══ UPCOMING SCHEDULE ═══════════════════════════════════════════════ */}
+        <section className="mb-8">
+          <SectionHeader
+            title="📅 Schedule"
+            action={!showAllUpcoming && upcoming.length > 6 ? `See all ${upcoming.length}` : undefined}
+            onAction={() => setShowAllUpcoming(true)}
+          />
+          {loading ? (
             <div className="space-y-2">
-              {h2h.slice(0, 3).map((m: any, i: number) => {
-                const sinnerWon = m.event_winner === 'First Player' && m.first_player_key === 2072
-                const alcarazWon = !sinnerWon
-                return (
-                  <div key={i} className="flex items-center justify-between text-xs py-1.5 border-b border-gray-200 last:border-0">
-                    <span className={sinnerWon ? 'text-[#00C875] font-bold' : 'text-gray-900/40'}>{m.event_first_player}</span>
-                    <span className="text-gray-900/25 text-[10px]">{m.tournament_name} {m.tournament_season}</span>
-                    <span className={alcarazWon ? 'text-[#00C875] font-bold' : 'text-gray-900/40'}>{m.event_second_player}</span>
+              {[...Array(4)].map((_, i) => <div key={i} className="h-20 rounded-2xl animate-pulse bg-gray-100" />)}
+            </div>
+          ) : visibleUpcoming.length === 0 ? (
+            <div className="card p-6 text-center">
+              <p className="text-gray-400 text-[13px]">No upcoming matches found</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {visibleUpcoming.map((m, i) => <UpcomingRow key={i} match={m} />)}
+              {!showAllUpcoming && filterGender(upcoming).length > 6 && (
+                <button onClick={() => setShowAllUpcoming(true)}
+                  className="w-full py-3 text-[13px] font-bold rounded-2xl border-2 border-dashed border-gray-200 text-gray-400 hover:border-green-200 hover:text-green-600 transition-all">
+                  Show {filterGender(upcoming).length - 6} more matches
+                </button>
+              )}
+            </div>
+          )}
+        </section>
+
+        {/* ═══ DRAW / BRACKET ══════════════════════════════════════════════════ */}
+        <section className="mb-8">
+          <SectionHeader title="🏆 Draw Overview" />
+          <div className="rounded-2xl border overflow-hidden" style={{ borderColor: `${GREEN}20` }}>
+            {/* Header */}
+            <div className="px-4 py-3 border-b" style={{ background: GRASS_BG, borderColor: `${GREEN}20` }}>
+              <div className="flex items-center justify-between">
+                <span className="text-[13px] font-black text-gray-900">Men's Singles Draw</span>
+                <span className="text-[11px] text-gray-400">128 players · 7 rounds</span>
+              </div>
+            </div>
+
+            {/* Bracket quarters */}
+            <div className="grid grid-cols-2 gap-3 p-4">
+              <BracketQuarter label="Quarter 1" top={SEEDS[0]} bottom={SEEDS[6]} />
+              <BracketQuarter label="Quarter 2" top={SEEDS[3]} bottom={SEEDS[4]} />
+              <BracketQuarter label="Quarter 3" top={SEEDS[2]} bottom={SEEDS[5]} />
+              <BracketQuarter label="Quarter 4" top={SEEDS[1]} bottom={SEEDS[7]} />
+            </div>
+
+            {/* SF / F */}
+            <div className="px-4 pb-4">
+              <div className="rounded-xl border p-3" style={{ background: GRASS_BG, borderColor: `${GREEN}20` }}>
+                <div className="grid grid-cols-3 text-center gap-2">
+                  <div>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Semi-Final 1</p>
+                    <p className="text-[13px] font-bold text-gray-700">Q1 vs Q2</p>
+                    <p className="text-[11px] text-gray-400">Jul 11</p>
                   </div>
-                )
-              })}
+                  <div className="border-x border-gray-200 flex flex-col items-center justify-center">
+                    <p className="text-[10px] font-black uppercase tracking-wider" style={{ color: GREEN }}>Final</p>
+                    <p className="text-[13px] font-black text-gray-900">Jul 13</p>
+                    <p className="text-[11px] text-gray-400">Centre Court</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Semi-Final 2</p>
+                    <p className="text-[13px] font-bold text-gray-700">Q3 vs Q4</p>
+                    <p className="text-[11px] text-gray-400">Jul 10</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        )}
+        </section>
 
-        {/* Top 8 seeds with grass stats */}
-        <p className="text-[11px] text-gray-900/30 uppercase tracking-widest mb-3">Top 8 Seeds</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-          {SEEDS.map(s => <SeedCard key={s.key} s={s} />)}
-        </div>
+        {/* ═══ TOP PLAYERS ══════════════════════════════════════════════════════ */}
+        <section className="mb-8">
+          <SectionHeader title="⭐ Top Seeds" />
+          <div className="space-y-2.5">
+            {SEEDS.map(s => <SeedCard key={s.key} s={s} />)}
+          </div>
+        </section>
 
-        <Link href="/compare" className="block glass rounded-2xl p-4 text-center border border-[#00C875]/20 hover:border-[#00C875]/40 transition-colors">
-          <span className="text-[#00C875] font-bold text-sm">⚔️ Compare any two players →</span>
-        </Link>
+        {/* ═══ LOUNGE CTA ══════════════════════════════════════════════════════ */}
+        <section className="mb-8">
+          <Link href="/lounges">
+            <div className="card p-5 flex items-center gap-4 cursor-pointer hover:border-purple-200 transition-all"
+              style={{ background: '#FAFAFF' }}>
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0"
+                style={{ background: '#EDE9FE' }}>
+                💬
+              </div>
+              <div className="flex-1">
+                <p className="text-[15px] font-black text-gray-900">Wimbledon Lounge</p>
+                <p className="text-[12px] text-gray-500 mt-0.5">Chat live with tennis fans · Share predictions</p>
+              </div>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2.5" strokeLinecap="round">
+                <path d="M9 18l6-6-6-6"/>
+              </svg>
+            </div>
+          </Link>
+        </section>
+
+        {/* Green bottom bar */}
+        <div className="h-1 rounded-full" style={{ background: `linear-gradient(90deg, ${GREEN}, #15803D)` }} />
       </main>
     </div>
   )
