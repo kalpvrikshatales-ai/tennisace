@@ -3,24 +3,28 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { getLiveMatches, getH2H } from '@/lib/api'
+import { getH2H } from '@/lib/api'
+import PointByPoint from '@/components/PointByPoint'
 import type { Match } from '@/types'
+
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 export default function MatchPage() {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
   const [match, setMatch] = useState<any>(null)
   const [h2h, setH2h] = useState<any[]>([])
+  const [pbp, setPbp] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   const fetchMatch = useCallback(async () => {
     try {
-      const data = await getLiveMatches()
-      const found = (data.matches ?? []).find((m: Match) => m.match_id === id)
-      if (found) {
-        setMatch(found)
-        if (found.player1_key && found.player2_key) {
-          const hData = await getH2H(found.player1_key, found.player2_key)
+      const data = await fetch(`${API}/matches/${id}`).then(r => r.json())
+      if (data && data.player1) {
+        setMatch(data)
+        setPbp(data.point_by_point ?? [])
+        if (data.player1_key && data.player2_key) {
+          const hData = await getH2H(data.player1_key, data.player2_key)
           setH2h(hData.H2H ?? [])
         }
       }
@@ -182,6 +186,9 @@ export default function MatchPage() {
                 </div>
               </div>
             )}
+
+            {/* Point by Point */}
+            <PointByPoint pbp={pbp} player1={match.player1} player2={match.player2} />
           </>
         )}
       </main>
