@@ -10,7 +10,14 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   themeColor: '#FFFFFF',
   viewport: 'width=device-width, initial-scale=1',
-  icons: { icon: '/favicon.svg' },
+  icons: {
+    icon: '/favicon-32.png',
+    apple: '/apple-touch-icon.png',
+    other: [
+      { rel: 'icon', url: '/icon-192.png', sizes: '192x192' },
+      { rel: 'icon', url: '/icon-512.png', sizes: '512x512' },
+    ],
+  },
   openGraph: {
     title: 'TennisAce — Feel every match. Live.',
     description: 'Live tennis scores from every tournament worldwide.',
@@ -32,8 +39,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={inter.variable}>
       <head>
         <link rel="manifest" href="/manifest.json" />
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/apple-icon" />
+        <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="TennisAce" />
