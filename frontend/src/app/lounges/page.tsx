@@ -280,9 +280,20 @@ export default function LoungesPage() {
       {/* Profile setup modal */}
       {showProfile && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: 'rgba(0,0,0,0.4)' }}>
-          <div className="card w-full max-w-sm p-6">
-            <h3 className="headline mb-1 text-gray-900">{profile ? 'Edit Profile' : 'Join the Lounge'}</h3>
+          style={{ background: 'rgba(0,0,0,0.4)' }}
+          onClick={e => { if (e.target === e.currentTarget) setShowProfile(false) }}>
+          <div className="card w-full max-w-sm p-6 relative">
+            {/* Close button — always visible */}
+            <button
+              onClick={() => setShowProfile(false)}
+              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors"
+              aria-label="Close"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <path d="M18 6L6 18M6 6l12 12"/>
+              </svg>
+            </button>
+            <h3 className="headline mb-1 text-gray-900 pr-8">{profile ? 'Edit Profile' : 'Join the Lounge'}</h3>
             <p className="text-gray-400 text-sm mb-5">Set your name to start chatting with tennis fans.</p>
 
             {/* Avatar preview */}
