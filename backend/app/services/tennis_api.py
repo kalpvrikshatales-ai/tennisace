@@ -1,6 +1,7 @@
 import httpx, os
 from dotenv import load_dotenv
 from app.services.db import upsert_match, get_live_from_db, get_tournaments_from_db
+from app.data.player_enrichment import get_surface
 
 load_dotenv()
 
@@ -8,23 +9,55 @@ API_KEY = os.getenv("TENNIS_API_KEY")
 BASE_URL = "https://api.api-tennis.com/tennis/"
 
 
+def _parse_round(raw_round: str) -> str:
+    """Convert '1/64-finals' style to clean label."""
+    MAP = {
+        "1/64-finals": "R1", "1/32-finals": "R2", "1/16-finals": "R3",
+        "1/8-finals": "R4", "1/4-finals": "QF", "1/2-finals": "SF",
+        "final": "Final",
+    }
+    clean = raw_round.split(" - ")[-1].lower().strip() if raw_round else ""
+    return MAP.get(clean, raw_round.split(" - ")[-1] if raw_round else "")
+
+
 def _normalize_match(raw: dict) -> dict:
     """Normalize API-Tennis livescore fields to our internal shape."""
-    # API-Tennis returns: event_key, event_first_player, event_second_player,
-    # event_final_result, event_status, tournament_name, event_serve, etc.
     score = raw.get("event_final_result") or raw.get("score") or ""
+    tournament = raw.get("tournament_name") or raw.get("tournament", "")
+    event_type = raw.get("event_type_type", "")
+    raw_round = raw.get("tournament_round", "")
+    # Normalise scores: "0 - 1" → "0-1"
+    if " - " in score:
+        score = score.replace(" - ", "-")
+
+    # Parse set scores from scores[] array if available
+    set_scores = raw.get("scores", [])
+    if set_scores and score in ("-", "0-0", ""):
+        parts = [f"{s.get('score_first',0)}-{s.get('score_second',0)}"
+                 for s in set_scores if s.get("score_first") not in (None, "0") or s.get("score_second") not in (None, "0")]
+        if parts:
+            score = ", ".join(parts)
+
     return {
-        "match_id":   str(raw.get("event_key") or raw.get("match_id", "")),
-        "player1":    raw.get("event_first_player")  or raw.get("player1", ""),
-        "player2":    raw.get("event_second_player") or raw.get("player2", ""),
-        "score":      score,
-        "status":     raw.get("event_status") or raw.get("status", "In Progress"),
-        "tournament": raw.get("tournament_name") or raw.get("tournament", ""),
+        "match_id":    str(raw.get("event_key") or raw.get("match_id", "")),
+        "player1":     raw.get("event_first_player")  or raw.get("player1", ""),
+        "player2":     raw.get("event_second_player") or raw.get("player2", ""),
+        "player1_key": raw.get("first_player_key"),
+        "player2_key": raw.get("second_player_key"),
+        "score":       score,
+        "status":      raw.get("event_status") or raw.get("status", "In Progress"),
+        "tournament":  tournament,
+        "surface":     get_surface(tournament, event_type),
+        "event_type":  event_type,
         "serve":       raw.get("event_serve"),
-        "round":       raw.get("tournament_round"),
+        "round":       _parse_round(raw_round),
+        "round_raw":   raw_round,
         "game_score":  raw.get("event_game_result"),
         "player1_img": raw.get("event_first_player_logo"),
         "player2_img": raw.get("event_second_player_logo"),
+        "statistics":  raw.get("statistics", []),
+        "date":        raw.get("event_date", ""),
+        "time":        raw.get("event_time", ""),
     }
 
 

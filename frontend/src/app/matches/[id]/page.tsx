@@ -7,6 +7,32 @@ import { getH2H } from '@/lib/api'
 import PointByPoint from '@/components/PointByPoint'
 import type { Match } from '@/types'
 
+const SURFACE_STYLE: Record<string, { color: string; label: string }> = {
+  Grass: { color: '#22C55E', label: '🌿 Grass' },
+  Clay:  { color: '#F97316', label: '🏺 Clay' },
+  Hard:  { color: '#3B82F6', label: '🔵 Hard' },
+}
+
+function StatBar({ label, v1, v2, pct1, pct2 }: { label: string; v1: string; v2: string; pct1?: number; pct2?: number }) {
+  const p1 = pct1 ?? (parseFloat(v1) || 0)
+  const p2 = pct2 ?? (parseFloat(v2) || 0)
+  const total = p1 + p2 || 1
+  const pctLeft = Math.round(p1 / total * 100)
+  return (
+    <div className="mb-3">
+      <div className="flex justify-between text-[12px] font-bold mb-1.5">
+        <span className="text-gray-900">{v1}</span>
+        <span className="text-[11px] text-gray-400 font-semibold uppercase tracking-wider">{label}</span>
+        <span className="text-gray-900">{v2}</span>
+      </div>
+      <div className="flex h-2 rounded-full overflow-hidden gap-0.5">
+        <div className="rounded-l-full transition-all" style={{ width: `${pctLeft}%`, background: '#00C875' }} />
+        <div className="rounded-r-full bg-gray-200 flex-1" />
+      </div>
+    </div>
+  )
+}
+
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 export default function MatchPage() {
@@ -39,17 +65,29 @@ export default function MatchPage() {
   }, [fetchMatch])
 
   const isLive = match?.status === 'In Progress' || match?.status === '1'
+    || (match?.status || '').startsWith('Set')
   const scores = match?.score ? match.score.split(',').map((s: string) => s.trim()) : []
   const serving1 = match?.serve === 'First Player' || match?.serve === '1'
   const serving2 = match?.serve === 'Second Player' || match?.serve === '2'
+  const surface  = match?.surface as string | undefined
+  const surfStyle = SURFACE_STYLE[surface || 'Hard'] || SURFACE_STYLE.Hard
+
+  // Parse stats from statistics[]
+  const stats: any[] = match?.statistics || []
+  const getStat = (playerKey: number, name: string) =>
+    stats.find(s => s.player_key === playerKey && s.stat_name === name && s.stat_period === 'match')?.stat_value
 
   return (
     <div className="min-h-screen">
       <header className="sticky top-0 z-20 bg-white">
         <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
-          <button onClick={() => router.back()} className="text-gray-900/40 hover:text-gray-900 text-sm">← Back</button>
-          <div className="h-4 w-px bg-white/10" />
-          <h1 className="text-xl font-bold">Tennis<span className="text-[#00C875]">Ace</span></h1>
+          <button onClick={() => router.back()}
+            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <path d="M19 12H5M12 5l-7 7 7 7"/>
+            </svg>
+          </button>
+          <img src="/logo.png" alt="TennisAce" className="h-6 w-auto" />
         </div>
       </header>
 
@@ -66,13 +104,36 @@ export default function MatchPage() {
         ) : (
           <>
             {/* Match hero */}
-            <div className="rounded-xl glass border border-[#00C875]/20 p-6 mb-5">
-              {/* Tournament */}
-              <div className="flex items-center justify-between mb-5">
-                <span className="text-[11px] text-gray-900/40 uppercase tracking-wider">{match.tournament}{match.round ? ` · ${match.round}` : ''}</span>
-                {isLive && (
+            <div className="rounded-2xl card overflow-hidden mb-5">
+              {/* Surface colour stripe */}
+              <div className="h-1 w-full" style={{ background: surfStyle.color }} />
+              <div className="p-5">
+              {/* Tournament + surface + round */}
+              <div className="flex items-start justify-between mb-5">
+                <div>
+                  <p className="text-[14px] font-black text-gray-900">{match.tournament}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    {surface && (
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                        style={{ background: `${surfStyle.color}20`, color: surfStyle.color }}>
+                        {surfStyle.label}
+                      </span>
+                    )}
+                    {match.round && (
+                      <span className="text-[10px] text-gray-400 font-semibold bg-gray-100 px-1.5 py-0.5 rounded-full">
+                        {match.round}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                {isLive ? (
                   <span className="flex items-center gap-1.5 text-[11px] font-bold text-[#00C875] uppercase tracking-widest">
-                    <span className="live-dot w-2 h-2 rounded-full bg-[#00C875] inline-block" /> Live
+                    <span className="live-dot w-2 h-2 rounded-full bg-[#00C875] inline-block" />
+                    {(match.status || '').startsWith('Set') ? match.status : 'Live'}
+                  </span>
+                ) : (
+                  <span className="text-[11px] text-gray-400 bg-gray-100 px-2 py-1 rounded-full font-semibold">
+                    {match.date || 'Completed'}
                   </span>
                 )}
               </div>
@@ -144,10 +205,11 @@ export default function MatchPage() {
               {scores.length > 0 && (
                 <div className="flex justify-end gap-3 mt-3 pr-0">
                   {scores.map((_: any, i: number) => (
-                    <span key={i} className="text-[10px] text-gray-900/25 w-8 text-center tabular-nums">S{i + 1}</span>
+                    <span key={i} className="text-[10px] text-gray-400 w-8 text-center tabular-nums">S{i + 1}</span>
                   ))}
                 </div>
               )}
+              </div>{/* end padding div */}
             </div>
 
             {/* H2H */}
@@ -182,6 +244,29 @@ export default function MatchPage() {
                         </div>
                       </div>
                     )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Match Stats */}
+            {stats.length > 0 && match.player1_key && match.player2_key && (
+              <div className="mb-5">
+                <p className="text-[11px] text-gray-400 uppercase tracking-widest mb-3 font-bold">Match Statistics</p>
+                <div className="card p-4">
+                  {[
+                    { name: 'Aces', key: 'Aces' },
+                    { name: 'Double Faults', key: 'Double Faults' },
+                    { name: '1st Serve %', key: '1st serve percentage' },
+                    { name: '1st Serve Won', key: '1st serve points won' },
+                    { name: '2nd Serve Won', key: '2nd serve points won' },
+                    { name: 'Break Points', key: 'Break Points Converted' },
+                    { name: 'Total Points Won', key: 'Total Points Won' },
+                  ].map(stat => {
+                    const v1 = getStat(match.player1_key, stat.key)
+                    const v2 = getStat(match.player2_key, stat.key)
+                    if (!v1 && !v2) return null
+                    return <StatBar key={stat.key} label={stat.name} v1={v1 || '0'} v2={v2 || '0'} />
                   })}
                 </div>
               </div>
