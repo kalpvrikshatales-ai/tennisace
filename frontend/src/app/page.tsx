@@ -119,9 +119,12 @@ export default function Home() {
       {/* Header */}
       <header className="sticky top-0 z-20">
         <div className="max-w-3xl mx-auto px-5 py-3.5 flex items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center gap-3">
+          {/* Logo + app name */}
+          <div className="flex items-center gap-2.5">
             <img src="/logo.png" alt="TennisAce" className="h-8 w-auto" />
+            <span className="text-[17px] font-black tracking-tight text-gray-900 hidden sm:block">
+              Tennis<span className="text-[#00C875]">Ace</span>
+            </span>
           </div>
           <div className="flex items-center gap-1.5">
             <ThemeToggle />
