@@ -11,6 +11,7 @@ import WimbledonBanner from '@/components/WimbledonBanner'
 import PushButton from '@/components/PushButton'
 import LiveTicker from '@/components/LiveTicker'
 import NewsCard from '@/components/NewsCard'
+import ThemeToggle from '@/components/ThemeToggle'
 import { getLiveMatches, getTournaments, getResults, getFixtures } from '@/lib/api'
 import { getFavourites } from '@/lib/favourites'
 import type { Match, Tournament } from '@/types'
@@ -108,7 +109,8 @@ export default function Home() {
               Tennis<span className="text-[#00C875]">Ace</span>
             </h1>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            <ThemeToggle />
             <PushButton />
             <SearchBar />
             {lastUpdated && (

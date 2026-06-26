@@ -235,3 +235,58 @@ a.card { animation: revealCard 0.2s ease both; }
 @media (hover: hover) {
   .card:hover, .glass:hover { transform: translateY(-2px); }
 }
+
+/* ============================
+   DARK MODE
+   ============================ */
+[data-theme="dark"] {
+  --bg:           #0F172A;
+  --bg-subtle:    #1E293B;
+  --bg-muted:     #1E293B;
+  --surface:      #1E293B;
+  --surface-hover:#263548;
+
+  --border:       #334155;
+  --border-light: #1E293B;
+
+  --text-primary:   #F1F5F9;
+  --text-secondary: #94A3B8;
+  --text-muted:     #64748B;
+  --text-disabled:  #334155;
+
+  color-scheme: dark;
+}
+
+[data-theme="dark"] body {
+  background: var(--bg);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .glass,
+[data-theme="dark"] .card {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
+}
+
+[data-theme="dark"] header {
+  background: rgba(15, 23, 42, 0.96) !important;
+  border-bottom-color: #334155 !important;
+}
+
+[data-theme="dark"] .bottom-nav {
+  background: rgba(15, 23, 42, 0.96);
+  border-top-color: #334155;
+}
+
+[data-theme="dark"] .animate-pulse {
+  background: linear-gradient(90deg, #1E293B 25%, #263548 50%, #1E293B 75%) !important;
+}
+
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  background: var(--surface);
+  color: var(--text-primary);
+  border-color: var(--border);
+}

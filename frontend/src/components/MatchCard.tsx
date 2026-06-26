@@ -2,19 +2,27 @@
 
 import Link from 'next/link'
 import type { Match } from '@/types'
+import { shareScoreImage } from '@/lib/shareImage'
 
 interface Props {
   match: Match
 }
 
 async function shareMatch(match: Match) {
-  const text = `🎾 ${match.player1} vs ${match.player2} — ${match.score ?? 'Live'} | ${match.tournament ?? 'Tennis'}`
-  const url = 'https://tennisace.live'
-  if (navigator.share) {
-    await navigator.share({ title: 'TennisAce Live Score', text, url })
-  } else {
-    await navigator.clipboard.writeText(`${text} ${url}`)
-    alert('Score copied to clipboard!')
+  try {
+    await shareScoreImage({
+      player1: match.player1,
+      player2: match.player2,
+      score: match.score ?? '',
+      tournament: match.tournament,
+      status: match.status,
+      gameScore: match.game_score ?? undefined,
+    })
+  } catch {
+    // Fallback to text share
+    const text = `🎾 ${match.player1} vs ${match.player2} — ${match.score ?? 'Live'} | tennisace.live`
+    if (navigator.share) await navigator.share({ title: 'TennisAce', text, url: 'https://tennisace.live' })
+    else { await navigator.clipboard.writeText(text); alert('Copied!') }
   }
 }
 
