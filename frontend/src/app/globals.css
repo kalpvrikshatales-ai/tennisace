@@ -169,7 +169,7 @@ a.card { animation: fadeUp 0.2s ease both; }
    SAFE AREAS
    ============================ */
 .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
-.pb-nav { padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)); }
+.pb-nav { padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
 
 /* ============================
    DARK MODE — full coverage
