@@ -206,9 +206,8 @@ function BracketQuarter({ label, top, bottom }: { label: string; top: typeof SEE
           </div>
         </Link>
       ))}
-      <div className="mt-2 pt-2 border-t border-gray-100 flex items-center justify-between">
-        <span className="text-[11px] text-gray-400">QF · {label}</span>
-        <span className="text-[11px] font-semibold text-gray-400">Jul 9</span>
+      <div className="mt-2 pt-2 border-t border-gray-100">
+        <p className="text-[10px] text-gray-400">Seeds placed in {label} · QF TBD after R3</p>
       </div>
     </div>
   )
