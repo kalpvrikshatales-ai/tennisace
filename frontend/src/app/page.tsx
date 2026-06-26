@@ -76,16 +76,25 @@ export default function Home() {
     finally { setLoadingNews(false) }
   }, [])
 
+  // Only load what's needed — defer heavy tabs until user opens them
+  const fetchedTabs = useCallback((t: Tab) => {
+    if (t === 'results' && results.length === 0) fetchResults()
+    if (t === 'rankings' && tournaments.length === 0) fetchTournaments()
+    if (t === 'news' && news.length === 0) fetchNews()
+    if (t === 'tournaments' && tournaments.length === 0) fetchTournaments()
+    if (t === 'upcoming' && fixtures.length === 0) fetchFixtures()
+  }, [results, tournaments, news, fixtures, fetchResults, fetchTournaments, fetchNews, fetchFixtures])
+
+  const switchTab = (t: Tab) => { setTab(t); fetchedTabs(t) }
+
   useEffect(() => {
+    // On mount: only fetch matches (fast) + tournaments (for empty state logos)
     fetchMatches()
     fetchTournaments()
-    fetchResults()
-    fetchFixtures()
-    fetchNews()
     setFavourites(getFavourites())
     const interval = setInterval(fetchMatches, 30_000)
     return () => clearInterval(interval)
-  }, [fetchMatches, fetchTournaments, fetchResults, fetchFixtures, fetchNews])
+  }, [fetchMatches, fetchTournaments])
 
   const formatTime = (d: Date) =>
     d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
@@ -128,7 +137,7 @@ export default function Home() {
           {tabs.map(({ key, label }) => (
             <button
               key={key}
-              onClick={() => setTab(key)}
+              onClick={() => switchTab(key)}
               className={`pb-2.5 pt-2 px-4 text-[15px] font-semibold transition-all duration-150 border-b-2 whitespace-nowrap flex items-center gap-1.5 ${
                 tab === key
                   ? 'border-[#00C875] text-gray-900'
@@ -147,6 +156,9 @@ export default function Home() {
             </button>
           ))}
           <div className="ml-auto flex items-center gap-0.5">
+            <Link href="/lounges" className="pb-2.5 pt-2 px-3 text-[13px] font-semibold text-purple-500 hover:text-purple-600 border-b-2 border-transparent whitespace-nowrap transition-colors">
+              💬 Lounges
+            </Link>
             <Link href="/wimbledon" className="pb-2.5 pt-2 px-3 text-[13px] font-semibold text-[#22C55E] hover:text-green-600 border-b-2 border-transparent whitespace-nowrap transition-colors">
               🌿 Wimbledon
             </Link>

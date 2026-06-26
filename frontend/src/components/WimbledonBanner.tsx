@@ -29,10 +29,10 @@ export default function WimbledonBanner() {
 
   const Unit = ({ value, label }: { value: number; label: string }) => (
     <div className="flex flex-col items-center">
-      <span className="text-2xl font-black text-gray-900 tabular-nums leading-none">
+      <span className="text-2xl font-black text-white tabular-nums leading-none">
         {String(value).padStart(2, '0')}
       </span>
-      <span className="text-[9px] text-gray-500 uppercase tracking-widest mt-0.5">{label}</span>
+      <span className="text-[9px] text-white/60 uppercase tracking-widest mt-0.5">{label}</span>
     </div>
   )
 
@@ -42,11 +42,11 @@ export default function WimbledonBanner() {
 
   return (
     <Link href="/wimbledon">
-    <div className="mb-5 rounded-2xl overflow-hidden relative cursor-pointer hover:opacity-90 transition-opacity">
-      {/* Grass green gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#1a3a1a] via-[#0d2b0d] to-[#0B1F3A] opacity-95" />
+    <div className="mb-5 rounded-2xl overflow-hidden relative cursor-pointer hover:opacity-95 transition-opacity"
+      style={{ background: 'linear-gradient(135deg, #22C55E 0%, #16A34A 60%, #15803D 100%)' }}>
+      {/* Subtle pattern */}
       <div className="absolute inset-0 opacity-10"
-        style={{ backgroundImage: 'repeating-linear-gradient(45deg, rgba(0,200,117,0.3) 0px, rgba(0,200,117,0.3) 1px, transparent 1px, transparent 12px)' }}
+        style={{ backgroundImage: 'repeating-linear-gradient(45deg, rgba(255,255,255,0.4) 0px, rgba(255,255,255,0.4) 1px, transparent 1px, transparent 14px)' }}
       />
 
       <div className="relative px-5 py-4">
@@ -55,11 +55,11 @@ export default function WimbledonBanner() {
           <div className="flex items-center gap-2">
             <span className="text-xl">🌿</span>
             <div>
-              <p className="text-sm font-black text-gray-900 tracking-tight">Wimbledon 2026</p>
-              <p className="text-[10px] text-gray-500">The Championships · All England Club</p>
+              <p className="text-sm font-black text-white tracking-tight">Wimbledon 2026</p>
+              <p className="text-[10px] text-white/70">The Championships · All England Club</p>
             </div>
           </div>
-          <span className="text-[10px] font-semibold text-[#00C875] bg-[#00C875]/15 px-2 py-1 rounded-full uppercase tracking-wider">
+          <span className="text-[10px] font-bold text-white bg-white/20 px-2.5 py-1 rounded-full uppercase tracking-wider">
             {timeLeft.days === 0 ? 'Tomorrow!' : `${timeLeft.days}d away`}
           </span>
         </div>
@@ -76,7 +76,7 @@ export default function WimbledonBanner() {
         </div>
 
         {/* Bottom line */}
-        <p className="text-center text-[10px] text-gray-400 mt-3">
+        <p className="text-center text-[10px] text-white/60 mt-3">
           Jun 30 – Jul 13 · Grass · SW19 London
         </p>
       </div>
