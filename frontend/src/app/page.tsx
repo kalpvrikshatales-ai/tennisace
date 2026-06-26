@@ -118,6 +118,9 @@ export default function Home() {
           <Link href="/wimbledon" className="pb-3 pt-1 px-3 text-sm font-semibold text-[#4ade80]/80 hover:text-[#4ade80] border-b-2 border-transparent whitespace-nowrap transition-colors flex items-center gap-1">
             🌿 Wimbledon
           </Link>
+          <Link href="/calendar" className="pb-3 pt-1 px-3 text-sm font-semibold text-white/40 hover:text-white/70 border-b-2 border-transparent whitespace-nowrap transition-colors">
+            📅 Calendar
+          </Link>
           <Link href="/compare" className="pb-3 pt-1 px-3 text-sm font-semibold text-white/40 hover:text-white/70 border-b-2 border-transparent whitespace-nowrap transition-colors">
             ⚔️ Compare
           </Link>
