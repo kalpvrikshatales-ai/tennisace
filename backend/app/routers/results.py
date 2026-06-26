@@ -109,3 +109,56 @@ async def fixtures(days: int = 5):
     all_fixtures = [m for batch in batches for m in batch]
     all_fixtures.sort(key=lambda m: m.get("date", ""))
     return {"fixtures": all_fixtures[:100], "count": len(all_fixtures[:100])}
+
+
+# Round label mapping from API
+ROUND_MAP = {
+    '1/64-finals': 'R1', '1/32-finals': 'R2', '1/16-finals': 'R3',
+    '1/8-finals':  'R4', '1/4-finals':  'QF', '1/2-finals':  'SF',
+    'Final': 'F',
+}
+
+ROUND_ORDER = ['R1', 'R2', 'R3', 'R4', 'QF', 'SF', 'F']
+
+
+@router.get("/wimbledon")
+async def wimbledon_draw(gender: str = "men"):
+    """Full Wimbledon draw — all rounds, all matches."""
+    event_type = "Grand Slam Men Singles" if gender == "men" else "Grand Slam Women Singles"
+    start = "2026-06-29"
+    stop  = "2026-07-14"
+    async with httpx.AsyncClient() as c:
+        try:
+            r = await c.get(BASE, params={
+                "method": "get_fixtures", "APIkey": API_KEY,
+                "date_start": start, "date_stop": stop,
+                "event_type": event_type,
+            }, timeout=15)
+            raw = r.json().get("result", [])
+        except Exception:
+            return {"rounds": {}, "total": 0}
+
+    by_round: dict = {}
+    for m in raw:
+        raw_round = m.get("tournament_round", "").split(" - ")[-1]
+        rnd = ROUND_MAP.get(raw_round, raw_round)
+        if rnd not in by_round:
+            by_round[rnd] = []
+        by_round[rnd].append({
+            "match_id":    str(m.get("event_key", "")),
+            "player1":     m.get("event_first_player", ""),
+            "player2":     m.get("event_second_player", ""),
+            "player1_key": m.get("first_player_key"),
+            "player2_key": m.get("second_player_key"),
+            "player1_img": m.get("event_first_player_logo"),
+            "player2_img": m.get("event_second_player_logo"),
+            "score":       m.get("event_final_result", ""),
+            "winner":      m.get("event_winner"),
+            "status":      m.get("event_status", ""),
+            "date":        m.get("event_date", ""),
+            "time":        m.get("event_time", ""),
+        })
+
+    # Sort rounds in correct order
+    ordered = {rnd: by_round[rnd] for rnd in ROUND_ORDER if rnd in by_round}
+    return {"rounds": ordered, "total": sum(len(v) for v in ordered.values())}
