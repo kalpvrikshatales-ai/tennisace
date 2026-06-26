@@ -3,109 +3,117 @@
 @tailwind utilities;
 
 /* ============================
-   TENNISACE DESIGN SYSTEM
-   Premium Light Theme
+   TENNISACE — Premium Design
    ============================ */
 
 :root {
-  /* Backgrounds */
   --bg:           #FFFFFF;
   --bg-subtle:    #F8FAFC;
   --bg-muted:     #F1F5F9;
   --surface:      #FFFFFF;
-  --surface-hover:#F8FAFC;
 
-  /* Borders */
   --border:       #E2E8F0;
   --border-light: #F1F5F9;
 
-  /* Text */
   --text-primary:   #0F172A;
   --text-secondary: #475569;
   --text-muted:     #94A3B8;
-  --text-disabled:  #CBD5E1;
 
-  /* Brand */
-  --green:        #00C875;
-  --green-dark:   #009A58;
-  --green-light:  #E6FAF2;
-  --yellow:       #F59E0B;
-  --yellow-light: #FFFBEB;
-  --orange:       #F97316;
-  --red:          #EF4444;
+  --green:       #00C875;
+  --green-dark:  #009A58;
+  --green-light: #E6FAF2;
+  --wimbledon:   #22C55E;    /* lighter, more vibrant */
 
-  /* Shadows */
   --shadow-xs: 0 1px 2px rgba(15,23,42,0.04);
-  --shadow-sm: 0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
-  --shadow-md: 0 4px 6px rgba(15,23,42,0.05), 0 2px 4px rgba(15,23,42,0.04);
-  --shadow-lg: 0 10px 15px rgba(15,23,42,0.06), 0 4px 6px rgba(15,23,42,0.04);
+  --shadow-sm: 0 1px 3px rgba(15,23,42,0.07), 0 1px 2px rgba(15,23,42,0.04);
+  --shadow-md: 0 4px 12px rgba(15,23,42,0.08), 0 2px 4px rgba(15,23,42,0.04);
+  --shadow-lg: 0 10px 24px rgba(15,23,42,0.10), 0 4px 8px rgba(15,23,42,0.05);
 }
 
 * { box-sizing: border-box; }
-
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 
 body {
   background: var(--bg);
   color: var(--text-primary);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display',
+               'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  font-size: 15px;
+  line-height: 1.5;
 }
 
 /* ============================
-   CARDS — Premium light cards
+   PREMIUM TYPOGRAPHY
+   ============================ */
+.display { font-size: 32px; font-weight: 900; letter-spacing: -0.03em; line-height: 1.1; }
+.headline { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
+.title { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+.label {
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ============================
+   CARDS
    ============================ */
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 16px;
   box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+  transition: box-shadow 0.15s ease, transform 0.12s ease, border-color 0.15s ease;
 }
-.card:hover {
-  box-shadow: var(--shadow-md);
-  border-color: #CBD5E1;
-  transform: translateY(-1px);
-}
-.card-flat {
-  background: var(--bg-subtle);
-  border: 1px solid var(--border-light);
-  border-radius: 12px;
-}
-
-/* Legacy glass → card */
 .glass {
   background: var(--surface) !important;
   border: 1px solid var(--border) !important;
-  border-radius: 14px;
+  border-radius: 16px;
   box-shadow: var(--shadow-sm) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
-.glass:hover {
-  box-shadow: var(--shadow-md) !important;
-  border-color: #CBD5E1 !important;
+
+@media (hover: hover) {
+  .card:hover, .glass:hover {
+    box-shadow: var(--shadow-md) !important;
+    border-color: #CBD5E1 !important;
+    transform: translateY(-1px);
+  }
+  .card-glow:hover {
+    box-shadow: 0 0 0 2px rgba(0,200,117,0.2), var(--shadow-md) !important;
+    border-color: var(--green) !important;
+    transform: translateY(-1px);
+  }
 }
+.card-glow { transition: all 0.15s ease; }
 
 /* ============================
-   CARD HOVER (legacy)
+   HEADER
    ============================ */
-.card-glow {
-  transition: all 0.15s ease;
-}
-.card-glow:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md) !important;
-  border-color: var(--green) !important;
+header {
+  background: rgba(255,255,255,0.96) !important;
+  border-bottom: 1px solid var(--border) !important;
+  box-shadow: var(--shadow-xs) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
 }
 
 /* ============================
-   LIVE DOT — green pulse
+   BOTTOM NAV
+   ============================ */
+.bottom-nav {
+  background: rgba(255,255,255,0.98);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -2px 16px rgba(15,23,42,0.06);
+}
+
+/* ============================
+   LIVE DOT
    ============================ */
 @keyframes pulse-live {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50%       { opacity: 0.6; transform: scale(0.85); }
+  50%       { opacity: 0.55; transform: scale(0.8); }
 }
 .live-dot {
   animation: pulse-live 1.5s ease-in-out infinite;
@@ -113,14 +121,43 @@ body {
 }
 
 /* ============================
-   STAR ANIMATION
+   ANIMATIONS
    ============================ */
-@keyframes star-pop {
-  0%   { transform: scale(1); }
-  50%  { transform: scale(1.4); }
-  100% { transform: scale(1); }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes star-pop {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.5); }
+}
+@keyframes scoreFlash {
+  0%   { color: var(--green); }
+  100% { color: inherit; }
+}
+
+main { animation: fadeIn 0.2s ease; }
+section { animation: fadeUp 0.18s ease both; }
+.card, .glass { animation: fadeUp 0.2s ease both; }
+a.card { animation: fadeUp 0.2s ease both; }
 .star-pop { animation: star-pop 0.25s ease; }
+.score-flash { animation: scoreFlash 0.5s ease; }
+
+.animate-pulse {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e8edf2 50%, #f1f5f9 75%) !important;
+  background-size: 200% 100% !important;
+  animation: shimmer 1.4s ease-in-out infinite !important;
+  border: none !important;
+  box-shadow: none !important;
+}
 
 /* ============================
    SCROLLBAR HIDE
@@ -132,128 +169,21 @@ body {
    SAFE AREAS
    ============================ */
 .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
-.pb-nav { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); }
+.pb-nav { padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)); }
 
 /* ============================
-   TYPOGRAPHY HELPERS
-   ============================ */
-.label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-/* ============================
-   BADGE
-   ============================ */
-.badge-green  { background: var(--green-light);  color: var(--green-dark); }
-.badge-yellow { background: var(--yellow-light); color: #D97706; }
-
-/* ============================
-   SMOOTH PAGE TRANSITIONS
-   ============================ */
-main { animation: fadeIn 0.18s ease; }
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ============================
-   SURFACE COLORS (tabs, pills)
-   ============================ */
-.pill-active {
-  background: var(--text-primary);
-  color: #FFFFFF;
-}
-.pill {
-  background: var(--bg-muted);
-  color: var(--text-secondary);
-}
-
-/* ============================
-   BOTTOM NAV — light theme
-   ============================ */
-.bottom-nav {
-  background: rgba(255, 255, 255, 0.96);
-  border-top: 1px solid #E2E8F0;
-  box-shadow: 0 -1px 12px rgba(15,23,42,0.06);
-}
-
-/* Header override */
-header {
-  background: rgba(255, 255, 255, 0.96) !important;
-  border-bottom: 1px solid #E2E8F0 !important;
-  box-shadow: var(--shadow-xs) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-}
-
-/* ============================
-   MICRO-ANIMATIONS
-   ============================ */
-
-/* Staggered card entry */
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.card, .glass {
-  animation: slideUp 0.2s ease both;
-}
-
-/* Score number highlight when it changes */
-@keyframes scoreFlash {
-  0%   { color: var(--green); transform: scale(1.15); }
-  100% { color: inherit; transform: scale(1); }
-}
-.score-flash { animation: scoreFlash 0.4s ease; }
-
-/* Tab content swap */
-section { animation: fadeIn 0.15s ease both; }
-
-/* News card reveal */
-@keyframes revealCard {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-a.card { animation: revealCard 0.2s ease both; }
-
-/* Skeleton shimmer */
-@keyframes shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-.animate-pulse {
-  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%) !important;
-  background-size: 200% 100% !important;
-  animation: shimmer 1.5s ease-in-out infinite !important;
-}
-
-/* Hover lift — only on non-touch devices */
-@media (hover: hover) {
-  .card:hover, .glass:hover { transform: translateY(-2px); }
-}
-
-/* ============================
-   DARK MODE
+   DARK MODE — full coverage
    ============================ */
 [data-theme="dark"] {
-  --bg:           #0F172A;
-  --bg-subtle:    #1E293B;
-  --bg-muted:     #1E293B;
-  --surface:      #1E293B;
-  --surface-hover:#263548;
-
-  --border:       #334155;
-  --border-light: #1E293B;
-
-  --text-primary:   #F1F5F9;
-  --text-secondary: #94A3B8;
-  --text-muted:     #64748B;
-  --text-disabled:  #334155;
-
+  --bg:           #0A0F1A;
+  --bg-subtle:    #111827;
+  --bg-muted:     #1F2937;
+  --surface:      #111827;
+  --border:       #1F2937;
+  --border-light: #1F2937;
+  --text-primary:   #F9FAFB;
+  --text-secondary: #9CA3AF;
+  --text-muted:     #6B7280;
   color-scheme: dark;
 }
 
@@ -262,31 +192,51 @@ a.card { animation: revealCard 0.2s ease both; }
   color: var(--text-primary);
 }
 
+/* Force ALL text to light in dark mode */
+[data-theme="dark"] * {
+  --tw-text-opacity: 1;
+}
+[data-theme="dark"] .text-gray-900,
+[data-theme="dark"] .text-gray-800,
+[data-theme="dark"] .text-gray-700 { color: #F1F5F9 !important; }
+[data-theme="dark"] .text-gray-600,
+[data-theme="dark"] .text-gray-500 { color: #9CA3AF !important; }
+[data-theme="dark"] .text-gray-400,
+[data-theme="dark"] .text-gray-300 { color: #6B7280 !important; }
+[data-theme="dark"] .text-gray-200 { color: #4B5563 !important; }
+
 [data-theme="dark"] .glass,
 [data-theme="dark"] .card {
   background: var(--surface) !important;
   border-color: var(--border) !important;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4) !important;
 }
 
 [data-theme="dark"] header {
-  background: rgba(15, 23, 42, 0.96) !important;
-  border-bottom-color: #334155 !important;
+  background: rgba(10, 15, 26, 0.96) !important;
+  border-bottom-color: #1F2937 !important;
 }
 
 [data-theme="dark"] .bottom-nav {
-  background: rgba(15, 23, 42, 0.96);
-  border-top-color: #334155;
+  background: rgba(10, 15, 26, 0.98);
+  border-top-color: #1F2937;
 }
 
+[data-theme="dark"] .bg-gray-50,
+[data-theme="dark"] .bg-gray-100 { background: var(--bg-subtle) !important; }
+
+[data-theme="dark"] .border-gray-100,
+[data-theme="dark"] .border-gray-200 { border-color: var(--border) !important; }
+
 [data-theme="dark"] .animate-pulse {
-  background: linear-gradient(90deg, #1E293B 25%, #263548 50%, #1E293B 75%) !important;
+  background: linear-gradient(90deg, #111827 25%, #1F2937 50%, #111827 75%) !important;
+  background-size: 200% 100% !important;
+  animation: shimmer 1.4s ease-in-out infinite !important;
 }
 
 [data-theme="dark"] input,
-[data-theme="dark"] select,
-[data-theme="dark"] textarea {
-  background: var(--surface);
-  color: var(--text-primary);
-  border-color: var(--border);
-}
+[data-theme="dark"] select { background: var(--surface); color: var(--text-primary); }
+
+/* wimbledon green fix for dark mode */
+[data-theme="dark"] .text-green-600 { color: #4ADE80 !important; }
+[data-theme="dark"] .text-green-700 { color: #22C55E !important; }

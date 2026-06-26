@@ -90,31 +90,29 @@ export default function Home() {
   const formatTime = (d: Date) =>
     d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
 
+  // Simplified: 4 main tabs only
   const tabs: { key: Tab; label: string }[] = [
-    { key: 'live',        label: 'Live' },
-    { key: 'results',     label: 'Results' },
-    { key: 'upcoming',    label: 'Schedule' },
-    { key: 'tournaments', label: 'Tournaments' },
-    { key: 'rankings',    label: 'Rankings' },
-    { key: 'news',        label: 'News' },
+    { key: 'live',     label: 'Live' },
+    { key: 'results',  label: 'Results' },
+    { key: 'rankings', label: 'Rankings' },
+    { key: 'news',     label: 'News' },
   ]
 
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <header className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-gray-100">
-        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-black tracking-tight text-gray-900">
-              Tennis<span className="text-[#00C875]">Ace</span>
-            </h1>
+      <header className="sticky top-0 z-20">
+        <div className="max-w-3xl mx-auto px-5 py-3.5 flex items-center justify-between">
+          {/* Logo */}
+          <div className="flex items-center gap-3">
+            <img src="/logo.png" alt="TennisAce" className="h-8 w-auto" />
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <ThemeToggle />
             <PushButton />
             <SearchBar />
             {lastUpdated && (
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 ml-1">
                 <span className="live-dot inline-block w-2 h-2 rounded-full bg-[#00C875]" />
                 <span className="text-[11px] font-bold text-[#00C875] uppercase tracking-wider hidden sm:block">Live</span>
               </div>
@@ -125,23 +123,16 @@ export default function Home() {
         {/* Live ticker */}
         <LiveTicker />
 
-        {/* Desktop tabs */}
-        <div className="max-w-2xl mx-auto px-2 hidden md:flex overflow-x-auto scrollbar-hide items-center border-t border-gray-100">
-          <Link href="/wimbledon" className="pb-2.5 pt-2 px-3 text-sm font-semibold text-green-600 hover:text-green-700 border-b-2 border-transparent whitespace-nowrap transition-colors flex items-center gap-1">
-            🌿 Wimbledon
-          </Link>
-          <Link href="/calendar" className="pb-2.5 pt-2 px-3 text-sm font-semibold text-gray-400 hover:text-gray-700 border-b-2 border-transparent whitespace-nowrap transition-colors">
-            📅 Calendar
-          </Link>
-          <Link href="/compare" className="pb-2.5 pt-2 px-3 text-sm font-semibold text-gray-400 hover:text-gray-700 border-b-2 border-transparent whitespace-nowrap transition-colors">
-            ⚔️ Compare
-          </Link>
+        {/* Desktop nav — clean, minimal */}
+        <div className="max-w-3xl mx-auto px-3 hidden md:flex overflow-x-auto scrollbar-hide items-center gap-1 border-t border-gray-100">
           {tabs.map(({ key, label }) => (
             <button
               key={key}
               onClick={() => setTab(key)}
-              className={`pb-2.5 pt-2 px-3 text-sm font-semibold transition-colors duration-150 border-b-2 whitespace-nowrap flex items-center gap-1.5 ${
-                tab === key ? 'border-[#00C875] text-gray-900' : 'border-transparent text-gray-400 hover:text-gray-700'
+              className={`pb-2.5 pt-2 px-4 text-[15px] font-semibold transition-all duration-150 border-b-2 whitespace-nowrap flex items-center gap-1.5 ${
+                tab === key
+                  ? 'border-[#00C875] text-gray-900'
+                  : 'border-transparent text-gray-400 hover:text-gray-700'
               }`}
             >
               {key === 'live' && (
@@ -149,17 +140,28 @@ export default function Home() {
               )}
               {label}
               {key === 'live' && matches.length > 0 && (
-                <span className="text-[10px] bg-[#00C875]/15 text-[#009A58] rounded-full px-1.5 py-0.5 font-bold">
+                <span className="text-[10px] bg-[#00C875]/15 text-[#009A58] rounded-full px-2 py-0.5 font-bold tabular-nums">
                   {matches.length}
                 </span>
               )}
             </button>
           ))}
+          <div className="ml-auto flex items-center gap-0.5">
+            <Link href="/wimbledon" className="pb-2.5 pt-2 px-3 text-[13px] font-semibold text-[#22C55E] hover:text-green-600 border-b-2 border-transparent whitespace-nowrap transition-colors">
+              🌿 Wimbledon
+            </Link>
+            <Link href="/calendar" className="pb-2.5 pt-2 px-3 text-[13px] font-medium text-gray-400 hover:text-gray-600 border-b-2 border-transparent whitespace-nowrap transition-colors">
+              Calendar
+            </Link>
+            <Link href="/compare" className="pb-2.5 pt-2 px-3 text-[13px] font-medium text-gray-400 hover:text-gray-600 border-b-2 border-transparent whitespace-nowrap transition-colors">
+              Compare
+            </Link>
+          </div>
         </div>
       </header>
 
       {/* Content — add bottom padding on mobile for the nav bar */}
-      <main className="max-w-2xl mx-auto px-4 py-6 pb-nav md:pb-6">
+      <main className="max-w-3xl mx-auto px-5 py-6 pb-nav md:pb-6">
 
         {/* LIVE */}
         {tab === 'live' && (
@@ -170,26 +172,29 @@ export default function Home() {
                 {[...Array(4)].map((_, i) => <div key={i} className="rounded-xl glass border border-gray-200 h-28 animate-pulse" />)}
               </div>
             ) : matches.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <span className="text-5xl mb-5">🎾</span>
-                <p className="text-gray-900 font-semibold text-base">No live matches right now</p>
-                <p className="text-gray-500 text-sm mt-2 max-w-xs">
-                  Matches typically play from 10am–10pm local time. Scores refresh every 30 seconds.
-                </p>
-                <div className="mt-8 w-full max-w-sm space-y-2">
-                  <p className="text-[11px] text-gray-400 uppercase tracking-widest mb-3">Upcoming Grand Slams</p>
+              <div className="py-8">
+                <p className="headline text-gray-900 mb-1">No matches live right now</p>
+                <p className="text-gray-400 text-sm mb-8">Scores refresh every 30 seconds · Matches play 10am–10pm local time</p>
+                <p className="label mb-4">Grand Slams 2026</p>
+                <div className="space-y-2">
                   {[
-                    { name: 'Wimbledon',       dates: 'Jun 30 – Jul 13', surface: '🌿' },
-                    { name: 'US Open',         dates: 'Aug 25 – Sep 7',  surface: '🔵' },
-                    { name: 'Australian Open', dates: 'Jan 12 – Jan 26', surface: '🔵' },
-                    { name: 'Roland Garros',   dates: 'May 25 – Jun 8',  surface: '🏺' },
+                    { name: 'Wimbledon',       dates: 'Jun 30 – Jul 13', logo: '/gs-wimbledon.png', surface: 'Grass', color: '#22C55E' },
+                    { name: 'US Open',         dates: 'Aug 25 – Sep 7',  logo: '/gs-uso.png',      surface: 'Hard',  color: '#3B82F6' },
+                    { name: 'Australian Open', dates: 'Jan 12 – Jan 26', logo: '/gs-ao.svg',       surface: 'Hard',  color: '#3B82F6' },
+                    { name: 'Roland Garros',   dates: 'May 25 – Jun 8',  logo: '/gs-rg.png',       surface: 'Clay',  color: '#F97316' },
                   ].map(t => (
-                    <div key={t.name} className="flex items-center justify-between px-4 py-3 rounded-xl glass border border-gray-100">
+                    <div key={t.name} className="card flex items-center justify-between px-4 py-3.5">
                       <div className="flex items-center gap-3">
-                        <span>{t.surface}</span>
-                        <span className="text-sm font-semibold text-gray-900">{t.name}</span>
+                        <div className="w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center overflow-hidden">
+                          <img src={t.logo} alt={t.name} className="w-8 h-8 object-contain"
+                            onError={e => { e.currentTarget.style.display='none' }} />
+                        </div>
+                        <div>
+                          <p className="text-[15px] font-bold text-gray-900">{t.name}</p>
+                          <span className="text-[11px] font-semibold" style={{ color: t.color }}>{t.surface}</span>
+                        </div>
                       </div>
-                      <span className="text-[11px] text-gray-400">{t.dates}</span>
+                      <span className="text-sm text-gray-400 font-medium">{t.dates}</span>
                     </div>
                   ))}
                 </div>
