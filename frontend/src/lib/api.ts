@@ -7,3 +7,4 @@ export const getResults      = (days = 3) => fetch(`${API}/feed/results?days=${d
 export const getFixtures     = (days = 3) => fetch(`${API}/feed/fixtures?days=${days}`).then(r => r.json())
 export const getPlayer       = (key: string) => fetch(`${API}/players/${key}`).then(r => r.json())
 export const getH2H          = (k1: string, k2: string) => fetch(`${API}/players/${k1}/h2h/${k2}`).then(r => r.json())
+export const sendTestPush    = () => fetch(`${API}/push/test`, { method: 'POST' }).then(r => r.json())

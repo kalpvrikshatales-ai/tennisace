@@ -10,12 +10,14 @@ import BottomNav from '@/components/BottomNav'
 import WimbledonBanner from '@/components/WimbledonBanner'
 import PushButton from '@/components/PushButton'
 import LiveTicker from '@/components/LiveTicker'
+import NewsCard from '@/components/NewsCard'
 import { getLiveMatches, getTournaments, getResults, getFixtures } from '@/lib/api'
 import { getFavourites } from '@/lib/favourites'
 import type { Match, Tournament } from '@/types'
 import Link from 'next/link'
 
-type Tab = 'live' | 'results' | 'upcoming' | 'tournaments' | 'rankings'
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+type Tab = 'live' | 'results' | 'upcoming' | 'tournaments' | 'rankings' | 'news'
 
 export default function Home() {
   const [tab, setTab] = useState<Tab>('live')
@@ -24,10 +26,12 @@ export default function Home() {
   const [results, setResults] = useState<any[]>([])
   const [fixtures, setFixtures] = useState<any[]>([])
   const [favourites, setFavourites] = useState<any[]>([])
+  const [news, setNews] = useState<any[]>([])
   const [loadingMatches, setLoadingMatches] = useState(true)
   const [loadingTournaments, setLoadingTournaments] = useState(true)
   const [loadingResults, setLoadingResults] = useState(true)
   const [loadingFixtures, setLoadingFixtures] = useState(true)
+  const [loadingNews, setLoadingNews] = useState(true)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
 
   const fetchMatches = useCallback(async () => {
@@ -63,15 +67,24 @@ export default function Home() {
     finally { setLoadingFixtures(false) }
   }, [])
 
+  const fetchNews = useCallback(async () => {
+    try {
+      const data = await fetch(`${API}/feed/news`).then(r => r.json())
+      setNews(data.articles ?? [])
+    } catch { }
+    finally { setLoadingNews(false) }
+  }, [])
+
   useEffect(() => {
     fetchMatches()
     fetchTournaments()
     fetchResults()
     fetchFixtures()
+    fetchNews()
     setFavourites(getFavourites())
     const interval = setInterval(fetchMatches, 30_000)
     return () => clearInterval(interval)
-  }, [fetchMatches, fetchTournaments, fetchResults, fetchFixtures])
+  }, [fetchMatches, fetchTournaments, fetchResults, fetchFixtures, fetchNews])
 
   const formatTime = (d: Date) =>
     d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
@@ -82,6 +95,7 @@ export default function Home() {
     { key: 'upcoming',    label: 'Schedule' },
     { key: 'tournaments', label: 'Tournaments' },
     { key: 'rankings',    label: 'Rankings' },
+    { key: 'news',        label: 'News' },
   ]
 
   return (
@@ -265,6 +279,30 @@ export default function Home() {
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* NEWS */}
+        {tab === 'news' && (
+          <section>
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-[11px] text-gray-400 uppercase tracking-widest">Latest Tennis News</p>
+              <span className="text-[10px] text-gray-300">BBC Sport</span>
+            </div>
+            {loadingNews ? (
+              <div className="space-y-3">
+                {[...Array(4)].map((_, i) => <div key={i} className="h-48 rounded-2xl bg-gray-100 animate-pulse" />)}
+              </div>
+            ) : news.length === 0 ? (
+              <div className="text-center py-16">
+                <span className="text-4xl">📰</span>
+                <p className="text-gray-400 text-sm mt-4">No news available right now.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {news.map((a, i) => <NewsCard key={i} article={a} index={i} />)}
               </div>
             )}
           </section>

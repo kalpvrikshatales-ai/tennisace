@@ -19,6 +19,17 @@ class PushSubscription(BaseModel):
     expirationTime: float | None = None
 
 
+@router.post("/test")
+async def test_push():
+    """Send a test push to all subscribers."""
+    await broadcast_push(
+        title="🎾 TennisAce Test",
+        body="Push notifications are working! You'll get Wimbledon alerts on June 30.",
+        url="https://tennisace.live",
+    )
+    return {"ok": True, "message": "Test push sent to all subscribers"}
+
+
 @router.post("/subscribe")
 async def subscribe(sub: PushSubscription):
     if not _ready():

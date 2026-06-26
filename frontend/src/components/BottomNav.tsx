@@ -1,6 +1,6 @@
 'use client'
 
-type Tab = 'live' | 'results' | 'upcoming' | 'tournaments' | 'rankings'
+type Tab = 'live' | 'results' | 'upcoming' | 'tournaments' | 'rankings' | 'news'
 
 interface Props {
   tab: Tab
@@ -57,6 +57,16 @@ const tabs: { key: Tab; label: string; icon: (active: boolean) => JSX.Element }[
     icon: (active) => (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
         <path d="M18 20V10M12 20V4M6 20v-6" stroke={active ? '#00C875' : 'currentColor'} opacity={active ? 1 : 0.4} />
+      </svg>
+    ),
+  },
+  {
+    key: 'news',
+    label: 'News',
+    icon: (active) => (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+        <path d="M4 22h16a2 2 0 002-2V4a2 2 0 00-2-2H8a2 2 0 00-2 2v16a4 4 0 01-4-4V6" stroke={active ? '#00C875' : 'currentColor'} opacity={active ? 1 : 0.4} />
+        <path d="M10 9h6M10 13h6M10 17h4" stroke={active ? '#00C875' : 'currentColor'} opacity={active ? 0.7 : 0.3} />
       </svg>
     ),
   },

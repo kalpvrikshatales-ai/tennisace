@@ -189,3 +189,49 @@ header {
   backdrop-filter: blur(12px) !important;
   -webkit-backdrop-filter: blur(12px) !important;
 }
+
+/* ============================
+   MICRO-ANIMATIONS
+   ============================ */
+
+/* Staggered card entry */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.card, .glass {
+  animation: slideUp 0.2s ease both;
+}
+
+/* Score number highlight when it changes */
+@keyframes scoreFlash {
+  0%   { color: var(--green); transform: scale(1.15); }
+  100% { color: inherit; transform: scale(1); }
+}
+.score-flash { animation: scoreFlash 0.4s ease; }
+
+/* Tab content swap */
+section { animation: fadeIn 0.15s ease both; }
+
+/* News card reveal */
+@keyframes revealCard {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+a.card { animation: revealCard 0.2s ease both; }
+
+/* Skeleton shimmer */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.animate-pulse {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%) !important;
+  background-size: 200% 100% !important;
+  animation: shimmer 1.5s ease-in-out infinite !important;
+}
+
+/* Hover lift — only on non-touch devices */
+@media (hover: hover) {
+  .card:hover, .glass:hover { transform: translateY(-2px); }
+}
