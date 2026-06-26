@@ -39,6 +39,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={inter.variable}>
       <head>
         <link rel="manifest" href="/manifest.json" />
+        <link rel="preconnect" href="https://tennisace.onrender.com" />
+        <link rel="dns-prefetch" href="https://tennisace.onrender.com" />
         <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
         <meta name="apple-mobile-web-app-capable" content="yes" />

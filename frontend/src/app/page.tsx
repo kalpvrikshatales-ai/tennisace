@@ -36,10 +36,17 @@ export default function Home() {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
 
   const fetchMatches = useCallback(async () => {
+    // Show cached data instantly while fresh data loads
+    const cached = localStorage.getItem('ta_matches')
+    if (cached && loadingMatches) {
+      try { const c = JSON.parse(cached); setMatches(c); setLoadingMatches(false) } catch {}
+    }
     try {
       const data = await getLiveMatches()
-      setMatches(data.matches ?? [])
+      const m = data.matches ?? []
+      setMatches(m)
       setLastUpdated(new Date())
+      if (m.length > 0) localStorage.setItem('ta_matches', JSON.stringify(m))
     } catch { }
     finally { setLoadingMatches(false) }
   }, [])
