@@ -29,10 +29,10 @@ export default function WimbledonBanner() {
 
   const Unit = ({ value, label }: { value: number; label: string }) => (
     <div className="flex flex-col items-center">
-      <span className="text-2xl font-black text-white tabular-nums leading-none">
+      <span className="text-2xl font-black text-gray-900 tabular-nums leading-none">
         {String(value).padStart(2, '0')}
       </span>
-      <span className="text-[9px] text-white/40 uppercase tracking-widest mt-0.5">{label}</span>
+      <span className="text-[9px] text-gray-500 uppercase tracking-widest mt-0.5">{label}</span>
     </div>
   )
 
@@ -55,8 +55,8 @@ export default function WimbledonBanner() {
           <div className="flex items-center gap-2">
             <span className="text-xl">🌿</span>
             <div>
-              <p className="text-sm font-black text-white tracking-tight">Wimbledon 2026</p>
-              <p className="text-[10px] text-white/40">The Championships · All England Club</p>
+              <p className="text-sm font-black text-gray-900 tracking-tight">Wimbledon 2026</p>
+              <p className="text-[10px] text-gray-500">The Championships · All England Club</p>
             </div>
           </div>
           <span className="text-[10px] font-semibold text-[#00C875] bg-[#00C875]/15 px-2 py-1 rounded-full uppercase tracking-wider">
@@ -76,7 +76,7 @@ export default function WimbledonBanner() {
         </div>
 
         {/* Bottom line */}
-        <p className="text-center text-[10px] text-white/30 mt-3">
+        <p className="text-center text-[10px] text-gray-400 mt-3">
           Jun 30 – Jul 13 · Grass · SW19 London
         </p>
       </div>

@@ -25,13 +25,13 @@ export default function FavButton({ player, size = 'md' }: Props) {
   return (
     <button
       onClick={toggle}
-      className={`${sz} transition-all rounded-full hover:bg-white/[0.06] ${pop ? 'star-pop' : ''}`}
+      className={`${sz} transition-all rounded-full hover:bg-gray-50 ${pop ? 'star-pop' : ''}`}
       title={fav ? 'Remove from favourites' : 'Add to favourites'}
     >
       {fav ? (
         <span className="text-amber-400">★</span>
       ) : (
-        <span className="text-white/20 hover:text-white/50">☆</span>
+        <span className="text-gray-300 hover:text-gray-500">☆</span>
       )}
     </button>
   )

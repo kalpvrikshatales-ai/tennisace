@@ -40,9 +40,9 @@ function Countdown() {
   const Box = ({ v, l }: { v: number; l: string }) => (
     <div className="flex flex-col items-center">
       <div className="glass rounded-xl px-4 py-3 min-w-[56px] text-center glow-green">
-        <span className="text-3xl font-black text-white tabular-nums">{String(v).padStart(2,'0')}</span>
+        <span className="text-3xl font-black text-gray-900 tabular-nums">{String(v).padStart(2,'0')}</span>
       </div>
-      <span className="text-[10px] text-white/40 uppercase tracking-widest mt-1">{l}</span>
+      <span className="text-[10px] text-gray-900/40 uppercase tracking-widest mt-1">{l}</span>
     </div>
   )
 
@@ -81,7 +81,7 @@ function SeedCard({ s }: { s: typeof SEEDS[0] }) {
 
   return (
     <Link href={`/players/${s.key}`}>
-      <div className="glass rounded-2xl p-4 hover:border-[#00C875]/30 border border-white/[0.06] transition-all card-glow cursor-pointer">
+      <div className="glass rounded-2xl p-4 hover:border-[#00C875]/30 border border-gray-200 transition-all card-glow cursor-pointer">
         <div className="flex items-center gap-3 mb-3">
           {data?.player_logo && (
             <img src={data.player_logo} alt="" className="w-12 h-12 rounded-full object-cover border-2 border-[#00C875]/20" onError={e => e.currentTarget.style.display='none'} />
@@ -89,23 +89,23 @@ function SeedCard({ s }: { s: typeof SEEDS[0] }) {
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[#00C875] font-black text-sm">#{s.seed}</span>
-              <span className="text-white font-bold text-sm">{s.name.split(' ').pop()}</span>
+              <span className="text-gray-900 font-bold text-sm">{s.name.split(' ').pop()}</span>
             </div>
-            <p className="text-[11px] text-white/40">{getFlag(s.country)} {s.country}</p>
+            <p className="text-[11px] text-gray-900/40">{getFlag(s.country)} {s.country}</p>
           </div>
         </div>
         {grass.length > 0 && (
           <div>
-            <div className="flex justify-between text-[10px] text-white/30 mb-1">
+            <div className="flex justify-between text-[10px] text-gray-900/30 mb-1">
               <span>Grass (last 3 seasons)</span>
-              <span className={`font-bold ${grassPct >= 75 ? 'text-[#00C875]' : grassPct >= 50 ? 'text-white' : 'text-red-400'}`}>{grassPct}%</span>
+              <span className={`font-bold ${grassPct >= 75 ? 'text-[#00C875]' : grassPct >= 50 ? 'text-gray-900' : 'text-red-400'}`}>{grassPct}%</span>
             </div>
             <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
               <div className="h-full bg-gradient-to-r from-[#00C875] to-[#00a862] rounded-full" style={{ width: `${grassPct}%` }} />
             </div>
             <div className="flex gap-3 mt-1">
               {grass.map((g: any) => (
-                <span key={g.season} className="text-[10px] text-white/25">{g.season}: {g.grass_won}-{g.grass_lost}</span>
+                <span key={g.season} className="text-[10px] text-gray-900/25">{g.season}: {g.grass_won}-{g.grass_lost}</span>
               ))}
             </div>
           </div>
@@ -138,8 +138,8 @@ function PredictionVote() {
 
   return (
     <div className="glass rounded-2xl p-5 mb-5">
-      <p className="text-[11px] text-white/30 uppercase tracking-widest mb-1">Fan Prediction</p>
-      <p className="text-base font-bold text-white mb-4">Who wins Wimbledon 2026? 🏆</p>
+      <p className="text-[11px] text-gray-900/30 uppercase tracking-widest mb-1">Fan Prediction</p>
+      <p className="text-base font-bold text-gray-900 mb-4">Who wins Wimbledon 2026? 🏆</p>
       <div className="space-y-2">
         {SEEDS.slice(0, 6).map(s => {
           const v = votes[s.key] ?? 0
@@ -150,7 +150,7 @@ function PredictionVote() {
               onClick={() => !vote && cast(s.key)}
               className={`w-full text-left rounded-xl overflow-hidden relative transition-all ${
                 vote ? 'cursor-default' : 'hover:border-[#00C875]/30 cursor-pointer'
-              } border ${vote === s.key ? 'border-[#00C875]/50' : 'border-white/[0.06]'}`}
+              } border ${vote === s.key ? 'border-[#00C875]/50' : 'border-gray-200'}`}
             >
               {vote && (
                 <div
@@ -161,17 +161,17 @@ function PredictionVote() {
               <div className="relative flex items-center justify-between px-4 py-3">
                 <div className="flex items-center gap-2">
                   {vote === s.key && <span className="text-[#00C875] text-sm">✓</span>}
-                  <span className="text-sm font-semibold text-white">{getFlag(s.country)} {s.name}</span>
-                  <span className="text-[11px] text-white/30">#{s.seed}</span>
+                  <span className="text-sm font-semibold text-gray-900">{getFlag(s.country)} {s.name}</span>
+                  <span className="text-[11px] text-gray-900/30">#{s.seed}</span>
                 </div>
-                {vote && <span className="text-xs font-bold text-white/60">{pct}%</span>}
+                {vote && <span className="text-xs font-bold text-gray-900/60">{pct}%</span>}
               </div>
             </button>
           )
         })}
       </div>
-      {!vote && <p className="text-center text-[11px] text-white/25 mt-3">Tap to cast your vote</p>}
-      {vote && <p className="text-center text-[11px] text-white/25 mt-3">{totalVotes.toLocaleString()} votes cast</p>}
+      {!vote && <p className="text-center text-[11px] text-gray-900/25 mt-3">Tap to cast your vote</p>}
+      {vote && <p className="text-center text-[11px] text-gray-900/25 mt-3">{totalVotes.toLocaleString()} votes cast</p>}
     </div>
   )
 }
@@ -189,9 +189,9 @@ export default function WimbledonPage() {
 
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-20 bg-[#0B1F3A]/75 backdrop-blur-xl border-b border-white/[0.06]">
+      <header className="sticky top-0 z-20 bg-white">
         <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
-          <button onClick={() => router.back()} className="text-white/40 hover:text-white text-sm">← Back</button>
+          <button onClick={() => router.back()} className="text-gray-900/40 hover:text-gray-900 text-sm">← Back</button>
           <div className="h-4 w-px bg-white/10" />
           <h1 className="text-xl font-bold">Tennis<span className="text-[#00C875]">Ace</span></h1>
         </div>
@@ -202,9 +202,9 @@ export default function WimbledonPage() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-2">
             <span className="text-3xl">🌿</span>
-            <h2 className="text-2xl font-black text-white tracking-tight">Wimbledon 2026</h2>
+            <h2 className="text-2xl font-black text-gray-900 tracking-tight">Wimbledon 2026</h2>
           </div>
-          <p className="text-white/40 text-sm mb-2">The Championships · All England Club · SW19</p>
+          <p className="text-gray-900/40 text-sm mb-2">The Championships · All England Club · SW19</p>
           <p className="text-[#00C875] text-xs font-semibold mb-6">Jun 30 – Jul 13 · Grass</p>
           <Countdown />
         </div>
@@ -215,23 +215,23 @@ export default function WimbledonPage() {
         {/* Sinner vs Alcaraz H2H */}
         {h2h.length > 0 && (
           <div className="glass rounded-2xl p-5 mb-5">
-            <p className="text-[11px] text-white/30 uppercase tracking-widest mb-3">Final Preview — H2H</p>
+            <p className="text-[11px] text-gray-900/30 uppercase tracking-widest mb-3">Final Preview — H2H</p>
             <div className="flex items-center justify-between mb-4">
               <div className="text-center flex-1">
-                <p className="text-lg font-black text-white">Sinner</p>
-                <p className="text-[11px] text-white/40">🇮🇹 #1 seed</p>
+                <p className="text-lg font-black text-gray-900">Sinner</p>
+                <p className="text-[11px] text-gray-900/40">🇮🇹 #1 seed</p>
               </div>
               <div className="text-center px-4">
                 <p className="text-3xl font-black">
                   <span className="text-[#00C875]">{sinnerWins}</span>
-                  <span className="text-white/20 mx-2">–</span>
-                  <span className="text-white/60">{alcarazWins}</span>
+                  <span className="text-gray-900/20 mx-2">–</span>
+                  <span className="text-gray-900/60">{alcarazWins}</span>
                 </p>
-                <p className="text-[10px] text-white/30 mt-1">{h2h.length} matches</p>
+                <p className="text-[10px] text-gray-900/30 mt-1">{h2h.length} matches</p>
               </div>
               <div className="text-center flex-1">
-                <p className="text-lg font-black text-white">Alcaraz</p>
-                <p className="text-[11px] text-white/40">🇪🇸 #2 seed</p>
+                <p className="text-lg font-black text-gray-900">Alcaraz</p>
+                <p className="text-[11px] text-gray-900/40">🇪🇸 #2 seed</p>
               </div>
             </div>
             <div className="space-y-2">
@@ -239,10 +239,10 @@ export default function WimbledonPage() {
                 const sinnerWon = m.event_winner === 'First Player' && m.first_player_key === 2072
                 const alcarazWon = !sinnerWon
                 return (
-                  <div key={i} className="flex items-center justify-between text-xs py-1.5 border-b border-white/[0.04] last:border-0">
-                    <span className={sinnerWon ? 'text-[#00C875] font-bold' : 'text-white/40'}>{m.event_first_player}</span>
-                    <span className="text-white/25 text-[10px]">{m.tournament_name} {m.tournament_season}</span>
-                    <span className={alcarazWon ? 'text-[#00C875] font-bold' : 'text-white/40'}>{m.event_second_player}</span>
+                  <div key={i} className="flex items-center justify-between text-xs py-1.5 border-b border-gray-200 last:border-0">
+                    <span className={sinnerWon ? 'text-[#00C875] font-bold' : 'text-gray-900/40'}>{m.event_first_player}</span>
+                    <span className="text-gray-900/25 text-[10px]">{m.tournament_name} {m.tournament_season}</span>
+                    <span className={alcarazWon ? 'text-[#00C875] font-bold' : 'text-gray-900/40'}>{m.event_second_player}</span>
                   </div>
                 )
               })}
@@ -251,7 +251,7 @@ export default function WimbledonPage() {
         )}
 
         {/* Top 8 seeds with grass stats */}
-        <p className="text-[11px] text-white/30 uppercase tracking-widest mb-3">Top 8 Seeds</p>
+        <p className="text-[11px] text-gray-900/30 uppercase tracking-widest mb-3">Top 8 Seeds</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
           {SEEDS.map(s => <SeedCard key={s.key} s={s} />)}
         </div>

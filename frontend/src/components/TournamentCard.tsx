@@ -17,12 +17,12 @@ export default function TournamentCard({ tournament }: Props) {
 
   return (
     <Link href={`/tournaments/${tournament.id}`}>
-      <div className="rounded-xl border border-white/[0.06] glass hover:border-[#00C875]/30 hover:bg-[#112547] transition-all duration-200 p-4 flex items-center justify-between gap-4 cursor-pointer">
+      <div className="rounded-xl border border-gray-200 glass hover:border-[#00C875]/30 hover:bg-gray-100 transition-all duration-200 p-4 flex items-center justify-between gap-4 cursor-pointer">
         <div className="flex items-center gap-3 min-w-0">
           <span className="text-2xl flex-shrink-0">{surface.emoji}</span>
           <div className="min-w-0">
             <p className="text-sm font-semibold text-white truncate">{tournament.name}</p>
-            <p className="text-[11px] text-white/40 mt-0.5">{tournament.country}</p>
+            <p className="text-[11px] text-gray-500 mt-0.5">{tournament.country}</p>
           </div>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
@@ -32,7 +32,7 @@ export default function TournamentCard({ tournament }: Props) {
           >
             {tournament.surface}
           </span>
-          <span className="text-white/20 text-sm">›</span>
+          <span className="text-gray-300 text-sm">›</span>
         </div>
       </div>
     </Link>

@@ -64,11 +64,11 @@ export default function TournamentPage() {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <header className="sticky top-0 z-20 bg-[#0B1F3A]/95 backdrop-blur-sm border-b border-white/[0.06]">
+      <header className="sticky top-0 z-20 bg-white">
         <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
           <button
             onClick={() => router.back()}
-            className="text-white/40 hover:text-white transition-colors text-sm flex items-center gap-1"
+            className="text-gray-900/40 hover:text-gray-900 transition-colors text-sm flex items-center gap-1"
           >
             ← Back
           </button>
@@ -89,18 +89,18 @@ export default function TournamentPage() {
           </div>
         ) : !tournament ? (
           <div className="text-center py-20">
-            <p className="text-white/50">Tournament not found.</p>
+            <p className="text-gray-900/50">Tournament not found.</p>
           </div>
         ) : (
           <>
             {/* Tournament hero */}
-            <div className="rounded-xl glass border border-white/[0.06] p-5 mb-6">
+            <div className="rounded-xl glass border border-gray-200 p-5 mb-6">
               <div className="flex items-center gap-4">
                 <span className="text-4xl">{surface?.emoji}</span>
                 <div>
-                  <h2 className="text-xl font-bold text-white">{tournament.name}</h2>
+                  <h2 className="text-xl font-bold text-gray-900">{tournament.name}</h2>
                   <div className="flex items-center gap-3 mt-1">
-                    <span className="text-white/40 text-sm">{tournament.country}</span>
+                    <span className="text-gray-900/40 text-sm">{tournament.country}</span>
                     <span
                       className="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full"
                       style={{ color: surface?.color, backgroundColor: `${surface?.color}18` }}
@@ -121,8 +121,8 @@ export default function TournamentPage() {
             {matches.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 text-center">
                 <span className="text-4xl mb-4">🎾</span>
-                <p className="text-white/50 text-sm">No live matches right now.</p>
-                <p className="text-white/25 text-xs mt-1">Scores refresh every 30 seconds.</p>
+                <p className="text-gray-900/50 text-sm">No live matches right now.</p>
+                <p className="text-gray-900/25 text-xs mt-1">Scores refresh every 30 seconds.</p>
               </div>
             ) : (
               <div className="space-y-3">

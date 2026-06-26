@@ -20,7 +20,7 @@ interface RankingEntry {
 const movementIcon = (m: string) => {
   if (m === 'up')   return <span className="text-[#00C875] text-[10px]">▲</span>
   if (m === 'down') return <span className="text-red-400 text-[10px]">▼</span>
-  return <span className="text-white/20 text-[10px]">—</span>
+  return <span className="text-gray-300 text-[10px]">—</span>
 }
 
 export default function RankingsList() {
@@ -55,7 +55,7 @@ export default function RankingsList() {
             className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-colors ${
               type === t
                 ? 'bg-[#00C875] text-[#0B1F3A]'
-                : 'bg-white/[0.06] text-white/50 hover:text-white'
+                : 'bg-gray-50 text-gray-500 hover:text-gray-900'
             }`}
           >
             {t}
@@ -73,11 +73,11 @@ export default function RankingsList() {
         <div className="space-y-1.5">
           {rankings.slice(0, 50).map((r) => (
             <Link key={r.player_key} href={`/players/${r.player_key}`}>
-              <div className="flex items-center gap-3 px-4 py-3 rounded-xl glass hover:bg-[#112547] hover:border-[#00C875]/20 border border-white/[0.04] transition-all cursor-pointer">
+              <div className="flex items-center gap-3 px-4 py-3 rounded-xl glass hover:bg-gray-100 hover:border-[#00C875]/20 border border-gray-200 transition-all cursor-pointer">
                 {/* Rank */}
                 <div className="w-8 flex-shrink-0 text-center">
                   <span className={`text-sm font-bold tabular-nums ${
-                    parseInt(r.place) <= 3 ? 'text-[#00C875]' : 'text-white/50'
+                    parseInt(r.place) <= 3 ? 'text-[#00C875]' : 'text-gray-500'
                   }`}>
                     {r.place}
                   </span>
@@ -90,23 +90,23 @@ export default function RankingsList() {
 
                 {/* Player name + country */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-white truncate">{r.player}</p>
-                  <p className="text-[11px] text-white/30 mt-0.5">{getFlag(r.country)} {r.country}</p>
+                  <p className="text-sm font-semibold text-gray-900 truncate">{r.player}</p>
+                  <p className="text-[11px] text-gray-400 mt-0.5">{getFlag(r.country)} {r.country}</p>
                 </div>
 
                 {/* Points */}
                 <div className="text-right flex-shrink-0">
-                  <span className="text-sm font-bold text-white/70 tabular-nums">
+                  <span className="text-sm font-bold text-gray-900/70 tabular-nums">
                     {parseInt(r.points).toLocaleString()}
                   </span>
-                  <p className="text-[10px] text-white/25">pts</p>
+                  <p className="text-[10px] text-gray-400">pts</p>
                 </div>
 
                 <FavButton
                   player={{ key: r.player_key, name: r.player, country: r.country, league: type }}
                   size="sm"
                 />
-                <span className="text-white/15 text-sm">›</span>
+                <span className="text-gray-900/15 text-sm">›</span>
               </div>
             </Link>
           ))}

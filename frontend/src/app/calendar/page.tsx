@@ -111,25 +111,25 @@ export default function CalendarPage() {
 
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-20 bg-[#0B1F3A]/75 backdrop-blur-xl border-b border-white/[0.06]">
+      <header className="sticky top-0 z-20 bg-white">
         <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
-          <button onClick={() => router.back()} className="text-white/40 hover:text-white text-sm">← Back</button>
+          <button onClick={() => router.back()} className="text-gray-900/40 hover:text-gray-900 text-sm">← Back</button>
           <div className="h-4 w-px bg-white/10" />
           <h1 className="text-xl font-bold">Tennis<span className="text-[#00C875]">Ace</span></h1>
-          <span className="text-white/30 text-sm ml-auto">2026 Calendar</span>
+          <span className="text-gray-900/30 text-sm ml-auto">2026 Calendar</span>
         </div>
 
         {/* Filters */}
         <div className="max-w-2xl mx-auto px-4 pb-3 flex gap-2 flex-wrap">
           {(['ALL','GS','ATP','WTA'] as Tour[]).map(t => (
             <button key={t} onClick={() => setTour(t)}
-              className={`text-[11px] font-bold px-3 py-1 rounded-full transition-colors ${tour === t ? 'bg-[#00C875] text-[#0B1F3A]' : 'bg-white/[0.06] text-white/50 hover:text-white'}`}>
+              className={`text-[11px] font-bold px-3 py-1 rounded-full transition-colors ${tour === t ? 'bg-[#00C875] text-[#0B1F3A]' : 'bg-white/[0.06] text-gray-900/50 hover:text-gray-900'}`}>
               {t === 'GS' ? '🏆 Grand Slams' : t === 'ALL' ? 'All' : t}
             </button>
           ))}
           {(['Hard','Clay','Grass'] as Surface[]).map(s => (
             <button key={s} onClick={() => setSurface(surface === s ? 'ALL' : s)}
-              className={`text-[11px] font-bold px-3 py-1 rounded-full transition-colors ${surface === s ? 'bg-[#00C875] text-[#0B1F3A]' : 'bg-white/[0.06] text-white/50 hover:text-white'}`}>
+              className={`text-[11px] font-bold px-3 py-1 rounded-full transition-colors ${surface === s ? 'bg-[#00C875] text-[#0B1F3A]' : 'bg-white/[0.06] text-gray-900/50 hover:text-gray-900'}`}>
               {surfaceColor[s]?.emoji} {s}
             </button>
           ))}
@@ -139,16 +139,16 @@ export default function CalendarPage() {
       <main className="max-w-2xl mx-auto px-4 py-6 pb-nav md:pb-6">
         {Object.entries(byMonth).map(([month, tournaments]) => (
           <div key={month} className="mb-6">
-            <p className="text-[11px] text-white/30 uppercase tracking-widest mb-3 sticky top-[108px] bg-[#0B1F3A]/80 backdrop-blur py-1">{month}</p>
+            <p className="text-[11px] text-gray-900/30 uppercase tracking-widest mb-3 sticky top-[108px] bg-white">{month}</p>
             <div className="space-y-2">
               {tournaments.map((t, i) => {
                 const live = isLive(t)
                 const upcoming = isUpcoming(t)
-                const surf = surfaceColor[t.surface] ?? { bg: 'bg-white/5', text: 'text-white/40', emoji: '🎾' }
-                const catColor = categoryColor[t.category] ?? 'text-white/40 bg-white/5'
+                const surf = surfaceColor[t.surface] ?? { bg: 'bg-white/5', text: 'text-gray-900/40', emoji: '🎾' }
+                const catColor = categoryColor[t.category] ?? 'text-gray-900/40 bg-white/5'
 
                 return (
-                  <div key={i} className={`glass rounded-xl p-4 border transition-all ${live ? 'border-[#00C875]/30' : 'border-white/[0.04]'} ${!upcoming ? 'opacity-50' : ''}`}>
+                  <div key={i} className={`glass rounded-xl p-4 border transition-all ${live ? 'border-[#00C875]/30' : 'border-gray-200'} ${!upcoming ? 'opacity-50' : ''}`}>
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap mb-1">
@@ -159,11 +159,11 @@ export default function CalendarPage() {
                           )}
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${catColor}`}>{t.category}</span>
                         </div>
-                        <p className="text-sm font-bold text-white leading-tight">{t.flag} {t.name}</p>
-                        <p className="text-[11px] text-white/40 mt-1">{t.country}</p>
+                        <p className="text-sm font-bold text-gray-900 leading-tight">{t.flag} {t.name}</p>
+                        <p className="text-[11px] text-gray-900/40 mt-1">{t.country}</p>
                       </div>
                       <div className="text-right flex-shrink-0">
-                        <p className="text-[11px] text-white/50 font-medium">{formatDate(t.start, t.end)}</p>
+                        <p className="text-[11px] text-gray-900/50 font-medium">{formatDate(t.start, t.end)}</p>
                         <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full mt-1 inline-block ${surf.bg} ${surf.text}`}>
                           {surf.emoji} {t.surface}
                         </span>
@@ -179,7 +179,7 @@ export default function CalendarPage() {
 
         <button
           onClick={() => setShowPast(p => !p)}
-          className="w-full py-3 text-white/30 text-sm hover:text-white/60 transition-colors"
+          className="w-full py-3 text-gray-900/30 text-sm hover:text-gray-900/60 transition-colors"
         >
           {showPast ? '▲ Hide past tournaments' : '▼ Show past tournaments'}
         </button>

@@ -81,7 +81,7 @@ export default function BottomNav({ tab, setTab, liveCount }: Props) {
               )}
             </div>
             <span className={`text-[10px] font-semibold tracking-wide ${
-              tab === key ? 'text-[#00C875]' : 'text-white/35'
+              tab === key ? 'text-[#00C875]' : 'text-gray-900/35'
             }`}>
               {label}
             </span>

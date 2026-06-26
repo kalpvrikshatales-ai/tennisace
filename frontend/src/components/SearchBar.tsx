@@ -58,7 +58,7 @@ export default function SearchBar() {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(o => !o)}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.06] hover:bg-white/10 transition-colors text-white/50 hover:text-white text-sm"
+        className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-50 hover:bg-gray-100 transition-colors text-gray-500 hover:text-white text-sm"
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
           <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
@@ -67,8 +67,8 @@ export default function SearchBar() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-72 rounded-xl glass border border-white/10 shadow-2xl z-50">
-          <div className="p-3 border-b border-white/[0.06]">
+        <div className="absolute right-0 top-full mt-2 w-72 rounded-xl glass border border-gray-200 shadow-2xl z-50">
+          <div className="p-3 border-b border-gray-200">
             <input
               autoFocus
               value={query}
@@ -79,29 +79,29 @@ export default function SearchBar() {
           </div>
           <div className="max-h-64 overflow-y-auto">
             {loading && (
-              <div className="py-4 text-center text-white/30 text-sm">Searching...</div>
+              <div className="py-4 text-center text-gray-400 text-sm">Searching...</div>
             )}
             {!loading && query.length >= 2 && results.length === 0 && (
-              <div className="py-4 text-center text-white/30 text-sm">No players found</div>
+              <div className="py-4 text-center text-gray-400 text-sm">No players found</div>
             )}
             {results.map(r => (
               <button
                 key={r.player_key}
                 onClick={() => go(r.player_key)}
-                className="w-full flex items-center justify-between px-4 py-3 hover:bg-white/[0.05] transition-colors text-left"
+                className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors text-left"
               >
                 <div>
                   <p className="text-sm font-semibold text-white">{r.player}</p>
-                  <p className="text-[11px] text-white/40">{r.country}</p>
+                  <p className="text-[11px] text-gray-500">{r.country}</p>
                 </div>
                 <div className="text-right">
                   <span className="text-[11px] text-[#00C875] font-bold">{r.league}</span>
-                  {r.place && <p className="text-[10px] text-white/30">#{r.place}</p>}
+                  {r.place && <p className="text-[10px] text-gray-400">#{r.place}</p>}
                 </div>
               </button>
             ))}
             {!query && (
-              <div className="py-4 text-center text-white/25 text-xs">
+              <div className="py-4 text-center text-gray-400 text-xs">
                 Type a player name to search
               </div>
             )}

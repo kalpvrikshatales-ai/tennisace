@@ -27,7 +27,7 @@ export default function PushButton() {
       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
         state === 'on'
           ? 'bg-[#00C875]/15 text-[#00C875] border border-[#00C875]/30'
-          : 'bg-white/[0.06] text-white/50 hover:text-white hover:bg-white/10 border border-transparent'
+          : 'bg-gray-50 text-gray-500 hover:text-white hover:bg-gray-100 border border-transparent'
       }`}
       title={state === 'on' ? 'Notifications on' : 'Enable match notifications'}
     >

@@ -52,17 +52,17 @@ export default function LiveTicker() {
           <Link
             key={`${m.match_id}-${i}`}
             href={`/matches/${m.match_id}`}
-            className="inline-flex items-center gap-3 px-5 py-1.5 border-r border-white/[0.06] hover:bg-white/[0.04] transition-colors flex-shrink-0"
+            className="inline-flex items-center gap-3 px-5 py-1.5 border-r border-gray-200 hover:bg-gray-50 transition-colors flex-shrink-0"
           >
             <span className="live-dot inline-block w-1.5 h-1.5 rounded-full bg-[#00C875] flex-shrink-0" />
-            <span className="text-[11px] text-white/50 font-medium">{m.tournament}</span>
-            <span className="text-[12px] font-semibold text-white">
+            <span className="text-[11px] text-gray-500 font-medium">{m.tournament}</span>
+            <span className="text-[12px] font-semibold text-gray-900">
               {m.player1.split(' ').pop()} <span className="text-[#00C875] font-bold">{m.score?.split(',')[0]?.split('-')[0]}</span>
-              <span className="text-white/30 mx-1">–</span>
+              <span className="text-gray-400 mx-1">–</span>
               <span className="text-[#00C875] font-bold">{m.score?.split(',')[0]?.split('-')[1]}</span> {m.player2.split(' ').pop()}
             </span>
             {m.game_score && (
-              <span className="text-[10px] text-white/30 font-mono">{m.game_score}</span>
+              <span className="text-[10px] text-gray-400 font-mono">{m.game_score}</span>
             )}
           </Link>
         ))}

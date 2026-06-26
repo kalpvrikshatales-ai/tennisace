@@ -23,14 +23,14 @@ export default function ResultCard({ result }: Props) {
   const p2won = result.winner === 'Second Player'
 
   return (
-    <div className="rounded-xl border border-white/[0.06] glass p-4">
+    <div className="rounded-xl border border-gray-200 glass p-4">
       {/* Header */}
       <div className="flex items-center justify-between gap-2 mb-3">
-        <span className="text-[11px] font-medium uppercase tracking-wider text-white/40 truncate">
+        <span className="text-[11px] font-medium uppercase tracking-wider text-gray-500 truncate">
           {result.tournament}
           {result.round ? ` · ${result.round.split(' - ').pop()}` : ''}
         </span>
-        <span className="text-[10px] text-white/25 flex-shrink-0">{result.date}</span>
+        <span className="text-[10px] text-gray-400 flex-shrink-0">{result.date}</span>
       </div>
 
       {/* Players */}
@@ -39,16 +39,16 @@ export default function ResultCard({ result }: Props) {
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 min-w-0">
             {result.player1_img && (
-              <img src={result.player1_img} alt="" className="w-6 h-6 rounded-full object-cover bg-white/10 flex-shrink-0" onError={e => (e.currentTarget.style.display='none')} />
+              <img src={result.player1_img} alt="" className="w-6 h-6 rounded-full object-cover bg-gray-100 flex-shrink-0" onError={e => (e.currentTarget.style.display='none')} />
             )}
             <Link href={result.player1_key ? `/players/${result.player1_key}` : '#'}>
-              <span className={`text-sm font-semibold truncate hover:text-[#00C875] transition-colors ${p1won ? 'text-white' : 'text-white/50'}`}>
+              <span className={`text-sm font-semibold truncate hover:text-[#00C875] transition-colors ${p1won ? 'text-white' : 'text-gray-500'}`}>
                 {result.player1}
                 {p1won && <span className="ml-1.5 text-[10px] text-[#00C875]">✓</span>}
               </span>
             </Link>
           </div>
-          <span className={`text-xs tabular-nums font-bold flex-shrink-0 ${p1won ? 'text-white' : 'text-white/30'}`}>
+          <span className={`text-xs tabular-nums font-bold flex-shrink-0 ${p1won ? 'text-white' : 'text-gray-400'}`}>
             {result.score.split(',')[0]?.split('-')[0]?.trim()}
           </span>
         </div>
@@ -57,16 +57,16 @@ export default function ResultCard({ result }: Props) {
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 min-w-0">
             {result.player2_img && (
-              <img src={result.player2_img} alt="" className="w-6 h-6 rounded-full object-cover bg-white/10 flex-shrink-0" onError={e => (e.currentTarget.style.display='none')} />
+              <img src={result.player2_img} alt="" className="w-6 h-6 rounded-full object-cover bg-gray-100 flex-shrink-0" onError={e => (e.currentTarget.style.display='none')} />
             )}
             <Link href={result.player2_key ? `/players/${result.player2_key}` : '#'}>
-              <span className={`text-sm font-semibold truncate hover:text-[#00C875] transition-colors ${p2won ? 'text-white' : 'text-white/50'}`}>
+              <span className={`text-sm font-semibold truncate hover:text-[#00C875] transition-colors ${p2won ? 'text-white' : 'text-gray-500'}`}>
                 {result.player2}
                 {p2won && <span className="ml-1.5 text-[10px] text-[#00C875]">✓</span>}
               </span>
             </Link>
           </div>
-          <span className={`text-xs tabular-nums font-bold flex-shrink-0 ${p2won ? 'text-white' : 'text-white/30'}`}>
+          <span className={`text-xs tabular-nums font-bold flex-shrink-0 ${p2won ? 'text-white' : 'text-gray-400'}`}>
             {result.score.split(',')[0]?.split('-')[1]?.trim()}
           </span>
         </div>
