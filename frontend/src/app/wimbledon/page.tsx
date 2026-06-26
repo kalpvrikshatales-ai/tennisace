@@ -335,49 +335,123 @@ export default function WimbledonHub() {
       <main className="max-w-2xl mx-auto px-4 pb-nav md:pb-8">
 
         {/* ═══ HERO ════════════════════════════════════════════════════════════ */}
-        <section className="pt-4 pb-6">
-          {/* Green top stripe */}
-          <div className="h-1.5 rounded-full mb-6" style={{ background: `linear-gradient(90deg, ${GREEN}, #15803D)` }} />
+        <section className="pt-2 pb-6">
 
-          <div className="flex items-start justify-between mb-6">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <img src="/gs-wimbledon.png" alt="" className="h-10 w-auto object-contain" />
+          {/* ── Premium hero card with grass court texture ── */}
+          <div className="relative rounded-3xl overflow-hidden mb-5"
+            style={{
+              background: 'linear-gradient(160deg, #0D3D1C 0%, #155C2C 45%, #0A2E14 100%)',
+            }}>
+
+            {/* Grass mow stripes — CSS-only, zero cost */}
+            <div className="absolute inset-0 pointer-events-none" style={{
+              backgroundImage: 'repeating-linear-gradient(90deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 12px, transparent 12px, transparent 24px)',
+            }} />
+
+            {/* Subtle vignette */}
+            <div className="absolute inset-0 pointer-events-none"
+              style={{ background: 'radial-gradient(ellipse at 50% 0%, transparent 40%, rgba(0,0,0,0.25) 100%)' }} />
+
+            {/* Purple / gold top accent band */}
+            <div className="h-1 w-full" style={{
+              background: 'linear-gradient(90deg, #6B21A8 0%, #7C3AED 30%, #22C55E 70%, #15803D 100%)'
+            }} />
+
+            {/* Content */}
+            <div className="relative px-5 pt-6 pb-7">
+
+              {/* Logo + headline */}
+              <div className="flex items-center gap-3 mb-5">
+                <img src="/gs-wimbledon.png" alt="Wimbledon"
+                  className="h-14 w-14 object-contain flex-shrink-0 drop-shadow-lg" />
                 <div>
-                  <h1 className="text-[26px] font-black text-gray-900 leading-tight tracking-tight">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.18em] mb-0.5"
+                    style={{ color: 'rgba(255,255,255,0.5)' }}>
                     The Championships
+                  </p>
+                  <h1 className="text-[32px] font-black text-white leading-none tracking-tight">
+                    Wimbledon
                   </h1>
-                  <p className="text-[13px] text-gray-400 font-medium">All England Club · SW19 London</p>
+                  <p className="text-[32px] font-black leading-none tracking-tight"
+                    style={{ color: GREEN }}>
+                    2026
+                  </p>
+                </div>
+                {isLive && (
+                  <div className="ml-auto">
+                    <span className="flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full"
+                      style={{ background: 'rgba(34,197,94,0.2)', color: GREEN, border: '1px solid rgba(34,197,94,0.3)' }}>
+                      <span className="live-dot w-1.5 h-1.5 rounded-full inline-block" style={{ background: GREEN }} />
+                      Live
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Divider */}
+              <div className="h-px mb-5" style={{ background: 'rgba(255,255,255,0.1)' }} />
+
+              {/* Stats row */}
+              <div className="grid grid-cols-3 gap-3 mb-5">
+                {[
+                  { label: 'Surface', value: 'Grass', icon: '🌿' },
+                  { label: 'Prize Fund', value: '£50M', icon: '🏆' },
+                  { label: 'Location', value: 'SW19', icon: '📍' },
+                ].map(s => (
+                  <div key={s.label} className="text-center">
+                    <span className="text-lg block mb-0.5">{s.icon}</span>
+                    <p className="text-[15px] font-black text-white">{s.value}</p>
+                    <p className="text-[10px] font-medium uppercase tracking-wider"
+                      style={{ color: 'rgba(255,255,255,0.4)' }}>{s.label}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Dates bar */}
+              <div className="rounded-2xl px-4 py-3 flex items-center justify-between mb-5"
+                style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-wider"
+                    style={{ color: 'rgba(255,255,255,0.4)' }}>Tournament Dates</p>
+                  <p className="text-[15px] font-black text-white">Jun 30 – Jul 13, 2026</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[11px] font-bold uppercase tracking-wider"
+                    style={{ color: 'rgba(255,255,255,0.4)' }}>First Serve</p>
+                  <p className="text-[15px] font-black text-white">11:00 BST</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 flex-wrap mt-3">
-                <Pill label="Grass" color={GREEN} bg={GRASS_BG} />
-                <Pill label="Jun 30 – Jul 13" color="#374151" bg="#F9FAFB" />
-                <Pill label="£50M Prize" color={PURPLE} bg="#F5F3FF" />
-                {isLive && <LiveBadge />}
-              </div>
-            </div>
-          </div>
 
-          {/* Countdown or status */}
-          {isFuture && (
-            <div className="rounded-2xl p-5 mb-2 border" style={{ background: GRASS_BG, borderColor: `${GREEN}20` }}>
-              <p className="text-center text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-4">
-                Tournament starts in
-              </p>
-              <Countdown />
-              <p className="text-center text-[11px] text-gray-400 mt-4">
-                Draws published · First serve 11:00 BST
-              </p>
+              {/* Countdown (future) */}
+              {isFuture && (
+                <div>
+                  <p className="text-center text-[10px] font-bold uppercase tracking-[0.2em] mb-3"
+                    style={{ color: 'rgba(255,255,255,0.4)' }}>
+                    Countdown to first serve
+                  </p>
+                  <Countdown />
+                </div>
+              )}
+
+              {/* Live status */}
+              {isLive && (
+                <div className="rounded-2xl p-3.5 text-center"
+                  style={{ background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)' }}>
+                  <p className="text-[14px] font-black" style={{ color: GREEN }}>
+                    🎾 The Championships are LIVE
+                  </p>
+                  <p className="text-[11px] mt-0.5" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                    Scroll down for live scores and today's order of play
+                  </p>
+                </div>
+              )}
             </div>
-          )}
-          {isLive && (
-            <div className="rounded-2xl p-4 border text-center" style={{ background: GRASS_BG, borderColor: `${GREEN}30` }}>
-              <span className="text-[14px] font-bold" style={{ color: GREEN }}>
-                🎾 Wimbledon is LIVE — matches in progress
-              </span>
-            </div>
-          )}
+
+            {/* Bottom purple/green bar */}
+            <div className="h-0.5" style={{
+              background: 'linear-gradient(90deg, #6B21A8, #22C55E, #15803D)'
+            }} />
+          </div>
         </section>
 
         {/* Gender filter — appears throughout */}
