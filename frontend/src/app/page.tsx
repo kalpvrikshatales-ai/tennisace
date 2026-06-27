@@ -60,48 +60,70 @@ export default function Home() {
   }, [])
 
   const fetchResults = useCallback(async () => {
+    // Show cache instantly
+    try {
+      const cached = localStorage.getItem('ta_results')
+      if (cached) { setResults(JSON.parse(cached)); setLoadingResults(false) }
+    } catch {}
     try {
       const data = await getResults(7)
-      setResults(data.results ?? [])
-    } catch { }
-    finally { setLoadingResults(false) }
+      const r = data.results ?? []
+      setResults(r)
+      setLoadingResults(false)
+      if (r.length) localStorage.setItem('ta_results', JSON.stringify(r.slice(0, 30)))
+    } catch { setLoadingResults(false) }
   }, [])
 
   const fetchFixtures = useCallback(async () => {
+    // Show cache instantly
     try {
-      const data = await getFixtures(3)
-      setFixtures(data.fixtures ?? [])
-    } catch { }
-    finally { setLoadingFixtures(false) }
+      const cached = localStorage.getItem('ta_fixtures')
+      if (cached) { setFixtures(JSON.parse(cached)); setLoadingFixtures(false) }
+    } catch {}
+    try {
+      const data = await getFixtures(7)
+      const f = data.fixtures ?? []
+      setFixtures(f)
+      setLoadingFixtures(false)
+      if (f.length) localStorage.setItem('ta_fixtures', JSON.stringify(f.slice(0, 50)))
+    } catch { setLoadingFixtures(false) }
   }, [])
 
   const fetchNews = useCallback(async () => {
     try {
+      const cached = localStorage.getItem('ta_news')
+      if (cached) { setNews(JSON.parse(cached)); setLoadingNews(false) }
+    } catch {}
+    try {
       const data = await fetch(`${API}/feed/news`).then(r => r.json())
-      setNews(data.articles ?? [])
-    } catch { }
-    finally { setLoadingNews(false) }
+      const a = data.articles ?? []
+      setNews(a)
+      setLoadingNews(false)
+      if (a.length) localStorage.setItem('ta_news', JSON.stringify(a))
+    } catch { setLoadingNews(false) }
   }, [])
 
-  // Only load what's needed — defer heavy tabs until user opens them
-  const fetchedTabs = useCallback((t: Tab) => {
-    if (t === 'results' && results.length === 0) fetchResults()
+  const switchTab = (t: Tab) => {
+    setTab(t)
+    // Fetch on demand only if not already loaded
+    if (t === 'results'  && results.length === 0)    fetchResults()
+    if (t === 'upcoming' && fixtures.length === 0)   fetchFixtures()
+    if (t === 'news'     && news.length === 0)       fetchNews()
     if (t === 'rankings' && tournaments.length === 0) fetchTournaments()
-    if (t === 'news' && news.length === 0) fetchNews()
-    if (t === 'tournaments' && tournaments.length === 0) fetchTournaments()
-    if (t === 'upcoming' && fixtures.length === 0) fetchFixtures()
-  }, [results, tournaments, news, fixtures, fetchResults, fetchTournaments, fetchNews, fetchFixtures])
-
-  const switchTab = (t: Tab) => { setTab(t); fetchedTabs(t) }
+  }
 
   useEffect(() => {
-    // On mount: only fetch matches (fast) + tournaments (for empty state logos)
+    // Mount: fetch live matches + pre-fetch results/schedule in background
     fetchMatches()
     fetchTournaments()
     setFavourites(getFavourites())
+    // Pre-fetch all tabs in background for instant switching
+    fetchResults()
+    fetchFixtures()
+    fetchNews()
     const interval = setInterval(fetchMatches, 30_000)
     return () => clearInterval(interval)
-  }, [fetchMatches, fetchTournaments])
+  }, [fetchMatches, fetchTournaments, fetchResults, fetchFixtures, fetchNews])
 
   const formatTime = (d: Date) =>
     d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
@@ -232,18 +254,27 @@ export default function Home() {
         {/* RESULTS */}
         {tab === 'results' && (
           <section>
-            <p className="text-[11px] text-gray-400 uppercase tracking-widest mb-4">Last 7 days · ATP & WTA</p>
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-[11px] text-gray-400 uppercase tracking-widest">Last 7 days · All Tours</p>
+              {results.length > 0 && <span className="text-[11px] text-gray-400">{results.length} results</span>}
+            </div>
             {loadingResults ? (
-              <div className="space-y-3">
-                {[...Array(6)].map((_, i) => <div key={i} className="rounded-xl glass border border-gray-200 h-24 animate-pulse" />)}
+              <div className="space-y-2">
+                {[...Array(8)].map((_, i) => (
+                  <div key={i} className="card h-[72px] animate-pulse" style={{ animationDelay: `${i * 50}ms` }} />
+                ))}
               </div>
             ) : results.length === 0 ? (
-              <div className="text-center py-20">
-                <span className="text-4xl">📋</span>
-                <p className="text-gray-400 text-sm mt-4">No recent results found.</p>
+              <div className="card p-8 text-center">
+                <p className="text-3xl mb-3">📋</p>
+                <p className="font-bold text-gray-900 text-[15px]">Results loading</p>
+                <p className="text-gray-400 text-sm mt-1">Fetching completed matches from the last 7 days...</p>
+                <button onClick={fetchResults} className="mt-4 text-[#00C875] text-sm font-semibold">
+                  Retry →
+                </button>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {results.map((r) => <ResultCard key={r.match_id} result={r} />)}
               </div>
             )}
@@ -273,37 +304,56 @@ export default function Home() {
         {/* UPCOMING / SCHEDULE */}
         {tab === 'upcoming' && (
           <section>
-            <p className="text-[11px] text-gray-400 uppercase tracking-widest mb-4">Next 3 days · ATP & WTA</p>
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-[11px] text-gray-400 uppercase tracking-widest">Next 7 days · All Tours</p>
+              {fixtures.length > 0 && <span className="text-[11px] text-gray-400">{fixtures.length} matches</span>}
+            </div>
             {loadingFixtures ? (
-              <div className="space-y-3">
-                {[...Array(5)].map((_, i) => <div key={i} className="h-20 rounded-xl glass animate-pulse" />)}
+              <div className="space-y-2">
+                {[...Array(8)].map((_, i) => (
+                  <div key={i} className="card h-[72px] animate-pulse" style={{ animationDelay: `${i * 50}ms` }} />
+                ))}
               </div>
             ) : fixtures.length === 0 ? (
-              <div className="text-center py-20">
-                <span className="text-4xl">📅</span>
-                <p className="text-gray-400 text-sm mt-4">No upcoming matches found.</p>
+              <div className="card p-8 text-center">
+                <p className="text-3xl mb-3">📅</p>
+                <p className="font-bold text-gray-900 text-[15px]">Schedule loading</p>
+                <p className="text-gray-400 text-sm mt-1">Fetching upcoming matches for the next 7 days...</p>
+                <button onClick={fetchFixtures} className="mt-4 text-[#00C875] text-sm font-semibold">
+                  Retry →
+                </button>
               </div>
             ) : (
               <div className="space-y-2">
                 {fixtures.map((f, i) => (
-                  <div key={i} className="rounded-xl border border-gray-100 glass p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[11px] text-gray-400 uppercase tracking-wider truncate">{f.tournament} · {f.type?.replace(' Singles','')}</span>
-                      <span className="text-[10px] text-gray-400 flex-shrink-0 ml-2">{f.date}</span>
+                  <div key={i} className="card p-4">
+                    {/* Header: tournament + surface dot + date */}
+                    <div className="flex items-center justify-between mb-2.5">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="w-2 h-2 rounded-full flex-shrink-0"
+                          style={{ background: f.surface === 'Grass' ? '#22C55E' : f.surface === 'Clay' ? '#F97316' : '#3B82F6' }} />
+                        <span className="text-[12px] font-bold text-gray-900 truncate">{f.tournament}</span>
+                        {f.round && <span className="text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full flex-shrink-0">{f.round}</span>}
+                      </div>
+                      <div className="text-right flex-shrink-0 ml-2">
+                        <span className="text-[12px] font-bold" style={{ color: '#00C875' }}>{f.time || 'TBD'}</span>
+                        <span className="text-[10px] text-gray-400 ml-1.5">{f.date}</span>
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        {f.player1_img && <img src={f.player1_img} alt="" className="w-6 h-6 rounded-full object-cover bg-white/10" onError={e=>e.currentTarget.style.display='none'} />}
+                    {/* Players */}
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        {f.player1_img && <img src={f.player1_img} alt="" className="w-6 h-6 rounded-full object-cover bg-gray-100 flex-shrink-0" onError={e => e.currentTarget.style.display='none'} />}
                         <Link href={f.player1_key ? `/players/${f.player1_key}` : '#'}>
-                          <span className="text-sm font-semibold text-gray-900 hover:text-[#00C875] transition-colors">{f.player1}</span>
+                          <span className="text-[14px] font-bold text-gray-900 hover:text-[#00C875] transition-colors truncate">{f.player1}</span>
                         </Link>
                       </div>
-                      <span className="text-[#00C875] font-bold text-xs mx-3">vs</span>
-                      <div className="flex items-center gap-2">
-                        {f.player2_img && <img src={f.player2_img} alt="" className="w-6 h-6 rounded-full object-cover bg-white/10" onError={e=>e.currentTarget.style.display='none'} />}
+                      <span className="text-[11px] font-black text-gray-300 flex-shrink-0">vs</span>
+                      <div className="flex items-center gap-2 flex-1 min-w-0 justify-end">
                         <Link href={f.player2_key ? `/players/${f.player2_key}` : '#'}>
-                          <span className="text-sm font-semibold text-gray-900 hover:text-[#00C875] transition-colors">{f.player2}</span>
+                          <span className="text-[14px] font-bold text-gray-900 hover:text-[#00C875] transition-colors truncate">{f.player2}</span>
                         </Link>
+                        {f.player2_img && <img src={f.player2_img} alt="" className="w-6 h-6 rounded-full object-cover bg-gray-100 flex-shrink-0" onError={e => e.currentTarget.style.display='none'} />}
                       </div>
                     </div>
                   </div>
