@@ -14,21 +14,24 @@ const SURFACE_STYLE: Record<string, { color: string; label: string }> = {
   Hard:  { color: '#3B82F6', label: '🔵 Hard' },
 }
 
-function StatBar({ label, v1, v2, pct1, pct2 }: { label: string; v1: string; v2: string; pct1?: number; pct2?: number }) {
-  const p1 = pct1 ?? (parseFloat(v1) || 0)
-  const p2 = pct2 ?? (parseFloat(v2) || 0)
-  const total = p1 + p2 || 1
-  const pctLeft = Math.round(p1 / total * 100)
+function StatBar({ label, won1, total1, won2, total2 }: { label: string; won1: number; total1: number; won2: number; total2: number }) {
+  const allTotal = (total1 + total2) || 1
+  const p1Pct = Math.round(won1 / allTotal * 100)
+  const p2Pct = Math.round(won2 / allTotal * 100)
   return (
     <div className="mb-3">
       <div className="flex justify-between text-[12px] font-bold mb-1.5">
-        <span className="text-gray-900">{v1}</span>
+        <span className="text-gray-900">{won1}/{total1}</span>
         <span className="text-[11px] text-gray-400 font-semibold uppercase tracking-wider">{label}</span>
-        <span className="text-gray-900">{v2}</span>
+        <span className="text-gray-900">{won2}/{total2}</span>
       </div>
       <div className="flex h-2 rounded-full overflow-hidden gap-0.5">
-        <div className="rounded-l-full transition-all" style={{ width: `${pctLeft}%`, background: '#00C875' }} />
-        <div className="rounded-r-full bg-gray-200 flex-1" />
+        <div className="rounded-l-full transition-all" style={{ width: `${p1Pct}%`, background: '#00C875' }} />
+        <div className="rounded-r-full transition-all bg-gray-200" style={{ width: `${p2Pct}%` }} />
+      </div>
+      <div className="flex justify-between text-[10px] text-gray-400 mt-1">
+        <span>{p1Pct}%</span>
+        <span>{p2Pct}%</span>
       </div>
     </div>
   )
@@ -76,7 +79,10 @@ export default function MatchPage() {
   // Parse stats from statistics[]
   const stats: any[] = match?.statistics || []
   const getStat = (playerKey: number, name: string) =>
-    stats.find(s => s.player_key === playerKey && s.stat_name === name && s.stat_period === 'match')?.stat_value
+    stats.find(s => s.player_key === playerKey && s.stat_name === name && s.stat_period === 'match')
+  const getStatValue = (playerKey: number, name: string) => getStat(playerKey, name)?.stat_value
+  const getStatWon = (playerKey: number, name: string) => getStat(playerKey, name)?.stat_won || 0
+  const getStatTotal = (playerKey: number, name: string) => getStat(playerKey, name)?.stat_total || 0
 
   return (
     <div className="min-h-screen">
@@ -264,10 +270,12 @@ export default function MatchPage() {
                     { name: '1st Serve Won', key: '1st serve points won' },
                     { name: '2nd Serve Won', key: '2nd serve points won' },
                   ].map(stat => {
-                    const v1 = getStat(match.player1_key, stat.key)
-                    const v2 = getStat(match.player2_key, stat.key)
-                    if (!v1 && !v2) return null
-                    return <StatBar key={stat.key} label={stat.name} v1={v1 || '0'} v2={v2 || '0'} />
+                    const won1 = getStatWon(match.player1_key, stat.key)
+                    const total1 = getStatTotal(match.player1_key, stat.key)
+                    const won2 = getStatWon(match.player2_key, stat.key)
+                    const total2 = getStatTotal(match.player2_key, stat.key)
+                    if (!total1 && !total2) return null
+                    return <StatBar key={stat.key} label={stat.name} won1={won1} total1={total1} won2={won2} total2={total2} />
                   })}
                 </div>
               </div>
