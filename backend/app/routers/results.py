@@ -92,7 +92,7 @@ async def _fetch_all(c: httpx.AsyncClient, start: str, stop: str) -> list:
 @router.get("/results")
 async def results(response: Response, days: int = 7, limit: int = 50, offset: int = 0):
     """Completed matches from the last N days — singles only."""
-    cache_key = f"results:{days}:{offset}:{limit}"
+    cache_key = f"results_v2:{days}:{offset}:{limit}"
     cached = await get_cached(cache_key)
     if cached:
         response.headers["Cache-Control"] = "public, max-age=3600"
@@ -122,7 +122,7 @@ async def results(response: Response, days: int = 7, limit: int = 50, offset: in
 @router.get("/fixtures")
 async def fixtures(response: Response, days: int = 7, limit: int = 50, offset: int = 0):
     """Upcoming matches for the next N days — sorted Grand Slams first."""
-    cache_key = f"fixtures:{days}:{offset}:{limit}"
+    cache_key = f"fixtures_v2:{days}:{offset}:{limit}"
     cached = await get_cached(cache_key)
     if cached:
         response.headers["Cache-Control"] = "public, max-age=1800"
@@ -223,6 +223,9 @@ async def wimbledon_draw(gender: str = "men"):
             raw = r.json().get("result", [])
         except Exception:
             return {"rounds": {}, "total": 0}
+
+    if not isinstance(raw, list):
+        return {"rounds": {}, "total": 0}
 
     by_round: dict = {}
     for m in raw:
