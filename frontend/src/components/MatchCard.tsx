@@ -162,9 +162,20 @@ export default function MatchCard({ match }: Props) {
         </div>
       </Link>
 
-      {/* Community Voting — outside Link so clicks don't navigate */}
+      {/* Bottom actions — voting + compare, outside Link so clicks don't navigate */}
       <div className="p-4 border-t border-gray-200">
-        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Who wins?</p>
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Who wins?</p>
+          {(match as any).player1_key && (match as any).player2_key && (
+            <Link
+              href={`/compare?p1=${(match as any).player1_key}&p2=${(match as any).player2_key}`}
+              onClick={e => e.stopPropagation()}
+              className="text-[10px] font-bold text-[#00C875] hover:text-green-600 uppercase tracking-widest"
+            >
+              Compare →
+            </Link>
+          )}
+        </div>
         <CardVoting matchId={match.match_id} player1={match.player1} player2={match.player2} />
       </div>
     </div>

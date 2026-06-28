@@ -8,6 +8,7 @@ import { getLiveMatches, getFixtures, getPlayer } from '@/lib/api'
 import { sortByPriority } from '@/lib/matchPriority'
 import { validateMatches } from '@/lib/dataValidator'
 import { monitor } from '@/lib/integrityMonitor'
+import CardVoting from '@/components/CardVoting'
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
@@ -194,21 +195,42 @@ function UpcomingRow({ match }: { match: any }) {
   const matchId = match.match_id || `${match.player1_key || match.player1.replace(/\s/g, '-')}_vs_${match.player2_key || match.player2.replace(/\s/g, '-')}`
 
   return (
-    <Link href={`/wimbledon/${matchId}`}>
-      <div className="card p-4 cursor-pointer hover:border-green-200 hover:shadow-sm transition-all">
+    <div className="card overflow-hidden cursor-pointer hover:border-green-200 hover:shadow-sm transition-all">
+      <Link href={`/wimbledon/${matchId}`} className="block p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
             <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-1">{round}</span>
-            <p className="text-[14px] font-bold text-gray-900 truncate">{match.player1}</p>
-            <p className="text-[14px] font-semibold text-gray-500 truncate">vs {match.player2}</p>
+            <div className="flex items-center gap-2 mb-0.5">
+              {match.player1_img && <img src={match.player1_img} alt="" className="w-6 h-6 rounded-full object-cover bg-gray-100 flex-shrink-0" onError={e => e.currentTarget.style.display='none'} />}
+              <p className="text-[14px] font-bold text-gray-900 truncate">{match.player1}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              {match.player2_img && <img src={match.player2_img} alt="" className="w-6 h-6 rounded-full object-cover bg-gray-100 flex-shrink-0" onError={e => e.currentTarget.style.display='none'} />}
+              <p className="text-[14px] font-semibold text-gray-500 truncate">{match.player2}</p>
+            </div>
           </div>
           <div className="text-right flex-shrink-0">
             <span className="text-[13px] font-bold" style={{ color: GREEN }}>{time || 'TBD'}</span>
             {match.date && <p className="text-[11px] text-gray-400 mt-0.5">{match.date}</p>}
+            {match.player1_key && match.player2_key && (
+              <Link
+                href={`/compare?p1=${match.player1_key}&p2=${match.player2_key}`}
+                onClick={e => e.stopPropagation()}
+                className="text-[10px] font-bold mt-1 block"
+                style={{ color: GREEN }}
+              >
+                Compare →
+              </Link>
+            )}
           </div>
         </div>
+      </Link>
+      {/* Voting outside the navigation Link */}
+      <div className="px-4 pb-3 border-t border-gray-100 pt-3">
+        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Who wins?</p>
+        <CardVoting matchId={matchId} player1={match.player1} player2={match.player2} />
       </div>
-    </Link>
+    </div>
   )
 }
 

@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { getRankings, getPlayer, getH2H } from '@/lib/api'
 import { getFlag } from '@/lib/flags'
 
@@ -28,8 +28,9 @@ function StatBar({ label, v1, v2 }: { label: string; v1: number; v2: number }) {
   )
 }
 
-export default function ComparePage() {
+function ComparePageInner() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [rankings, setRankings] = useState<RankingEntry[]>([])
   const [p1Key, setP1Key] = useState<number | null>(null)
   const [p2Key, setP2Key] = useState<number | null>(null)
@@ -42,6 +43,11 @@ export default function ComparePage() {
     Promise.all([getRankings('ATP'), getRankings('WTA')]).then(([a, w]) => {
       setRankings([...(a.rankings ?? []), ...(w.rankings ?? [])])
     })
+    // Pre-load players from URL params e.g. /compare?p1=2072&p2=2382
+    const urlP1 = searchParams.get('p1')
+    const urlP2 = searchParams.get('p2')
+    if (urlP1) setP1Key(Number(urlP1))
+    if (urlP2) setP2Key(Number(urlP2))
   }, [])
 
   useEffect(() => {
@@ -202,5 +208,13 @@ export default function ComparePage() {
         )}
       </main>
     </div>
+  )
+}
+
+export default function ComparePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white" />}>
+      <ComparePageInner />
+    </Suspense>
   )
 }

@@ -347,44 +347,8 @@ export default function Home() {
               </div>
             ) : (
               <div className="space-y-2">
-                {sortMatches(fixtures).map((f, i) => (
-                  <div key={i} className="card p-4">
-                    {/* Header: tournament + surface dot + date */}
-                    <div className="flex items-center justify-between mb-2.5">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <span className="w-2 h-2 rounded-full flex-shrink-0"
-                          style={{ background: f.surface === 'Grass' ? '#22C55E' : f.surface === 'Clay' ? '#F97316' : '#3B82F6' }} />
-                        <span className="text-[12px] font-bold text-gray-900 truncate">{f.tournament}</span>
-                        {f.round && <span className="text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full flex-shrink-0">{f.round}</span>}
-                      </div>
-                      <div className="text-right flex-shrink-0 ml-2">
-                        <span className="text-[12px] font-bold" style={{ color: '#00C875' }}>{f.time || 'TBD'}</span>
-                        <span className="text-[10px] text-gray-400 ml-1.5">{f.date}</span>
-                      </div>
-                    </div>
-                    {/* Players */}
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-2 flex-1 min-w-0">
-                        {f.player1_img && <img src={f.player1_img} alt="" className="w-6 h-6 rounded-full object-cover bg-gray-100 flex-shrink-0" onError={e => e.currentTarget.style.display='none'} />}
-                        <Link href={f.player1_key ? `/players/${f.player1_key}` : '#'}>
-                          <span className="text-[14px] font-bold text-gray-900 hover:text-[#00C875] transition-colors truncate">
-                            {getPlayerCountry(f.player1) && <span className="mr-1">{getCountryFlag(getPlayerCountry(f.player1)!)}</span>}
-                            {f.player1}
-                          </span>
-                        </Link>
-                      </div>
-                      <span className="text-[11px] font-black text-gray-300 flex-shrink-0">vs</span>
-                      <div className="flex items-center gap-2 flex-1 min-w-0 justify-end">
-                        <Link href={f.player2_key ? `/players/${f.player2_key}` : '#'}>
-                          <span className="text-[14px] font-bold text-gray-900 hover:text-[#00C875] transition-colors truncate">
-                            {f.player2}
-                            {getPlayerCountry(f.player2) && <span className="ml-1">{getCountryFlag(getPlayerCountry(f.player2)!)}</span>}
-                          </span>
-                        </Link>
-                        {f.player2_img && <img src={f.player2_img} alt="" className="w-6 h-6 rounded-full object-cover bg-gray-100 flex-shrink-0" onError={e => e.currentTarget.style.display='none'} />}
-                      </div>
-                    </div>
-                  </div>
+                {sortMatches(fixtures).map((f) => (
+                  <MatchCard key={f.match_id} match={f} />
                 ))}
               </div>
             )}
