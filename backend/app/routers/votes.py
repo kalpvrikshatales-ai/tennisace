@@ -1,13 +1,17 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+from typing import Optional
 import os
-from supabase import create_client, Client
 
 router = APIRouter()
 
-url = os.getenv("SUPABASE_URL")
-key = os.getenv("SUPABASE_KEY")
-supabase: Client = create_client(url, key) if url and key else None
+try:
+    from supabase import create_client, Client
+    url = os.getenv("SUPABASE_URL")
+    key = os.getenv("SUPABASE_KEY")
+    supabase = create_client(url, key) if url and key else None
+except Exception:
+    supabase = None
 
 class VoteRequest(BaseModel):
   match_id: str
@@ -18,7 +22,7 @@ class VoteStats(BaseModel):
   player1_votes: int
   player2_votes: int
   total_votes: int
-  user_vote: int | None
+  user_vote: Optional[int] = None
 
 @router.post("/cast", response_model=dict)
 async def cast_vote(vote: VoteRequest):
