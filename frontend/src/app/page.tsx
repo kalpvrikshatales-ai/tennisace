@@ -113,17 +113,14 @@ export default function Home() {
   }
 
   useEffect(() => {
-    // Mount: fetch live matches + pre-fetch results/schedule in background
+    // Mount: fetch ONLY live matches + rankings for fast initial load
     fetchMatches()
     fetchTournaments()
     setFavourites(getFavourites())
-    // Pre-fetch all tabs in background for instant switching
-    fetchResults()
-    fetchFixtures()
-    fetchNews()
+    // Load other tabs on-demand when user clicks
     const interval = setInterval(fetchMatches, 30_000)
     return () => clearInterval(interval)
-  }, [fetchMatches, fetchTournaments, fetchResults, fetchFixtures, fetchNews])
+  }, [fetchMatches, fetchTournaments])
 
   const formatTime = (d: Date) =>
     d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
