@@ -77,7 +77,7 @@ async def _fetch_all(c: httpx.AsyncClient, start: str, stop: str) -> list:
 
 
 @router.get("/results")
-async def results(days: int = 7, limit: int = 50, offset: int = 0, response: Response = None):
+async def results(days: int = 7, limit: int = 50, offset: int = 0, response: Response):
     """Completed matches from the last N days — singles only."""
     stop  = date.today()
     start = stop - timedelta(days=days)
@@ -90,8 +90,7 @@ async def results(days: int = 7, limit: int = 50, offset: int = 0, response: Res
         and m.get("event_type_type", "") in SINGLES_TYPES
     ]
     finished.sort(key=lambda m: m.get("date", ""), reverse=True)
-    if response:
-        response.headers["Cache-Control"] = "public, max-age=3600"
+    response.headers["Cache-Control"] = "public, max-age=3600"
 
     total = len(finished)
     paginated = finished[offset:offset + limit]
@@ -99,7 +98,7 @@ async def results(days: int = 7, limit: int = 50, offset: int = 0, response: Res
 
 
 @router.get("/fixtures")
-async def fixtures(days: int = 7, limit: int = 50, offset: int = 0, response: Response = None):
+async def fixtures(days: int = 7, limit: int = 50, offset: int = 0, response: Response):
     """Upcoming matches for the next N days — sorted Grand Slams first."""
     start = date.today()
     stop  = start + timedelta(days=days)
@@ -122,8 +121,7 @@ async def fixtures(days: int = 7, limit: int = 50, offset: int = 0, response: Re
         PRIORITY.get(m.get("type", ""), 4),
         m.get("time", ""),
     ))
-    if response:
-        response.headers["Cache-Control"] = "public, max-age=1800"
+    response.headers["Cache-Control"] = "public, max-age=1800"
 
     total = len(upcoming)
     paginated = upcoming[offset:offset + limit]
@@ -132,10 +130,11 @@ async def fixtures(days: int = 7, limit: int = 50, offset: int = 0, response: Re
 
 # News endpoint
 @router.get("/news")
-async def get_news(response: Response = None):
+async def get_news(response: Response):
     """BBC Sport tennis RSS feed."""
     RSS = "https://feeds.bbci.co.uk/sport/tennis/rss.xml"
     import re
+    response.headers["Cache-Control"] = "public, max-age=1800"
     try:
         async with httpx.AsyncClient() as c:
             r = await c.get(RSS, timeout=8, headers={"User-Agent": "TennisAce/1.0"})
@@ -150,8 +149,6 @@ async def get_news(response: Response = None):
             img = ""
             mi = re.search(r'media:thumbnail[^>]*url="([^"]+)"', item)
             if mi: img = mi.group(1)
-            if response:
-                response.headers["Cache-Control"] = "public, max-age=1800"
             articles.append({
                 "title":       g("title"),
                 "link":        g("link") or g("guid"),

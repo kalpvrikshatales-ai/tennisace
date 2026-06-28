@@ -36,13 +36,12 @@ def _parse_rss(xml: str) -> list:
 
 
 @router.get("/news")
-async def get_news(response: Response = None):
+async def get_news(response: Response):
     try:
         async with httpx.AsyncClient() as c:
             r = await c.get(RSS_URL, timeout=8, headers={'User-Agent': 'TennisAce/1.0'})
             articles = _parse_rss(r.text)
-            if response:
-                response.headers["Cache-Control"] = "public, max-age=1800"
+            response.headers["Cache-Control"] = "public, max-age=1800"
             return {"articles": articles, "count": len(articles)}
     except Exception:
         return {"articles": [], "count": 0}

@@ -42,11 +42,10 @@ async def _get_rankings_cached(league: str) -> list:
 
 
 @router.get("/rankings")
-async def rankings(type: str = "ATP", limit: int = 100, offset: int = 0, response: Response = None):
+async def rankings(type: str = "ATP", limit: int = 100, offset: int = 0, response: Response):
     try:
         data = await _get_rankings_cached(type)
-        if response:
-            response.headers["Cache-Control"] = "public, max-age=21600"
+        response.headers["Cache-Control"] = "public, max-age=21600"
         total = len(data)
         paginated = data[offset:offset + limit]
         return {"rankings": paginated, "type": type, "total": total, "count": len(paginated), "offset": offset, "limit": limit}
@@ -58,8 +57,7 @@ async def rankings(type: str = "ATP", limit: int = 100, offset: int = 0, respons
                         headers=_headers(), params={"league": f"eq.{type}", "select": "data"}, timeout=5)
                     rows = r.json()
                     if rows:
-                        if response:
-                            response.headers["Cache-Control"] = "public, max-age=21600"
+                        response.headers["Cache-Control"] = "public, max-age=21600"
                         data = rows[0]["data"]
                         total = len(data)
                         paginated = data[offset:offset + limit]
