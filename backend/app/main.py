@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZIPMiddleware
 from contextlib import asynccontextmanager
@@ -6,9 +6,13 @@ from app.routers import matches, players, tournaments, results, push, news, vote
 from app.services.notifier import start_notifier
 import asyncio
 import os
+import time
+import logging
 import sentry_sdk
 from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sentry_sdk.integrations.starlette import StarletteIntegration
+
+logger = logging.getLogger("tennisace")
 
 sentry_dsn = os.getenv("SENTRY_DSN")
 if sentry_dsn:
@@ -30,6 +34,16 @@ async def lifespan(app: FastAPI):
     task.cancel()
 
 app = FastAPI(title="TennisAce API", description="tennisace.live", version="1.0.0", lifespan=lifespan)
+
+@app.middleware("http")
+async def timing_middleware(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    if process_time > 0.5:  # Log slow requests (> 500ms)
+        logger.warning(f"{request.method} {request.url.path} took {process_time:.2f}s")
+    response.headers["X-Process-Time"] = str(process_time)
+    return response
 
 app.add_middleware(GZIPMiddleware, minimum_size=1000)
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000","https://tennisace.live","https://www.tennisace.live","https://tennisace.vercel.app"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])

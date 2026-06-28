@@ -3,6 +3,7 @@ import httpx, os, asyncio
 from dotenv import load_dotenv
 from datetime import date, timedelta
 from app.data.player_enrichment import get_surface
+from app.services.redis_cache import get_cached, set_cached
 
 load_dotenv()
 
@@ -79,6 +80,12 @@ async def _fetch_all(c: httpx.AsyncClient, start: str, stop: str) -> list:
 @router.get("/results")
 async def results(response: Response, days: int = 7, limit: int = 50, offset: int = 0):
     """Completed matches from the last N days — singles only."""
+    cache_key = f"results:{days}:{offset}:{limit}"
+    cached = await get_cached(cache_key)
+    if cached:
+        response.headers["Cache-Control"] = "public, max-age=3600"
+        return cached
+
     stop  = date.today()
     start = stop - timedelta(days=days)
     async with httpx.AsyncClient() as c:
@@ -94,12 +101,20 @@ async def results(response: Response, days: int = 7, limit: int = 50, offset: in
 
     total = len(finished)
     paginated = finished[offset:offset + limit]
-    return {"results": paginated, "count": len(paginated), "total": total, "offset": offset, "limit": limit}
+    result = {"results": paginated, "count": len(paginated), "total": total, "offset": offset, "limit": limit}
+    await set_cached(cache_key, result, ttl=1800)  # 30 minute cache
+    return result
 
 
 @router.get("/fixtures")
 async def fixtures(response: Response, days: int = 7, limit: int = 50, offset: int = 0):
     """Upcoming matches for the next N days — sorted Grand Slams first."""
+    cache_key = f"fixtures:{days}:{offset}:{limit}"
+    cached = await get_cached(cache_key)
+    if cached:
+        response.headers["Cache-Control"] = "public, max-age=1800"
+        return cached
+
     start = date.today()
     stop  = start + timedelta(days=days)
     async with httpx.AsyncClient() as c:
@@ -125,13 +140,21 @@ async def fixtures(response: Response, days: int = 7, limit: int = 50, offset: i
 
     total = len(upcoming)
     paginated = upcoming[offset:offset + limit]
-    return {"fixtures": paginated, "count": len(paginated), "total": total, "offset": offset, "limit": limit}
+    result = {"fixtures": paginated, "count": len(paginated), "total": total, "offset": offset, "limit": limit}
+    await set_cached(cache_key, result, ttl=1800)  # 30 minute cache
+    return result
 
 
 # News endpoint
 @router.get("/news")
 async def get_news(response: Response):
     """BBC Sport tennis RSS feed."""
+    cache_key = "news"
+    cached = await get_cached(cache_key)
+    if cached:
+        response.headers["Cache-Control"] = "public, max-age=1800"
+        return cached
+
     RSS = "https://feeds.bbci.co.uk/sport/tennis/rss.xml"
     import re
     response.headers["Cache-Control"] = "public, max-age=1800"
@@ -157,7 +180,9 @@ async def get_news(response: Response):
                 "image":       img,
                 "source":      "BBC Sport",
             })
-        return {"articles": [a for a in articles if a["title"]], "count": len(articles)}
+        result = {"articles": [a for a in articles if a["title"]], "count": len(articles)}
+        await set_cached(cache_key, result, ttl=1800)
+        return result
     except Exception as ex:
         return {"articles": [], "count": 0, "error": str(ex)}
 
