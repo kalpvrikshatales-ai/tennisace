@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getFlag } from '@/lib/flags'
+import { PlayStyleSection, StrengthsWeaknesses, FavoriteSurface, TitlesByService, RecentFormGraph } from '@/components/PlayerInsights'
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
@@ -92,7 +93,7 @@ export default function PlayerPage() {
   const router = useRouter()
   const [player, setPlayer] = useState<any>(null)
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'overview' | 'stats' | 'matches'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'insights' | 'stats' | 'matches'>('overview')
 
   useEffect(() => {
     fetch(`${API}/players/${key}`)
@@ -150,6 +151,7 @@ export default function PlayerPage() {
 
   const tabs = [
     { key: 'overview', label: 'Overview' },
+    { key: 'insights', label: 'Insights' },
     { key: 'stats',    label: 'Stats' },
     { key: 'matches',  label: 'Matches' },
   ] as const
@@ -278,6 +280,17 @@ export default function PlayerPage() {
                 <SurfaceBar label="🌿 Grass" won={careerTotals.gw} lost={careerTotals.gl} color="#22C55E" />
               </div>
             </div>
+          </div>
+        )}
+
+        {/* ── Insights tab ── */}
+        {activeTab === 'insights' && (
+          <div className="space-y-5">
+            <PlayStyleSection player={player} />
+            <StrengthsWeaknesses player={player} />
+            <FavoriteSurface player={player} />
+            <TitlesByService player={player} />
+            <RecentFormGraph player={player} />
           </div>
         )}
 
