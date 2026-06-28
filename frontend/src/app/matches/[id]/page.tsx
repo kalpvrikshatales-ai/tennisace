@@ -15,23 +15,23 @@ const SURFACE_STYLE: Record<string, { color: string; label: string }> = {
 }
 
 function StatBar({ label, won1, total1, won2, total2 }: { label: string; won1: number; total1: number; won2: number; total2: number }) {
-  const allTotal = (total1 + total2) || 1
-  const p1Pct = Math.round(won1 / allTotal * 100)
-  const p2Pct = Math.round(won2 / allTotal * 100)
+  const p1Pct = total1 > 0 ? Math.round(won1 / total1 * 100) : 0
+  const p2Pct = total2 > 0 ? Math.round(won2 / total2 * 100) : 0
+  // For bar width, use proportion of combined pool to show relative contribution
+  const combinedTotal = (total1 + total2) || 1
+  const barWidth1 = Math.round(won1 / combinedTotal * 100)
+  const barWidth2 = Math.round(won2 / combinedTotal * 100)
+
   return (
     <div className="mb-3">
       <div className="flex justify-between text-[12px] font-bold mb-1.5">
-        <span className="text-gray-900">{won1}/{total1}</span>
+        <span className="text-gray-900">{won1}/{total1} ({p1Pct}%)</span>
         <span className="text-[11px] text-gray-400 font-semibold uppercase tracking-wider">{label}</span>
-        <span className="text-gray-900">{won2}/{total2}</span>
+        <span className="text-gray-900">{won2}/{total2} ({p2Pct}%)</span>
       </div>
       <div className="flex h-2 rounded-full overflow-hidden gap-0.5">
-        <div className="rounded-l-full transition-all" style={{ width: `${p1Pct}%`, background: '#00C875' }} />
-        <div className="rounded-r-full transition-all bg-gray-200" style={{ width: `${p2Pct}%` }} />
-      </div>
-      <div className="flex justify-between text-[10px] text-gray-400 mt-1">
-        <span>{p1Pct}%</span>
-        <span>{p2Pct}%</span>
+        <div className="rounded-l-full transition-all" style={{ width: `${barWidth1}%`, background: '#00C875' }} />
+        <div className="rounded-r-full transition-all bg-gray-200" style={{ width: `${barWidth2}%` }} />
       </div>
     </div>
   )
