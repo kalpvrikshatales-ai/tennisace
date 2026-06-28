@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from starlette.middleware.gzip import GZIPMiddleware
+from starlette.middleware.gzip import GZipMiddleware
 from contextlib import asynccontextmanager
 from app.routers import matches, players, tournaments, results, push, news, votes
 from app.services.notifier import start_notifier
@@ -44,7 +44,7 @@ async def timing_middleware(request: Request, call_next):
     response.headers["X-Process-Time"] = str(process_time)
     return response
 
-app.add_middleware(GZIPMiddleware, minimum_size=1000)
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000","https://tennisace.live","https://www.tennisace.live","https://tennisace.vercel.app"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
 app.include_router(matches.router, prefix="/matches", tags=["matches"])
