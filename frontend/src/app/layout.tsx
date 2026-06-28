@@ -42,6 +42,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="manifest" href="/manifest.json" />
         <link rel="preconnect" href="https://tennisace.onrender.com" />
         <link rel="dns-prefetch" href="https://tennisace.onrender.com" />
+        {/* Wake up Render backend immediately on page load — prevents 50s cold start */}
+        <link rel="preload" href="https://tennisace.onrender.com/health" as="fetch" crossOrigin="anonymous" />
         <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
