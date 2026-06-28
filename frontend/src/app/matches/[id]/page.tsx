@@ -105,8 +105,10 @@ export default function MatchPage() {
           </div>
         ) : !match ? (
           <div className="text-center py-20">
-            <p className="text-gray-900/50">Match not found or has ended.</p>
-            <button onClick={() => router.back()} className="mt-4 text-[#00C875] text-sm">← Go back</button>
+            <p className="text-3xl mb-3">🎾</p>
+            <p className="font-bold text-gray-900 text-[15px]">Match data unavailable</p>
+            <p className="text-gray-400 text-sm mt-1">This match may be too old or not yet indexed.</p>
+            <button onClick={() => router.back()} className="mt-4 text-[#00C875] text-sm font-semibold">← Go back</button>
           </div>
         ) : (
           <>

@@ -54,11 +54,12 @@ async def match_detail(match_id: str, response: Response):
         except Exception:
             pass
 
-        # Fallback: try fixtures (7-day window only to limit memory)
+        from datetime import date, timedelta
+
+        # Fallback 1: upcoming fixtures (next 14 days — scheduled matches)
         try:
-            from datetime import date, timedelta
-            stop = date.today() + timedelta(days=7)
-            start = date.today() - timedelta(days=7)
+            stop = date.today() + timedelta(days=14)
+            start = date.today()
             r2 = await c.get(BASE, params={
                 "method": "get_fixtures",
                 "APIkey": API_KEY,
@@ -67,6 +68,25 @@ async def match_detail(match_id: str, response: Response):
             raw_list2 = r2.json().get("result", [])
             if isinstance(raw_list2, list):
                 found = next((m for m in raw_list2 if str(m.get("event_key", "")) == match_id), None)
+                if found:
+                    result = _normalize_match(found)
+                    result["point_by_point"] = []
+                    return result
+        except Exception:
+            pass
+
+        # Fallback 2: recent results (last 14 days — finished matches)
+        try:
+            stop = date.today()
+            start = stop - timedelta(days=14)
+            r3 = await c.get(BASE, params={
+                "method": "get_fixtures",
+                "APIkey": API_KEY,
+                "date_start": str(start), "date_stop": str(stop),
+            }, timeout=10)
+            raw_list3 = r3.json().get("result", [])
+            if isinstance(raw_list3, list):
+                found = next((m for m in raw_list3 if str(m.get("event_key", "")) == match_id), None)
                 if found:
                     result = _normalize_match(found)
                     result["point_by_point"] = []
