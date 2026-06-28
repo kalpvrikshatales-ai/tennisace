@@ -361,7 +361,18 @@ export default function WimbledonHub() {
       (m.type || '').toLowerCase().includes('women') || (m.round || '').toLowerCase().includes('women'))
   }
 
-  const visibleUpcoming = filterGender(upcoming).slice(0, showAllUpcoming ? 20 : 6)
+  const sortBySeedsFirst = (matches: any[]) => {
+    const seedNames = new Set(SEEDS.map(s => s.name.toLowerCase()))
+    const withSeeds = matches.filter((m: any) =>
+      seedNames.has((m.player1 || '').toLowerCase()) || seedNames.has((m.player2 || '').toLowerCase())
+    )
+    const withoutSeeds = matches.filter((m: any) =>
+      !seedNames.has((m.player1 || '').toLowerCase()) && !seedNames.has((m.player2 || '').toLowerCase())
+    )
+    return [...withSeeds, ...withoutSeeds]
+  }
+
+  const visibleUpcoming = sortBySeedsFirst(filterGender(upcoming)).slice(0, showAllUpcoming ? 20 : 6)
 
   return (
     <div className="min-h-screen bg-white">
