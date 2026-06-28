@@ -5,12 +5,22 @@ services:
     rootDir: backend
     dockerfilePath: ./backend/Dockerfile
     envVars:
+      # Tennis API key for data source
       - key: TENNIS_API_KEY
         sync: false
+      # Supabase database credentials
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_ANON_KEY
         sync: false
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
+      # Web Push notification keys
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_EMAIL
+        sync: false
     healthCheckPath: /health
+    autoDeploy: true

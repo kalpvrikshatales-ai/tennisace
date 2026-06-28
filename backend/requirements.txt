@@ -5,3 +5,9 @@ python-dotenv>=1.0.1
 pydantic>=2.7.0
 apscheduler>=3.10.4
 pywebpush>=2.0.0
+sentry-sdk[fastapi]>=1.39.2
+
+# Development & linting
+black>=24.1.0
+pylint>=3.0.0
+flake8>=7.0.0

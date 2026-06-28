@@ -4,6 +4,23 @@ from contextlib import asynccontextmanager
 from app.routers import matches, players, tournaments, results, push, news
 from app.services.notifier import start_notifier
 import asyncio
+import os
+import sentry_sdk
+from sentry_sdk.integrations.fastapi import FastApiIntegration
+from sentry_sdk.integrations.starlette import StarletteIntegration
+
+sentry_dsn = os.getenv("SENTRY_DSN")
+if sentry_dsn:
+    sentry_sdk.init(
+        dsn=sentry_dsn,
+        environment=os.getenv("ENVIRONMENT", "development"),
+        integrations=[
+            FastApiIntegration(),
+            StarletteIntegration(),
+        ],
+        traces_sample_rate=0.1,
+        profiles_sample_rate=0.1,
+    )
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
