@@ -84,25 +84,22 @@ export function validateMatches(matches: any[]): ValidationResult<Match[]> {
     }
   })
 
-  // Require at least 50% valid matches (not just one)
-  const validityRate = validMatches.length / matches.length
-  if (validityRate < 0.5) {
+  // Return valid matches even if some were filtered
+  // (e.g., API might return 20 items, we filter to 12 valid ones → show those 12)
+  if (validMatches.length === 0) {
     return {
       valid: false,
       data: null,
-      errors: [
-        `Data quality too low: only ${Math.round(validityRate * 100)}% valid matches`,
-        ...errors,
-      ],
+      errors: ['No valid matches found after filtering'],
     }
   }
 
   return {
-    valid: validMatches.length > 0,
-    data: validMatches.length > 0 ? validMatches : null,
-    errors: errors.length > 0 ? errors : [],
+    valid: true,
+    data: validMatches,
+    errors: [],  // Clear errors since we have valid data
     warning: validMatches.length < matches.length
-      ? `Filtered out ${matches.length - validMatches.length} invalid matches`
+      ? `Filtered out ${matches.length - validMatches.length} items (may be doubles, bad data, etc.)`
       : undefined,
   }
 }
@@ -152,17 +149,13 @@ export function validateRankings(rankings: any[]): ValidationResult<any[]> {
     }
   }
 
-  const validityRate = validRankings.length / rankings.length
-  if (validityRate < 0.8) {
-    errors.push(`Data quality concern: ${(100 - validityRate * 100).toFixed(0)}% invalid`)
-  }
-
+  // Return valid rankings even if some were filtered
   return {
-    valid: validRankings.length > 0,
+    valid: true,
     data: validRankings,
-    errors,
+    errors: [],
     warning: validRankings.length < rankings.length
-      ? `Filtered out ${rankings.length - validRankings.length} invalid rankings`
+      ? `Filtered out ${rankings.length - validRankings.length} invalid entries`
       : undefined,
   }
 }
