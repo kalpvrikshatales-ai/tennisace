@@ -8,7 +8,12 @@
  * - Fallback values
  */
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+let API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+
+// In production, override localhost with correct backend URL
+if (typeof window !== 'undefined' && API === 'http://localhost:8000') {
+  API = 'https://tennisace.onrender.com'
+}
 
 // Configuration
 const CONFIG = {
@@ -218,6 +223,19 @@ export const clearAllCaches = () => {
     console.log(`[API] Cleared ${keys.length} cache entries`)
   } catch (e) {
     console.error('[API] Failed to clear caches:', e)
+  }
+}
+
+// Auto-clear stale cache on app load
+if (typeof window !== 'undefined') {
+  try {
+    const keys = Object.keys(localStorage).filter(k =>
+      k.startsWith(CONFIG.CACHE_KEY_PREFIX)
+    )
+    keys.forEach(k => localStorage.removeItem(k))
+    console.log(`[API] Auto-cleared ${keys.length} stale cache entries on app load`)
+  } catch (e) {
+    console.error('[API] Failed to auto-clear caches:', e)
   }
 }
 
