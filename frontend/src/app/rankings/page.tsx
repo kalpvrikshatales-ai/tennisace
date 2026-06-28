@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { getFlag } from '@/lib/flags'
@@ -78,27 +78,52 @@ export default function RankingsPage() {
   const [rankings, setRankings] = useState<RankEntry[]>([])
   const [aita, setAita] = useState<RankEntry[]>([])
   const [loading, setLoading] = useState(true)
+  const [searchInput, setSearchInput] = useState('')
   const [search, setSearch] = useState('')
   const [countryFilter, setCountryFilter] = useState('')
   const [showAll, setShowAll] = useState(false)
 
+  // Debounce search input (300ms delay)
+  useEffect(() => {
+    const timer = setTimeout(() => setSearch(searchInput), 300)
+    return () => clearTimeout(timer)
+  }, [searchInput])
+
+  // Cache rankings to avoid refetching
+  const rankingsCache = new Map<Tour, RankEntry[]>()
+
   const fetchRankings = useCallback(async (t: Tour) => {
+    // Return cached if available
+    if (rankingsCache.has(t)) {
+      const cached = rankingsCache.get(t)!
+      setLoading(false)
+      if (t === 'AITA') setAita(cached)
+      else setRankings(cached)
+      return
+    }
+
     setLoading(true)
     setShowAll(false)
     try {
       if (t === 'ATP' || t === 'WTA') {
-        const r = await fetch(`${API}/players/rankings?type=${t}`).then(res => res.json())
-        setRankings(r.rankings ?? [])
+        const r = await fetch(`${API}/players/rankings?type=${t}&limit=100`).then(res => res.json())
+        const data = r.rankings ?? []
+        rankingsCache.set(t, data)
+        setRankings(data)
       } else if (t === 'AITA') {
         try {
           const r = await fetch(`${API}/players/aita-rankings`).then(res => res.json())
-          setAita(r.rankings ?? AITA_RANKINGS)
+          const data = r.rankings ?? AITA_RANKINGS
+          rankingsCache.set(t, data)
+          setAita(data)
         } catch {
-          // Use fallback AITA data if API fails
+          rankingsCache.set(t, AITA_RANKINGS)
           setAita(AITA_RANKINGS)
         }
       } else if (t === 'ITF') {
-        setRankings(itfGender === 'men' ? ITF_MEN : ITF_WOMEN)
+        const data = itfGender === 'men' ? ITF_MEN : ITF_WOMEN
+        rankingsCache.set(t, data)
+        setRankings(data)
       }
     } catch {}
     setLoading(false)
@@ -107,15 +132,29 @@ export default function RankingsPage() {
   useEffect(() => { fetchRankings(tour) }, [tour, itfGender])
 
   const data = tour === 'AITA' ? aita : tour === 'ITF' ? (itfGender === 'men' ? ITF_MEN : ITF_WOMEN) : rankings
-  const countries = Array.from(new Set(data.map(r => r.country).filter(Boolean) as string[])).sort()
 
-  const filtered = data.filter(r => {
-    if (search && !r.player.toLowerCase().includes(search.toLowerCase())) return false
-    if (countryFilter && r.country !== countryFilter) return false
-    return true
-  })
+  // Memoize expensive computations
+  const countries = useMemo(() =>
+    Array.from(new Set(data.map(r => r.country).filter(Boolean) as string[])).sort(),
+    [data]
+  )
 
-  const visible = showAll ? filtered : filtered.slice(0, 50)
+  const filtered = useMemo(() => {
+    let result = data
+    if (search) {
+      const q = search.toLowerCase()
+      result = result.filter(r => r.player.toLowerCase().includes(q))
+    }
+    if (countryFilter) {
+      result = result.filter(r => r.country === countryFilter)
+    }
+    return result
+  }, [data, search, countryFilter])
+
+  const visible = useMemo(() =>
+    showAll ? filtered : filtered.slice(0, 50),
+    [filtered, showAll]
+  )
 
   const tabs: { key: Tour; label: string; sub?: string }[] = [
     { key: 'ATP', label: 'ATP', sub: 'Men\'s Singles' },
@@ -175,10 +214,10 @@ export default function RankingsPage() {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2.5">
                 <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
               </svg>
-              <input value={search} onChange={e => setSearch(e.target.value)}
+              <input value={searchInput} onChange={e => setSearchInput(e.target.value)}
                 placeholder="Search player..."
                 className="flex-1 text-[14px] text-gray-900 placeholder-gray-400 outline-none bg-transparent" />
-              {search && <button onClick={() => setSearch('')} className="text-gray-400 hover:text-gray-700 text-sm">✕</button>}
+              {searchInput && <button onClick={() => setSearchInput('')} className="text-gray-400 hover:text-gray-700 text-sm">✕</button>}
             </div>
             {countries.length > 0 && (
               <select value={countryFilter} onChange={e => setCountryFilter(e.target.value)}
