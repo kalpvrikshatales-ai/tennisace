@@ -9,12 +9,24 @@ API_KEY = os.getenv("TENNIS_API_KEY", "")
 BASE = "https://api.api-tennis.com/tennis/"
 
 
+GRAND_SLAM_NAMES = {'wimbledon', 'us open', 'australian open', 'roland garros', 'french open'}
+
+def _match_priority(m: dict) -> int:
+    """Sort key: Grand Slams first, then others. Higher = more important."""
+    t = (m.get('tournament') or '').lower()
+    if any(gs in t for gs in GRAND_SLAM_NAMES):
+        return 0   # Grand Slams first
+    if 'atp' in t or 'wta' in t:
+        return 1   # ATP/WTA next
+    return 2       # Challengers/ITF last
+
 @router.get("/live")
-async def live_matches(response: Response, limit: int = 20):
+async def live_matches(response: Response, limit: int = 50):
     matches = await get_live_matches()
     response.headers["Cache-Control"] = "public, max-age=30"
-    # Only return the first N matches to reduce payload
-    return {"matches": matches[:limit], "count": len(matches[:limit]), "total": len(matches)}
+    # Sort Grand Slams first before slicing — ensures Wimbledon isn't cut off
+    sorted_matches = sorted(matches, key=_match_priority)
+    return {"matches": sorted_matches[:limit], "count": len(sorted_matches[:limit]), "total": len(matches)}
 
 
 @router.get("/{match_id}")
