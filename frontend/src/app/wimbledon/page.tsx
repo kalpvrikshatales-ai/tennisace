@@ -4,11 +4,12 @@ import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { getFlag } from '@/lib/flags'
-import { getLiveMatches, getFixtures, getPlayer } from '@/lib/api'
+import { getLiveMatches, getPlayer, getRankings } from '@/lib/api'
 import { sortByPriority } from '@/lib/matchPriority'
 import { validateMatches } from '@/lib/dataValidator'
 import { monitor } from '@/lib/integrityMonitor'
 import CardVoting from '@/components/CardVoting'
+
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
@@ -188,44 +189,118 @@ function MatchRow({ match, isLive }: { match: any; isLive: boolean }) {
   )
 }
 
-function UpcomingRow({ match }: { match: any }) {
-  const time = match.time || match.date
-  const round = match.round?.split(' - ').pop() || 'R1'
-  // Generate unique match ID from player names
-  const matchId = match.match_id || `${match.player1_key || match.player1.replace(/\s/g, '-')}_vs_${match.player2_key || match.player2.replace(/\s/g, '-')}`
+function PlayerRow({ name, imgUrl, playerKey, rankInfo }: {
+  name: string; imgUrl?: string; playerKey?: number; rankInfo?: any
+}) {
+  const flag = rankInfo?.country ? getFlag(rankInfo.country) : null
+  const rank = rankInfo?.place ? `#${rankInfo.place}` : null
 
   return (
-    <div className="card overflow-hidden cursor-pointer hover:border-green-200 hover:shadow-sm transition-all">
-      <Link href={`/wimbledon/${matchId}`} className="block p-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1 min-w-0">
-            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-1">{round}</span>
-            <div className="flex items-center gap-2 mb-0.5">
-              {match.player1_img && <img src={match.player1_img} alt="" className="w-6 h-6 rounded-full object-cover bg-gray-100 flex-shrink-0" onError={e => e.currentTarget.style.display='none'} />}
-              <p className="text-[14px] font-bold text-gray-900 truncate">{match.player1}</p>
-            </div>
-            <div className="flex items-center gap-2">
-              {match.player2_img && <img src={match.player2_img} alt="" className="w-6 h-6 rounded-full object-cover bg-gray-100 flex-shrink-0" onError={e => e.currentTarget.style.display='none'} />}
-              <p className="text-[14px] font-semibold text-gray-500 truncate">{match.player2}</p>
-            </div>
+    <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center gap-2 min-w-0 flex-1">
+        {imgUrl ? (
+          <img src={imgUrl} alt="" className="w-8 h-8 rounded-full object-cover bg-gray-100 flex-shrink-0"
+            onError={e => (e.currentTarget.style.display = 'none')} />
+        ) : (
+          <div className="w-8 h-8 rounded-full bg-gray-100 flex-shrink-0 flex items-center justify-center">
+            <span className="text-[11px] font-bold text-gray-400">{name[0]}</span>
           </div>
-          <div className="text-right flex-shrink-0">
-            <span className="text-[13px] font-bold" style={{ color: GREEN }}>{time || 'TBD'}</span>
-            {match.date && <p className="text-[11px] text-gray-400 mt-0.5">{match.date}</p>}
-            {match.player1_key && match.player2_key && (
-              <Link
-                href={`/compare?p1=${match.player1_key}&p2=${match.player2_key}`}
-                onClick={e => e.stopPropagation()}
-                className="text-[10px] font-bold mt-1 block"
-                style={{ color: GREEN }}
-              >
-                Compare →
-              </Link>
+        )}
+        <div className="min-w-0">
+          <p className="text-[14px] font-bold text-gray-900 truncate">
+            {flag && <span className="mr-1">{flag}</span>}{name}
+          </p>
+          {rankInfo && (
+            <p className="text-[11px] text-gray-400">
+              {rank && <span className="font-bold text-gray-600 mr-1">{rank}</span>}
+              {rankInfo.points && <span>{Number(rankInfo.points).toLocaleString()} pts</span>}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function UpcomingRow({ match, rankMap }: { match: any; rankMap: Map<number, any> }) {
+  const time = match.time || match.date
+  const round = match.round || 'R1'
+  const matchId = match.match_id || `${match.player1_key || match.player1?.replace(/\s/g, '-')}_vs_${match.player2_key || match.player2?.replace(/\s/g, '-')}`
+
+  const p1Rank = rankMap.get(Number(match.player1_key))
+  const p2Rank = rankMap.get(Number(match.player2_key))
+
+  // Head-to-head from rankings context (who is ranked higher wins more historically)
+  const p1RankNum = p1Rank ? parseInt(p1Rank.place) : 9999
+  const p2RankNum = p2Rank ? parseInt(p2Rank.place) : 9999
+  const hasRankings = p1Rank || p2Rank
+
+  return (
+    <div className="card overflow-hidden hover:border-green-200 hover:shadow-sm transition-all">
+      <Link href={`/matches/${matchId}`} className="block p-4">
+        {/* Header: round + time + date */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-bold text-white px-2 py-0.5 rounded-full"
+              style={{ background: GREEN }}>{round}</span>
+            {match.gender === 'women' && (
+              <span className="text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full">WTA</span>
             )}
           </div>
+          <div className="text-right">
+            <span className="text-[12px] font-bold" style={{ color: GREEN }}>{time || 'TBD'}</span>
+          </div>
         </div>
+
+        {/* Players with rankings */}
+        <div className="space-y-2.5">
+          <PlayerRow name={match.player1} imgUrl={match.player1_img} playerKey={match.player1_key} rankInfo={p1Rank} />
+          <div className="flex items-center gap-2">
+            <div className="h-px flex-1 bg-gray-100" />
+            <span className="text-[10px] font-bold text-gray-300">VS</span>
+            <div className="h-px flex-1 bg-gray-100" />
+          </div>
+          <PlayerRow name={match.player2} imgUrl={match.player2_img} playerKey={match.player2_key} rankInfo={p2Rank} />
+        </div>
+
+        {/* Rankings comparison bar */}
+        {hasRankings && (
+          <div className="mt-3 bg-gray-50 rounded-lg p-2.5">
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-[11px] font-bold text-gray-900">
+                {p1Rank ? `#${p1Rank.place}` : 'Unranked'}
+              </span>
+              <span className="text-[10px] text-gray-400 uppercase tracking-wider">World Ranking</span>
+              <span className="text-[11px] font-bold text-gray-900">
+                {p2Rank ? `#${p2Rank.place}` : 'Unranked'}
+              </span>
+            </div>
+            <div className="flex h-1.5 rounded-full overflow-hidden">
+              <div className="rounded-l-full" style={{
+                width: `${p1RankNum <= p2RankNum ? 60 : 40}%`,
+                background: GREEN
+              }} />
+              <div className="rounded-r-full bg-gray-300" style={{
+                width: `${p2RankNum < p1RankNum ? 60 : 40}%`
+              }} />
+            </div>
+          </div>
+        )}
+
+        {/* Compare link */}
+        {match.player1_key && match.player2_key && (
+          <Link
+            href={`/compare?p1=${match.player1_key}&p2=${match.player2_key}`}
+            onClick={e => e.stopPropagation()}
+            className="mt-2 text-[11px] font-bold block text-center py-1.5 rounded-lg bg-gray-50 hover:bg-green-50 transition-colors"
+            style={{ color: GREEN }}
+          >
+            Full Player Comparison →
+          </Link>
+        )}
       </Link>
-      {/* Voting outside the navigation Link */}
+
+      {/* Voting */}
       <div className="px-4 pb-3 border-t border-gray-100 pt-3">
         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Who wins?</p>
         <CardVoting matchId={matchId} player1={match.player1} player2={match.player2} />
@@ -344,6 +419,7 @@ export default function WimbledonHub() {
   const router = useRouter()
   const [liveMatches, setLiveMatches] = useState<any[]>([])
   const [upcoming, setUpcoming] = useState<any[]>([])
+  const [rankMap, setRankMap] = useState<Map<number, any>>(new Map())
   const [loading, setLoading] = useState(true)
   const [activeGender, setActiveGender] = useState<'All' | 'Men' | 'Women'>('All')
   const [showAllUpcoming, setShowAllUpcoming] = useState(false)
@@ -353,39 +429,48 @@ export default function WimbledonHub() {
 
   const fetchData = useCallback(async () => {
     try {
-      // Fetch live matches + upcoming fixtures in parallel
-      const [live, fixtures] = await Promise.all([
+      const [live, menData, womenData, atpRankings, wtaRankings] = await Promise.all([
         getLiveMatches(),
-        getFixtures(14), // Get 2 weeks of fixtures
+        fetch(`${API}/feed/wimbledon?gender=men`).then(r => r.json()).catch(() => ({ rounds: {} })),
+        fetch(`${API}/feed/wimbledon?gender=women`).then(r => r.json()).catch(() => ({ rounds: {} })),
+        getRankings('ATP'),
+        getRankings('WTA'),
       ])
 
-      // Filter live matches to Wimbledon
+      // Build player_key → ranking lookup for fast card display
+      const map = new Map<number, any>()
+      for (const r of [...(atpRankings.rankings ?? []), ...(wtaRankings.rankings ?? [])]) {
+        if (r.player_key) map.set(Number(r.player_key), r)
+      }
+      setRankMap(map)
+
+      // Filter live to Wimbledon
       const wLive = (live.matches ?? []).filter((m: any) =>
         (m.tournament || '').toLowerCase().includes('wimbledon')
       )
       setLiveMatches(wLive)
 
-      // Filter fixtures to Wimbledon matches
-      const fixturesArray = fixtures.fixtures ?? fixtures ?? []
-      const wimbledonUpcoming = fixturesArray.filter((m: any) =>
-        (m.tournament || '').toLowerCase().includes('wimbledon') ||
-        (m.event_type || '').toLowerCase().includes('grand slam')
-      )
-      setUpcoming(wimbledonUpcoming)
+      // Combine men + women draw into flat list with gender tag
+      const flatMatches = (draws: any, gender: string) =>
+        Object.values(draws.rounds ?? {}).flat().map((m: any) => ({ ...m, gender }))
+
+      setUpcoming([
+        ...flatMatches(menData, 'men'),
+        ...flatMatches(womenData, 'women'),
+      ])
     } catch (e) {
       console.error('Error fetching Wimbledon data:', e)
+    } finally {
+      setLoading(false)
     }
-    finally { setLoading(false) }
   }, [])
 
-  useEffect(() => { fetchData(); const t = setInterval(fetchData, 30_000); return () => clearInterval(t) }, [fetchData])
+  useEffect(() => { fetchData(); const t = setInterval(fetchData, 60_000); return () => clearInterval(t) }, [fetchData])
 
   const filterGender = (matches: any[]) => {
     if (activeGender === 'All') return matches
-    if (activeGender === 'Men') return matches.filter((m: any) =>
-      !(m.type || '').toLowerCase().includes('women') && !(m.round || '').toLowerCase().includes('women'))
-    return matches.filter((m: any) =>
-      (m.type || '').toLowerCase().includes('women') || (m.round || '').toLowerCase().includes('women'))
+    if (activeGender === 'Men') return matches.filter((m: any) => m.gender === 'men')
+    return matches.filter((m: any) => m.gender === 'women')
   }
 
   // Use new priority-based sorting
@@ -605,7 +690,7 @@ export default function WimbledonHub() {
             </div>
           ) : (
             <div className="space-y-2">
-              {visibleUpcoming.map((m: any, i: number) => <MatchRow key={m.match_id || i} match={m} isLive={false} />)}
+              {visibleUpcoming.map((m: any, i: number) => <UpcomingRow key={m.match_id || i} match={m} rankMap={rankMap} />)}
               {!showAllUpcoming && filterGender(upcoming).length > 8 && (
                 <button onClick={() => setShowAllUpcoming(true)}
                   className="w-full py-3 text-[13px] font-bold rounded-2xl border-2 border-dashed border-gray-200 text-gray-400 hover:border-green-200 hover:text-green-600 transition-all">
