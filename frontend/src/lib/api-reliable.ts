@@ -17,10 +17,11 @@ if (typeof window !== 'undefined' && API === 'http://localhost:8000') {
 
 // Configuration
 const CONFIG = {
-  TIMEOUT_MS: 8000, // 8 seconds
-  RETRY_ATTEMPTS: 3,
-  RETRY_DELAY_MS: 1000,
-  CACHE_TTL_MS: 5 * 60 * 1000, // 5 minutes
+  TIMEOUT_MS: 55000, // 55 seconds — free Render tier takes up to 50s to wake from sleep
+  RETRY_ATTEMPTS: 2,
+  RETRY_DELAY_MS: 2000,
+  CACHE_TTL_MS: 5 * 60 * 1000, // 5 minutes fresh
+  CACHE_STALE_TTL_MS: 60 * 60 * 1000, // 1 hour stale-but-usable
   CACHE_KEY_PREFIX: 'ta_cache_',
 }
 
@@ -47,20 +48,23 @@ async function fetchWithReliability<T>(
   const maxRetries = options?.retries ?? CONFIG.RETRY_ATTEMPTS
   const cacheKey = options?.cacheKey ? `${CONFIG.CACHE_KEY_PREFIX}${options.cacheKey}` : null
 
-  // Try to get from cache first
+  let staleData: T | null = null
+
+  // Try cache first
   if (cacheKey && !options?.skipCache) {
     try {
       const cached = localStorage.getItem(cacheKey)
       if (cached) {
         const entry: CacheEntry<T> = JSON.parse(cached)
-        const isExpired = Date.now() - entry.timestamp > CONFIG.CACHE_TTL_MS
-        if (!isExpired && entry.data) {
-          return entry.data
+        const age = Date.now() - entry.timestamp
+        if (entry.data) {
+          if (age < CONFIG.CACHE_TTL_MS) {
+            return entry.data // Fresh — return immediately
+          }
+          staleData = entry.data // Stale — keep as fallback
         }
       }
-    } catch (e) {
-      // Ignore cache read errors
-    }
+    } catch (e) { /* ignore */ }
   }
 
   let lastError: Error | null = null
@@ -132,26 +136,13 @@ async function fetchWithReliability<T>(
     }
   }
 
-  // All retries exhausted - try stale cache as last resort
-  if (cacheKey) {
-    try {
-      const cached = localStorage.getItem(cacheKey)
-      if (cached) {
-        const entry: CacheEntry<T> = JSON.parse(cached)
-        console.warn(`[API] Using stale cache for ${endpoint} after ${maxRetries} failed attempts`)
-        return entry.data
-      }
-    } catch (e) {
-      // Ignore
-    }
+  // All retries exhausted — use stale cache before returning empty fallback
+  if (staleData !== null) {
+    console.warn(`[API] Using stale cache for ${endpoint} after failed fetch`)
+    return staleData
   }
 
-  // Final fallback
-  console.error(
-    `[API] All retries failed for ${endpoint}. Returning fallback.`,
-    lastError?.message
-  )
-
+  console.error(`[API] All retries failed for ${endpoint}. Returning empty fallback.`, lastError?.message)
   return fallback
 }
 
@@ -226,17 +217,25 @@ export const clearAllCaches = () => {
   }
 }
 
-// Auto-clear stale cache on app load
+// Only clear cache entries older than 1 hour on load (not all of them)
+// Keeping stale cache is critical — it's the fallback when server is waking up
 if (typeof window !== 'undefined') {
   try {
     const keys = Object.keys(localStorage).filter(k =>
       k.startsWith(CONFIG.CACHE_KEY_PREFIX)
     )
-    keys.forEach(k => localStorage.removeItem(k))
-    console.log(`[API] Auto-cleared ${keys.length} stale cache entries on app load`)
-  } catch (e) {
-    console.error('[API] Failed to auto-clear caches:', e)
-  }
+    let cleared = 0
+    keys.forEach(k => {
+      try {
+        const entry = JSON.parse(localStorage.getItem(k) || '{}')
+        if (Date.now() - entry.timestamp > CONFIG.CACHE_STALE_TTL_MS) {
+          localStorage.removeItem(k)
+          cleared++
+        }
+      } catch { localStorage.removeItem(k) }
+    })
+    if (cleared > 0) console.log(`[API] Cleared ${cleared} expired cache entries`)
+  } catch (e) { /* ignore */ }
 }
 
 // Utility: Get cache stats (for debugging)
