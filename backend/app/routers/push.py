@@ -16,7 +16,7 @@ VAPID_EMAIL   = os.getenv("VAPID_EMAIL", "mailto:admin@tennisace.live")
 class PushSubscription(BaseModel):
     endpoint: str
     keys: dict
-    expirationTime: float | None = None
+    expirationTime: float = None
 
 
 @router.post("/test")

@@ -55,7 +55,7 @@ async def rankings(type: str = "ATP"):
         return {"rankings": [], "type": type}
 
 
-def _calc_age(bday: str) -> int | None:
+def _calc_age(bday: str):
     """Calculate age from birthday string like '16.08.2001'."""
     try:
         parts = bday.split(".")
@@ -186,3 +186,73 @@ async def head_to_head(player_key: str, opponent_key: str):
             "first_player_key": player_key, "second_player_key": opponent_key,
         }, timeout=10)
         return r.json().get("result", {})
+
+
+@router.get("/aita-rankings")
+async def aita_rankings():
+    """Scrape AITA rankings from aitatennis.com — cached in Supabase."""
+    import re
+
+    # Try Supabase cache first
+    if _ready():
+        try:
+            async with httpx.AsyncClient() as c:
+                r = await c.get(
+                    f"{SUPABASE_URL}/rest/v1/rankings_cache",
+                    headers=_headers(),
+                    params={"league": "eq.AITA", "select": "data,cached_at"},
+                    timeout=5,
+                )
+                rows = r.json()
+                if rows:
+                    from datetime import datetime, timezone
+                    cached_at = datetime.fromisoformat(rows[0]["cached_at"].replace("Z", "+00:00"))
+                    age_hours = (datetime.now(timezone.utc) - cached_at).total_seconds() / 3600
+                    if age_hours < 24:
+                        return {"rankings": rows[0]["data"], "source": "cache", "cached": True}
+        except Exception:
+            pass
+
+    # Scrape AITA website
+    headers_req = {
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15",
+        "Accept": "text/html,application/xhtml+xml",
+    }
+    rankings_data = []
+    try:
+        async with httpx.AsyncClient() as c:
+            r = await c.get("https://aitatennis.com/rankings/", headers=headers_req, timeout=15, follow_redirects=True)
+            html = r.text
+
+            # Parse table rows
+            rows = re.findall(r'<tr[^>]*>(.*?)</tr>', html, re.DOTALL | re.IGNORECASE)
+            for row in rows:
+                cells = re.findall(r'<td[^>]*>(.*?)</td>', row, re.DOTALL | re.IGNORECASE)
+                clean = [re.sub(r'<[^>]+>', '', c).strip() for c in cells]
+                clean = [c for c in clean if c]
+                if len(clean) >= 2 and clean[0].isdigit():
+                    rankings_data.append({
+                        "place": clean[0],
+                        "player": clean[1] if len(clean) > 1 else "",
+                        "country": "India",
+                        "points": clean[2] if len(clean) > 2 else "",
+                        "league": "AITA",
+                    })
+    except Exception:
+        pass
+
+    # Store in Supabase if we got data
+    if rankings_data and _ready():
+        try:
+            from datetime import datetime, timezone
+            async with httpx.AsyncClient() as c:
+                await c.post(
+                    f"{SUPABASE_URL}/rest/v1/rankings_cache",
+                    headers={**_headers(), "Prefer": "resolution=merge-duplicates"},
+                    json={"league": "AITA", "data": rankings_data, "cached_at": datetime.now(timezone.utc).isoformat()},
+                    timeout=5,
+                )
+        except Exception:
+            pass
+
+    return {"rankings": rankings_data, "source": "live" if rankings_data else "unavailable"}

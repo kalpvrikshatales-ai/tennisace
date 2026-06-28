@@ -17,31 +17,47 @@ async def live_matches():
 
 @router.get("/{match_id}")
 async def match_detail(match_id: str):
-    # First try live matches (has point-by-point)
-    matches = await get_live_matches()
-    found = next((m for m in matches if str(m.get("match_id")) == match_id), None)
-    if found:
-        # Fetch full detail with point-by-point from API
-        if API_KEY:
-            try:
-                async with httpx.AsyncClient() as c:
-                    r = await c.get(BASE, params={
-                        "method": "get_livescore",
-                        "APIkey": API_KEY,
-                        "event_key": match_id,
-                    }, timeout=10)
-                    raw_list = r.json().get("result", [])
-                    if raw_list:
-                        raw = raw_list[0]
-                        result = _normalize_match(raw)
-                        result["point_by_point"] = raw.get("pointbypoint", [])
-                        result["scores"] = raw.get("scores", [])
-                        return result
-            except Exception:
-                pass
-        # Fallback: return what we have from live feed + mock pbp
-        found["point_by_point"] = _mock_pbp()
-        return found
+    """Full match detail — tries live first, then fetches from API directly."""
+    if not API_KEY:
+        raise HTTPException(status_code=404, detail="No API key configured")
+
+    async with httpx.AsyncClient() as c:
+        # Fetch from livescore API directly (works for both live and recent)
+        try:
+            r = await c.get(BASE, params={
+                "method": "get_livescore",
+                "APIkey": API_KEY,
+                "event_key": match_id,
+            }, timeout=12)
+            raw_list = r.json().get("result", [])
+            if raw_list:
+                raw = raw_list[0]
+                result = _normalize_match(raw)
+                result["point_by_point"] = raw.get("pointbypoint", [])
+                result["scores_raw"] = raw.get("scores", [])
+                return result
+        except Exception:
+            pass
+
+        # Fallback: try fixtures (for upcoming matches)
+        try:
+            from datetime import date, timedelta
+            stop = date.today() + timedelta(days=30)
+            start = date.today() - timedelta(days=30)
+            r2 = await c.get(BASE, params={
+                "method": "get_fixtures",
+                "APIkey": API_KEY,
+                "date_start": str(start), "date_stop": str(stop),
+            }, timeout=10)
+            raw_list2 = r2.json().get("result", [])
+            if isinstance(raw_list2, list):
+                found = next((m for m in raw_list2 if str(m.get("event_key", "")) == match_id), None)
+                if found:
+                    result = _normalize_match(found)
+                    result["point_by_point"] = []
+                    return result
+        except Exception:
+            pass
 
     raise HTTPException(status_code=404, detail="Match not found")
 

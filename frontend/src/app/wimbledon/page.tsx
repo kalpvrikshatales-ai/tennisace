@@ -287,20 +287,30 @@ export default function WimbledonHub() {
 
   const fetchData = useCallback(async () => {
     try {
-      const [live, fix] = await Promise.all([
+      // Fetch live matches + Wimbledon draw (used for schedule) in parallel
+      const [live, drawMen, drawWomen] = await Promise.all([
         getLiveMatches(),
-        getFixtures(7),
+        fetch(`${API}/feed/wimbledon?gender=men`).then(r => r.json()).catch(() => ({ rounds: {} })),
+        fetch(`${API}/feed/wimbledon?gender=women`).then(r => r.json()).catch(() => ({ rounds: {} })),
       ])
+
+      // Filter live matches to Wimbledon
       const wLive = (live.matches ?? []).filter((m: any) =>
         (m.tournament || '').toLowerCase().includes('wimbledon') ||
         (m.type || '').toLowerCase().includes('grand slam')
       )
-      const wFix = (fix.fixtures ?? []).filter((f: any) =>
-        (f.tournament || '').toLowerCase().includes('wimbledon') ||
-        (f.round || '').toLowerCase().includes('wimbledon')
-      )
       setLiveMatches(wLive)
-      setUpcoming(wFix)
+
+      // Build upcoming schedule from the draw (R1 = first round matches)
+      const menR1 = drawMen.rounds?.R1 ?? []
+      const womenR1 = drawWomen.rounds?.R1 ?? []
+      // Also pick up any later rounds that are scheduled
+      const allMen  = Object.values(drawMen.rounds  ?? {}).flat() as any[]
+      const allWomen = Object.values(drawWomen.rounds ?? {}).flat() as any[]
+      const upcoming = [...allMen, ...allWomen]
+        .filter((m: any) => !m.winner && m.status !== 'Finished')
+        .slice(0, 100)
+      setUpcoming(upcoming)
     } catch {}
     finally { setLoading(false) }
   }, [])

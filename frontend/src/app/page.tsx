@@ -200,6 +200,9 @@ export default function Home() {
             <Link href="/compare" className="pb-2.5 pt-2 px-3 text-[13px] font-medium text-gray-400 hover:text-gray-600 border-b-2 border-transparent whitespace-nowrap transition-colors">
               Compare
             </Link>
+            <Link href="/rankings" className="pb-2.5 pt-2 px-3 text-[13px] font-medium text-gray-400 hover:text-gray-600 border-b-2 border-transparent whitespace-nowrap transition-colors">
+              All Rankings
+            </Link>
           </div>
         </div>
       </header>
@@ -387,7 +390,7 @@ export default function Home() {
           </section>
         )}
 
-        {/* RANKINGS */}
+        {/* RANKINGS — redirect to dedicated page */}
         {tab === 'rankings' && (
           <>
             {favourites.length > 0 && (
@@ -412,6 +415,14 @@ export default function Home() {
                 <div className="h-px bg-gray-50 my-5" />
               </div>
             )}
+            {/* Link to full rankings page with ATP/WTA/AITA/ITF */}
+            <div className="mb-4 card p-4 flex items-center justify-between">
+              <div>
+                <p className="text-[14px] font-black text-gray-900">Full Rankings</p>
+                <p className="text-[11px] text-gray-400">ATP · WTA · AITA · ITF</p>
+              </div>
+              <Link href="/rankings" className="text-[13px] font-bold text-[#00C875]">View all →</Link>
+            </div>
             <RankingsList />
           </>
         )}

@@ -13,12 +13,15 @@ BASE = "https://api.api-tennis.com/tennis/"
 # get_fixtures returns both finished + upcoming — filter by status
 # event_status='Finished' → result  |  event_status='' → upcoming
 
-FETCH_TYPES = [
+# API-Tennis get_fixtures IGNORES event_type — returns ALL matches
+# Single call gets everything; we filter client-side
+SINGLES_TYPES = {
     "Atp Singles", "Wta Singles",
     "Grand Slam Men Singles", "Grand Slam Women Singles",
     "Challenger Men Singles", "Challenger Women Singles",
     "Itf Men Singles", "Itf Women Singles",
-]
+    "Atp Doubles", "Wta Doubles",
+}
 
 ROUND_MAP = {
     '1/64-finals': 'R1', '1/32-finals': 'R2', '1/16-finals': 'R3',
@@ -36,7 +39,7 @@ def _norm(raw: dict) -> dict:
     )
     tournament = raw.get("tournament_name", "")
     event_type = raw.get("event_type_type", "")
-    raw_round = raw.get("tournament_round", "").split(" - ")[-1]
+    raw_round = (raw.get("tournament_round") or "").split(" - ")[-1]
     clean_round = ROUND_MAP.get(raw_round.lower().replace("1/", "1/"), raw_round)
     return {
         "match_id":    str(raw.get("event_key", "")),
@@ -58,16 +61,15 @@ def _norm(raw: dict) -> dict:
     }
 
 
-async def _fetch(c: httpx.AsyncClient, etype: str, start: str, stop: str) -> list:
-    """Fetch all fixtures (finished + upcoming) for a date range."""
+async def _fetch_all(c: httpx.AsyncClient, start: str, stop: str) -> list:
+    """Single call — API returns ALL match types regardless of event_type param."""
     try:
         r = await c.get(BASE, params={
             "method": "get_fixtures",
             "APIkey": API_KEY,
             "date_start": start,
             "date_stop": stop,
-            "event_type": etype,
-        }, timeout=12)
+        }, timeout=15)
         raw = r.json().get("result", [])
         return raw if isinstance(raw, list) else []
     except Exception:
@@ -76,48 +78,46 @@ async def _fetch(c: httpx.AsyncClient, etype: str, start: str, stop: str) -> lis
 
 @router.get("/results")
 async def results(days: int = 7):
-    """Completed matches from the last N days."""
+    """Completed matches from the last N days — singles only."""
     stop  = date.today()
     start = stop - timedelta(days=days)
-    s, e  = str(start), str(stop)
-
     async with httpx.AsyncClient() as c:
-        batches = await asyncio.gather(*[_fetch(c, t, s, e) for t in FETCH_TYPES])
+        raw = await _fetch_all(c, str(start), str(stop))
 
-    finished = []
-    for batch in batches:
-        for m in batch:
-            status = m.get("event_status", "")
-            # Finished matches have status "Finished" or a winner
-            if status == "Finished" or m.get("event_winner"):
-                finished.append(_norm(m))
-
-    # Sort newest first
+    finished = [
+        _norm(m) for m in raw
+        if (m.get("event_status") == "Finished" or m.get("event_winner"))
+        and m.get("event_type_type", "") in SINGLES_TYPES
+    ]
     finished.sort(key=lambda m: m.get("date", ""), reverse=True)
-    return {"results": finished[:80], "count": len(finished[:80])}
+    return {"results": finished[:100], "count": len(finished[:100])}
 
 
 @router.get("/fixtures")
 async def fixtures(days: int = 7):
-    """Upcoming matches for the next N days."""
+    """Upcoming matches for the next N days — sorted Grand Slams first."""
     start = date.today()
     stop  = start + timedelta(days=days)
-    s, e  = str(start), str(stop)
-
     async with httpx.AsyncClient() as c:
-        batches = await asyncio.gather(*[_fetch(c, t, s, e) for t in FETCH_TYPES])
+        raw = await _fetch_all(c, str(start), str(stop))
 
-    upcoming = []
-    for batch in batches:
-        for m in batch:
-            status = m.get("event_status", "")
-            winner = m.get("event_winner")
-            # Upcoming = not finished yet
-            if status != "Finished" and not winner:
-                upcoming.append(_norm(m))
-
-    upcoming.sort(key=lambda m: (m.get("date", ""), m.get("time", "")))
-    return {"fixtures": upcoming[:100], "count": len(upcoming[:100])}
+    PRIORITY = {
+        "Grand Slam Men Singles": 0, "Grand Slam Women Singles": 0,
+        "Atp Singles": 1, "Wta Singles": 1,
+        "Challenger Men Singles": 2, "Challenger Women Singles": 2,
+        "Itf Men Singles": 3, "Itf Women Singles": 3,
+    }
+    upcoming = [
+        _norm(m) for m in raw
+        if not m.get("event_winner") and m.get("event_status") != "Finished"
+        and m.get("event_type_type", "") in SINGLES_TYPES
+    ]
+    upcoming.sort(key=lambda m: (
+        m.get("date", ""),
+        PRIORITY.get(m.get("type", ""), 4),
+        m.get("time", ""),
+    ))
+    return {"fixtures": upcoming[:200], "count": len(upcoming[:200])}
 
 
 # News endpoint
