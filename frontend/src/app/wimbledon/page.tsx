@@ -5,7 +5,9 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { getFlag } from '@/lib/flags'
 import { getLiveMatches, getFixtures, getPlayer } from '@/lib/api'
-import { sortWimbledonMatches } from '@/lib/wimbledonSort'
+import { sortByPriority } from '@/lib/matchPriority'
+import { validateMatches } from '@/lib/dataValidator'
+import { monitor } from '@/lib/integrityMonitor'
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
@@ -364,7 +366,18 @@ export default function WimbledonHub() {
       (m.type || '').toLowerCase().includes('women') || (m.round || '').toLowerCase().includes('women'))
   }
 
-  const visibleUpcoming = sortWimbledonMatches(filterGender(upcoming)).slice(0, showAllUpcoming ? 20 : 6)
+  // Use new priority-based sorting
+  const filtered = filterGender(upcoming)
+  const validation = validateMatches(filtered)
+
+  if (!validation.valid && validation.data === null) {
+    monitor.logValidationFailure('Wimbledon', filtered.length, 0, validation.errors)
+  } else if (validation.warning) {
+    monitor.log('warning', 'Wimbledon', validation.warning)
+  }
+
+  const matchesToSort = validation.data || filtered
+  const visibleUpcoming = sortByPriority(matchesToSort).slice(0, showAllUpcoming ? 20 : 6)
 
   return (
     <div className="min-h-screen bg-white">

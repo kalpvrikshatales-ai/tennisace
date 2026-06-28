@@ -17,6 +17,9 @@ import ThemeToggle from '@/components/ThemeToggle'
 import { getLiveMatches, getTournaments, getResults, getFixtures } from '@/lib/api-reliable'
 import { getFavourites } from '@/lib/favourites'
 import { sortMatches } from '@/lib/matchSorting'
+import { sortByPriority } from '@/lib/matchPriority'
+import { validateMatches } from '@/lib/dataValidator'
+import { monitor } from '@/lib/integrityMonitor'
 import { getCountryFlag } from '@/lib/countryFlags'
 import { getPlayerCountry } from '@/lib/playerCountries'
 import type { Match, Tournament } from '@/types'
@@ -245,7 +248,19 @@ export default function Home() {
               </div>
             ) : (
               <div className="space-y-3">
-                {sortMatches(matches).map((m) => <MatchCard key={m.match_id} match={m} />)}
+                {(() => {
+                  const validation = validateMatches(matches)
+                  if (!validation.valid && validation.data === null) {
+                    monitor.logValidationFailure('Live Matches', matches.length, 0, validation.errors)
+                    return <div className="text-gray-400 py-8">Unable to load match data. Please refresh.</div>
+                  }
+                  if (validation.warning) {
+                    monitor.log('warning', 'Live Matches', validation.warning)
+                  }
+                  const validMatches = validation.data || matches
+                  const sorted = sortByPriority(validMatches)
+                  return sorted.map((m) => <MatchCard key={m.match_id} match={m} />)
+                })()}
               </div>
             )}
           </section>
