@@ -72,6 +72,7 @@ export default function ResultCard({ result }: Props) {
           </span>
         </div>
       </div>
+      </div>
     </Link>
   )
 }
