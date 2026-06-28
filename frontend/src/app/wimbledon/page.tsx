@@ -187,9 +187,11 @@ function MatchRow({ match, isLive }: { match: any; isLive: boolean }) {
 function UpcomingRow({ match }: { match: any }) {
   const time = match.time || match.date
   const round = match.round?.split(' - ').pop() || 'R1'
+  // Generate unique match ID from player names
+  const matchId = match.match_id || `${match.player1_key || match.player1.replace(/\s/g, '-')}_vs_${match.player2_key || match.player2.replace(/\s/g, '-')}`
 
   return (
-    <Link href={match.match_id ? `/matches/${match.match_id}` : '#'}>
+    <Link href={`/wimbledon/${matchId}`}>
       <div className="card p-4 cursor-pointer hover:border-green-200 hover:shadow-sm transition-all">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
