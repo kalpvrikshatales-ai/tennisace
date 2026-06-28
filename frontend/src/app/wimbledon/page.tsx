@@ -339,12 +339,15 @@ export default function WimbledonHub() {
       setLiveMatches(wLive)
 
       // Filter fixtures to Wimbledon matches
-      const wimbledonUpcoming = (fixtures.fixtures ?? []).filter((m: any) =>
+      const fixturesArray = fixtures.fixtures ?? fixtures ?? []
+      const wimbledonUpcoming = fixturesArray.filter((m: any) =>
         (m.tournament || '').toLowerCase().includes('wimbledon') ||
         (m.event_type || '').toLowerCase().includes('grand slam')
       )
       setUpcoming(wimbledonUpcoming)
-    } catch {}
+    } catch (e) {
+      console.error('Error fetching Wimbledon data:', e)
+    }
     finally { setLoading(false) }
   }, [])
 
