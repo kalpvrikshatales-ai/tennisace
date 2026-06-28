@@ -1,4 +1,4 @@
-import httpx, os
+import httpx, os, asyncio, time
 from dotenv import load_dotenv
 from app.services.db import upsert_match, get_live_from_db, get_tournaments_from_db
 from app.data.player_enrichment import get_surface
@@ -7,6 +7,10 @@ load_dotenv()
 
 API_KEY = os.getenv("TENNIS_API_KEY")
 BASE_URL = "https://api.api-tennis.com/tennis/"
+
+# In-memory cache for live matches (10 second TTL)
+_live_matches_cache = {"data": None, "timestamp": 0}
+_CACHE_TTL = 10
 
 
 def _parse_round(raw_round: str) -> str:
@@ -62,6 +66,12 @@ def _normalize_match(raw: dict) -> dict:
 
 
 async def get_live_matches():
+    global _live_matches_cache
+
+    # Return cached data if still fresh (< 10 seconds old)
+    if _live_matches_cache["data"] and time.time() - _live_matches_cache["timestamp"] < _CACHE_TTL:
+        return _live_matches_cache["data"]
+
     if not API_KEY:
         db_matches = await get_live_from_db()
         if db_matches:
@@ -79,12 +89,32 @@ async def get_live_matches():
             if not isinstance(raw_matches, list):
                 raw_matches = []
             matches = [_normalize_match(m) for m in raw_matches]
-            for m in matches:
-                await upsert_match(m)
+
+            # Cache the results in memory
+            _live_matches_cache["data"] = matches
+            _live_matches_cache["timestamp"] = time.time()
+
+            # Upsert to DB in background (don't wait for it)
+            # This prevents the N+1 sequential writes from blocking the response
+            if matches:
+                asyncio.create_task(_upsert_matches_background(matches))
+
             return matches
         except Exception:
             db_matches = await get_live_from_db()
             return db_matches if db_matches is not None else _mock_matches()
+
+
+async def _upsert_matches_background(matches: list) -> None:
+    """Background task to upsert matches without blocking the response."""
+    try:
+        # Batch upsert in groups of 10 to avoid overloading
+        for i in range(0, len(matches), 10):
+            batch = matches[i:i+10]
+            await asyncio.gather(*[upsert_match(m) for m in batch])
+            await asyncio.sleep(0.1)  # Small delay between batches
+    except Exception:
+        pass  # Silent fail for background task
 
 
 async def get_match_by_id(match_id: str):
