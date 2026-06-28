@@ -4,7 +4,10 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getH2H } from '@/lib/api'
+import { getCountryFlag } from '@/lib/countryFlags'
 import PointByPoint from '@/components/PointByPoint'
+import MatchAnalytics from '@/components/MatchAnalytics'
+import CommunityVoting from '@/components/CommunityVoting'
 import type { Match } from '@/types'
 
 const SURFACE_STYLE: Record<string, { color: string; label: string }> = {
@@ -146,10 +149,10 @@ export default function MatchPage() {
                     {match.player1_img && (
                       <img src={match.player1_img} alt="" className="w-10 h-10 rounded-full object-cover bg-white/10" onError={e => e.currentTarget.style.display='none'} />
                     )}
-                    <div>
-                      <Link href={match.player1_key ? `/players/${match.player1_key}` : '#'}>
+                    <div className="cursor-pointer">
+                      <Link href={match.player1_key ? `/players/${match.player1_key}` : '#'} className="block">
                         <p className={`text-lg font-bold hover:text-[#00C875] transition-colors ${serving1 ? 'text-gray-900' : 'text-gray-900/80'}`}>
-                          {serving1 && '🎾 '}{match.player1}
+                          {getCountryFlag(match.player1_country)} {serving1 && '🎾 '}{match.player1}
                         </p>
                       </Link>
                     </div>
@@ -177,10 +180,10 @@ export default function MatchPage() {
                     {match.player2_img && (
                       <img src={match.player2_img} alt="" className="w-10 h-10 rounded-full object-cover bg-white/10" onError={e => e.currentTarget.style.display='none'} />
                     )}
-                    <div>
-                      <Link href={match.player2_key ? `/players/${match.player2_key}` : '#'}>
+                    <div className="cursor-pointer">
+                      <Link href={match.player2_key ? `/players/${match.player2_key}` : '#'} className="block">
                         <p className={`text-lg font-bold hover:text-[#00C875] transition-colors ${serving2 ? 'text-gray-900' : 'text-gray-900/80'}`}>
-                          {serving2 && '🎾 '}{match.player2}
+                          {getCountryFlag(match.player2_country)} {serving2 && '🎾 '}{match.player2}
                         </p>
                       </Link>
                     </div>
@@ -249,19 +252,22 @@ export default function MatchPage() {
               </div>
             )}
 
-            {/* Match Stats */}
+            {/* Community Voting */}
+            <CommunityVoting match={match} matchId={id} />
+
+            {/* Match Analytics */}
+            {stats.length > 0 && match.player1_key && match.player2_key && (
+              <MatchAnalytics match={match} stats={stats} pbp={pbp} />
+            )}
+
+            {/* Legacy Match Stats */}
             {stats.length > 0 && match.player1_key && match.player2_key && (
               <div className="mb-5">
-                <p className="text-[11px] text-gray-400 uppercase tracking-widest mb-3 font-bold">Match Statistics</p>
+                <p className="text-[11px] text-gray-400 uppercase tracking-widest mb-3 font-bold">Detailed Stats</p>
                 <div className="card p-4">
                   {[
-                    { name: 'Aces', key: 'Aces' },
-                    { name: 'Double Faults', key: 'Double Faults' },
-                    { name: '1st Serve %', key: '1st serve percentage' },
                     { name: '1st Serve Won', key: '1st serve points won' },
                     { name: '2nd Serve Won', key: '2nd serve points won' },
-                    { name: 'Break Points', key: 'Break Points Converted' },
-                    { name: 'Total Points Won', key: 'Total Points Won' },
                   ].map(stat => {
                     const v1 = getStat(match.player1_key, stat.key)
                     const v2 = getStat(match.player2_key, stat.key)

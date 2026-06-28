@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { getCountryFlag } from '@/lib/countryFlags'
 
 interface Result {
   match_id: string
@@ -8,6 +9,8 @@ interface Result {
   player2_key?: number
   player1_img?: string
   player2_img?: string
+  player1_country?: string
+  player2_country?: string
   score: string
   winner?: string
   tournament: string
@@ -44,7 +47,7 @@ export default function ResultCard({ result }: Props) {
             )}
             <Link href={result.player1_key ? `/players/${result.player1_key}` : '#'}>
               <span className={`text-sm font-semibold truncate hover:text-[#00C875] transition-colors ${p1won ? 'text-white' : 'text-gray-500'}`}>
-                {result.player1}
+                <span className="mr-1">{getCountryFlag(result.player1_country)}</span>{result.player1}
                 {p1won && <span className="ml-1.5 text-[10px] text-[#00C875]">✓</span>}
               </span>
             </Link>
@@ -62,7 +65,7 @@ export default function ResultCard({ result }: Props) {
             )}
             <Link href={result.player2_key ? `/players/${result.player2_key}` : '#'}>
               <span className={`text-sm font-semibold truncate hover:text-[#00C875] transition-colors ${p2won ? 'text-white' : 'text-gray-500'}`}>
-                {result.player2}
+                <span className="mr-1">{getCountryFlag(result.player2_country)}</span>{result.player2}
                 {p2won && <span className="ml-1.5 text-[10px] text-[#00C875]">✓</span>}
               </span>
             </Link>
