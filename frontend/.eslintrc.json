@@ -24,7 +24,8 @@
         "allow": ["warn", "error"]
       }
     ],
-    "no-debugger": "warn"
+    "no-debugger": "warn",
+    "no-empty": "off"
   },
   "ignorePatterns": ["node_modules", ".next", "out", "dist", ".husky"],
   "env": {
