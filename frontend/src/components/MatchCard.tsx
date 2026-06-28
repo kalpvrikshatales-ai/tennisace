@@ -46,13 +46,12 @@ export default function MatchCard({ match }: Props) {
   const roundLabel = ROUND_SHORT[(match as any).round] || (match as any).round
 
   return (
-    <Link href={`/matches/${match.match_id}`} className="block">
-      <div className="card cursor-pointer card-glow overflow-hidden">
+    <div className="card card-glow overflow-hidden">
+      {/* Surface colour band — 3px top stripe */}
+      <div className="h-[3px] w-full" style={{ background: surfStyle.dot }} />
 
-        {/* Surface colour band — 3px top stripe */}
-        <div className="h-[3px] w-full" style={{ background: surfStyle.dot }} />
-
-        <div className="p-4">
+      <Link href={`/matches/${match.match_id}`} className="block">
+        <div className="p-4 cursor-pointer hover:bg-gray-50 transition-colors">
           {/* Top row: tournament BOLD + surface + round + status */}
           <div className="flex items-start justify-between gap-2 mb-3">
             <div className="min-w-0">
@@ -90,7 +89,7 @@ export default function MatchCard({ match }: Props) {
                 </span>
               )}
               <button
-                onClick={e => { e.preventDefault(); shareMatch(match) }}
+                onClick={e => { e.preventDefault(); e.stopPropagation(); shareMatch(match) }}
                 className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-300 hover:text-gray-600 transition-colors"
               >
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
@@ -160,14 +159,14 @@ export default function MatchCard({ match }: Props) {
               )
             })}
           </div>
-
-          {/* Community Voting */}
-          <div className="mt-4 pt-4 border-t border-gray-200" onClick={e => {e.stopPropagation(); e.preventDefault()}}>
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Who wins?</p>
-            <CardVoting matchId={match.match_id} player1={match.player1} player2={match.player2} />
-          </div>
         </div>
+      </Link>
+
+      {/* Community Voting — outside Link so clicks don't navigate */}
+      <div className="p-4 border-t border-gray-200">
+        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Who wins?</p>
+        <CardVoting matchId={match.match_id} player1={match.player1} player2={match.player2} />
       </div>
-    </Link>
+    </div>
   )
 }
