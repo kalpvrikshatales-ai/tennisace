@@ -56,11 +56,28 @@ insert into tournaments (name, surface, country) values
   ('Australian Open',  'Hard',  'Australia')
 on conflict do nothing;
 
+-- Match Votes (Community Predictions)
+create table if not exists match_votes (
+  id          uuid primary key default uuid_generate_v4(),
+  match_id    text not null,
+  browser_id  text not null,
+  vote        int not null check (vote in (1, 2)),
+  created_at  timestamptz default now(),
+  updated_at  timestamptz default now(),
+  unique(match_id, browser_id)
+);
+
+create index if not exists match_votes_match_idx on match_votes(match_id);
+create index if not exists match_votes_browser_idx on match_votes(browser_id);
+
 -- Row Level Security (public read, service-role write)
 alter table tournaments enable row level security;
 alter table players     enable row level security;
 alter table matches     enable row level security;
+alter table match_votes enable row level security;
 
 create policy "public_read_tournaments" on tournaments for select using (true);
 create policy "public_read_players"     on players     for select using (true);
 create policy "public_read_matches"     on matches     for select using (true);
+create policy "public_read_match_votes" on match_votes for select using (true);
+create policy "public_write_match_votes" on match_votes for insert, update, delete using (true);

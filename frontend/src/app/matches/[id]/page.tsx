@@ -6,7 +6,6 @@ import Link from 'next/link'
 import { getH2H } from '@/lib/api'
 import PointByPoint from '@/components/PointByPoint'
 import MatchAnalytics from '@/components/MatchAnalytics'
-import CommunityVoting from '@/components/CommunityVoting'
 import type { Match } from '@/types'
 
 const SURFACE_STYLE: Record<string, { color: string; label: string }> = {
@@ -250,9 +249,6 @@ export default function MatchPage() {
                 </div>
               </div>
             )}
-
-            {/* Community Voting */}
-            <CommunityVoting match={match} matchId={id} />
 
             {/* Match Analytics */}
             {stats.length > 0 && match.player1_key && match.player2_key && (

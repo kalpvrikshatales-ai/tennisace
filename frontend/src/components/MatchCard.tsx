@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { getCountryFlag } from '@/lib/countryFlags'
+import CardVoting from './CardVoting'
 import type { Match } from '@/types'
 import { shareScoreImage } from '@/lib/shareImage'
 
@@ -156,6 +157,14 @@ export default function MatchCard({ match }: Props) {
                 </div>
               )
             })}
+          </div>
+
+          {/* Community Voting */}
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Who wins?</p>
+            <div onClick={e => e.stopPropagation()}>
+              <CardVoting matchId={match.match_id} player1={match.player1} player2={match.player2} />
+            </div>
           </div>
         </div>
       </div>
