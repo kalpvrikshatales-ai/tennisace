@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.gzip import GZipMiddleware
 from contextlib import asynccontextmanager
-from app.routers import matches, players, tournaments, results, push, news, votes
+from app.routers import matches, players, tournaments, results, push, news, votes, admin
 from app.services.notifier import start_notifier
 import asyncio
 import os
@@ -54,6 +54,7 @@ app.include_router(results.router, prefix="/feed", tags=["feed"])
 app.include_router(push.router, prefix="/push", tags=["push"])
 app.include_router(news.router, prefix="/feed", tags=["news"])
 app.include_router(votes.router, prefix="/votes", tags=["votes"])
+app.include_router(admin.router, prefix="/admin", tags=["admin"])
 
 @app.get("/")
 def root(): return {"app":"TennisAce","domain":"tennisace.live","status":"live"}
