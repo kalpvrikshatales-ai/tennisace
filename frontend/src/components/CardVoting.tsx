@@ -52,7 +52,10 @@ export default function CardVoting({ matchId, player1, player2 }: CardVotingProp
     loadVotes()
   }, [loadVotes])
 
-  const handleVote = async (vote: 1 | 2) => {
+  const handleVote = async (e: React.MouseEvent<HTMLButtonElement>, vote: 1 | 2) => {
+    e.preventDefault()
+    e.stopPropagation()
+
     if (userVote === vote) return
 
     try {
@@ -90,7 +93,7 @@ export default function CardVoting({ matchId, player1, player2 }: CardVotingProp
     <div className="mt-3 space-y-1.5">
       {/* Player 1 Vote Button */}
       <button
-        onClick={() => handleVote(1)}
+        onClick={(e) => handleVote(e, 1)}
         className={`w-full text-left transition-all ${userVote === 1 ? 'ring-2 ring-green-500' : ''}`}
       >
         <div className="relative overflow-hidden rounded-lg h-6 flex items-center px-2 bg-gray-50">
@@ -107,7 +110,7 @@ export default function CardVoting({ matchId, player1, player2 }: CardVotingProp
 
       {/* Player 2 Vote Button */}
       <button
-        onClick={() => handleVote(2)}
+        onClick={(e) => handleVote(e, 2)}
         className={`w-full text-left transition-all ${userVote === 2 ? 'ring-2 ring-red-500' : ''}`}
       >
         <div className="relative overflow-hidden rounded-lg h-6 flex items-center px-2 bg-gray-50">

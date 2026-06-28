@@ -14,6 +14,9 @@ import NewsCard from '@/components/NewsCard'
 import ThemeToggle from '@/components/ThemeToggle'
 import { getLiveMatches, getTournaments, getResults, getFixtures } from '@/lib/api'
 import { getFavourites } from '@/lib/favourites'
+import { sortMatches } from '@/lib/matchSorting'
+import { getCountryFlag } from '@/lib/countryFlags'
+import { getPlayerCountry } from '@/lib/playerCountries'
 import type { Match, Tournament } from '@/types'
 import Link from 'next/link'
 
@@ -245,7 +248,7 @@ export default function Home() {
               </div>
             ) : (
               <div className="space-y-3">
-                {matches.map((m) => <MatchCard key={m.match_id} match={m} />)}
+                {sortMatches(matches).map((m) => <MatchCard key={m.match_id} match={m} />)}
               </div>
             )}
           </section>
@@ -275,7 +278,7 @@ export default function Home() {
               </div>
             ) : (
               <div className="space-y-2">
-                {results.map((r) => <ResultCard key={r.match_id} result={r} />)}
+                {sortMatches(results).map((r) => <ResultCard key={r.match_id} result={r} />)}
               </div>
             )}
           </section>
@@ -325,7 +328,7 @@ export default function Home() {
               </div>
             ) : (
               <div className="space-y-2">
-                {fixtures.map((f, i) => (
+                {sortMatches(fixtures).map((f, i) => (
                   <div key={i} className="card p-4">
                     {/* Header: tournament + surface dot + date */}
                     <div className="flex items-center justify-between mb-2.5">
@@ -345,13 +348,19 @@ export default function Home() {
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         {f.player1_img && <img src={f.player1_img} alt="" className="w-6 h-6 rounded-full object-cover bg-gray-100 flex-shrink-0" onError={e => e.currentTarget.style.display='none'} />}
                         <Link href={f.player1_key ? `/players/${f.player1_key}` : '#'}>
-                          <span className="text-[14px] font-bold text-gray-900 hover:text-[#00C875] transition-colors truncate">{f.player1}</span>
+                          <span className="text-[14px] font-bold text-gray-900 hover:text-[#00C875] transition-colors truncate">
+                            {getPlayerCountry(f.player1) && <span className="mr-1">{getCountryFlag(getPlayerCountry(f.player1)!)}</span>}
+                            {f.player1}
+                          </span>
                         </Link>
                       </div>
                       <span className="text-[11px] font-black text-gray-300 flex-shrink-0">vs</span>
                       <div className="flex items-center gap-2 flex-1 min-w-0 justify-end">
                         <Link href={f.player2_key ? `/players/${f.player2_key}` : '#'}>
-                          <span className="text-[14px] font-bold text-gray-900 hover:text-[#00C875] transition-colors truncate">{f.player2}</span>
+                          <span className="text-[14px] font-bold text-gray-900 hover:text-[#00C875] transition-colors truncate">
+                            {f.player2}
+                            {getPlayerCountry(f.player2) && <span className="ml-1">{getCountryFlag(getPlayerCountry(f.player2)!)}</span>}
+                          </span>
                         </Link>
                         {f.player2_img && <img src={f.player2_img} alt="" className="w-6 h-6 rounded-full object-cover bg-gray-100 flex-shrink-0" onError={e => e.currentTarget.style.display='none'} />}
                       </div>

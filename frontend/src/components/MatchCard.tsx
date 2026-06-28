@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { getCountryFlag } from '@/lib/countryFlags'
+import { getPlayerCountry } from '@/lib/playerCountries'
 import CardVoting from './CardVoting'
 import type { Match } from '@/types'
 import { shareScoreImage } from '@/lib/shareImage'
@@ -102,9 +103,10 @@ export default function MatchCard({ match }: Props) {
           {/* Players + scores */}
           <div className="space-y-2.5">
             {[
-              { name: match.player1, img: match.player1_img, serving: serving1, key: match.player1_key, gi: gp[0], idx: 0, country: (match as any).player1_country },
-              { name: match.player2, img: match.player2_img, serving: serving2, key: match.player2_key, gi: gp[1], idx: 1, country: (match as any).player2_country },
+              { name: match.player1, img: match.player1_img, serving: serving1, key: match.player1_key, gi: gp[0], idx: 0 },
+              { name: match.player2, img: match.player2_img, serving: serving2, key: match.player2_key, gi: gp[1], idx: 1 },
             ].map(p => {
+              const playerCountry = getPlayerCountry(p.name)
               const scores = sets.map(s => {
                 const parts = s.split('-')
                 return p.idx === 0 ? parts[0] : parts[1]
@@ -134,7 +136,7 @@ export default function MatchCard({ match }: Props) {
                         leading ? 'text-gray-900' : isFinished ? 'text-gray-400' : 'text-gray-700'
                       }`}
                     >
-                      {p.country && <span className="mr-1">{getCountryFlag(p.country)}</span>}{p.name}
+                      {playerCountry && <span className="mr-1">{getCountryFlag(playerCountry)}</span>}{p.name}
                     </Link>
                   </div>
                   <div className="flex items-center gap-1 flex-shrink-0 ml-2">

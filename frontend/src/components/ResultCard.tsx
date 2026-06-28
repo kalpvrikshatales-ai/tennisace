@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { getCountryFlag } from '@/lib/countryFlags'
+import { getPlayerCountry } from '@/lib/playerCountries'
 
 interface Result {
   match_id: string
@@ -24,6 +25,8 @@ interface Props { result: Result }
 export default function ResultCard({ result }: Props) {
   const p1won = result.winner === 'First Player'
   const p2won = result.winner === 'Second Player'
+  const p1Country = getPlayerCountry(result.player1)
+  const p2Country = getPlayerCountry(result.player2)
 
   return (
     <Link href={`/matches/${result.match_id}`}>
@@ -47,7 +50,7 @@ export default function ResultCard({ result }: Props) {
             )}
             <Link href={result.player1_key ? `/players/${result.player1_key}` : '#'}>
               <span className={`text-sm font-semibold truncate hover:text-[#00C875] transition-colors ${p1won ? 'text-white' : 'text-gray-500'}`}>
-                {result.player1_country && <span className="mr-1">{getCountryFlag(result.player1_country)}</span>}{result.player1}
+                {p1Country && <span className="mr-1">{getCountryFlag(p1Country)}</span>}{result.player1}
                 {p1won && <span className="ml-1.5 text-[10px] text-[#00C875]">✓</span>}
               </span>
             </Link>
@@ -65,7 +68,7 @@ export default function ResultCard({ result }: Props) {
             )}
             <Link href={result.player2_key ? `/players/${result.player2_key}` : '#'}>
               <span className={`text-sm font-semibold truncate hover:text-[#00C875] transition-colors ${p2won ? 'text-white' : 'text-gray-500'}`}>
-                {result.player2_country && <span className="mr-1">{getCountryFlag(result.player2_country)}</span>}{result.player2}
+                {p2Country && <span className="mr-1">{getCountryFlag(p2Country)}</span>}{result.player2}
                 {p2won && <span className="ml-1.5 text-[10px] text-[#00C875]">✓</span>}
               </span>
             </Link>
