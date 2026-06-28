@@ -37,7 +37,7 @@ const SEEDS = [
 
 // Past Wimbledon champions (Men's singles)
 const PAST_WINNERS = [
-  { year: 2025, name: 'Carlos Alcaraz', country: 'Spain', key: 2382 },
+  { year: 2025, name: 'Jannik Sinner', country: 'Italy', key: 2072 },
   { year: 2024, name: 'Carlos Alcaraz', country: 'Spain', key: 2382 },
   { year: 2023, name: 'Carlos Alcaraz', country: 'Spain', key: 2382 },
   { year: 2022, name: 'Novak Djokovic', country: 'Serbia', key: 1905 },
