@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { getRankings } from '@/lib/api'
+import { getRankings } from '@/lib/api-reliable'
 import FavButton from '@/components/FavButton'
 import { getFavourites } from '@/lib/favourites'
 import { getFlag } from '@/lib/flags'

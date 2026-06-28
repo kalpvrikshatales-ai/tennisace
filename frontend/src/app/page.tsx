@@ -2,9 +2,11 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import MatchCard from '@/components/MatchCard'
+import MatchCardSkeleton from '@/components/MatchCardSkeleton'
 import TournamentCard from '@/components/TournamentCard'
 import RankingsList from '@/components/RankingsList'
 import ResultCard from '@/components/ResultCard'
+import ResultCardSkeleton from '@/components/ResultCardSkeleton'
 import SearchBar from '@/components/SearchBar'
 import BottomNav from '@/components/BottomNav'
 import WimbledonBanner from '@/components/WimbledonBanner'
@@ -105,7 +107,6 @@ export default function Home() {
 
   const switchTab = (t: Tab) => {
     setTab(t)
-    // Fetch on demand only if not already loaded
     if (t === 'results'  && results.length === 0)    fetchResults()
     if (t === 'upcoming' && fixtures.length === 0)   fetchFixtures()
     if (t === 'news'     && news.length === 0)       fetchNews()
@@ -113,14 +114,13 @@ export default function Home() {
   }
 
   useEffect(() => {
-    // Mount: fetch ONLY live matches + rankings for fast initial load
+    // Mount: fetch ONLY live matches for fast initial load
     fetchMatches()
-    fetchTournaments()
     setFavourites(getFavourites())
-    // Load other tabs on-demand when user clicks
+    // Lazy load tournaments only when Rankings tab is clicked
     const interval = setInterval(fetchMatches, 30_000)
     return () => clearInterval(interval)
-  }, [fetchMatches, fetchTournaments])
+  }, [fetchMatches])
 
   const formatTime = (d: Date) =>
     d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
@@ -213,7 +213,7 @@ export default function Home() {
             <WimbledonBanner />
             {loadingMatches ? (
               <div className="space-y-3">
-                {[...Array(4)].map((_, i) => <div key={i} className="rounded-xl glass border border-gray-200 h-28 animate-pulse" />)}
+                {[...Array(4)].map((_, i) => <MatchCardSkeleton key={i} />)}
               </div>
             ) : matches.length === 0 ? (
               <div className="py-8">
@@ -261,7 +261,7 @@ export default function Home() {
             {loadingResults ? (
               <div className="space-y-2">
                 {[...Array(8)].map((_, i) => (
-                  <div key={i} className="card h-[72px] animate-pulse" style={{ animationDelay: `${i * 50}ms` }} />
+                  <ResultCardSkeleton key={i} />
                 ))}
               </div>
             ) : results.length === 0 ? (
