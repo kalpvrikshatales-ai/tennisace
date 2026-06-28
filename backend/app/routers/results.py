@@ -227,6 +227,10 @@ async def wimbledon_draw(gender: str = "men"):
 
     by_round: dict = {}
     for m in raw:
+        # Validate before adding (same check as results/fixtures)
+        if not _validate_match(m):
+            continue
+
         raw_round = m.get("tournament_round", "").split(" - ")[-1]
         rnd = ROUND_MAP_FULL.get(raw_round, raw_round)
         if rnd not in by_round:
