@@ -21,7 +21,6 @@ SINGLES_TYPES = {
     "Grand Slam Men Singles", "Grand Slam Women Singles",
     "Challenger Men Singles", "Challenger Women Singles",
     "Itf Men Singles", "Itf Women Singles",
-    "Atp Doubles", "Wta Doubles",
 }
 
 ROUND_MAP = {
@@ -111,12 +110,12 @@ async def results(response: Response, days: int = 7, limit: int = 50, offset: in
         and _validate_match(m)  # Only valid matches with two different players
     ]
     finished.sort(key=lambda m: m.get("date", ""), reverse=True)
-    response.headers["Cache-Control"] = "public, max-age=3600"
+    response.headers["Cache-Control"] = "public, max-age=300"  # 5 min HTTP cache
 
     total = len(finished)
     paginated = finished[offset:offset + limit]
     result = {"results": paginated, "count": len(paginated), "total": total, "offset": offset, "limit": limit}
-    await set_cached(cache_key, result, ttl=1800)  # 30 minute cache
+    await set_cached(cache_key, result, ttl=300)  # 5 min Redis cache
     return result
 
 
@@ -246,6 +245,8 @@ async def wimbledon_draw(gender: str = "men"):
             "score":       m.get("event_final_result", ""),
             "winner":      m.get("event_winner"),
             "status":      m.get("event_status", ""),
+            "tournament":  "Wimbledon",
+            "round":       rnd,
             "date":        m.get("event_date", ""),
             "time":        m.get("event_time", ""),
         })

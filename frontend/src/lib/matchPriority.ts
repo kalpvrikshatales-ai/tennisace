@@ -10,17 +10,25 @@
 
 import type { Match } from '@/types'
 
-// Elite players who draw viewers
-const ELITE_PLAYERS = new Set([
-  'Jannik Sinner', 'Carlos Alcaraz', 'Novak Djokovic',
-  'Daniil Medvedev', 'Alexander Zverev', 'Dominic Thiem',
-  'Holger Rune', 'Matteo Berrettini', 'Taylor Fritz',
-  'Felix Auger-Aliassime', 'Ben Shelton', 'Alex De Minaur',
-  'Iga Swiatek', 'Aryna Sabalenka', 'Elena Rybakina',
-  'Marketa Vondrousova', 'Jasmine Paolini', 'Madison Keys',
-  'Jessica Pegula', 'Karolina Muchova', 'Coco Gauff',
-  'Qinwen Zheng', 'Mirra Andreeva',
+// Elite player last names — matched against abbreviated API names like "J. Sinner"
+// API returns "X. Lastname" format so we match on last name only
+const ELITE_LAST_NAMES = new Set([
+  'Sinner', 'Alcaraz', 'Djokovic', 'Medvedev', 'Zverev',
+  'Rune', 'Berrettini', 'Fritz', 'Shelton', 'De Minaur',
+  'Auger-Aliassime', 'Thiem', 'Dimitrov', 'Tsitsipas', 'Rublev',
+  'Swiatek', 'Sabalenka', 'Rybakina', 'Vondrousova', 'Paolini',
+  'Keys', 'Pegula', 'Muchova', 'Gauff', 'Zheng', 'Andreeva',
+  'Badosa', 'Kvitova', 'Wozniacki', 'Osaka',
 ])
+
+function isElitePlayer(name: string): boolean {
+  if (!name) return false
+  // Check full name match (e.g., "Jannik Sinner")
+  // Check last name match (e.g., "J. Sinner" or "Sinner")
+  const parts = name.trim().split(/\s+/)
+  const lastName = parts[parts.length - 1]
+  return ELITE_LAST_NAMES.has(lastName)
+}
 
 // Grand Slam tournaments
 const GRAND_SLAMS = new Set([
@@ -92,9 +100,9 @@ export function calculateMatchPriority(match: Match): MatchScore {
   }
 
   // 2. ELITE PLAYER BONUS (0-200 points)
-  // Count how many elite players are in this match
-  if (ELITE_PLAYERS.has(match.player1 || '')) eliteCount++
-  if (ELITE_PLAYERS.has(match.player2 || '')) eliteCount++
+  // Use last-name matching since API returns abbreviated names like "J. Sinner"
+  if (isElitePlayer(match.player1 || '')) eliteCount++
+  if (isElitePlayer(match.player2 || '')) eliteCount++
   priority += eliteCount * 100 // 100, 200, or 0 points
 
   // 3. ROUND IMPORTANCE (0-100 points)

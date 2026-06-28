@@ -23,8 +23,18 @@ interface Result {
 interface Props { result: Result }
 
 export default function ResultCard({ result }: Props) {
+  // p1won/p2won: who won this match
   const p1won = result.winner === 'First Player'
   const p2won = result.winner === 'Second Player'
+
+  // winner/loser are resolved once and used consistently
+  const winner = p1won ? result.player1 : result.player2
+  const loser  = p1won ? result.player2 : result.player1
+  const winnerImg = p1won ? result.player1_img : result.player2_img
+  const loserImg  = p1won ? result.player2_img : result.player1_img
+  const winnerCountry = getPlayerCountry(winner)
+  const loserCountry  = getPlayerCountry(loser)
+
   const p1Country = getPlayerCountry(result.player1)
   const p2Country = getPlayerCountry(result.player2)
 
@@ -46,12 +56,12 @@ export default function ResultCard({ result }: Props) {
 
         {/* Winner "def." Loser + Full Score */}
         <div className="space-y-2.5">
-          {/* Winner */}
+          {/* Winner row */}
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 min-w-0 flex-1">
-              {(p1won ? result.player1_img : result.player2_img) && (
+              {winnerImg && (
                 <img
-                  src={p1won ? result.player1_img : result.player2_img}
+                  src={winnerImg}
                   alt=""
                   className="w-7 h-7 rounded-full object-cover bg-gray-100 flex-shrink-0"
                   onError={e => (e.currentTarget.style.display='none')}
@@ -59,46 +69,28 @@ export default function ResultCard({ result }: Props) {
               )}
               <div className="min-w-0 flex-1">
                 <span className="text-[14px] font-black text-gray-900 truncate">
-                  {p1won ? (
-                    <>
-                      {p1Country && <span className="mr-1">{getCountryFlag(p1Country)}</span>}
-                      {result.player1}
-                    </>
-                  ) : (
-                    <>
-                      {p2Country && <span className="mr-1">{getCountryFlag(p2Country)}</span>}
-                      {result.player2}
-                    </>
-                  )}
+                  {winnerCountry && <span className="mr-1">{getCountryFlag(winnerCountry)}</span>}
+                  {winner}
                 </span>
               </div>
             </div>
             <span className="text-[12px] font-bold text-gray-900 flex-shrink-0">def.</span>
           </div>
 
-          {/* Loser */}
+          {/* Loser row — always the other player */}
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 min-w-0 flex-1">
-              {(p2won ? result.player2_img : result.player1_img) && (
+              {loserImg && (
                 <img
-                  src={p2won ? result.player2_img : result.player1_img}
+                  src={loserImg}
                   alt=""
                   className="w-7 h-7 rounded-full object-cover bg-gray-100 flex-shrink-0"
                   onError={e => (e.currentTarget.style.display='none')}
                 />
               )}
               <span className="text-[14px] font-semibold text-gray-500 truncate">
-                {p2won ? (
-                  <>
-                    {p2Country && <span className="mr-1">{getCountryFlag(p2Country)}</span>}
-                    {result.player2}
-                  </>
-                ) : (
-                  <>
-                    {p1Country && <span className="mr-1">{getCountryFlag(p1Country)}</span>}
-                    {result.player1}
-                  </>
-                )}
+                {loserCountry && <span className="mr-1">{getCountryFlag(loserCountry)}</span>}
+                {loser}
               </span>
             </div>
           </div>
