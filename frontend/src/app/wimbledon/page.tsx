@@ -30,6 +30,15 @@ const SEEDS = [
   { key: 1905, name: 'Novak Djokovic',        short: 'Djokovic',    country: 'Serbia',    seed: 8, quarter: 'Q4' },
 ]
 
+// Past Wimbledon champions
+const PAST_WINNERS = [
+  { year: 2024, name: 'Carlos Alcaraz', country: 'Spain', key: 2382 },
+  { year: 2023, name: 'Carlos Alcaraz', country: 'Spain', key: 2382 },
+  { year: 2022, name: 'Novak Djokovic', country: 'Serbia', key: 1905 },
+  { year: 2021, name: 'Novak Djokovic', country: 'Serbia', key: 1905 },
+  { year: 2019, name: 'Novak Djokovic', country: 'Serbia', key: 1905 },
+]
+
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
 function Pill({ label, color, bg }: { label: string; color: string; bg: string }) {
@@ -263,6 +272,38 @@ function SeedCard({ s }: { s: typeof SEEDS[0] }) {
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2" strokeLinecap="round">
           <path d="M9 18l6-6-6-6"/>
         </svg>
+      </div>
+    </Link>
+  )
+}
+
+function WinnerCard({ winner }: { winner: typeof PAST_WINNERS[0] }) {
+  const [data, setData] = useState<any>(null)
+  useEffect(() => { getPlayer(String(winner.key)).then(setData).catch(() => {}) }, [winner.key])
+
+  return (
+    <Link href={`/players/${winner.key}`}>
+      <div className="card p-4 cursor-pointer hover:border-green-200 transition-all flex items-center gap-3">
+        {data?.player_logo && (
+          <img src={data.player_logo} alt="" className="w-14 h-14 rounded-full object-cover border-2 flex-shrink-0"
+            style={{ borderColor: `${GREEN}20` }}
+            onError={e => e.currentTarget.style.display = 'none'} />
+        )}
+        {!data?.player_logo && (
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-green-50 to-green-100 flex-shrink-0 flex items-center justify-center">
+            <span className="text-2xl">👑</span>
+          </div>
+        )}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-baseline gap-2 mb-1">
+            <span className="text-[18px] font-black text-gray-900">{winner.name}</span>
+            <span className="text-[11px] font-bold text-gray-400">({winner.year})</span>
+          </div>
+          <p className="text-[13px] text-gray-500">{getFlag(winner.country)} {winner.country}</p>
+        </div>
+        <div className="flex-shrink-0 text-right">
+          <span className="text-[13px] font-black" style={{ color: GREEN }}>🏆</span>
+        </div>
       </div>
     </Link>
   )
@@ -660,11 +701,11 @@ export default function WimbledonHub() {
           )}
         </section>
 
-        {/* ═══ TOP PLAYERS ══════════════════════════════════════════════════════ */}
+        {/* ═══ PAST WINNERS ═════════════════════════════════════════════════════ */}
         <section className="mb-8">
-          <SectionHeader title="⭐ Top Seeds" />
+          <SectionHeader title="👑 Past Winners" />
           <div className="space-y-2.5">
-            {SEEDS.map(s => <SeedCard key={s.key} s={s} />)}
+            {PAST_WINNERS.map(w => <WinnerCard key={`${w.year}-${w.name}`} winner={w} />)}
           </div>
         </section>
 
