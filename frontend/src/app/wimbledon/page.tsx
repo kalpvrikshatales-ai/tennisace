@@ -544,51 +544,33 @@ export default function WimbledonHub() {
           )}
         </section>
 
-        {/* ═══ UPCOMING SCHEDULE ═══════════════════════════════════════════════ */}
-        <section className="mb-8">
-          <SectionHeader
-            title="📅 Schedule"
-            action={!showAllUpcoming && upcoming.length > 6 ? `See all ${upcoming.length}` : undefined}
-            onAction={() => setShowAllUpcoming(true)}
-          />
-          {loading ? (
-            <div className="space-y-2">
-              {[...Array(4)].map((_, i) => <div key={i} className="h-20 rounded-2xl animate-pulse bg-gray-100" />)}
-            </div>
-          ) : visibleUpcoming.length === 0 ? (
-            <div className="card p-6 text-center">
-              <p className="text-gray-400 text-[13px]">No upcoming matches found</p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {visibleUpcoming.map((m, i) => <UpcomingRow key={i} match={m} />)}
-              {!showAllUpcoming && filterGender(upcoming).length > 6 && (
-                <button onClick={() => setShowAllUpcoming(true)}
-                  className="w-full py-3 text-[13px] font-bold rounded-2xl border-2 border-dashed border-gray-200 text-gray-400 hover:border-green-200 hover:text-green-600 transition-all">
-                  Show {filterGender(upcoming).length - 6} more matches
-                </button>
-              )}
-            </div>
-          )}
-        </section>
-
         {/* ═══ UPCOMING MATCHES ═══════════════════════════════════════════════════════ */}
         <section className="mb-8">
-          <SectionHeader title="📅 Upcoming Schedule" />
+          <SectionHeader
+            title="📅 Upcoming Schedule"
+            action={!showAllUpcoming && upcoming.length > 8 ? `See all ${upcoming.length}` : undefined}
+            onAction={() => setShowAllUpcoming(true)}
+          />
 
           {loading ? (
             <div className="space-y-2">
-              {[...Array(6)].map((_, i) => <div key={i} className="h-16 rounded-xl animate-pulse bg-gray-100" />)}
+              {[...Array(6)].map((_, i) => <div key={i} className="h-20 rounded-2xl animate-pulse bg-gray-100" />)}
             </div>
-          ) : !upcoming.length ? (
+          ) : upcoming.length === 0 ? (
             <div className="card p-6 text-center">
               <p className="text-2xl mb-2">⏳</p>
               <p className="font-bold text-gray-900 text-[14px]">No upcoming matches</p>
-              <p className="text-gray-400 text-[12px] mt-1">Check back for Wimbledon 2024 schedule</p>
+              <p className="text-gray-400 text-[12px] mt-1">Matches start June 30</p>
             </div>
           ) : (
             <div className="space-y-2">
-              {upcoming.map((m: any, i: number) => <MatchRow key={m.match_id || i} match={m} isLive={false} />)}
+              {visibleUpcoming.map((m: any, i: number) => <MatchRow key={m.match_id || i} match={m} isLive={false} />)}
+              {!showAllUpcoming && filterGender(upcoming).length > 8 && (
+                <button onClick={() => setShowAllUpcoming(true)}
+                  className="w-full py-3 text-[13px] font-bold rounded-2xl border-2 border-dashed border-gray-200 text-gray-400 hover:border-green-200 hover:text-green-600 transition-all">
+                  Show {filterGender(upcoming).length - 8} more Wimbledon matches
+                </button>
+              )}
             </div>
           )}
         </section>
