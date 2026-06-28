@@ -77,7 +77,7 @@ async def _fetch_all(c: httpx.AsyncClient, start: str, stop: str) -> list:
 
 
 @router.get("/results")
-async def results(days: int = 7, limit: int = 50, offset: int = 0, response: Response):
+async def results(response: Response, days: int = 7, limit: int = 50, offset: int = 0):
     """Completed matches from the last N days — singles only."""
     stop  = date.today()
     start = stop - timedelta(days=days)
@@ -98,7 +98,7 @@ async def results(days: int = 7, limit: int = 50, offset: int = 0, response: Res
 
 
 @router.get("/fixtures")
-async def fixtures(days: int = 7, limit: int = 50, offset: int = 0, response: Response):
+async def fixtures(response: Response, days: int = 7, limit: int = 50, offset: int = 0):
     """Upcoming matches for the next N days — sorted Grand Slams first."""
     start = date.today()
     stop  = start + timedelta(days=days)

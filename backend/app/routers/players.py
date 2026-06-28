@@ -42,7 +42,7 @@ async def _get_rankings_cached(league: str) -> list:
 
 
 @router.get("/rankings")
-async def rankings(type: str = "ATP", limit: int = 100, offset: int = 0, response: Response):
+async def rankings(response: Response, type: str = "ATP", limit: int = 100, offset: int = 0):
     try:
         data = await _get_rankings_cached(type)
         response.headers["Cache-Control"] = "public, max-age=21600"
