@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.middleware.gzip import GZIPMiddleware
+from starlette.middleware.gzip import GZIPMiddleware
 from contextlib import asynccontextmanager
 from app.routers import matches, players, tournaments, results, push, news, votes
 from app.services.notifier import start_notifier
