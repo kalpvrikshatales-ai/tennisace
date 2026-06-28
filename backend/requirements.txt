@@ -6,6 +6,8 @@ pydantic>=2.7.0
 apscheduler>=3.10.4
 pywebpush>=2.0.0
 sentry-sdk[fastapi]>=1.39.2
+redis[asyncio]>=5.0.0
+slowapi>=0.1.9
 
 # Development & linting
 black>=24.1.0

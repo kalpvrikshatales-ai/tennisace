@@ -1,8 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZIPMiddleware
 from contextlib import asynccontextmanager
 from app.routers import matches, players, tournaments, results, push, news
 from app.services.notifier import start_notifier
+from app.services.rate_limiter import limiter, rate_limit_error_handler
+from slowapi.errors import RateLimitExceeded
 import asyncio
 import os
 import sentry_sdk
@@ -30,6 +33,10 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="TennisAce API", description="tennisace.live", version="1.0.0", lifespan=lifespan)
 
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, rate_limit_error_handler)
+
+app.add_middleware(GZIPMiddleware, minimum_size=1000)
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3000","https://tennisace.live","https://www.tennisace.live","https://tennisace.vercel.app"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
 app.include_router(matches.router, prefix="/matches", tags=["matches"])

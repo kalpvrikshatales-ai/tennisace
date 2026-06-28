@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Response
 import httpx, os
 from dotenv import load_dotenv
 from app.services.tennis_api import get_live_matches, _normalize_match
+from app.services.rate_limiter import limiter
 
 load_dotenv()
 router = APIRouter()
@@ -10,16 +11,19 @@ BASE = "https://api.api-tennis.com/tennis/"
 
 
 @router.get("/live")
-async def live_matches():
+@limiter.limit("100/minute")
+async def live_matches(request, response: Response):
     matches = await get_live_matches()
+    response.headers["Cache-Control"] = "public, max-age=30"
     return {"matches": matches, "count": len(matches)}
 
 
 @router.get("/{match_id}")
-async def match_detail(match_id: str):
+async def match_detail(match_id: str, response: Response):
     """Full match detail — tries live first, then fetches from API directly."""
     if not API_KEY:
         raise HTTPException(status_code=404, detail="No API key configured")
+    response.headers["Cache-Control"] = "public, max-age=300"
 
     async with httpx.AsyncClient() as c:
         # Fetch from livescore API directly (works for both live and recent)

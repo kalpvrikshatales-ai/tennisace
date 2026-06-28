@@ -1,7 +1,9 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Response, Request
 import httpx, os, asyncio
 from dotenv import load_dotenv
 from app.services.db import _headers, _ready, SUPABASE_URL
+from app.services.redis_cache import get_cached, set_cached
+from app.services.rate_limiter import limiter
 from app.data.player_enrichment import get_player_enrichment, get_surface
 from datetime import datetime, timezone, date, timedelta
 
@@ -11,37 +13,45 @@ router = APIRouter()
 API_KEY = os.getenv("TENNIS_API_KEY", "")
 BASE = "https://api.api-tennis.com/tennis/"
 
-_rankings_cache: dict = {}
 CACHE_TTL_HOURS = 6
 
 
 async def _get_rankings_cached(league: str) -> list:
-    cached = _rankings_cache.get(league)
-    now = datetime.now(timezone.utc)
-    if cached and (now - cached[1]).total_seconds() < CACHE_TTL_HOURS * 3600:
-        return cached[0]
+    cache_key = f"rankings:{league}"
+    cached = await get_cached(cache_key)
+    if cached:
+        return cached
+
     async with httpx.AsyncClient() as c:
         r = await c.get(BASE, params={"method": "get_standings", "APIkey": API_KEY, "event_type": league}, timeout=10)
         data = r.json().get("result", [])
-        _rankings_cache[league] = (data, now)
-        if _ready() and data:
-            try:
-                await c.post(
-                    f"{SUPABASE_URL}/rest/v1/rankings_cache",
-                    headers={**_headers(), "Prefer": "resolution=merge-duplicates"},
-                    json={"league": league, "data": data, "cached_at": now.isoformat()},
-                    timeout=5,
-                )
-            except Exception:
-                pass
+        now = datetime.now(timezone.utc)
+
+        if data:
+            await set_cached(cache_key, data, ttl=CACHE_TTL_HOURS * 3600)
+            if _ready():
+                try:
+                    await c.post(
+                        f"{SUPABASE_URL}/rest/v1/rankings_cache",
+                        headers={**_headers(), "Prefer": "resolution=merge-duplicates"},
+                        json={"league": league, "data": data, "cached_at": now.isoformat()},
+                        timeout=5,
+                    )
+                except Exception:
+                    pass
         return data
 
 
 @router.get("/rankings")
-async def rankings(type: str = "ATP"):
+@limiter.limit("100/minute")
+async def rankings(request: Request, type: str = "ATP", limit: int = 100, offset: int = 0, response: Response = None):
     try:
         data = await _get_rankings_cached(type)
-        return {"rankings": data, "type": type}
+        if response:
+            response.headers["Cache-Control"] = "public, max-age=21600"
+        total = len(data)
+        paginated = data[offset:offset + limit]
+        return {"rankings": paginated, "type": type, "total": total, "count": len(paginated), "offset": offset, "limit": limit}
     except Exception:
         if _ready():
             try:
@@ -49,10 +59,16 @@ async def rankings(type: str = "ATP"):
                     r = await c.get(f"{SUPABASE_URL}/rest/v1/rankings_cache",
                         headers=_headers(), params={"league": f"eq.{type}", "select": "data"}, timeout=5)
                     rows = r.json()
-                    if rows: return {"rankings": rows[0]["data"], "type": type, "cached": True}
+                    if rows:
+                        if response:
+                            response.headers["Cache-Control"] = "public, max-age=21600"
+                        data = rows[0]["data"]
+                        total = len(data)
+                        paginated = data[offset:offset + limit]
+                        return {"rankings": paginated, "type": type, "total": total, "count": len(paginated), "cached": True, "offset": offset, "limit": limit}
             except Exception:
                 pass
-        return {"rankings": [], "type": type}
+        return {"rankings": [], "type": type, "total": 0, "count": 0, "offset": offset, "limit": limit}
 
 
 def _calc_age(bday: str):
@@ -93,8 +109,9 @@ def _norm_recent(m: dict) -> dict:
 
 
 @router.get("/{player_key}")
-async def player_profile(player_key: str):
+async def player_profile(player_key: str, response: Response):
     key_int = int(player_key) if player_key.isdigit() else 0
+    response.headers["Cache-Control"] = "public, max-age=3600"
 
     async with httpx.AsyncClient() as c:
         # Fetch profile + recent results in parallel

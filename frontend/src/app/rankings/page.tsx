@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { getFlag } from '@/lib/flags'
+import VirtualizedRankingsList from '@/components/VirtualizedRankingsList'
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
@@ -73,6 +74,7 @@ function MovementIcon({ m }: { m?: string }) {
 
 export default function RankingsPage() {
   const router = useRouter()
+  const containerRef = useRef<HTMLDivElement>(null)
   const [tour, setTour] = useState<Tour>('ATP')
   const [itfGender, setItfGender] = useState<'men' | 'women'>('men')
   const [rankings, setRankings] = useState<RankEntry[]>([])
@@ -82,6 +84,7 @@ export default function RankingsPage() {
   const [search, setSearch] = useState('')
   const [countryFilter, setCountryFilter] = useState('')
   const [showAll, setShowAll] = useState(false)
+  const [containerHeight, setContainerHeight] = useState(600)
 
   // Debounce search input (300ms delay)
   useEffect(() => {
@@ -130,6 +133,14 @@ export default function RankingsPage() {
   }, [itfGender])
 
   useEffect(() => { fetchRankings(tour) }, [tour, itfGender])
+
+  // Update container height for virtualized list
+  useEffect(() => {
+    if (showAll && containerRef.current) {
+      const height = Math.min(window.innerHeight - 400, 600)
+      setContainerHeight(height)
+    }
+  }, [showAll])
 
   const data = tour === 'AITA' ? aita : tour === 'ITF' ? (itfGender === 'men' ? ITF_MEN : ITF_WOMEN) : rankings
 
@@ -297,48 +308,54 @@ export default function RankingsPage() {
               )}
             </div>
 
-            <div className="space-y-1.5">
-              {visible.map((r, i) => (
-                <div key={i} className={`card flex items-center gap-3 px-4 py-3 ${(r as any).player_key ? 'cursor-pointer card-glow' : ''}`}
-                  onClick={() => (r as any).player_key && router.push(`/players/${(r as any).player_key}`)}>
-                  {/* Rank */}
-                  <div className="w-9 flex-shrink-0 text-center">
-                    <span className={`text-[14px] font-black tabular-nums ${
-                      parseInt(r.place) <= 3 ? 'text-[#00C875]' :
-                      parseInt(r.place) <= 10 ? 'text-gray-700' : 'text-gray-400'
-                    }`}>#{r.place}</span>
-                  </div>
+            {showAll ? (
+              <div ref={containerRef} className="card">
+                <VirtualizedRankingsList items={filtered} height={containerHeight} itemSize={45} />
+              </div>
+            ) : (
+              <div className="space-y-1.5">
+                {visible.map((r, i) => (
+                  <div key={i} className={`card flex items-center gap-3 px-4 py-3 ${(r as any).player_key ? 'cursor-pointer card-glow' : ''}`}
+                    onClick={() => (r as any).player_key && router.push(`/players/${(r as any).player_key}`)}>
+                    {/* Rank */}
+                    <div className="w-9 flex-shrink-0 text-center">
+                      <span className={`text-[14px] font-black tabular-nums ${
+                        parseInt(r.place) <= 3 ? 'text-[#00C875]' :
+                        parseInt(r.place) <= 10 ? 'text-gray-700' : 'text-gray-400'
+                      }`}>#{r.place}</span>
+                    </div>
 
-                  {/* Movement */}
-                  <div className="w-4 flex-shrink-0"><MovementIcon m={(r as any).movement} /></div>
+                    {/* Movement */}
+                    <div className="w-4 flex-shrink-0"><MovementIcon m={(r as any).movement} /></div>
 
-                  {/* Player */}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[15px] font-bold text-gray-900 truncate">{r.player}</p>
-                    {r.country && (
-                      <p className="text-[11px] text-gray-400 mt-0.5">
-                        {getFlag(r.country)} {r.country}
-                      </p>
-                    )}
-                  </div>
+                    {/* Player */}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[15px] font-bold text-gray-900 truncate">{r.player}</p>
+                      {r.country && (
+                        <p className="text-[11px] text-gray-400 mt-0.5">
+                          {getFlag(r.country)} {r.country}
+                        </p>
+                      )}
+                    </div>
 
-                  {/* Points */}
-                  <div className="text-right flex-shrink-0">
-                    {r.points && (
-                      <p className="text-[14px] font-bold text-gray-700 tabular-nums">
-                        {parseInt(r.points).toLocaleString()}
-                        <span className="text-[10px] text-gray-400 ml-0.5">pts</span>
-                      </p>
-                    )}
-                    {(r as any).player_key && (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2" strokeLinecap="round" className="ml-auto mt-0.5">
-                        <path d="M9 18l6-6-6-6"/>
-                      </svg>
-                    )}
+                    {/* Points */}
+                    <div className="text-right flex-shrink-0">
+                      {r.points && (
+                        <p className="text-[14px] font-bold text-gray-700 tabular-nums">
+                          {parseInt(r.points).toLocaleString()}
+                          <span className="text-[10px] text-gray-400 ml-0.5">pts</span>
+                        </p>
+                      )}
+                      {(r as any).player_key && (
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2" strokeLinecap="round" className="ml-auto mt-0.5">
+                          <path d="M9 18l6-6-6-6"/>
+                        </svg>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
 
             {filtered.length > 50 && !showAll && (
               <button onClick={() => setShowAll(true)}

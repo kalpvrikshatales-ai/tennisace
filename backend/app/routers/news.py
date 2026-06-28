@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Response
 import httpx, re
 from datetime import datetime
 
@@ -36,11 +36,13 @@ def _parse_rss(xml: str) -> list:
 
 
 @router.get("/news")
-async def get_news():
+async def get_news(response: Response = None):
     try:
         async with httpx.AsyncClient() as c:
             r = await c.get(RSS_URL, timeout=8, headers={'User-Agent': 'TennisAce/1.0'})
             articles = _parse_rss(r.text)
+            if response:
+                response.headers["Cache-Control"] = "public, max-age=1800"
             return {"articles": articles, "count": len(articles)}
     except Exception as e:
         return {"articles": [], "count": 0, "error": str(e)}

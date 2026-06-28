@@ -1,8 +1,9 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Response, Request
 import httpx, os, asyncio
 from dotenv import load_dotenv
 from datetime import date, timedelta
 from app.data.player_enrichment import get_surface
+from app.services.rate_limiter import limiter
 
 load_dotenv()
 
@@ -77,7 +78,8 @@ async def _fetch_all(c: httpx.AsyncClient, start: str, stop: str) -> list:
 
 
 @router.get("/results")
-async def results(days: int = 7):
+@limiter.limit("50/minute")
+async def results(request: Request, days: int = 7, limit: int = 50, offset: int = 0, response: Response = None):
     """Completed matches from the last N days — singles only."""
     stop  = date.today()
     start = stop - timedelta(days=days)
@@ -90,11 +92,17 @@ async def results(days: int = 7):
         and m.get("event_type_type", "") in SINGLES_TYPES
     ]
     finished.sort(key=lambda m: m.get("date", ""), reverse=True)
-    return {"results": finished[:100], "count": len(finished[:100])}
+    if response:
+        response.headers["Cache-Control"] = "public, max-age=3600"
+
+    total = len(finished)
+    paginated = finished[offset:offset + limit]
+    return {"results": paginated, "count": len(paginated), "total": total, "offset": offset, "limit": limit}
 
 
 @router.get("/fixtures")
-async def fixtures(days: int = 7):
+@limiter.limit("50/minute")
+async def fixtures(request: Request, days: int = 7, limit: int = 50, offset: int = 0, response: Response = None):
     """Upcoming matches for the next N days — sorted Grand Slams first."""
     start = date.today()
     stop  = start + timedelta(days=days)
@@ -117,12 +125,18 @@ async def fixtures(days: int = 7):
         PRIORITY.get(m.get("type", ""), 4),
         m.get("time", ""),
     ))
-    return {"fixtures": upcoming[:200], "count": len(upcoming[:200])}
+    if response:
+        response.headers["Cache-Control"] = "public, max-age=1800"
+
+    total = len(upcoming)
+    paginated = upcoming[offset:offset + limit]
+    return {"fixtures": paginated, "count": len(paginated), "total": total, "offset": offset, "limit": limit}
 
 
 # News endpoint
 @router.get("/news")
-async def get_news():
+@limiter.limit("30/minute")
+async def get_news(request: Request, response: Response = None):
     """BBC Sport tennis RSS feed."""
     RSS = "https://feeds.bbci.co.uk/sport/tennis/rss.xml"
     import re
@@ -140,6 +154,8 @@ async def get_news():
             img = ""
             mi = re.search(r'media:thumbnail[^>]*url="([^"]+)"', item)
             if mi: img = mi.group(1)
+            if response:
+                response.headers["Cache-Control"] = "public, max-age=1800"
             articles.append({
                 "title":       g("title"),
                 "link":        g("link") or g("guid"),
