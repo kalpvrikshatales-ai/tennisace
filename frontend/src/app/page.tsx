@@ -290,7 +290,14 @@ export default function Home() {
               </div>
             ) : (
               <div className="space-y-2">
-                {sortMatches(results).map((r) => <ResultCard key={r.match_id} result={r} />)}
+                {(() => {
+                  const validation = validateMatches(results)
+                  if (validation.warning) {
+                    monitor.log('warning', 'Results', validation.warning)
+                  }
+                  const validResults = validation.data || results
+                  return sortMatches(validResults).map((r) => <ResultCard key={r.match_id} result={r} />)
+                })()}
               </div>
             )}
           </section>
