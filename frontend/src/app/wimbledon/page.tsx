@@ -317,10 +317,6 @@ export default function WimbledonHub() {
   const router = useRouter()
   const [liveMatches, setLiveMatches] = useState<any[]>([])
   const [upcoming, setUpcoming] = useState<any[]>([])
-  const [draw, setDraw] = useState<Record<string, any[]>>({})
-  const [drawGender, setDrawGender] = useState<'men' | 'women'>('men')
-  const [drawRound, setDrawRound] = useState('R1')
-  const [loadingDraw, setLoadingDraw] = useState(true)
   const [loading, setLoading] = useState(true)
   const [activeGender, setActiveGender] = useState<'All' | 'Men' | 'Women'>('All')
   const [showAllUpcoming, setShowAllUpcoming] = useState(false)
@@ -330,49 +326,29 @@ export default function WimbledonHub() {
 
   const fetchData = useCallback(async () => {
     try {
-      // Fetch live matches + Wimbledon draw (used for schedule) in parallel
-      const [live, drawMen, drawWomen] = await Promise.all([
+      // Fetch live matches + upcoming fixtures in parallel
+      const [live, fixtures] = await Promise.all([
         getLiveMatches(),
-        fetch(`${API}/feed/wimbledon?gender=men`).then(r => r.json()).catch(() => ({ rounds: {} })),
-        fetch(`${API}/feed/wimbledon?gender=women`).then(r => r.json()).catch(() => ({ rounds: {} })),
+        getFixtures(14), // Get 2 weeks of fixtures
       ])
 
       // Filter live matches to Wimbledon
       const wLive = (live.matches ?? []).filter((m: any) =>
-        (m.tournament || '').toLowerCase().includes('wimbledon') ||
-        (m.type || '').toLowerCase().includes('grand slam')
+        (m.tournament || '').toLowerCase().includes('wimbledon')
       )
       setLiveMatches(wLive)
 
-      // Build upcoming schedule from the draw (R1 = first round matches)
-      const menR1 = drawMen.rounds?.R1 ?? []
-      const womenR1 = drawWomen.rounds?.R1 ?? []
-      // Also pick up any later rounds that are scheduled
-      const allMen  = Object.values(drawMen.rounds  ?? {}).flat() as any[]
-      const allWomen = Object.values(drawWomen.rounds ?? {}).flat() as any[]
-      const upcoming = [...allMen, ...allWomen]
-        .filter((m: any) => !m.winner && m.status !== 'Finished')
-        .slice(0, 100)
-      setUpcoming(upcoming)
+      // Filter fixtures to Wimbledon matches
+      const wimbledonUpcoming = (fixtures.fixtures ?? []).filter((m: any) =>
+        (m.tournament || '').toLowerCase().includes('wimbledon') ||
+        (m.event_type || '').toLowerCase().includes('grand slam')
+      )
+      setUpcoming(wimbledonUpcoming)
     } catch {}
     finally { setLoading(false) }
   }, [])
 
   useEffect(() => { fetchData(); const t = setInterval(fetchData, 30_000); return () => clearInterval(t) }, [fetchData])
-
-  const fetchDraw = useCallback(async (gender: string) => {
-    setLoadingDraw(true)
-    try {
-      const d = await fetch(`${API}/feed/wimbledon?gender=${gender}`).then(r => r.json())
-      setDraw(d.rounds ?? {})
-      // default to first available round
-      const rounds = Object.keys(d.rounds ?? {})
-      if (rounds.length > 0 && !d.rounds[drawRound]) setDrawRound(rounds[0])
-    } catch {}
-    finally { setLoadingDraw(false) }
-  }, [drawRound])
-
-  useEffect(() => { fetchDraw(drawGender) }, [drawGender])
 
   const filterGender = (matches: any[]) => {
     if (activeGender === 'All') return matches
@@ -596,109 +572,23 @@ export default function WimbledonHub() {
           )}
         </section>
 
-        {/* ═══ FULL DRAW ═══════════════════════════════════════════════════════ */}
+        {/* ═══ UPCOMING MATCHES ═══════════════════════════════════════════════════════ */}
         <section className="mb-8">
-          <SectionHeader title="🏆 Official Draw" />
+          <SectionHeader title="📅 Upcoming Schedule" />
 
-          {/* Gender + Round selectors */}
-          <div className="flex gap-2 mb-3 flex-wrap">
-            {(['men', 'women'] as const).map(g => (
-              <button key={g} onClick={() => { setDrawGender(g); setDrawRound('R1') }}
-                className={`px-4 py-1.5 rounded-full text-[12px] font-bold capitalize transition-all ${
-                  drawGender === g ? 'text-white' : 'bg-gray-100 text-gray-500'
-                }`}
-                style={drawGender === g ? { background: GREEN } : {}}>
-                {g === 'men' ? "Men's" : "Women's"}
-              </button>
-            ))}
-          </div>
-
-          {/* Round tabs */}
-          <div className="flex gap-1.5 mb-4 overflow-x-auto scrollbar-hide pb-1">
-            {['R1','R2','R3','R4','QF','SF','F'].map(rnd => {
-              const hasData = !!draw[rnd]?.length
-              return (
-                <button key={rnd} onClick={() => hasData && setDrawRound(rnd)}
-                  className={`px-3 py-1.5 rounded-xl text-[12px] font-bold flex-shrink-0 transition-all ${
-                    drawRound === rnd
-                      ? 'text-white shadow-sm'
-                      : hasData
-                        ? 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                        : 'bg-gray-50 text-gray-300 cursor-default'
-                  }`}
-                  style={drawRound === rnd ? { background: GREEN } : {}}>
-                  {rnd === 'R1' ? 'Round 1' : rnd === 'R2' ? 'Round 2' : rnd === 'R3' ? 'Round 3' :
-                   rnd === 'R4' ? 'Round 4' : rnd === 'QF' ? 'Quarter-Final' :
-                   rnd === 'SF' ? 'Semi-Final' : 'Final'}
-                  {hasData && <span className="ml-1.5 text-[10px] opacity-60">({draw[rnd].length})</span>}
-                </button>
-              )
-            })}
-          </div>
-
-          {/* Match list */}
-          {loadingDraw ? (
+          {loading ? (
             <div className="space-y-2">
               {[...Array(6)].map((_, i) => <div key={i} className="h-16 rounded-xl animate-pulse bg-gray-100" />)}
             </div>
-          ) : !draw[drawRound]?.length ? (
+          ) : !upcoming.length ? (
             <div className="card p-6 text-center">
               <p className="text-2xl mb-2">⏳</p>
-              <p className="font-bold text-gray-900 text-[14px]">
-                {drawRound === 'R1' ? 'Draw loading...' : 'Matches TBD'}
-              </p>
-              <p className="text-gray-400 text-[12px] mt-1">
-                {drawRound === 'R1'
-                  ? 'Full draw available from June 29'
-                  : `${drawRound} matchups decided after previous round`}
-              </p>
+              <p className="font-bold text-gray-900 text-[14px]">No upcoming matches</p>
+              <p className="text-gray-400 text-[12px] mt-1">Check back for Wimbledon 2024 schedule</p>
             </div>
           ) : (
             <div className="space-y-2">
-              {draw[drawRound].map((m: any, i: number) => {
-                const p1won = m.winner === 'First Player'
-                const p2won = m.winner === 'Second Player'
-                const done = m.status === 'Finished'
-                return (
-                  <Link key={m.match_id || i} href={m.match_id ? `/matches/${m.match_id}` : '#'}>
-                    <div className="card px-4 py-3 flex items-center gap-3 cursor-pointer hover:border-green-200 hover:shadow-sm transition-all card-glow">
-                      {/* Player 1 */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1.5">
-                          {m.player1_img && (
-                            <img src={m.player1_img} alt="" className="w-6 h-6 rounded-full object-cover bg-gray-100 flex-shrink-0"
-                              onError={e => e.currentTarget.style.display='none'} />
-                          )}
-                          <span className={`text-[14px] font-bold truncate ${p1won ? 'text-gray-900' : done ? 'text-gray-400' : 'text-gray-900'}`}>
-                            {p1won && <span className="text-[#22C55E] mr-1">✓</span>}{m.player1}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {m.player2_img && (
-                            <img src={m.player2_img} alt="" className="w-6 h-6 rounded-full object-cover bg-gray-100 flex-shrink-0"
-                              onError={e => e.currentTarget.style.display='none'} />
-                          )}
-                          <span className={`text-[14px] font-bold truncate ${p2won ? 'text-gray-900' : done ? 'text-gray-400' : 'text-gray-700'}`}>
-                            {p2won && <span className="text-[#22C55E] mr-1">✓</span>}{m.player2}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Score / Status */}
-                      <div className="text-right flex-shrink-0">
-                        {done && m.score ? (
-                          <span className="text-[13px] font-bold text-gray-900 tabular-nums">{m.score}</span>
-                        ) : (
-                          <div>
-                            <p className="text-[12px] font-bold" style={{ color: GREEN }}>{m.time || 'TBD'}</p>
-                            <p className="text-[10px] text-gray-400">{m.date || 'Jun 29'}</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </Link>
-                )
-              })}
+              {upcoming.map((m: any, i: number) => <MatchRow key={m.match_id || i} match={m} isLive={false} />)}
             </div>
           )}
         </section>

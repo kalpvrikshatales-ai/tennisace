@@ -162,11 +162,9 @@ export default function MatchCard({ match }: Props) {
           </div>
 
           {/* Community Voting */}
-          <div className="mt-4 pt-4 border-t border-gray-200">
+          <div className="mt-4 pt-4 border-t border-gray-200" onClick={e => {e.stopPropagation(); e.preventDefault()}}>
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Who wins?</p>
-            <div onClick={e => e.stopPropagation()}>
-              <CardVoting matchId={match.match_id} player1={match.player1} player2={match.player2} />
-            </div>
+            <CardVoting matchId={match.match_id} player1={match.player1} player2={match.player2} />
           </div>
         </div>
       </div>

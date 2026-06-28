@@ -31,53 +31,86 @@ export default function ResultCard({ result }: Props) {
   return (
     <Link href={`/matches/${result.match_id}`}>
       <div className="rounded-xl border border-gray-200 glass p-4 cursor-pointer hover:border-gray-300 hover:shadow-md transition-all">
-      {/* Header */}
-      <div className="flex items-center justify-between gap-2 mb-3">
-        <span className="text-[11px] font-medium uppercase tracking-wider text-gray-500 truncate">
-          {result.tournament}
-          {result.round ? ` · ${result.round.split(' - ').pop()}` : ''}
-        </span>
-        <span className="text-[10px] text-gray-400 flex-shrink-0">{result.date}</span>
-      </div>
-
-      {/* Players */}
-      <div className="space-y-2">
-        {/* Player 1 */}
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 min-w-0">
-            {result.player1_img && (
-              <img src={result.player1_img} alt="" className="w-6 h-6 rounded-full object-cover bg-gray-100 flex-shrink-0" onError={e => (e.currentTarget.style.display='none')} />
-            )}
-            <Link href={result.player1_key ? `/players/${result.player1_key}` : '#'}>
-              <span className={`text-sm font-semibold truncate hover:text-[#00C875] transition-colors ${p1won ? 'text-white' : 'text-gray-500'}`}>
-                {p1Country && <span className="mr-1">{getCountryFlag(p1Country)}</span>}{result.player1}
-                {p1won && <span className="ml-1.5 text-[10px] text-[#00C875]">✓</span>}
-              </span>
-            </Link>
-          </div>
-          <span className={`text-xs tabular-nums font-bold flex-shrink-0 ${p1won ? 'text-white' : 'text-gray-400'}`}>
-            {result.score.split(',')[0]?.split('-')[0]?.trim()}
+        {/* Tournament + Round + Date */}
+        <div className="flex items-center justify-between gap-2 mb-3">
+          <span className="text-[11px] font-bold text-gray-900 uppercase tracking-wider truncate">
+            {result.tournament}
           </span>
+          {result.round && (
+            <span className="text-[10px] font-semibold text-gray-400 bg-gray-100 px-2 py-1 rounded-full whitespace-nowrap">
+              {result.round.split(' - ').pop()}
+            </span>
+          )}
+          <span className="text-[10px] text-gray-400 flex-shrink-0 ml-auto">{result.date}</span>
         </div>
 
-        {/* Player 2 */}
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 min-w-0">
-            {result.player2_img && (
-              <img src={result.player2_img} alt="" className="w-6 h-6 rounded-full object-cover bg-gray-100 flex-shrink-0" onError={e => (e.currentTarget.style.display='none')} />
-            )}
-            <Link href={result.player2_key ? `/players/${result.player2_key}` : '#'}>
-              <span className={`text-sm font-semibold truncate hover:text-[#00C875] transition-colors ${p2won ? 'text-white' : 'text-gray-500'}`}>
-                {p2Country && <span className="mr-1">{getCountryFlag(p2Country)}</span>}{result.player2}
-                {p2won && <span className="ml-1.5 text-[10px] text-[#00C875]">✓</span>}
-              </span>
-            </Link>
+        {/* Winner "def." Loser + Full Score */}
+        <div className="space-y-2.5">
+          {/* Winner */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              {(p1won ? result.player1_img : result.player2_img) && (
+                <img
+                  src={p1won ? result.player1_img : result.player2_img}
+                  alt=""
+                  className="w-7 h-7 rounded-full object-cover bg-gray-100 flex-shrink-0"
+                  onError={e => (e.currentTarget.style.display='none')}
+                />
+              )}
+              <div className="min-w-0 flex-1">
+                <span className="text-[14px] font-black text-gray-900 truncate">
+                  {p1won ? (
+                    <>
+                      {p1Country && <span className="mr-1">{getCountryFlag(p1Country)}</span>}
+                      {result.player1}
+                    </>
+                  ) : (
+                    <>
+                      {p2Country && <span className="mr-1">{getCountryFlag(p2Country)}</span>}
+                      {result.player2}
+                    </>
+                  )}
+                </span>
+              </div>
+            </div>
+            <span className="text-[12px] font-bold text-gray-900 flex-shrink-0">def.</span>
           </div>
-          <span className={`text-xs tabular-nums font-bold flex-shrink-0 ${p2won ? 'text-white' : 'text-gray-400'}`}>
-            {result.score.split(',')[0]?.split('-')[1]?.trim()}
-          </span>
+
+          {/* Loser */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              {(p2won ? result.player2_img : result.player1_img) && (
+                <img
+                  src={p2won ? result.player2_img : result.player1_img}
+                  alt=""
+                  className="w-7 h-7 rounded-full object-cover bg-gray-100 flex-shrink-0"
+                  onError={e => (e.currentTarget.style.display='none')}
+                />
+              )}
+              <span className="text-[14px] font-semibold text-gray-500 truncate">
+                {p2won ? (
+                  <>
+                    {p2Country && <span className="mr-1">{getCountryFlag(p2Country)}</span>}
+                    {result.player2}
+                  </>
+                ) : (
+                  <>
+                    {p1Country && <span className="mr-1">{getCountryFlag(p1Country)}</span>}
+                    {result.player1}
+                  </>
+                )}
+              </span>
+            </div>
+          </div>
+
+          {/* Full Score */}
+          <div className="bg-gray-50 rounded-lg p-3 mt-3">
+            <p className="text-[11px] text-gray-400 font-semibold mb-2">FINAL SCORE</p>
+            <p className="text-[13px] font-bold text-gray-900 font-mono tracking-tight">
+              {result.score || '—'}
+            </p>
+          </div>
         </div>
-      </div>
       </div>
     </Link>
   )
