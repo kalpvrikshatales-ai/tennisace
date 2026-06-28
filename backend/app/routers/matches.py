@@ -10,10 +10,11 @@ BASE = "https://api.api-tennis.com/tennis/"
 
 
 @router.get("/live")
-async def live_matches(response: Response):
+async def live_matches(response: Response, limit: int = 20):
     matches = await get_live_matches()
     response.headers["Cache-Control"] = "public, max-age=30"
-    return {"matches": matches, "count": len(matches)}
+    # Only return the first N matches to reduce payload
+    return {"matches": matches[:limit], "count": len(matches[:limit]), "total": len(matches)}
 
 
 @router.get("/{match_id}")
