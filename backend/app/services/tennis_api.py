@@ -94,27 +94,11 @@ async def get_live_matches():
             _live_matches_cache["data"] = matches
             _live_matches_cache["timestamp"] = time.time()
 
-            # Upsert to DB in background (don't wait for it)
-            # This prevents the N+1 sequential writes from blocking the response
-            if matches:
-                asyncio.create_task(_upsert_matches_background(matches))
-
             return matches
         except Exception:
             db_matches = await get_live_from_db()
             return db_matches if db_matches is not None else _mock_matches()
 
-
-async def _upsert_matches_background(matches: list) -> None:
-    """Background task to upsert matches without blocking the response."""
-    try:
-        # Batch upsert in groups of 10 to avoid overloading
-        for i in range(0, len(matches), 10):
-            batch = matches[i:i+10]
-            await asyncio.gather(*[upsert_match(m) for m in batch])
-            await asyncio.sleep(0.1)  # Small delay between batches
-    except Exception:
-        pass  # Silent fail for background task
 
 
 async def get_match_by_id(match_id: str):

@@ -23,15 +23,14 @@ if sentry_dsn:
             FastApiIntegration(),
             StarletteIntegration(),
         ],
-        traces_sample_rate=0.1,
-        profiles_sample_rate=0.1,
+        traces_sample_rate=0.05,
+        # profiles_sample_rate removed — profiling uses too much memory on free tier
     )
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    task = asyncio.create_task(start_notifier())
+    # Notifier disabled — was spawning DB write tasks every 5 min causing OOM on free tier
     yield
-    task.cancel()
 
 app = FastAPI(title="TennisAce API", description="tennisace.live", version="1.0.0", lifespan=lifespan)
 

@@ -42,11 +42,11 @@ async def match_detail(match_id: str, response: Response):
         except Exception:
             pass
 
-        # Fallback: try fixtures (for upcoming matches)
+        # Fallback: try fixtures (7-day window only to limit memory)
         try:
             from datetime import date, timedelta
-            stop = date.today() + timedelta(days=30)
-            start = date.today() - timedelta(days=30)
+            stop = date.today() + timedelta(days=7)
+            start = date.today() - timedelta(days=7)
             r2 = await c.get(BASE, params={
                 "method": "get_fixtures",
                 "APIkey": API_KEY,
