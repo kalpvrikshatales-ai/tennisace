@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getH2H } from '@/lib/api'
-import { getCountryFlag } from '@/lib/countryFlags'
 import PointByPoint from '@/components/PointByPoint'
 import MatchAnalytics from '@/components/MatchAnalytics'
 import CommunityVoting from '@/components/CommunityVoting'
@@ -152,7 +151,7 @@ export default function MatchPage() {
                     <div className="cursor-pointer">
                       <Link href={match.player1_key ? `/players/${match.player1_key}` : '#'} className="block">
                         <p className={`text-lg font-bold hover:text-[#00C875] transition-colors ${serving1 ? 'text-gray-900' : 'text-gray-900/80'}`}>
-                          {getCountryFlag(match.player1_country)} {serving1 && '🎾 '}{match.player1}
+                          {serving1 && '🎾 '}{match.player1}
                         </p>
                       </Link>
                     </div>
@@ -183,7 +182,7 @@ export default function MatchPage() {
                     <div className="cursor-pointer">
                       <Link href={match.player2_key ? `/players/${match.player2_key}` : '#'} className="block">
                         <p className={`text-lg font-bold hover:text-[#00C875] transition-colors ${serving2 ? 'text-gray-900' : 'text-gray-900/80'}`}>
-                          {getCountryFlag(match.player2_country)} {serving2 && '🎾 '}{match.player2}
+                          {serving2 && '🎾 '}{match.player2}
                         </p>
                       </Link>
                     </div>

@@ -133,7 +133,7 @@ export default function MatchCard({ match }: Props) {
                         leading ? 'text-gray-900' : isFinished ? 'text-gray-400' : 'text-gray-700'
                       }`}
                     >
-                      <span className="mr-1">{getCountryFlag(p.country)}</span>{p.name}
+                      {p.country && <span className="mr-1">{getCountryFlag(p.country)}</span>}{p.name}
                     </Link>
                   </div>
                   <div className="flex items-center gap-1 flex-shrink-0 ml-2">
