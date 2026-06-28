@@ -5,8 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { getFlag } from '@/lib/flags'
 import VirtualizedRankingsList from '@/components/VirtualizedRankingsList'
-
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+import { getRankings, getAitaRankings } from '@/lib/api-reliable'
 
 type Tour = 'ATP' | 'WTA' | 'AITA' | 'ITF'
 
@@ -95,42 +94,45 @@ export default function RankingsPage() {
   // Cache rankings to avoid refetching
   const rankingsCache = new Map<Tour, RankEntry[]>()
 
-  const fetchRankings = useCallback(async (t: Tour) => {
-    // Return cached if available
-    if (rankingsCache.has(t)) {
-      const cached = rankingsCache.get(t)!
-      setLoading(false)
-      if (t === 'AITA') setAita(cached)
-      else setRankings(cached)
-      return
-    }
+  const fetchRankings = useCallback(
+    async (t: Tour) => {
+      // Return cached if available
+      if (rankingsCache.has(t)) {
+        const cached = rankingsCache.get(t)!
+        setLoading(false)
+        if (t === 'AITA') setAita(cached)
+        else setRankings(cached)
+        return
+      }
 
-    setLoading(true)
-    setShowAll(false)
-    try {
-      if (t === 'ATP' || t === 'WTA') {
-        const r = await fetch(`${API}/players/rankings?type=${t}&limit=100`).then(res => res.json())
-        const data = r.rankings ?? []
-        rankingsCache.set(t, data)
-        setRankings(data)
-      } else if (t === 'AITA') {
-        try {
-          const r = await fetch(`${API}/players/aita-rankings`).then(res => res.json())
+      setLoading(true)
+      setShowAll(false)
+
+      try {
+        if (t === 'ATP' || t === 'WTA') {
+          const r = await getRankings(t)
+          const data = r.rankings ?? []
+          rankingsCache.set(t, data)
+          setRankings(data)
+        } else if (t === 'AITA') {
+          const r = await getAitaRankings()
           const data = r.rankings ?? AITA_RANKINGS
           rankingsCache.set(t, data)
           setAita(data)
-        } catch {
-          rankingsCache.set(t, AITA_RANKINGS)
-          setAita(AITA_RANKINGS)
+        } else if (t === 'ITF') {
+          const data = itfGender === 'men' ? ITF_MEN : ITF_WOMEN
+          rankingsCache.set(t, data)
+          setRankings(data)
         }
-      } else if (t === 'ITF') {
-        const data = itfGender === 'men' ? ITF_MEN : ITF_WOMEN
-        rankingsCache.set(t, data)
-        setRankings(data)
+      } catch (error) {
+        console.error(`Failed to fetch ${t} rankings:`, error)
+        // Reliable API handles fallbacks, but log for visibility
       }
-    } catch {}
-    setLoading(false)
-  }, [itfGender])
+
+      setLoading(false)
+    },
+    [itfGender]
+  )
 
   useEffect(() => { fetchRankings(tour) }, [tour, itfGender])
 

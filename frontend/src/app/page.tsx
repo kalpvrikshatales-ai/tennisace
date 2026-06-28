@@ -12,7 +12,7 @@ import PushButton from '@/components/PushButton'
 import LiveTicker from '@/components/LiveTicker'
 import NewsCard from '@/components/NewsCard'
 import ThemeToggle from '@/components/ThemeToggle'
-import { getLiveMatches, getTournaments, getResults, getFixtures } from '@/lib/api'
+import { getLiveMatches, getTournaments, getResults, getFixtures } from '@/lib/api-reliable'
 import { getFavourites } from '@/lib/favourites'
 import { sortMatches } from '@/lib/matchSorting'
 import { getCountryFlag } from '@/lib/countryFlags'
@@ -39,71 +39,68 @@ export default function Home() {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
 
   const fetchMatches = useCallback(async () => {
-    // Show cached data instantly while fresh data loads
-    const cached = localStorage.getItem('ta_matches')
-    if (cached && loadingMatches) {
-      try { const c = JSON.parse(cached); setMatches(c); setLoadingMatches(false) } catch {}
-    }
+    setLoadingMatches(true)
     try {
       const data = await getLiveMatches()
       const m = data.matches ?? []
       setMatches(m)
       setLastUpdated(new Date())
-      if (m.length > 0) localStorage.setItem('ta_matches', JSON.stringify(m))
-    } catch { }
-    finally { setLoadingMatches(false) }
+    } catch (error) {
+      console.error('Failed to fetch live matches:', error)
+    } finally {
+      setLoadingMatches(false)
+    }
   }, [])
 
   const fetchTournaments = useCallback(async () => {
+    setLoadingTournaments(true)
     try {
       const data = await getTournaments()
       setTournaments(data.tournaments ?? [])
-    } catch { }
-    finally { setLoadingTournaments(false) }
+    } catch (error) {
+      console.error('Failed to fetch tournaments:', error)
+    } finally {
+      setLoadingTournaments(false)
+    }
   }, [])
 
   const fetchResults = useCallback(async () => {
-    // Show cache instantly
-    try {
-      const cached = localStorage.getItem('ta_results')
-      if (cached) { setResults(JSON.parse(cached)); setLoadingResults(false) }
-    } catch {}
+    setLoadingResults(true)
     try {
       const data = await getResults(7)
       const r = data.results ?? []
       setResults(r)
+    } catch (error) {
+      console.error('Failed to fetch results:', error)
+    } finally {
       setLoadingResults(false)
-      if (r.length) localStorage.setItem('ta_results', JSON.stringify(r.slice(0, 30)))
-    } catch { setLoadingResults(false) }
+    }
   }, [])
 
   const fetchFixtures = useCallback(async () => {
-    // Show cache instantly
-    try {
-      const cached = localStorage.getItem('ta_fixtures')
-      if (cached) { setFixtures(JSON.parse(cached)); setLoadingFixtures(false) }
-    } catch {}
+    setLoadingFixtures(true)
     try {
       const data = await getFixtures(7)
       const f = data.fixtures ?? []
       setFixtures(f)
+    } catch (error) {
+      console.error('Failed to fetch fixtures:', error)
+    } finally {
       setLoadingFixtures(false)
-      if (f.length) localStorage.setItem('ta_fixtures', JSON.stringify(f.slice(0, 50)))
-    } catch { setLoadingFixtures(false) }
+    }
   }, [])
 
   const fetchNews = useCallback(async () => {
-    try {
-      const cached = localStorage.getItem('ta_news')
-      if (cached) { setNews(JSON.parse(cached)); setLoadingNews(false) }
-    } catch {}
+    setLoadingNews(true)
     try {
       const data = await fetch(`${API}/feed/news`).then(r => r.json())
       const a = data.articles ?? []
       setNews(a)
+    } catch (error) {
+      console.error('Failed to fetch news:', error)
+    } finally {
       setLoadingNews(false)
-      if (a.length) localStorage.setItem('ta_news', JSON.stringify(a))
-    } catch { setLoadingNews(false) }
+    }
   }, [])
 
   const switchTab = (t: Tab) => {
