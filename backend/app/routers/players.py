@@ -1,9 +1,8 @@
-from fastapi import APIRouter, Response, Request
+from fastapi import APIRouter, Response
 import httpx, os, asyncio
 from dotenv import load_dotenv
 from app.services.db import _headers, _ready, SUPABASE_URL
 from app.services.redis_cache import get_cached, set_cached
-from app.services.rate_limiter import limiter
 from app.data.player_enrichment import get_player_enrichment, get_surface
 from datetime import datetime, timezone, date, timedelta
 
@@ -43,8 +42,7 @@ async def _get_rankings_cached(league: str) -> list:
 
 
 @router.get("/rankings")
-@limiter.limit("100/minute")
-async def rankings(request: Request, type: str = "ATP", limit: int = 100, offset: int = 0, response: Response = None):
+async def rankings(type: str = "ATP", limit: int = 100, offset: int = 0, response: Response = None):
     try:
         data = await _get_rankings_cached(type)
         if response:

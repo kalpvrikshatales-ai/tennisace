@@ -44,5 +44,5 @@ async def get_news(response: Response = None):
             if response:
                 response.headers["Cache-Control"] = "public, max-age=1800"
             return {"articles": articles, "count": len(articles)}
-    except Exception as e:
-        return {"articles": [], "count": 0, "error": str(e)}
+    except Exception:
+        return {"articles": [], "count": 0}

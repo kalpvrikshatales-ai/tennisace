@@ -2,7 +2,6 @@ from fastapi import APIRouter, HTTPException, Response
 import httpx, os
 from dotenv import load_dotenv
 from app.services.tennis_api import get_live_matches, _normalize_match
-from app.services.rate_limiter import limiter
 
 load_dotenv()
 router = APIRouter()
@@ -11,8 +10,7 @@ BASE = "https://api.api-tennis.com/tennis/"
 
 
 @router.get("/live")
-@limiter.limit("100/minute")
-async def live_matches(request, response: Response):
+async def live_matches(response: Response):
     matches = await get_live_matches()
     response.headers["Cache-Control"] = "public, max-age=30"
     return {"matches": matches, "count": len(matches)}

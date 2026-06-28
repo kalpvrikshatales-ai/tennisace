@@ -1,9 +1,8 @@
-from fastapi import APIRouter, Response, Request
+from fastapi import APIRouter, Response
 import httpx, os, asyncio
 from dotenv import load_dotenv
 from datetime import date, timedelta
 from app.data.player_enrichment import get_surface
-from app.services.rate_limiter import limiter
 
 load_dotenv()
 
@@ -78,8 +77,7 @@ async def _fetch_all(c: httpx.AsyncClient, start: str, stop: str) -> list:
 
 
 @router.get("/results")
-@limiter.limit("50/minute")
-async def results(request: Request, days: int = 7, limit: int = 50, offset: int = 0, response: Response = None):
+async def results(days: int = 7, limit: int = 50, offset: int = 0, response: Response = None):
     """Completed matches from the last N days — singles only."""
     stop  = date.today()
     start = stop - timedelta(days=days)
@@ -101,8 +99,7 @@ async def results(request: Request, days: int = 7, limit: int = 50, offset: int 
 
 
 @router.get("/fixtures")
-@limiter.limit("50/minute")
-async def fixtures(request: Request, days: int = 7, limit: int = 50, offset: int = 0, response: Response = None):
+async def fixtures(days: int = 7, limit: int = 50, offset: int = 0, response: Response = None):
     """Upcoming matches for the next N days — sorted Grand Slams first."""
     start = date.today()
     stop  = start + timedelta(days=days)
@@ -135,8 +132,7 @@ async def fixtures(request: Request, days: int = 7, limit: int = 50, offset: int
 
 # News endpoint
 @router.get("/news")
-@limiter.limit("30/minute")
-async def get_news(request: Request, response: Response = None):
+async def get_news(response: Response = None):
     """BBC Sport tennis RSS feed."""
     RSS = "https://feeds.bbci.co.uk/sport/tennis/rss.xml"
     import re
