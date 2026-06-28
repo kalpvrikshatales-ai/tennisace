@@ -229,7 +229,10 @@ async def wimbledon_draw(gender: str = "men"):
 
     by_round: dict = {}
     for m in raw:
-        # Validate before adding (same check as results/fixtures)
+        # Filter by gender — API ignores event_type param so we filter here
+        if m.get("event_type_type", "") != event_type:
+            continue
+        # Validate before adding
         if not _validate_match(m):
             continue
 

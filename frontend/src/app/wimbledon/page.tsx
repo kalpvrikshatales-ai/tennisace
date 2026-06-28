@@ -237,8 +237,9 @@ function UpcomingRow({ match, rankMap }: { match: any; rankMap: Map<number, any>
 
   return (
     <div className="card overflow-hidden hover:border-green-200 hover:shadow-sm transition-all">
+      {/* Clickable match info — no nested links inside */}
       <Link href={`/matches/${matchId}`} className="block p-4">
-        {/* Header: round + time + date */}
+        {/* Header: round + gender badge + time */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-bold text-white px-2 py-0.5 rounded-full"
@@ -247,9 +248,7 @@ function UpcomingRow({ match, rankMap }: { match: any; rankMap: Map<number, any>
               <span className="text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full">WTA</span>
             )}
           </div>
-          <div className="text-right">
-            <span className="text-[12px] font-bold" style={{ color: GREEN }}>{time || 'TBD'}</span>
-          </div>
+          <span className="text-[12px] font-bold" style={{ color: GREEN }}>{time || 'TBD'}</span>
         </div>
 
         {/* Players with rankings */}
@@ -263,47 +262,37 @@ function UpcomingRow({ match, rankMap }: { match: any; rankMap: Map<number, any>
           <PlayerRow name={match.player2} imgUrl={match.player2_img} playerKey={match.player2_key} rankInfo={p2Rank} />
         </div>
 
-        {/* Rankings comparison bar */}
+        {/* Rankings bar */}
         {hasRankings && (
           <div className="mt-3 bg-gray-50 rounded-lg p-2.5">
             <div className="flex justify-between items-center mb-1">
-              <span className="text-[11px] font-bold text-gray-900">
-                {p1Rank ? `#${p1Rank.place}` : 'Unranked'}
-              </span>
+              <span className="text-[11px] font-bold text-gray-900">{p1Rank ? `#${p1Rank.place}` : 'Unranked'}</span>
               <span className="text-[10px] text-gray-400 uppercase tracking-wider">World Ranking</span>
-              <span className="text-[11px] font-bold text-gray-900">
-                {p2Rank ? `#${p2Rank.place}` : 'Unranked'}
-              </span>
+              <span className="text-[11px] font-bold text-gray-900">{p2Rank ? `#${p2Rank.place}` : 'Unranked'}</span>
             </div>
             <div className="flex h-1.5 rounded-full overflow-hidden">
-              <div className="rounded-l-full" style={{
-                width: `${p1RankNum <= p2RankNum ? 60 : 40}%`,
-                background: GREEN
-              }} />
-              <div className="rounded-r-full bg-gray-300" style={{
-                width: `${p2RankNum < p1RankNum ? 60 : 40}%`
-              }} />
+              <div className="rounded-l-full" style={{ width: `${p1RankNum <= p2RankNum ? 60 : 40}%`, background: GREEN }} />
+              <div className="rounded-r-full bg-gray-300" style={{ width: `${p2RankNum < p1RankNum ? 60 : 40}%` }} />
             </div>
           </div>
         )}
+      </Link>
 
-        {/* Compare link */}
+      {/* Compare + Voting — both OUTSIDE the Link so clicks don't navigate */}
+      <div className="px-4 pb-4 space-y-3 border-t border-gray-100 pt-3">
         {match.player1_key && match.player2_key && (
           <Link
             href={`/compare?p1=${match.player1_key}&p2=${match.player2_key}`}
-            onClick={e => e.stopPropagation()}
-            className="mt-2 text-[11px] font-bold block text-center py-1.5 rounded-lg bg-gray-50 hover:bg-green-50 transition-colors"
+            className="text-[11px] font-bold block text-center py-1.5 rounded-lg bg-gray-50 hover:bg-green-50 transition-colors"
             style={{ color: GREEN }}
           >
             Full Player Comparison →
           </Link>
         )}
-      </Link>
-
-      {/* Voting */}
-      <div className="px-4 pb-3 border-t border-gray-100 pt-3">
-        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Who wins?</p>
-        <CardVoting matchId={matchId} player1={match.player1} player2={match.player2} />
+        <div>
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Who wins?</p>
+          <CardVoting matchId={matchId} player1={match.player1} player2={match.player2} />
+        </div>
       </div>
     </div>
   )
