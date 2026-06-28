@@ -35,8 +35,9 @@ const SEEDS = [
   { key: 1905, name: 'Novak Djokovic',        short: 'Djokovic',    country: 'Serbia',    seed: 8, quarter: 'Q4' },
 ]
 
-// Past Wimbledon champions
+// Past Wimbledon champions (Men's singles)
 const PAST_WINNERS = [
+  { year: 2025, name: 'Carlos Alcaraz', country: 'Spain', key: 2382 },
   { year: 2024, name: 'Carlos Alcaraz', country: 'Spain', key: 2382 },
   { year: 2023, name: 'Carlos Alcaraz', country: 'Spain', key: 2382 },
   { year: 2022, name: 'Novak Djokovic', country: 'Serbia', key: 1905 },

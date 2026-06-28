@@ -227,10 +227,16 @@ async def wimbledon_draw(gender: str = "men"):
     if not isinstance(raw, list):
         return {"rounds": {}, "total": 0}
 
+    # Wimbledon-only: men = Atp Singles, women = Wta Singles
+    # (API returns event_type_type as 'Atp Singles'/'Wta Singles', not 'Grand Slam...')
+    gender_type = "Atp Singles" if gender == "men" else "Wta Singles"
+
     by_round: dict = {}
     for m in raw:
-        # Filter by gender — API ignores event_type param so we filter here
-        if m.get("event_type_type", "") != event_type:
+        # Filter to correct gender and only Wimbledon tournament
+        if m.get("event_type_type", "") != gender_type:
+            continue
+        if "wimbledon" not in (m.get("tournament_name") or "").lower():
             continue
         # Validate before adding
         if not _validate_match(m):
