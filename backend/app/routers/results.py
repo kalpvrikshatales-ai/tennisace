@@ -31,6 +31,19 @@ ROUND_MAP = {
 }
 
 
+def _validate_match(raw: dict) -> bool:
+    """Validate match has two different players."""
+    p1 = (raw.get("event_first_player") or "").strip()
+    p2 = (raw.get("event_second_player") or "").strip()
+
+    # Both players must exist and be different
+    if not p1 or not p2:
+        return False
+    if p1.lower() == p2.lower():
+        return False  # Same player twice
+
+    return True
+
 def _norm(raw: dict) -> dict:
     scores = raw.get("scores", [])
     set_score = ", ".join(
@@ -95,6 +108,7 @@ async def results(response: Response, days: int = 7, limit: int = 50, offset: in
         _norm(m) for m in raw
         if (m.get("event_status") == "Finished" or m.get("event_winner"))
         and m.get("event_type_type", "") in SINGLES_TYPES
+        and _validate_match(m)  # Only valid matches with two different players
     ]
     finished.sort(key=lambda m: m.get("date", ""), reverse=True)
     response.headers["Cache-Control"] = "public, max-age=3600"
@@ -130,6 +144,7 @@ async def fixtures(response: Response, days: int = 7, limit: int = 50, offset: i
         _norm(m) for m in raw
         if not m.get("event_winner") and m.get("event_status") != "Finished"
         and m.get("event_type_type", "") in SINGLES_TYPES
+        and _validate_match(m)  # Only valid matches with two different players
     ]
     upcoming.sort(key=lambda m: (
         m.get("date", ""),
