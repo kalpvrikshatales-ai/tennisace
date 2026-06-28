@@ -1,6 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
+import { getUser } from '@/lib/supabase'
+
+const SignInModal = lazy(() => import('./SignInModal'))
 
 interface CardVotingProps {
   matchId: string
@@ -44,6 +47,12 @@ export default function CardVoting({ matchId, player1, player2 }: CardVotingProp
   const stored = typeof window !== 'undefined' ? loadStored(matchId) : null
   const [votes, setVotes] = useState({ p1: stored?.p1 ?? 0, p2: stored?.p2 ?? 0 })
   const [userVote, setUserVote] = useState<1 | 2 | null>(stored?.userVote ?? null)
+  const [showSignIn, setShowSignIn] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  useEffect(() => {
+    getUser().then(u => setIsLoggedIn(!!u))
+  }, [])
 
   // Sync fresh counts from API in background (doesn't block UI)
   useEffect(() => {
@@ -82,6 +91,13 @@ export default function CardVoting({ matchId, player1, player2 }: CardVotingProp
     setVotes(next)
     setUserVote(vote)
     saveStored(matchId, { ...next, userVote: vote, ts: Date.now() })
+
+    // Show sign-in nudge after very first vote, only once, only if not logged in
+    const hasSeenNudge = localStorage.getItem('_seen_signin_nudge')
+    if (!isLoggedIn && !hasSeenNudge) {
+      setTimeout(() => setShowSignIn(true), 600)
+      localStorage.setItem('_seen_signin_nudge', '1')
+    }
 
     // Persist to backend — best effort
     fetch('/api/votes/cast', {
@@ -154,6 +170,13 @@ export default function CardVoting({ matchId, player1, player2 }: CardVotingProp
           <p className="text-[10px] font-bold text-green-500">✓ voted</p>
         )}
       </div>
+
+      {/* Optional sign-in nudge — shown once after first vote */}
+      {showSignIn && (
+        <Suspense fallback={null}>
+          <SignInModal onClose={() => setShowSignIn(false)} />
+        </Suspense>
+      )}
     </div>
   )
 }
