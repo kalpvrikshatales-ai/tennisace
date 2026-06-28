@@ -51,6 +51,20 @@ const ITF_WOMEN = [
   { place: '10', player: 'Martina Capurro Taborda', country: 'Argentina', points: '289' },
 ]
 
+// Static AITA Indian rankings (fallback when API unavailable)
+const AITA_RANKINGS = [
+  { place: '1', player: 'Nagal Sumit', country: 'India', points: '1445' },
+  { place: '2', player: 'Ramkumar Ramanathan', country: 'India', points: '1205' },
+  { place: '3', player: 'Niki Poonacha', country: 'India', points: '892' },
+  { place: '4', player: 'Arjun Kadhe', country: 'India', points: '756' },
+  { place: '5', player: 'Sasikumar Mukund', country: 'India', points: '654' },
+  { place: '6', player: 'Rohan Bopanna', country: 'India', points: '543' },
+  { place: '7', player: 'Kartikeya Sharma', country: 'India', points: '421' },
+  { place: '8', player: 'Nagendra Kumar Singh', country: 'India', points: '387' },
+  { place: '9', player: 'Karunuday Singh', country: 'India', points: '356' },
+  { place: '10', player: 'Manas Dhamne', country: 'India', points: '321' },
+]
+
 function MovementIcon({ m }: { m?: string }) {
   if (m === 'up') return <span className="text-[10px] text-green-500">▲</span>
   if (m === 'down') return <span className="text-[10px] text-red-400">▼</span>
@@ -76,8 +90,13 @@ export default function RankingsPage() {
         const r = await fetch(`${API}/players/rankings?type=${t}`).then(res => res.json())
         setRankings(r.rankings ?? [])
       } else if (t === 'AITA') {
-        const r = await fetch(`${API}/players/aita-rankings`).then(res => res.json()).catch(() => ({ rankings: [] }))
-        setAita(r.rankings ?? [])
+        try {
+          const r = await fetch(`${API}/players/aita-rankings`).then(res => res.json())
+          setAita(r.rankings ?? AITA_RANKINGS)
+        } catch {
+          // Use fallback AITA data if API fails
+          setAita(AITA_RANKINGS)
+        }
       } else if (t === 'ITF') {
         setRankings(itfGender === 'men' ? ITF_MEN : ITF_WOMEN)
       }

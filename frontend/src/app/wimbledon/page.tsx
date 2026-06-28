@@ -189,19 +189,21 @@ function UpcomingRow({ match }: { match: any }) {
   const round = match.round?.split(' - ').pop() || 'R1'
 
   return (
-    <div className="card p-4">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex-1 min-w-0">
-          <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-1">{round}</span>
-          <p className="text-[14px] font-bold text-gray-900 truncate">{match.player1}</p>
-          <p className="text-[14px] font-semibold text-gray-500 truncate">vs {match.player2}</p>
-        </div>
-        <div className="text-right flex-shrink-0">
-          <span className="text-[13px] font-bold" style={{ color: GREEN }}>{time || 'TBD'}</span>
-          {match.date && <p className="text-[11px] text-gray-400 mt-0.5">{match.date}</p>}
+    <Link href={match.match_id ? `/matches/${match.match_id}` : '#'}>
+      <div className="card p-4 cursor-pointer hover:border-green-200 hover:shadow-sm transition-all">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-1">{round}</span>
+            <p className="text-[14px] font-bold text-gray-900 truncate">{match.player1}</p>
+            <p className="text-[14px] font-semibold text-gray-500 truncate">vs {match.player2}</p>
+          </div>
+          <div className="text-right flex-shrink-0">
+            <span className="text-[13px] font-bold" style={{ color: GREEN }}>{time || 'TBD'}</span>
+            {match.date && <p className="text-[11px] text-gray-400 mt-0.5">{match.date}</p>}
+          </div>
         </div>
       </div>
-    </div>
+    </Link>
   )
 }
 
@@ -658,8 +660,8 @@ export default function WimbledonHub() {
                 const p2won = m.winner === 'Second Player'
                 const done = m.status === 'Finished'
                 return (
-                  <Link key={m.match_id || i} href={done ? `/matches/${m.match_id}` : '#'}>
-                    <div className={`card px-4 py-3 flex items-center gap-3 cursor-pointer transition-all ${done ? 'card-glow' : ''}`}>
+                  <Link key={m.match_id || i} href={m.match_id ? `/matches/${m.match_id}` : '#'}>
+                    <div className="card px-4 py-3 flex items-center gap-3 cursor-pointer hover:border-green-200 hover:shadow-sm transition-all card-glow">
                       {/* Player 1 */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1.5">

@@ -23,7 +23,8 @@ export default function ResultCard({ result }: Props) {
   const p2won = result.winner === 'Second Player'
 
   return (
-    <div className="rounded-xl border border-gray-200 glass p-4">
+    <Link href={`/matches/${result.match_id}`}>
+      <div className="rounded-xl border border-gray-200 glass p-4 cursor-pointer hover:border-gray-300 hover:shadow-md transition-all">
       {/* Header */}
       <div className="flex items-center justify-between gap-2 mb-3">
         <span className="text-[11px] font-medium uppercase tracking-wider text-gray-500 truncate">
@@ -71,6 +72,6 @@ export default function ResultCard({ result }: Props) {
           </span>
         </div>
       </div>
-    </div>
+    </Link>
   )
 }
