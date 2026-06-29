@@ -44,7 +44,7 @@ function SectionHeader({ title, count, sub }: { title: string; count?: number; s
 
 export default function Home() {
   const [tab, setTab] = useState<Tab>('matches')
-  const [matchFilter, setMatchFilter] = useState<'all' | 'live' | 'completed' | 'next'>('all')
+  const [matchFilter, setMatchFilter] = useState<'live' | 'next' | 'completed'>('live')
   const [profileOpen, setProfileOpen] = useState(false)
   const [notifOn, setNotifOn] = useState(false)
 
@@ -183,23 +183,27 @@ export default function Home() {
           <div className="space-y-8">
             {/* Filter pills */}
             <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mb-4">
-              {(['all', 'live', 'next', 'completed'] as const).map(f => (
+              {([
+                { key: 'live',      label: `🔴 Live${liveMatches.length > 0 ? ` ${liveMatches.length}` : ''}` },
+                { key: 'next',      label: '📅 Next' },
+                { key: 'completed', label: '✓ Completed' },
+              ] as const).map(({ key, label }) => (
                 <button
-                  key={f}
-                  onClick={() => setMatchFilter(f)}
+                  key={key}
+                  onClick={() => setMatchFilter(key)}
                   className={`flex-shrink-0 px-4 py-1.5 rounded-full text-[13px] font-bold transition-all ${
-                    matchFilter === f
+                    matchFilter === key
                       ? 'bg-[#00C875] text-white'
                       : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                   }`}
                 >
-                  {f === 'all' ? 'All' : f === 'live' ? `🔴 Live${liveMatches.length > 0 ? ` ${liveMatches.length}` : ''}` : f === 'next' ? '📅 Next' : '✓ Completed'}
+                  {label}
                 </button>
               ))}
             </div>
 
             {/* LIVE NOW */}
-            {(matchFilter === 'all' || matchFilter === 'live') && <section>
+            {matchFilter === 'live' && <section>
               <SectionHeader
                 title="🔴 Live Now"
                 count={liveMatches.length}
@@ -223,7 +227,7 @@ export default function Home() {
             </section>}
 
             {/* UPCOMING */}
-            {(matchFilter === 'all' || matchFilter === 'next') && <section>
+            {matchFilter === 'next' && <section>
               <SectionHeader title="📅 Upcoming" count={fixtures.length} sub="Next 7 days" />
               {loadingFixtures ? (
                 <div className="space-y-2">{[...Array(4)].map((_, i) => <MatchCardSkeleton key={i} />)}</div>
@@ -231,20 +235,13 @@ export default function Home() {
                 <div className="card p-5 text-center"><p className="text-gray-400 text-[13px]">No scheduled matches found</p></div>
               ) : (
                 <div className="space-y-2">
-                  {sortByPriority(fixtures).slice(0, matchFilter === 'next' ? 50 : 10).map(f => (
-                    <MatchCard key={f.match_id} match={f} />
-                  ))}
-                  {matchFilter === 'all' && fixtures.length > 10 && (
-                    <button onClick={() => setMatchFilter('next')} className="w-full py-3 text-[13px] font-bold text-[#00C875]">
-                      Show all {fixtures.length} upcoming →
-                    </button>
-                  )}
+                  {sortByPriority(fixtures).map(f => <MatchCard key={f.match_id} match={f} />)}
                 </div>
               )}
             </section>}
 
             {/* COMPLETED */}
-            {(matchFilter === 'all' || matchFilter === 'completed') && <section>
+            {matchFilter === 'completed' && <section>
               <SectionHeader title="✓ Completed" count={results.length} sub="Last 7 days" />
               {loadingResults ? (
                 <div className="space-y-2">{[...Array(4)].map((_, i) => <ResultCardSkeleton key={i} />)}</div>
@@ -252,14 +249,7 @@ export default function Home() {
                 <div className="card p-5 text-center"><p className="text-gray-400 text-[13px]">No recent results</p></div>
               ) : (
                 <div className="space-y-2">
-                  {results.slice(0, matchFilter === 'completed' ? 100 : 15).map(r => (
-                    <ResultCard key={r.match_id} result={r} />
-                  ))}
-                  {matchFilter === 'all' && results.length > 15 && (
-                    <button onClick={() => setMatchFilter('completed')} className="w-full py-3 text-[13px] font-bold text-[#00C875]">
-                      Show all {results.length} results →
-                    </button>
-                  )}
+                  {results.map(r => <ResultCard key={r.match_id} result={r} />)}
                 </div>
               )}
             </section>}
