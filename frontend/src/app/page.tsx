@@ -6,7 +6,6 @@ import MatchCardSkeleton from '@/components/MatchCardSkeleton'
 import RankingsList from '@/components/RankingsList'
 import ResultCard from '@/components/ResultCard'
 import ResultCardSkeleton from '@/components/ResultCardSkeleton'
-import WimbledonBanner from '@/components/WimbledonBanner'
 import NewsCard from '@/components/NewsCard'
 import ProfilePanel from '@/components/ProfilePanel'
 import { getLiveMatches, getResults, getFixtures } from '@/lib/api-reliable'
@@ -152,7 +151,8 @@ export default function Home() {
         </div>
 
         {/* Tab nav */}
-        <div className="max-w-3xl mx-auto flex overflow-x-auto scrollbar-hide border-t border-gray-100">
+        {/* Desktop tab row only — mobile uses bottom nav */}
+        <div className="max-w-3xl mx-auto hidden md:flex overflow-x-auto scrollbar-hide border-t border-gray-100">
           {tabs.map(({ key, label, icon }) => (
             <button
               key={key}
@@ -197,8 +197,6 @@ export default function Home() {
                 </button>
               ))}
             </div>
-
-            <WimbledonBanner />
 
             {/* LIVE NOW */}
             {(matchFilter === 'all' || matchFilter === 'live') && <section>
