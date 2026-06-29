@@ -3,359 +3,284 @@
 import { useState, useEffect, useCallback } from 'react'
 import MatchCard from '@/components/MatchCard'
 import MatchCardSkeleton from '@/components/MatchCardSkeleton'
-import TournamentCard from '@/components/TournamentCard'
 import RankingsList from '@/components/RankingsList'
 import ResultCard from '@/components/ResultCard'
 import ResultCardSkeleton from '@/components/ResultCardSkeleton'
-import SearchBar from '@/components/SearchBar'
-import BottomNav from '@/components/BottomNav'
 import WimbledonBanner from '@/components/WimbledonBanner'
-import PushButton from '@/components/PushButton'
-import LiveTicker from '@/components/LiveTicker'
 import NewsCard from '@/components/NewsCard'
-import ThemeToggle from '@/components/ThemeToggle'
-import { getLiveMatches, getTournaments, getResults, getFixtures } from '@/lib/api-reliable'
-import { getFavourites } from '@/lib/favourites'
-import { sortMatches } from '@/lib/matchSorting'
+import ProfilePanel from '@/components/ProfilePanel'
+import { getLiveMatches, getResults, getFixtures } from '@/lib/api-reliable'
 import { sortByPriority } from '@/lib/matchPriority'
 import { validateMatches } from '@/lib/dataValidator'
 import { monitor } from '@/lib/integrityMonitor'
-import { getCountryFlag } from '@/lib/countryFlags'
-import { getPlayerCountry } from '@/lib/playerCountries'
-import type { Match, Tournament } from '@/types'
+import type { Match } from '@/types'
 import Link from 'next/link'
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-type Tab = 'live' | 'results' | 'upcoming' | 'tournaments' | 'rankings' | 'news'
+const API = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
+type Tab = 'matches' | 'rankings' | 'news' | 'wimbledon'
+
+function BellIcon({ active }: { active: boolean }) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+      <path d="M13.73 21a2 2 0 01-3.46 0"/>
+      {active && <circle cx="19" cy="5" r="3.5" fill="#00C875" stroke="none" />}
+    </svg>
+  )
+}
+
+function SectionHeader({ title, count, sub }: { title: string; count?: number; sub?: string }) {
+  return (
+    <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center gap-2">
+        <p className="text-[13px] font-black text-gray-900 uppercase tracking-widest">{title}</p>
+        {count !== undefined && count > 0 && (
+          <span className="text-[10px] bg-[#00C875]/15 text-[#009A58] rounded-full px-2 py-0.5 font-bold tabular-nums">{count}</span>
+        )}
+      </div>
+      {sub && <span className="text-[11px] text-gray-400">{sub}</span>}
+    </div>
+  )
+}
 
 export default function Home() {
-  const [tab, setTab] = useState<Tab>('live')
-  const [matches, setMatches] = useState<Match[]>([])
-  const [tournaments, setTournaments] = useState<Tournament[]>([])
-  const [results, setResults] = useState<any[]>([])
+  const [tab, setTab] = useState<Tab>('matches')
+  const [profileOpen, setProfileOpen] = useState(false)
+  const [notifOn, setNotifOn] = useState(false)
+
+  // Matches tab data
+  const [liveMatches, setLiveMatches] = useState<Match[]>([])
   const [fixtures, setFixtures] = useState<any[]>([])
-  const [favourites, setFavourites] = useState<any[]>([])
-  const [news, setNews] = useState<any[]>([])
-  const [loadingMatches, setLoadingMatches] = useState(true)
-  const [loadingTournaments, setLoadingTournaments] = useState(true)
-  const [loadingResults, setLoadingResults] = useState(true)
+  const [results, setResults] = useState<any[]>([])
+  const [loadingLive, setLoadingLive] = useState(true)
   const [loadingFixtures, setLoadingFixtures] = useState(true)
-  const [loadingNews, setLoadingNews] = useState(true)
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
+  const [loadingResults, setLoadingResults] = useState(true)
 
-  const fetchMatches = useCallback(async () => {
-    setLoadingMatches(true)
-    try {
-      const data = await getLiveMatches()
+  // Other tabs
+  const [news, setNews] = useState<any[]>([])
+  const [loadingNews, setLoadingNews] = useState(false)
+
+  // ── Fetch all matches data simultaneously ─────────────────
+  const fetchAllMatches = useCallback(async () => {
+    // Live matches
+    getLiveMatches().then(data => {
       const m = data.matches ?? []
-      setMatches(m)
-      setLastUpdated(new Date())
-    } catch (error) {
-      console.error('Failed to fetch live matches:', error)
-    } finally {
-      setLoadingMatches(false)
-    }
-  }, [])
+      const valid = validateMatches(m)
+      setLiveMatches(sortByPriority(valid.data || m))
+      setLoadingLive(false)
+    }).catch(() => setLoadingLive(false))
 
-  const fetchTournaments = useCallback(async () => {
-    setLoadingTournaments(true)
-    try {
-      const data = await getTournaments()
-      setTournaments(data.tournaments ?? [])
-    } catch (error) {
-      console.error('Failed to fetch tournaments:', error)
-    } finally {
-      setLoadingTournaments(false)
-    }
-  }, [])
-
-  const fetchResults = useCallback(async () => {
-    setLoadingResults(true)
-    try {
-      const data = await getResults(7)
-      const r = data.results ?? []
-      setResults(r)
-    } catch (error) {
-      console.error('Failed to fetch results:', error)
-    } finally {
-      setLoadingResults(false)
-    }
-  }, [])
-
-  const fetchFixtures = useCallback(async () => {
-    setLoadingFixtures(true)
-    try {
-      const data = await getFixtures(7)
-      const f = data.fixtures ?? []
-      setFixtures(f)
-    } catch (error) {
-      console.error('Failed to fetch fixtures:', error)
-    } finally {
+    // Upcoming fixtures
+    getFixtures(7).then(data => {
+      setFixtures(data.fixtures ?? [])
       setLoadingFixtures(false)
-    }
-  }, [])
+    }).catch(() => setLoadingFixtures(false))
 
-  const fetchNews = useCallback(async () => {
-    setLoadingNews(true)
-    try {
-      const data = await fetch(`${API}/feed/news`).then(r => r.json())
-      const a = data.articles ?? []
-      setNews(a)
-    } catch (error) {
-      console.error('Failed to fetch news:', error)
-    } finally {
-      setLoadingNews(false)
-    }
+    // Recent results
+    getResults(7).then(data => {
+      const r = data.results ?? []
+      const valid = validateMatches(r)
+      setResults(valid.data || r)
+      setLoadingResults(false)
+    }).catch(() => setLoadingResults(false))
   }, [])
-
-  const switchTab = (t: Tab) => {
-    setTab(t)
-    if (t === 'results'  && results.length === 0)    fetchResults()
-    if (t === 'upcoming' && fixtures.length === 0)   fetchFixtures()
-    if (t === 'news'     && news.length === 0)       fetchNews()
-    if (t === 'rankings' && tournaments.length === 0) fetchTournaments()
-  }
 
   useEffect(() => {
-    // Mount: fetch ONLY live matches for fast initial load
-    fetchMatches()
-    setFavourites(getFavourites())
-    // Lazy load tournaments only when Rankings tab is clicked
-    const interval = setInterval(fetchMatches, 30_000)
+    fetchAllMatches()
+    const interval = setInterval(() => {
+      // Only refresh live every 30s
+      getLiveMatches().then(data => {
+        const m = data.matches ?? []
+        const valid = validateMatches(m)
+        setLiveMatches(sortByPriority(valid.data || m))
+      }).catch(() => {})
+    }, 30_000)
     return () => clearInterval(interval)
-  }, [fetchMatches])
+  }, [fetchAllMatches])
 
-  const formatTime = (d: Date) =>
-    d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+  useEffect(() => {
+    if (tab === 'news' && news.length === 0) {
+      setLoadingNews(true)
+      fetch(`${API}/feed/news`)
+        .then(r => r.json())
+        .then(d => setNews(d.articles ?? []))
+        .catch(() => {})
+        .finally(() => setLoadingNews(false))
+    }
+  }, [tab])
 
-  // Simplified: 4 main tabs only
-  const tabs: { key: Tab; label: string }[] = [
-    { key: 'live',     label: 'Live' },
-    { key: 'results',  label: 'Results' },
-    { key: 'rankings', label: 'Rankings' },
-    { key: 'news',     label: 'News' },
+  // ── Tab config ────────────────────────────────────────────
+  const tabs: { key: Tab; label: string; icon: string }[] = [
+    { key: 'matches',  label: 'Matches',  icon: '🎾' },
+    { key: 'rankings', label: 'Rankings', icon: '📊' },
+    { key: 'news',     label: 'News',     icon: '📰' },
+    { key: 'wimbledon',label: 'Wimbledon',icon: '🌿' },
   ]
 
   return (
     <div className="min-h-screen">
-      {/* Header */}
-      <header className="sticky top-0 z-20">
-        <div className="max-w-3xl mx-auto px-5 py-3.5 flex items-center justify-between">
-          {/* Logo + app name */}
-          <Link href="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
-            <img src="/logo.png" alt="TennisAce" className="h-8 w-auto" />
-            <span className="text-[17px] font-black tracking-tight text-gray-900 hidden sm:block">
+      {/* ── HEADER ────────────────────────────────────────── */}
+      <header className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-gray-100">
+        <div className="max-w-3xl mx-auto px-4 py-3 flex items-center">
+          {/* Left: Profile icon */}
+          <button
+            onClick={() => setProfileOpen(true)}
+            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-400"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+              <circle cx="12" cy="8" r="4"/>
+              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+            </svg>
+          </button>
+
+          {/* Center: Logo + name */}
+          <Link href="/" className="flex-1 flex items-center justify-center gap-2 hover:opacity-80 transition-opacity">
+            <img src="/logo.png" alt="TennisAce" className="h-7 w-auto" />
+            <span className="text-[18px] font-black tracking-tight text-gray-900">
               Tennis<span className="text-[#00C875]">Ace</span>
             </span>
           </Link>
-          <div className="flex items-center gap-1.5">
-            <ThemeToggle />
-            <PushButton />
-            <SearchBar />
-            {lastUpdated && (
-              <div className="flex items-center gap-1.5 ml-1">
-                <span className="live-dot inline-block w-2 h-2 rounded-full bg-[#00C875]" />
-                <span className="text-[11px] font-bold text-[#00C875] uppercase tracking-wider hidden sm:block">Live</span>
-              </div>
-            )}
-          </div>
+
+          {/* Right: Bell icon */}
+          <button
+            onClick={() => setNotifOn(v => !v)}
+            className={`w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors ${notifOn ? 'text-[#00C875]' : 'text-gray-400'}`}
+          >
+            <BellIcon active={notifOn} />
+          </button>
         </div>
 
-        {/* Live ticker */}
-        <LiveTicker />
-
-        {/* Desktop nav — clean, minimal */}
-        <div className="max-w-3xl mx-auto px-3 hidden md:flex overflow-x-auto scrollbar-hide items-center gap-1 border-t border-gray-100">
-          {tabs.map(({ key, label }) => (
+        {/* Tab nav */}
+        <div className="max-w-3xl mx-auto flex overflow-x-auto scrollbar-hide border-t border-gray-100">
+          {tabs.map(({ key, label, icon }) => (
             <button
               key={key}
-              onClick={() => switchTab(key)}
-              className={`pb-2.5 pt-2 px-4 text-[15px] font-semibold transition-all duration-150 border-b-2 whitespace-nowrap flex items-center gap-1.5 ${
+              onClick={() => setTab(key)}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-3 px-3 text-[13px] font-semibold transition-all border-b-2 whitespace-nowrap ${
                 tab === key
                   ? 'border-[#00C875] text-gray-900'
-                  : 'border-transparent text-gray-400 hover:text-gray-700'
+                  : 'border-transparent text-gray-400 hover:text-gray-600'
               }`}
             >
-              {key === 'live' && (
-                <span className={`inline-block w-1.5 h-1.5 rounded-full ${tab === 'live' ? 'bg-[#00C875] live-dot' : 'bg-gray-300'}`} />
-              )}
-              {label}
-              {key === 'live' && matches.length > 0 && (
-                <span className="text-[10px] bg-[#00C875]/15 text-[#009A58] rounded-full px-2 py-0.5 font-bold tabular-nums">
-                  {matches.length}
+              <span>{icon}</span>
+              <span>{label}</span>
+              {key === 'matches' && liveMatches.length > 0 && (
+                <span className="text-[9px] bg-[#00C875] text-white rounded-full px-1.5 py-0.5 font-black">
+                  {liveMatches.length}
                 </span>
               )}
             </button>
           ))}
-          <div className="ml-auto flex items-center gap-0.5">
-            <Link href="/lounges" className="pb-2.5 pt-2 px-3 text-[13px] font-semibold text-purple-500 hover:text-purple-600 border-b-2 border-transparent whitespace-nowrap transition-colors">
-              💬 Lounges
-            </Link>
-            <Link href="/wimbledon" className="pb-2.5 pt-2 px-3 text-[13px] font-semibold text-[#22C55E] hover:text-green-600 border-b-2 border-transparent whitespace-nowrap transition-colors">
-              🌿 Wimbledon
-            </Link>
-            <Link href="/calendar" className="pb-2.5 pt-2 px-3 text-[13px] font-medium text-gray-400 hover:text-gray-600 border-b-2 border-transparent whitespace-nowrap transition-colors">
-              Calendar
-            </Link>
-            <Link href="/compare" className="pb-2.5 pt-2 px-3 text-[13px] font-medium text-gray-400 hover:text-gray-600 border-b-2 border-transparent whitespace-nowrap transition-colors">
-              Compare
-            </Link>
-            <Link href="/rankings" className="pb-2.5 pt-2 px-3 text-[13px] font-medium text-gray-400 hover:text-gray-600 border-b-2 border-transparent whitespace-nowrap transition-colors">
-              All Rankings
-            </Link>
-          </div>
         </div>
       </header>
 
-      {/* Content — add bottom padding on mobile for the nav bar */}
-      <main className="max-w-3xl mx-auto px-5 py-6 pb-nav md:pb-6">
+      {/* ── CONTENT ───────────────────────────────────────── */}
+      <main className="max-w-3xl mx-auto px-4 py-5 pb-24 md:pb-8">
 
-        {/* LIVE */}
-        {tab === 'live' && (
-          <section>
+        {/* ═══ MATCHES TAB ═══════════════════════════════════ */}
+        {tab === 'matches' && (
+          <div className="space-y-8">
             <WimbledonBanner />
-            {loadingMatches ? (
-              <div className="space-y-3">
-                {[...Array(4)].map((_, i) => <MatchCardSkeleton key={i} />)}
-              </div>
-            ) : matches.length === 0 ? (
-              <div className="py-8">
-                <p className="headline text-gray-900 mb-1">No matches live right now</p>
-                <p className="text-gray-400 text-sm mb-8">Scores refresh every 30 seconds · Matches play 10am–10pm local time</p>
-                <p className="label mb-4">Grand Slams 2026</p>
-                <div className="space-y-2">
-                  {[
-                    { name: 'Wimbledon',       dates: 'Jun 30 – Jul 13', logo: '/gs-wimbledon.png', surface: 'Grass', color: '#22C55E' },
-                    { name: 'US Open',         dates: 'Aug 25 – Sep 7',  logo: '/gs-uso.png',      surface: 'Hard',  color: '#3B82F6' },
-                    { name: 'Australian Open', dates: 'Jan 12 – Jan 26', logo: '/gs-ao.svg',       surface: 'Hard',  color: '#3B82F6' },
-                    { name: 'Roland Garros',   dates: 'May 25 – Jun 8',  logo: '/gs-rg.png',       surface: 'Clay',  color: '#F97316' },
-                  ].map(t => (
-                    <div key={t.name} className="card flex items-center justify-between px-4 py-3.5">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center overflow-hidden">
-                          <img src={t.logo} alt={t.name} className="w-8 h-8 object-contain"
-                            onError={e => { e.currentTarget.style.display='none' }} />
-                        </div>
-                        <div>
-                          <p className="text-[15px] font-bold text-gray-900">{t.name}</p>
-                          <span className="text-[11px] font-semibold" style={{ color: t.color }}>{t.surface}</span>
-                        </div>
-                      </div>
-                      <span className="text-sm text-gray-400 font-medium">{t.dates}</span>
-                    </div>
-                  ))}
+
+            {/* LIVE NOW */}
+            <section>
+              <SectionHeader
+                title="🔴 Live Now"
+                count={liveMatches.length}
+                sub={liveMatches.length > 0 ? 'Updates every 30s' : undefined}
+              />
+              {loadingLive ? (
+                <div className="space-y-3">
+                  {[...Array(3)].map((_, i) => <MatchCardSkeleton key={i} />)}
                 </div>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {(() => {
-                  const validation = validateMatches(matches)
-                  if (!validation.valid && validation.data === null) {
-                    monitor.logValidationFailure('Live Matches', matches.length, 0, validation.errors)
-                    return <div className="text-gray-400 py-8">Unable to load match data. Please refresh.</div>
-                  }
-                  if (validation.warning) {
-                    monitor.log('warning', 'Live Matches', validation.warning)
-                  }
-                  const validMatches = validation.data || matches
-                  const sorted = sortByPriority(validMatches)
-                  return sorted.map((m) => <MatchCard key={m.match_id} match={m} />)
-                })()}
-              </div>
-            )}
-          </section>
+              ) : liveMatches.length === 0 ? (
+                <div className="card p-5 text-center">
+                  <p className="text-2xl mb-2">📡</p>
+                  <p className="font-bold text-gray-900 text-[15px]">No matches live right now</p>
+                  <p className="text-gray-400 text-[13px] mt-1">Matches typically play 10am–10pm local time</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {liveMatches.map(m => <MatchCard key={m.match_id} match={m} />)}
+                </div>
+              )}
+            </section>
+
+            {/* UPCOMING */}
+            <section>
+              <SectionHeader
+                title="📅 Upcoming"
+                count={fixtures.length}
+                sub="Next 7 days"
+              />
+              {loadingFixtures ? (
+                <div className="space-y-2">
+                  {[...Array(4)].map((_, i) => <MatchCardSkeleton key={i} />)}
+                </div>
+              ) : fixtures.length === 0 ? (
+                <div className="card p-5 text-center">
+                  <p className="text-gray-400 text-[13px]">No scheduled matches found</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {sortByPriority(fixtures).slice(0, 10).map(f => (
+                    <MatchCard key={f.match_id} match={f} />
+                  ))}
+                  {fixtures.length > 10 && (
+                    <p className="text-center text-[12px] text-gray-400 py-2">
+                      +{fixtures.length - 10} more scheduled
+                    </p>
+                  )}
+                </div>
+              )}
+            </section>
+
+            {/* COMPLETED */}
+            <section>
+              <SectionHeader
+                title="✓ Completed"
+                count={results.length}
+                sub="Last 7 days"
+              />
+              {loadingResults ? (
+                <div className="space-y-2">
+                  {[...Array(4)].map((_, i) => <ResultCardSkeleton key={i} />)}
+                </div>
+              ) : results.length === 0 ? (
+                <div className="card p-5 text-center">
+                  <p className="text-gray-400 text-[13px]">No recent results</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {results.slice(0, 15).map(r => (
+                    <ResultCard key={r.match_id} result={r} />
+                  ))}
+                  {results.length > 15 && (
+                    <p className="text-center text-[12px] text-gray-400 py-2">
+                      +{results.length - 15} more results
+                    </p>
+                  )}
+                </div>
+              )}
+            </section>
+          </div>
         )}
 
-        {/* RESULTS */}
-        {tab === 'results' && (
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-[11px] text-gray-400 uppercase tracking-widest">Last 7 days · All Tours</p>
-              {results.length > 0 && <span className="text-[11px] text-gray-400">{results.length} results</span>}
+        {/* ═══ RANKINGS TAB ══════════════════════════════════ */}
+        {tab === 'rankings' && (
+          <div>
+            <div className="mb-4 card p-4 flex items-center justify-between">
+              <div>
+                <p className="text-[14px] font-black text-gray-900">Full Rankings</p>
+                <p className="text-[11px] text-gray-400">ATP · WTA · AITA · ITF</p>
+              </div>
+              <Link href="/rankings" className="text-[13px] font-bold text-[#00C875]">View all →</Link>
             </div>
-            {loadingResults ? (
-              <div className="space-y-2">
-                {[...Array(8)].map((_, i) => (
-                  <ResultCardSkeleton key={i} />
-                ))}
-              </div>
-            ) : results.length === 0 ? (
-              <div className="card p-8 text-center">
-                <p className="text-3xl mb-3">📋</p>
-                <p className="font-bold text-gray-900 text-[15px]">Results loading</p>
-                <p className="text-gray-400 text-sm mt-1">Fetching completed matches from the last 7 days...</p>
-                <button onClick={fetchResults} className="mt-4 text-[#00C875] text-sm font-semibold">
-                  Retry →
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {(() => {
-                  const validation = validateMatches(results)
-                  if (validation.warning) {
-                    monitor.log('warning', 'Results', validation.warning)
-                  }
-                  const validResults = validation.data || results
-                  return sortMatches(validResults).map((r) => <ResultCard key={r.match_id} result={r} />)
-                })()}
-              </div>
-            )}
-          </section>
+            <RankingsList />
+          </div>
         )}
 
-        {/* TOURNAMENTS */}
-        {tab === 'tournaments' && (
-          <section>
-            {loadingTournaments ? (
-              <div className="space-y-3">
-                {[...Array(4)].map((_, i) => <div key={i} className="rounded-xl glass border border-gray-200 h-16 animate-pulse" />)}
-              </div>
-            ) : tournaments.length === 0 ? (
-              <div className="text-center py-20">
-                <span className="text-4xl">🏆</span>
-                <p className="text-gray-400 text-sm mt-4">No tournaments found.</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {tournaments.map((t) => <TournamentCard key={t.id} tournament={t} />)}
-              </div>
-            )}
-          </section>
-        )}
-
-        {/* UPCOMING / SCHEDULE */}
-        {tab === 'upcoming' && (
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-[11px] text-gray-400 uppercase tracking-widest">Next 7 days · All Tours</p>
-              {fixtures.length > 0 && <span className="text-[11px] text-gray-400">{fixtures.length} matches</span>}
-            </div>
-            {loadingFixtures ? (
-              <div className="space-y-2">
-                {[...Array(8)].map((_, i) => (
-                  <div key={i} className="card h-[72px] animate-pulse" style={{ animationDelay: `${i * 50}ms` }} />
-                ))}
-              </div>
-            ) : fixtures.length === 0 ? (
-              <div className="card p-8 text-center">
-                <p className="text-3xl mb-3">📅</p>
-                <p className="font-bold text-gray-900 text-[15px]">Schedule loading</p>
-                <p className="text-gray-400 text-sm mt-1">Fetching upcoming matches for the next 7 days...</p>
-                <button onClick={fetchFixtures} className="mt-4 text-[#00C875] text-sm font-semibold">
-                  Retry →
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {sortMatches(fixtures).map((f) => (
-                  <MatchCard key={f.match_id} match={f} />
-                ))}
-              </div>
-            )}
-          </section>
-        )}
-
-        {/* NEWS */}
+        {/* ═══ NEWS TAB ══════════════════════════════════════ */}
         {tab === 'news' && (
           <section>
             <div className="flex items-center justify-between mb-4">
@@ -370,6 +295,18 @@ export default function Home() {
               <div className="text-center py-16">
                 <span className="text-4xl">📰</span>
                 <p className="text-gray-400 text-sm mt-4">No news available right now.</p>
+                <button
+                  onClick={() => {
+                    setLoadingNews(true)
+                    fetch(`${API}/feed/news`).then(r => r.json())
+                      .then(d => setNews(d.articles ?? []))
+                      .catch(() => {})
+                      .finally(() => setLoadingNews(false))
+                  }}
+                  className="mt-3 text-[#00C875] text-sm font-semibold"
+                >
+                  Retry →
+                </button>
               </div>
             ) : (
               <div className="space-y-3">
@@ -379,51 +316,82 @@ export default function Home() {
           </section>
         )}
 
-        {/* RANKINGS — redirect to dedicated page */}
-        {tab === 'rankings' && (
-          <>
-            {favourites.length > 0 && (
-              <div className="mb-6">
-                <p className="text-[11px] text-amber-400/70 uppercase tracking-widest mb-3">★ My Favourites</p>
-                <div className="space-y-2">
-                  {favourites.map(f => (
-                    <Link key={f.key} href={`/players/${f.key}`}>
-                      <div className="flex items-center justify-between px-4 py-3 rounded-xl glass border border-amber-400/10 hover:border-amber-400/25 transition-colors cursor-pointer">
-                        <div>
-                          <p className="text-sm font-semibold text-gray-900">{f.name}</p>
-                          <p className="text-[11px] text-gray-400">{f.country}</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[11px] text-[#00C875] font-bold">{f.league}</span>
-                          <span className="text-amber-400">★</span>
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
+        {/* ═══ WIMBLEDON TAB ════════════════════════════════ */}
+        {tab === 'wimbledon' && (
+          <div className="text-center py-8">
+            <Link href="/wimbledon">
+              <div className="card p-8 cursor-pointer hover:border-green-200 transition-all">
+                <img src="/gs-wimbledon.png" alt="Wimbledon" className="h-20 w-auto mx-auto mb-4 object-contain" />
+                <p className="text-[20px] font-black text-gray-900 mb-1">Wimbledon 2026</p>
+                <p className="text-gray-400 text-[14px] mb-4">Jun 30 – Jul 13 · Grass · SW19 London</p>
+                <span className="inline-flex items-center gap-1.5 text-[13px] font-bold text-[#22C55E] bg-green-50 px-4 py-2 rounded-full">
+                  <span className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse inline-block" />
+                  View Draw & Scores →
+                </span>
+              </div>
+            </Link>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <Link href="/compare">
+                <div className="card p-4 text-left hover:border-gray-300 transition-all cursor-pointer">
+                  <p className="text-[15px] font-black text-gray-900">⚔️ Compare</p>
+                  <p className="text-[12px] text-gray-400 mt-1">Head-to-head player stats</p>
                 </div>
-                <div className="h-px bg-gray-50 my-5" />
-              </div>
-            )}
-            {/* Link to full rankings page with ATP/WTA/AITA/ITF */}
-            <div className="mb-4 card p-4 flex items-center justify-between">
-              <div>
-                <p className="text-[14px] font-black text-gray-900">Full Rankings</p>
-                <p className="text-[11px] text-gray-400">ATP · WTA · AITA · ITF</p>
-              </div>
-              <Link href="/rankings" className="text-[13px] font-bold text-[#00C875]">View all →</Link>
+              </Link>
+              <Link href="/rankings">
+                <div className="card p-4 text-left hover:border-gray-300 transition-all cursor-pointer">
+                  <p className="text-[15px] font-black text-gray-900">📊 Rankings</p>
+                  <p className="text-[12px] text-gray-400 mt-1">ATP · WTA · World rankings</p>
+                </div>
+              </Link>
+              <Link href="/lounges">
+                <div className="card p-4 text-left hover:border-gray-300 transition-all cursor-pointer">
+                  <p className="text-[15px] font-black text-gray-900">💬 Lounges</p>
+                  <p className="text-[12px] text-gray-400 mt-1">Community discussions</p>
+                </div>
+              </Link>
+              <Link href="/calendar">
+                <div className="card p-4 text-left hover:border-gray-300 transition-all cursor-pointer">
+                  <p className="text-[15px] font-black text-gray-900">📅 Calendar</p>
+                  <p className="text-[12px] text-gray-400 mt-1">Full tournament schedule</p>
+                </div>
+              </Link>
             </div>
-            <RankingsList />
-          </>
+          </div>
         )}
 
       </main>
 
-      <footer className="max-w-2xl mx-auto px-4 pb-8 mt-8 text-center hidden md:block">
-        <p className="text-[11px] text-gray-300">tennisace.live · Feel every match. Live.</p>
-      </footer>
+      {/* ── MOBILE BOTTOM NAV ─────────────────────────────── */}
+      <nav className="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm border-t border-gray-100 safe-bottom md:hidden">
+        <div className="flex items-stretch justify-around px-1 pt-2 pb-2">
+          {tabs.map(({ key, label, icon }) => {
+            const active = tab === key
+            return (
+              <button
+                key={key}
+                onClick={() => setTab(key)}
+                className="flex flex-col items-center justify-center gap-1 flex-1 min-h-[56px] relative transition-all active:scale-95"
+              >
+                {active && (
+                  <span className="absolute inset-x-2 inset-y-0 rounded-2xl bg-[#00C875]/10" />
+                )}
+                <span className="relative z-10 text-[22px] leading-none">{icon}</span>
+                {key === 'matches' && liveMatches.length > 0 && (
+                  <span className="absolute top-1 right-3 text-[8px] bg-[#00C875] text-white font-black rounded-full w-4 h-4 flex items-center justify-center">
+                    {liveMatches.length > 9 ? '9+' : liveMatches.length}
+                  </span>
+                )}
+                <span className={`text-[10px] font-bold z-10 ${active ? 'text-[#00C875]' : 'text-gray-400'}`}>
+                  {label}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      </nav>
 
-      {/* Bottom nav — mobile only */}
-      <BottomNav tab={tab} setTab={setTab} liveCount={matches.length} />
+      {/* ── PROFILE PANEL ─────────────────────────────────── */}
+      <ProfilePanel open={profileOpen} onClose={() => setProfileOpen(false)} />
     </div>
   )
 }
