@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import LayoutWrapper from '@/components/LayoutWrapper'
+import ServiceWorkerUpdater from '@/components/ServiceWorkerUpdater'
 import { Analytics } from '@vercel/analytics/react'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
@@ -53,6 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="font-sans min-h-screen bg-white text-gray-900">
         <LayoutWrapper>{children}</LayoutWrapper>
+        <ServiceWorkerUpdater />
         <Analytics />
       </body>
     </html>
