@@ -5,7 +5,6 @@ import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getH2H } from '@/lib/api'
 import PointByPoint from '@/components/PointByPoint'
-import MatchAnalytics from '@/components/MatchAnalytics'
 import type { Match } from '@/types'
 
 const SURFACE_STYLE: Record<string, { color: string; label: string }> = {
@@ -14,14 +13,49 @@ const SURFACE_STYLE: Record<string, { color: string; label: string }> = {
   Hard:  { color: '#3B82F6', label: '🔵 Hard' },
 }
 
+// Circle chart for simple count stats like Aces
+function StatCircle({ label, val1, val2 }: { label: string; val1: string; val2: string }) {
+  const n1 = parseInt(val1) || 0
+  const n2 = parseInt(val2) || 0
+  const total = n1 + n2 || 1
+  const pct1 = Math.round(n1 / total * 100)
+  const r = 38, circ = 2 * Math.PI * r
+  const dash1 = (pct1 / 100) * circ
+  return (
+    <div className="flex flex-col items-center gap-1.5">
+      <div className="relative w-24 h-24">
+        <svg width="96" height="96" viewBox="0 0 96 96">
+          <circle cx="48" cy="48" r={r} fill="none" stroke="#f0f0f0" strokeWidth="8" />
+          <circle cx="48" cy="48" r={r} fill="none" stroke="#00C875" strokeWidth="8"
+            strokeDasharray={`${dash1} ${circ - dash1}`}
+            strokeDashoffset={circ / 4} strokeLinecap="round" />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-[13px] font-black text-gray-900">{val1} <span className="text-gray-400 font-normal text-[11px]">vs</span> {val2}</span>
+        </div>
+      </div>
+      <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{label}</span>
+    </div>
+  )
+}
+
+// Single row in stats table
+function StatRow({ label, v1, v2, highlight }: { label: string; v1: string; v2: string; highlight?: boolean }) {
+  return (
+    <div className={`flex items-center py-2.5 border-b border-gray-50 last:border-0 ${highlight ? 'bg-green-50/50 -mx-4 px-4 rounded-lg' : ''}`}>
+      <span className={`flex-1 text-right text-[13px] font-bold ${highlight ? 'text-[#00C875]' : 'text-gray-900'}`}>{v1}</span>
+      <span className="w-40 text-center text-[11px] font-semibold text-gray-400 uppercase tracking-wide px-2">{label}</span>
+      <span className={`flex-1 text-left text-[13px] font-bold ${highlight ? 'text-gray-500' : 'text-gray-900'}`}>{v2}</span>
+    </div>
+  )
+}
+
 function StatBar({ label, won1, total1, won2, total2 }: { label: string; won1: number; total1: number; won2: number; total2: number }) {
   const p1Pct = total1 > 0 ? Math.round(won1 / total1 * 100) : 0
   const p2Pct = total2 > 0 ? Math.round(won2 / total2 * 100) : 0
-  // For bar width, use proportion of combined pool to show relative contribution
   const combinedTotal = (total1 + total2) || 1
   const barWidth1 = Math.round(won1 / combinedTotal * 100)
   const barWidth2 = Math.round(won2 / combinedTotal * 100)
-
   return (
     <div className="mb-3">
       <div className="flex justify-between text-[12px] font-bold mb-1.5">
@@ -258,30 +292,81 @@ export default function MatchPage() {
               </div>
             )}
 
-            {/* Match Analytics */}
-            {stats.length > 0 && match.player1_key && match.player2_key && (
-              <MatchAnalytics match={match} stats={stats} pbp={pbp} />
-            )}
+            {/* Statistics — ScoreGO style */}
+            {stats.length > 0 && match.player1_key && match.player2_key && (() => {
+              const k1 = match.player1_key
+              const k2 = match.player2_key
 
-            {/* Legacy Match Stats */}
-            {stats.length > 0 && match.player1_key && match.player2_key && (
-              <div className="mb-5">
-                <p className="text-[11px] text-gray-400 uppercase tracking-widest mb-3 font-bold">Detailed Stats</p>
-                <div className="card p-4">
-                  {[
-                    { name: '1st Serve Won', key: '1st serve points won' },
-                    { name: '2nd Serve Won', key: '2nd serve points won' },
-                  ].map(stat => {
-                    const won1 = getStatWon(match.player1_key, stat.key)
-                    const total1 = getStatTotal(match.player1_key, stat.key)
-                    const won2 = getStatWon(match.player2_key, stat.key)
-                    const total2 = getStatTotal(match.player2_key, stat.key)
-                    if (!total1 && !total2) return null
-                    return <StatBar key={stat.key} label={stat.name} won1={won1} total1={total1} won2={won2} total2={total2} />
-                  })}
+              const sv = (key: number, name: string) =>
+                stats.find(s => s.player_key === key && s.stat_name === name)?.stat_value ?? '—'
+              const sw = (key: number, name: string) =>
+                parseInt(stats.find(s => s.player_key === key && s.stat_name === name)?.stat_won || '0')
+              const st = (key: number, name: string) =>
+                parseInt(stats.find(s => s.player_key === key && s.stat_name === name)?.stat_total || '0')
+
+              // Format "won/total (pct%)" or just the value
+              const fmt = (key: number, name: string) => {
+                const won = sw(key, name), total = st(key, name)
+                const val = sv(key, name)
+                if (total > 0) return `${won}/${total} (${Math.round(won/total*100)}%)`
+                return val
+              }
+
+              const aces1 = sv(k1, 'Aces'), aces2 = sv(k2, 'Aces')
+              const df1 = sv(k1, 'Double Faults'), df2 = sv(k2, 'Double Faults')
+
+              const tableRows = [
+                { label: 'Aces',                v1: aces1,                             v2: aces2 },
+                { label: 'Double Faults',        v1: df1,                               v2: df2 },
+                { label: '1st Serve %',          v1: sv(k1, '1st serve percentage'),    v2: sv(k2, '1st serve percentage') },
+                { label: '1st Serve Won',         v1: fmt(k1, '1st serve points won'),   v2: fmt(k2, '1st serve points won') },
+                { label: '2nd Serve Won',         v1: fmt(k1, '2nd serve points won'),   v2: fmt(k2, '2nd serve points won') },
+                { label: 'Break Points Won',      v1: fmt(k1, 'Break Points Converted'), v2: fmt(k2, 'Break Points Converted'), highlight: true },
+                { label: 'Break Points Saved',    v1: fmt(k1, 'Break Points Saved'),     v2: fmt(k2, 'Break Points Saved') },
+                { label: 'Winners',               v1: sv(k1, 'Winners'),                 v2: sv(k2, 'Winners') },
+                { label: 'Unforced Errors',       v1: sv(k1, 'Unforced errors'),         v2: sv(k2, 'Unforced errors') },
+                { label: 'Net Points Won',        v1: fmt(k1, 'Net points won'),         v2: fmt(k2, 'Net points won') },
+                { label: 'Service Pts Won',       v1: fmt(k1, 'Service Points Won'),     v2: fmt(k2, 'Service Points Won') },
+                { label: 'Return Pts Won',        v1: fmt(k1, 'Return Points Won'),      v2: fmt(k2, 'Return Points Won') },
+                { label: 'Total Points Won',      v1: fmt(k1, 'Total Points Won'),       v2: fmt(k2, 'Total Points Won') },
+              ].filter(r => r.v1 !== '—' || r.v2 !== '—')
+
+              return (
+                <div className="mb-5">
+                  <p className="text-[11px] text-gray-400 uppercase tracking-widest mb-4 font-bold">Statistics</p>
+
+                  {/* Circle charts for simple counts */}
+                  {aces1 !== '—' && (
+                    <div className="card p-4 mb-4">
+                      <div className="flex justify-around">
+                        <StatCircle label="Aces" val1={aces1} val2={aces2} />
+                        {df1 !== '—' && <StatCircle label="Double Faults" val1={df1} val2={df2} />}
+                      </div>
+                      <div className="flex justify-center gap-6 mt-2">
+                        <span className="text-[11px] font-bold text-gray-700">{match.player1.split(' ').pop()}</span>
+                        <span className="text-[11px] text-gray-300">vs</span>
+                        <span className="text-[11px] font-bold text-gray-700">{match.player2.split(' ').pop()}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Full stats table */}
+                  {tableRows.length > 0 && (
+                    <div className="card px-4 py-2">
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest pt-2 pb-1 text-center">All Statistics</p>
+                      <div className="flex items-center pb-2 border-b border-gray-100">
+                        <span className="flex-1 text-right text-[11px] font-black text-gray-900">{match.player1.split(' ').pop()}</span>
+                        <span className="w-40" />
+                        <span className="flex-1 text-left text-[11px] font-black text-gray-900">{match.player2.split(' ').pop()}</span>
+                      </div>
+                      {tableRows.map(r => (
+                        <StatRow key={r.label} label={r.label} v1={r.v1} v2={r.v2} highlight={r.highlight} />
+                      ))}
+                    </div>
+                  )}
                 </div>
-              </div>
-            )}
+              )
+            })()}
 
             {/* Point by Point */}
             <PointByPoint pbp={pbp} player1={match.player1} player2={match.player2} />
