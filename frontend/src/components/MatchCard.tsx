@@ -99,66 +99,120 @@ export default function MatchCard({ match }: Props) {
             </div>
           </div>
 
-          {/* Players + scores */}
-          <div className="space-y-2.5">
-            {[
-              { name: match.player1, img: match.player1_img, serving: serving1, key: match.player1_key, gi: gp[0], idx: 0 },
-              { name: match.player2, img: match.player2_img, serving: serving2, key: match.player2_key, gi: gp[1], idx: 1 },
-            ].map(p => {
-              const playerCountry = getPlayerCountry(p.name)
-              const scores = sets.map(s => {
-                const parts = s.split('-')
-                return p.idx === 0 ? parts[0] : parts[1]
-              })
-              const opp = sets.map(s => {
-                const parts = s.split('-')
-                return p.idx === 0 ? parts[1] : parts[0]
-              })
-              const leading = scores.some((s, i) => parseInt(s || '0') > parseInt(opp[i] || '0'))
+          {/* Players + scores — ScoreGO style columns */}
+          {(() => {
+            // Use structured sets from new backend field, fallback to parsing score string
+            const setsData: {p1: string, p2: string}[] = (match as any).sets?.length
+              ? (match as any).sets
+              : sets.map(s => {
+                  const [a, b] = s.split('-')
+                  return { p1: a || '0', p2: b || '0' }
+                })
 
-              return (
-                <div key={p.idx} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 min-w-0 flex-1">
-                    {p.img ? (
-                      <img src={p.img} alt="" className="w-8 h-8 rounded-full object-cover bg-gray-100 flex-shrink-0"
-                        onError={e => e.currentTarget.style.display = 'none'} />
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-gray-100 flex-shrink-0 flex items-center justify-center">
-                        <span className="text-[11px] font-bold text-gray-400">{p.name.slice(0,1)}</span>
+            const gameP1 = (match as any).game_p1 ?? gp[0] ?? ''
+            const gameP2 = (match as any).game_p2 ?? gp[1] ?? ''
+
+            // Did each player win each set?
+            const setWinner = setsData.map(s => {
+              const p1n = parseInt(s.p1), p2n = parseInt(s.p2)
+              if (p1n > p2n) return 1
+              if (p2n > p1n) return 2
+              return 0 // in progress / tied
+            })
+
+            const p1SetsWon = setWinner.filter(w => w === 1).length
+            const p2SetsWon = setWinner.filter(w => w === 2).length
+
+            return (
+              <div className="space-y-1.5">
+                {[
+                  { name: match.player1, img: match.player1_img, serving: serving1, key: match.player1_key, playerIdx: 1, setsWon: p1SetsWon, gameScore: gameP1 },
+                  { name: match.player2, img: match.player2_img, serving: serving2, key: match.player2_key, playerIdx: 2, setsWon: p2SetsWon, gameScore: gameP2 },
+                ].map((p, rowIdx) => {
+                  const country = getPlayerCountry(p.name)
+                  const isWinning = p.setsWon > (rowIdx === 0 ? p2SetsWon : p1SetsWon)
+
+                  return (
+                    <div key={rowIdx} className="flex items-center gap-2">
+                      {/* Avatar */}
+                      {p.img ? (
+                        <img src={p.img} alt="" className="w-8 h-8 rounded-full object-cover bg-gray-100 flex-shrink-0"
+                          onError={e => e.currentTarget.style.display = 'none'} />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-gray-100 flex-shrink-0 flex items-center justify-center">
+                          <span className="text-[11px] font-bold text-gray-400">{p.name[0]}</span>
+                        </div>
+                      )}
+
+                      {/* Name + serving dot */}
+                      <Link
+                        href={p.key ? `/players/${p.key}` : '#'}
+                        onClick={e => e.stopPropagation()}
+                        className={`flex-1 flex items-center gap-1.5 min-w-0 hover:text-[#00C875] transition-colors ${
+                          isWinning ? 'text-gray-900' : isFinished ? 'text-gray-400' : 'text-gray-700'
+                        }`}
+                      >
+                        {country && <span>{getCountryFlag(country)}</span>}
+                        <span className={`text-[15px] truncate ${isWinning ? 'font-black' : 'font-semibold'}`}>
+                          {p.name}
+                        </span>
+                        {/* Serving indicator — yellow dot like ScoreGO */}
+                        {p.serving && isLive && (
+                          <span className="w-2 h-2 rounded-full bg-yellow-400 flex-shrink-0 inline-block" />
+                        )}
+                      </Link>
+
+                      {/* Score columns: [current game] [S1] [S2] [S3...] */}
+                      <div className="flex items-center gap-3 flex-shrink-0">
+                        {/* Current game score — only when live */}
+                        {isLive && (
+                          <span className={`text-[14px] font-black tabular-nums w-8 text-right ${
+                            p.serving ? 'text-[#00C875]' : 'text-gray-400'
+                          }`}>
+                            {p.gameScore || '0'}
+                          </span>
+                        )}
+
+                        {/* Per-set scores */}
+                        {setsData.map((s, si) => {
+                          const myGames = p.playerIdx === 1 ? parseInt(s.p1) : parseInt(s.p2)
+                          const oppGames = p.playerIdx === 1 ? parseInt(s.p2) : parseInt(s.p1)
+                          const iWonSet = setWinner[si] === p.playerIdx
+                          // Last set might still be in progress
+                          const setDone = si < setsData.length - 1 || isFinished
+
+                          return (
+                            <span key={si} className={`text-[17px] tabular-nums w-5 text-right ${
+                              iWonSet ? 'font-black text-gray-900'
+                              : setDone ? 'font-semibold text-gray-350'
+                              : 'font-bold text-gray-700'
+                            }`}>
+                              {myGames}
+                            </span>
+                          )
+                        })}
+
+                        {/* Placeholder columns if no sets yet */}
+                        {setsData.length === 0 && isLive && (
+                          <span className="text-[15px] text-gray-300 tabular-nums w-5 text-right">—</span>
+                        )}
                       </div>
-                    )}
-                    {p.serving && <span className="text-[10px] flex-shrink-0">🎾</span>}
-                    <Link
-                      href={p.key ? `/players/${p.key}` : '#'}
-                      onClick={e => e.stopPropagation()}
-                      className={`text-[15px] font-bold truncate hover:text-[#00C875] transition-colors ${
-                        leading ? 'text-gray-900' : isFinished ? 'text-gray-400' : 'text-gray-700'
-                      }`}
-                    >
-                      {playerCountry && <span className="mr-1">{getCountryFlag(playerCountry)}</span>}{p.name}
-                    </Link>
-                  </div>
-                  <div className="flex items-center gap-1 flex-shrink-0 ml-2">
-                    {isLive && p.gi && (
-                      <span className={`text-[12px] font-black px-1.5 py-0.5 rounded ${
-                        p.serving ? 'text-[#00C875] bg-green-50' : 'text-gray-300'
-                      }`}>{p.gi}</span>
-                    )}
-                    <div className="flex gap-1.5">
-                      {scores.map((s, j) => {
-                        const won = parseInt(s || '0') > parseInt(opp[j] || '0')
-                        return (
-                          <span key={j} className={`text-[17px] font-black tabular-nums w-6 text-center ${
-                            won ? 'text-gray-900' : 'text-gray-300'
-                          }`}>{s}</span>
-                        )
-                      })}
                     </div>
+                  )
+                })}
+
+                {/* Set column headers — tiny labels */}
+                {(setsData.length > 0 || isLive) && (
+                  <div className="flex items-center gap-3 justify-end pt-0.5">
+                    {isLive && <span className="text-[9px] text-gray-300 uppercase w-8 text-right">Pts</span>}
+                    {setsData.map((_, si) => (
+                      <span key={si} className="text-[9px] text-gray-300 uppercase w-5 text-right">S{si + 1}</span>
+                    ))}
                   </div>
-                </div>
-              )
-            })}
-          </div>
+                )}
+              </div>
+            )
+          })()}
         </div>
       </Link>
 
