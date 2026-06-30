@@ -12,6 +12,7 @@ import { getLiveMatches, getResults, getFixtures } from '@/lib/api-reliable'
 import { sortByPriority } from '@/lib/matchPriority'
 import { validateMatches } from '@/lib/dataValidator'
 import { monitor } from '@/lib/integrityMonitor'
+import { supabase } from '@/lib/supabase'
 import type { Match } from '@/types'
 import Link from 'next/link'
 
@@ -83,6 +84,20 @@ export default function Home() {
       setResults(valid.data || r)
       setLoadingResults(false)
     }).catch(() => setLoadingResults(false))
+  }, [])
+
+  // Handle OAuth redirect landing on root page — Supabase puts #access_token in hash
+  // when Site URL is set to root. Clean the URL after session is established.
+  useEffect(() => {
+    if (typeof window === 'undefined' || !supabase) return
+    const hash = window.location.hash
+    if (!hash.includes('access_token')) return
+    supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN') {
+        // Remove the token hash from URL without a page reload
+        window.history.replaceState(null, '', window.location.pathname)
+      }
+    })
   }, [])
 
   useEffect(() => {
