@@ -20,7 +20,7 @@ interface Result {
   date: string
 }
 
-interface Props { result: Result }
+interface Props { result: Result; hideMeta?: boolean }
 
 const ROUND_SHORT: Record<string, string> = {
   'Round of 128': 'R1', 'Round of 64': 'R2', 'Round of 32': 'R3', 'Round of 16': 'R4',
@@ -37,7 +37,7 @@ function parseSetScore(raw: string): { p1: number; p2: number } {
   }
 }
 
-export default function ResultCard({ result }: Props) {
+export default function ResultCard({ result, hideMeta }: Props) {
   const p1won = result.winner === 'First Player'
 
   // Parse score string → per-set columns
@@ -61,15 +61,17 @@ export default function ResultCard({ result }: Props) {
     <Link href={`/matches/${result.match_id}`}>
       <div className="bg-white rounded-xl border border-gray-100 px-3.5 py-3 cursor-pointer hover:bg-gray-50 transition-colors">
 
-        {/* Header: tournament · round | date */}
+        {/* Header row */}
         <div className="flex items-center justify-between gap-2 mb-2.5">
           <div className="flex items-center gap-1.5 min-w-0">
-            <span className="w-2 h-2 rounded-full flex-shrink-0 bg-gray-300" />
-            <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wide truncate">
-              {result.tournament}
-            </span>
+            {!hideMeta && <span className="w-2 h-2 rounded-full flex-shrink-0 bg-gray-300" />}
+            {!hideMeta && (
+              <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wide truncate">
+                {result.tournament}
+              </span>
+            )}
             {roundLabel && (
-              <span className="text-[10px] font-semibold text-gray-300">· {roundLabel}</span>
+              <span className="text-[10px] font-semibold text-gray-300">{hideMeta ? roundLabel : `· ${roundLabel}`}</span>
             )}
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">

@@ -7,7 +7,7 @@ import CardVoting from './CardVoting'
 import type { Match } from '@/types'
 import { shareScoreImage } from '@/lib/shareImage'
 
-interface Props { match: Match }
+interface Props { match: Match; hideMeta?: boolean }
 
 const SURFACE_COLOR: Record<string, string> = {
   Grass: '#22C55E',
@@ -33,7 +33,7 @@ async function shareMatch(match: Match) {
   }
 }
 
-export default function MatchCard({ match }: Props) {
+export default function MatchCard({ match, hideMeta }: Props) {
   const isLive     = match.status === 'In Progress' || match.status === 'live' || match.status === '1'
                      || (match.status || '').startsWith('Set')
   const isFinished = match.status === 'Finished' || match.status === 'After Penalties'
@@ -70,38 +70,67 @@ export default function MatchCard({ match }: Props) {
     <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
       <Link href={`/matches/${match.match_id}`} className="block px-3.5 pt-3 pb-2.5 cursor-pointer hover:bg-gray-50 transition-colors">
 
-        {/* Header: surface dot · tournament · round  |  status */}
-        <div className="flex items-center justify-between gap-2 mb-2.5">
-          <div className="flex items-center gap-1.5 min-w-0">
-            <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: surfColor }} />
-            <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wide truncate">
-              {match.tournament}
-            </span>
-            {roundLabel && (
-              <span className="text-[10px] font-semibold text-gray-300">· {roundLabel}</span>
-            )}
-          </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {isLive ? (
-              <span className="flex items-center gap-1 text-[10px] font-bold text-[#00C875] uppercase tracking-widest">
-                <span className="live-dot inline-block w-1.5 h-1.5 rounded-full bg-[#00C875]" />
-                {match.status?.startsWith('Set') ? match.status : 'Live'}
+        {/* Header row — hidden when tournament header is rendered above */}
+        {!hideMeta && (
+          <div className="flex items-center justify-between gap-2 mb-2.5">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: surfColor }} />
+              <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wide truncate">
+                {match.tournament}
               </span>
-            ) : isFinished ? (
-              <span className="text-[10px] font-semibold text-gray-300 uppercase tracking-wide">Final</span>
-            ) : (
-              <span className="text-[11px] text-gray-400">{timeLabel}</span>
-            )}
-            <button
-              onClick={e => { e.preventDefault(); e.stopPropagation(); shareMatch(match) }}
-              className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-300 hover:text-gray-500 transition-colors"
-            >
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/>
-              </svg>
-            </button>
+              {roundLabel && (
+                <span className="text-[10px] font-semibold text-gray-300">· {roundLabel}</span>
+              )}
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {isLive ? (
+                <span className="flex items-center gap-1 text-[10px] font-bold text-[#00C875] uppercase tracking-widest">
+                  <span className="live-dot inline-block w-1.5 h-1.5 rounded-full bg-[#00C875]" />
+                  {match.status?.startsWith('Set') ? match.status : 'Live'}
+                </span>
+              ) : isFinished ? (
+                <span className="text-[10px] font-semibold text-gray-300 uppercase tracking-wide">Final</span>
+              ) : (
+                <span className="text-[11px] text-gray-400">{timeLabel}</span>
+              )}
+              <button
+                onClick={e => { e.preventDefault(); e.stopPropagation(); shareMatch(match) }}
+                className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-300 hover:text-gray-500 transition-colors"
+              >
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/>
+                </svg>
+              </button>
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* When hideMeta: show only round + status inline */}
+        {hideMeta && (
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <span className="text-[10px] font-semibold text-gray-300 uppercase tracking-wide">{roundLabel}</span>
+            <div className="flex items-center gap-2">
+              {isLive ? (
+                <span className="flex items-center gap-1 text-[10px] font-bold text-[#00C875] uppercase tracking-widest">
+                  <span className="live-dot inline-block w-1.5 h-1.5 rounded-full bg-[#00C875]" />
+                  {match.status?.startsWith('Set') ? match.status : 'Live'}
+                </span>
+              ) : isFinished ? (
+                <span className="text-[10px] font-semibold text-gray-300 uppercase tracking-wide">Final</span>
+              ) : (
+                <span className="text-[11px] text-gray-400">{timeLabel}</span>
+              )}
+              <button
+                onClick={e => { e.preventDefault(); e.stopPropagation(); shareMatch(match) }}
+                className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-300 hover:text-gray-500 transition-colors"
+              >
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Player rows */}
         <div className="space-y-1">
