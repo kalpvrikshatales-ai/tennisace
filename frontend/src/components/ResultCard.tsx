@@ -83,7 +83,7 @@ export default function ResultCard({ result, hideMeta }: Props) {
         {/* Player rows with set columns */}
         <div className="space-y-1">
           {players.map((p, rowIdx) => {
-            const country    = getPlayerCountry(p.name)
+            const country    = (result as any)[`player${p.playerIdx}_country`] || getPlayerCountry(p.name)
             const isWinner   = (rowIdx === 0 && p1won) || (rowIdx === 1 && !p1won)
             const p1SetsWon  = setWinner.filter(w => w === 1).length
             const p2SetsWon  = setWinner.filter(w => w === 2).length

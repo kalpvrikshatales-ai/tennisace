@@ -135,7 +135,7 @@ export default function MatchCard({ match, hideMeta }: Props) {
         {/* Player rows */}
         <div className="space-y-1">
           {players.map((p, rowIdx) => {
-            const country   = getPlayerCountry(p.name)
+            const country   = (match as any)[`player${p.playerIdx}_country`] || getPlayerCountry(p.name)
             const isWinning = p.setsWon > (rowIdx === 0 ? p2SetsWon : p1SetsWon)
 
             return (
