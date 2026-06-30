@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import { getCountryFlag } from '@/lib/countryFlags'
 import { getPlayerCountry } from '@/lib/playerCountries'
 import CardVoting from './CardVoting'
 import type { Match } from '@/types'
@@ -140,8 +139,8 @@ export default function MatchCard({ match, hideMeta }: Props) {
 
             return (
               <div key={rowIdx} className="flex items-center gap-2">
-                {/* Avatar with flag badge */}
-                <div className="relative flex-shrink-0 w-7 h-7">
+                {/* Avatar */}
+                <div className="flex-shrink-0 w-7 h-7">
                   {p.img ? (
                     <img src={p.img} alt="" className="w-7 h-7 rounded-full object-cover bg-gray-100"
                       onError={e => e.currentTarget.style.display = 'none'} />
@@ -150,17 +149,17 @@ export default function MatchCard({ match, hideMeta }: Props) {
                       <span className="text-[10px] font-bold text-gray-400">{p.name[0]}</span>
                     </div>
                   )}
-                  {country && (
-                    <span className="absolute -bottom-0.5 -right-0.5 text-[10px] leading-none">{getCountryFlag(country)}</span>
-                  )}
                 </div>
 
-                {/* Name */}
+                {/* Name + country */}
                 <Link
                   href={p.key ? `/players/${p.key}` : '#'}
                   onClick={e => e.stopPropagation()}
                   className="flex-1 flex items-center gap-1.5 min-w-0 hover:text-[#00C875] transition-colors"
                 >
+                  {country && (
+                    <span className="text-[10px] font-bold text-gray-300 uppercase tracking-wide flex-shrink-0">{country}</span>
+                  )}
                   <span className={`text-[15px] truncate ${
                     isWinning
                       ? 'font-black text-gray-900'
