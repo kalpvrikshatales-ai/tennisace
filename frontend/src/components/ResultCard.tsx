@@ -89,21 +89,25 @@ export default function ResultCard({ result }: Props) {
 
             return (
               <div key={rowIdx} className="flex items-center gap-2">
-                {/* Avatar */}
-                {p.img ? (
-                  <img src={p.img} alt="" className="w-6 h-6 rounded-full object-cover bg-gray-100 flex-shrink-0"
-                    onError={e => (e.currentTarget.style.display = 'none')} />
-                ) : (
-                  <div className="w-6 h-6 rounded-full bg-gray-100 flex-shrink-0 flex items-center justify-center">
-                    <span className="text-[9px] font-bold text-gray-400">{p.name[0]}</span>
-                  </div>
-                )}
+                {/* Avatar with flag badge */}
+                <div className="relative flex-shrink-0 w-7 h-7">
+                  {p.img ? (
+                    <img src={p.img} alt="" className="w-7 h-7 rounded-full object-cover bg-gray-100"
+                      onError={e => (e.currentTarget.style.display = 'none')} />
+                  ) : (
+                    <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center">
+                      <span className="text-[10px] font-bold text-gray-400">{p.name[0]}</span>
+                    </div>
+                  )}
+                  {country && (
+                    <span className="absolute -bottom-0.5 -right-0.5 text-[10px] leading-none">{getCountryFlag(country)}</span>
+                  )}
+                </div>
 
                 {/* Name */}
-                <span className={`flex-1 flex items-center gap-1.5 min-w-0 text-[15px] truncate ${
+                <span className={`flex-1 text-[15px] truncate ${
                   isWinner ? 'font-black text-gray-900' : 'font-medium text-gray-400'
                 }`}>
-                  {country && <span className="text-[13px]">{getCountryFlag(country)}</span>}
                   {p.name}
                 </span>
 
