@@ -22,87 +22,121 @@ interface Result {
 
 interface Props { result: Result }
 
+const ROUND_SHORT: Record<string, string> = {
+  'Round of 128': 'R1', 'Round of 64': 'R2', 'Round of 32': 'R3', 'Round of 16': 'R4',
+  'Quarter-Finals': 'QF', 'Semi-Finals': 'SF', 'Final': 'F',
+  R1: 'R1', R2: 'R2', R3: 'R3', R4: 'R4', QF: 'QF', SF: 'SF',
+}
+
+function parseSetScore(raw: string): { p1: number; p2: number } {
+  // handles "6-2", "7.7-6.1" (tiebreak notation from API)
+  const parts = raw.trim().split('-')
+  return {
+    p1: Math.floor(parseFloat(parts[0] || '0')),
+    p2: Math.floor(parseFloat(parts[1] || '0')),
+  }
+}
+
 export default function ResultCard({ result }: Props) {
-  // p1won/p2won: who won this match
   const p1won = result.winner === 'First Player'
-  const p2won = result.winner === 'Second Player'
 
-  // winner/loser are resolved once and used consistently
-  const winner = p1won ? result.player1 : result.player2
-  const loser  = p1won ? result.player2 : result.player1
-  const winnerImg = p1won ? result.player1_img : result.player2_img
-  const loserImg  = p1won ? result.player2_img : result.player1_img
-  const winnerCountry = getPlayerCountry(winner)
-  const loserCountry  = getPlayerCountry(loser)
+  // Parse score string → per-set columns
+  const rawSets = result.score ? result.score.split(',').map(s => s.trim()).filter(Boolean) : []
+  const setsData = rawSets.map(parseSetScore)
 
-  const p1Country = getPlayerCountry(result.player1)
-  const p2Country = getPlayerCountry(result.player2)
+  // Which player won each set
+  const setWinner = setsData.map(s => s.p1 > s.p2 ? 1 : s.p2 > s.p1 ? 2 : 0)
+
+  const players = [
+    { name: result.player1, img: result.player1_img, playerIdx: 1 },
+    { name: result.player2, img: result.player2_img, playerIdx: 2 },
+  ]
+
+  const roundLabel = (() => {
+    const raw = (result.round || '').split(' - ').pop() || ''
+    return ROUND_SHORT[raw] || raw
+  })()
 
   return (
     <Link href={`/matches/${result.match_id}`}>
-      <div className="rounded-xl border border-gray-200 glass p-4 cursor-pointer hover:border-gray-300 hover:shadow-md transition-all">
-        {/* Tournament + Round + Date */}
-        <div className="flex items-center justify-between gap-2 mb-3">
-          <span className="text-[11px] font-bold text-gray-900 uppercase tracking-wider truncate">
-            {result.tournament}
-          </span>
-          {result.round && (
-            <span className="text-[10px] font-semibold text-gray-400 bg-gray-100 px-2 py-1 rounded-full whitespace-nowrap">
-              {result.round.split(' - ').pop()}
+      <div className="bg-white rounded-xl border border-gray-100 px-3.5 py-3 cursor-pointer hover:bg-gray-50 transition-colors">
+
+        {/* Header: tournament · round | date */}
+        <div className="flex items-center justify-between gap-2 mb-2.5">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span className="w-2 h-2 rounded-full flex-shrink-0 bg-gray-300" />
+            <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wide truncate">
+              {result.tournament}
             </span>
-          )}
-          <span className="text-[10px] text-gray-400 flex-shrink-0 ml-auto">{result.date}</span>
+            {roundLabel && (
+              <span className="text-[10px] font-semibold text-gray-300">· {roundLabel}</span>
+            )}
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <span className="text-[10px] font-semibold text-gray-300 uppercase tracking-wide">Final</span>
+            <span className="text-[10px] text-gray-300">{result.date}</span>
+          </div>
         </div>
 
-        {/* Winner "def." Loser + Full Score */}
-        <div className="space-y-2.5">
-          {/* Winner row */}
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2 min-w-0 flex-1">
-              {winnerImg && (
-                <img
-                  src={winnerImg}
-                  alt=""
-                  className="w-7 h-7 rounded-full object-cover bg-gray-100 flex-shrink-0"
-                  onError={e => (e.currentTarget.style.display='none')}
-                />
-              )}
-              <div className="min-w-0 flex-1">
-                <span className="text-[14px] font-black text-gray-900 truncate">
-                  {winnerCountry && <span className="mr-1">{getCountryFlag(winnerCountry)}</span>}
-                  {winner}
+        {/* Player rows with set columns */}
+        <div className="space-y-1">
+          {players.map((p, rowIdx) => {
+            const country    = getPlayerCountry(p.name)
+            const isWinner   = (rowIdx === 0 && p1won) || (rowIdx === 1 && !p1won)
+            const p1SetsWon  = setWinner.filter(w => w === 1).length
+            const p2SetsWon  = setWinner.filter(w => w === 2).length
+            const setsWon    = rowIdx === 0 ? p1SetsWon : p2SetsWon
+
+            return (
+              <div key={rowIdx} className="flex items-center gap-2">
+                {/* Avatar */}
+                {p.img ? (
+                  <img src={p.img} alt="" className="w-6 h-6 rounded-full object-cover bg-gray-100 flex-shrink-0"
+                    onError={e => (e.currentTarget.style.display = 'none')} />
+                ) : (
+                  <div className="w-6 h-6 rounded-full bg-gray-100 flex-shrink-0 flex items-center justify-center">
+                    <span className="text-[9px] font-bold text-gray-400">{p.name[0]}</span>
+                  </div>
+                )}
+
+                {/* Name */}
+                <span className={`flex-1 flex items-center gap-1.5 min-w-0 text-[15px] truncate ${
+                  isWinner ? 'font-black text-gray-900' : 'font-medium text-gray-400'
+                }`}>
+                  {country && <span className="text-[13px]">{getCountryFlag(country)}</span>}
+                  {p.name}
                 </span>
+
+                {/* Per-set scores */}
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  {setsData.map((s, si) => {
+                    const myGames = p.playerIdx === 1 ? s.p1 : s.p2
+                    const iWonSet = setWinner[si] === p.playerIdx
+                    return (
+                      <span key={si} className={`text-[17px] tabular-nums w-5 text-right ${
+                        iWonSet ? 'font-black text-gray-900' : 'font-medium text-gray-300'
+                      }`}>
+                        {myGames}
+                      </span>
+                    )
+                  })}
+                  {setsData.length === 0 && (
+                    <span className="text-[14px] text-gray-200 w-5 text-right">—</span>
+                  )}
+                </div>
               </div>
-            </div>
-            <span className="text-[12px] font-bold text-gray-900 flex-shrink-0">def.</span>
-          </div>
-
-          {/* Loser row — always the other player */}
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2 min-w-0 flex-1">
-              {loserImg && (
-                <img
-                  src={loserImg}
-                  alt=""
-                  className="w-7 h-7 rounded-full object-cover bg-gray-100 flex-shrink-0"
-                  onError={e => (e.currentTarget.style.display='none')}
-                />
-              )}
-              <span className="text-[14px] font-semibold text-gray-500 truncate">
-                {loserCountry && <span className="mr-1">{getCountryFlag(loserCountry)}</span>}
-                {loser}
-              </span>
-            </div>
-          </div>
-
-          {/* Full Score */}
-          <div className="bg-gray-50 rounded-lg p-3 mt-3">
-            <p className="text-[11px] text-gray-400 font-semibold mb-2">FINAL SCORE</p>
-            <p className="text-[13px] font-bold text-gray-900 font-mono tracking-tight">
-              {result.score || '—'}
-            </p>
-          </div>
+            )
+          })}
         </div>
+
+        {/* Set column headers */}
+        {setsData.length > 0 && (
+          <div className="flex items-center gap-2 justify-end mt-0.5">
+            {setsData.map((_, si) => (
+              <span key={si} className="text-[9px] text-gray-300 uppercase w-5 text-right">S{si + 1}</span>
+            ))}
+          </div>
+        )}
       </div>
     </Link>
   )
