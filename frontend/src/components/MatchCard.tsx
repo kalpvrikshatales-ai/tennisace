@@ -185,7 +185,7 @@ export default function MatchCard({ match }: Props) {
                             <span key={si} className={`text-[17px] tabular-nums w-5 text-right ${
                               iWonSet ? 'font-black text-gray-900'
                               : setDone ? 'font-semibold text-gray-350'
-                              : 'font-bold text-gray-700'
+                              : 'font-black text-[#c8e14a]'
                             }`}>
                               {myGames}
                             </span>
