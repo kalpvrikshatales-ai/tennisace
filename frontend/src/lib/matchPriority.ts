@@ -95,6 +95,10 @@ export function calculateMatchPriority(match: Match): MatchScore {
     priority += 200
   } else if ((match.tournament || '').includes('ATP') || (match.tournament || '').includes('WTA')) {
     priority += 150
+  } else if ((match.tournament || '').toLowerCase().includes('challenger')) {
+    priority += 80
+  } else if ((match.tournament || '').toLowerCase().includes('itf')) {
+    priority += 30
   } else {
     priority += 50
   }

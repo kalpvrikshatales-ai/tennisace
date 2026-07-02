@@ -19,15 +19,13 @@ import Link from 'next/link'
 const API = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
 type Tab = 'matches' | 'rankings' | 'news' | 'wimbledon'
 
-const SURFACE_STYLE: Record<string, { bg: string; text: string }> = {
-  Grass: { bg: 'linear-gradient(135deg, #15803d 0%, #166534 100%)', text: '#bbf7d0' },
-  Clay:  { bg: 'linear-gradient(135deg, #c2410c 0%, #9a3412 100%)', text: '#fed7aa' },
-  Hard:  { bg: 'linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%)', text: '#bfdbfe' },
+const SURFACE_DOT: Record<string, string> = {
+  Grass: '#22C55E', Clay: '#F97316', Hard: '#60A5FA',
 }
 
 function getSurface(tournament: string, item?: any): string {
   const s = item?.surface
-  if (s && SURFACE_STYLE[s]) return s
+  if (s && SURFACE_DOT[s]) return s
   const t = tournament.toLowerCase()
   if (t.includes('wimbledon') || t.includes('queens') || t.includes('halle') || t.includes('grass')) return 'Grass'
   if (t.includes('roland') || t.includes('french') || t.includes('clay') || t.includes('monte') ||
@@ -51,17 +49,18 @@ function groupByTournament<T extends { tournament?: string }>(items: T[]): { tou
 }
 
 function TournamentHeader({ tournament, surface }: { tournament: string; surface: string }) {
-  const style = SURFACE_STYLE[surface] || SURFACE_STYLE.Hard
+  const dot = SURFACE_DOT[surface] || '#00C875'
+  const isWimbledon = tournament.toLowerCase().includes('wimbledon')
   return (
-    <div className="rounded-xl px-4 py-2.5 flex items-center justify-between"
-         style={{ background: style.bg }}>
-      <div className="flex items-center gap-2">
-        <span className="text-[18px]">🎾</span>
-        <span className="font-black text-[13px] uppercase tracking-widest" style={{ color: style.text }}>
-          {tournament}
-        </span>
-      </div>
-      <span className="text-[18px]" style={{ transform: 'scaleX(-1)', display: 'inline-block' }}>🎾</span>
+    <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-black">
+      <div className="w-[3px] h-4 rounded-full bg-[#00C875] flex-shrink-0" />
+      {isWimbledon && (
+        <span className="text-[11px] font-black text-[#00C875] flex-shrink-0">W</span>
+      )}
+      <span className="text-[11px] font-black text-white uppercase tracking-widest flex-1 truncate">
+        {tournament}
+      </span>
+      <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: dot }} />
     </div>
   )
 }
@@ -78,14 +77,14 @@ function BellIcon({ active }: { active: boolean }) {
 
 function SectionHeader({ title, count, sub }: { title: string; count?: number; sub?: string }) {
   return (
-    <div className="flex items-center justify-between mb-3">
+    <div className="flex items-center justify-between mb-2">
       <div className="flex items-center gap-2">
-        <p className="text-[13px] font-black text-gray-900 uppercase tracking-widest">{title}</p>
+        <p className="text-[11px] font-black text-gray-900 uppercase tracking-widest">{title}</p>
         {count !== undefined && count > 0 && (
-          <span className="text-[10px] bg-[#00C875]/15 text-[#009A58] rounded-full px-2 py-0.5 font-bold tabular-nums">{count}</span>
+          <span className="text-[10px] bg-[#00C875]/15 text-[#009A58] rounded-full px-1.5 py-0.5 font-bold tabular-nums">{count}</span>
         )}
       </div>
-      {sub && <span className="text-[11px] text-gray-400">{sub}</span>}
+      {sub && <span className="text-[10px] text-gray-400">{sub}</span>}
     </div>
   )
 }
@@ -282,9 +281,9 @@ export default function Home() {
                   <p className="text-gray-400 text-[13px] mt-1">Matches typically play 10am–10pm local time</p>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {groupByTournament(liveMatches).map(group => (
-                    <div key={group.tournament} className="space-y-2">
+                    <div key={group.tournament} className="space-y-1">
                       <TournamentHeader tournament={group.tournament} surface={group.surface} />
                       {group.items.map(m => <MatchCard key={m.match_id} match={m} hideMeta />)}
                     </div>
@@ -301,9 +300,9 @@ export default function Home() {
               ) : fixtures.length === 0 ? (
                 <div className="card p-5 text-center"><p className="text-gray-400 text-[13px]">No scheduled matches found</p></div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {groupByTournament(sortByPriority(fixtures)).map(group => (
-                    <div key={group.tournament} className="space-y-2">
+                    <div key={group.tournament} className="space-y-1">
                       <TournamentHeader tournament={group.tournament} surface={group.surface} />
                       {group.items.map(f => <MatchCard key={f.match_id} match={f} hideMeta />)}
                     </div>
@@ -320,9 +319,9 @@ export default function Home() {
               ) : results.length === 0 ? (
                 <div className="card p-5 text-center"><p className="text-gray-400 text-[13px]">No recent results</p></div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {groupByTournament(results).map(group => (
-                    <div key={group.tournament} className="space-y-2">
+                    <div key={group.tournament} className="space-y-1">
                       <TournamentHeader tournament={group.tournament} surface={group.surface} />
                       {group.items.map(r => <ResultCard key={r.match_id} result={r} hideMeta />)}
                     </div>
