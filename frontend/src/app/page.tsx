@@ -95,7 +95,7 @@ function SectionHeader({ title, count, sub }: { title: string; count?: number; s
       <div className="flex items-center gap-2">
         <p className="text-[11px] font-black text-gray-900 uppercase tracking-widest">{title}</p>
         {count !== undefined && count > 0 && (
-          <span className="text-[10px] bg-[#00C875]/15 text-[#009A58] rounded-full px-1.5 py-0.5 font-bold tabular-nums">{count}</span>
+          <span className="text-[10px] bg-[#00C875]/15 text-[#00C875] rounded-full px-1.5 py-0.5 font-bold tabular-nums">{count}</span>
         )}
       </div>
       {sub && <span className="text-[10px] text-gray-400">{sub}</span>}
@@ -445,7 +445,7 @@ export default function Home() {
       </main>
 
       {/* ── MOBILE BOTTOM NAV ─────────────────────────────── */}
-      <nav className="fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm border-t border-gray-100 safe-bottom md:hidden">
+      <nav className="bottom-nav fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm border-t border-gray-100 safe-bottom md:hidden">
         <div className="flex items-stretch justify-around px-1 pt-2 pb-2">
           {tabs.map(({ key, label, icon }) => {
             const active = tab === key

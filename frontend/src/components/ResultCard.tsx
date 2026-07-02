@@ -31,6 +31,15 @@ const ROUND_SHORT: Record<string, string> = {
   R1: 'R1', R2: 'R2', R3: 'R3', R4: 'R4', QF: 'QF', SF: 'SF',
 }
 
+function formatShortDate(raw: string): string {
+  if (!raw) return ''
+  try {
+    const d = new Date(raw)
+    if (isNaN(d.getTime())) return raw
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  } catch { return raw }
+}
+
 function parseSetScore(raw: string): { p1: number; p2: number } {
   const parts = raw.trim().split('-')
   return {
@@ -72,8 +81,7 @@ export default function ResultCard({ result, hideMeta }: Props) {
             )}
           </div>
           <div className="flex items-center gap-1.5 flex-shrink-0">
-            <span className="text-[11px] font-bold text-gray-600 uppercase tracking-wide">FINAL</span>
-            <span className="text-[11px] text-gray-500">{result.date}</span>
+            <span className="text-[11px] font-semibold text-gray-500">{formatShortDate(result.date)}</span>
           </div>
         </div>
 

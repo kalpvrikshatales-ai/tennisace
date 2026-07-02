@@ -201,10 +201,12 @@ a.card { animation: fadeUp 0.2s ease both; }
 [data-theme="dark"] .text-gray-700 { color: #F1F5F9 !important; }
 [data-theme="dark"] .text-gray-600,
 [data-theme="dark"] .text-gray-500 { color: #9CA3AF !important; }
-[data-theme="dark"] .text-gray-400,
-[data-theme="dark"] .text-gray-300 { color: #6B7280 !important; }
-[data-theme="dark"] .text-gray-200 { color: #4B5563 !important; }
+[data-theme="dark"] .text-gray-400 { color: #6B7280 !important; }
+[data-theme="dark"] .text-gray-300 { color: #9CA3AF !important; }
+[data-theme="dark"] .text-gray-200 { color: #6B7280 !important; }
 
+/* Card and surface backgrounds */
+[data-theme="dark"] .bg-white { background: var(--surface) !important; }
 [data-theme="dark"] .glass,
 [data-theme="dark"] .card {
   background: var(--surface) !important;
@@ -212,21 +214,32 @@ a.card { animation: fadeUp 0.2s ease both; }
   box-shadow: 0 1px 3px rgba(0,0,0,0.4) !important;
 }
 
+/* Header + nav */
 [data-theme="dark"] header {
   background: rgba(0, 0, 0, 0.96) !important;
   border-bottom-color: #1E1E1E !important;
 }
-
 [data-theme="dark"] .bottom-nav {
-  background: rgba(0, 0, 0, 0.98);
-  border-top-color: #1E1E1E;
+  background: rgba(0, 0, 0, 0.98) !important;
+  border-top-color: #1E1E1E !important;
 }
 
+/* Background overrides */
 [data-theme="dark"] .bg-gray-50,
 [data-theme="dark"] .bg-gray-100 { background: var(--bg-subtle) !important; }
+[data-theme="dark"] .bg-green-50 { background: rgba(0,200,117,0.08) !important; }
 
+/* Border overrides */
 [data-theme="dark"] .border-gray-100,
 [data-theme="dark"] .border-gray-200 { border-color: var(--border) !important; }
+
+/* Hover states in dark mode */
+[data-theme="dark"] .hover\:bg-gray-100:hover,
+[data-theme="dark"] .hover\:bg-gray-50:hover { background: var(--bg-muted) !important; }
+[data-theme="dark"] .hover\:border-gray-200:hover { border-color: #2E2E2E !important; }
+
+/* Score column overrides — keep winner scores bright */
+[data-theme="dark"] .text-gray-900.font-black { color: #FFFFFF !important; }
 
 [data-theme="dark"] .animate-pulse {
   background: linear-gradient(90deg, #111111 25%, #1E1E1E 50%, #111111 75%) !important;
@@ -237,6 +250,6 @@ a.card { animation: fadeUp 0.2s ease both; }
 [data-theme="dark"] input,
 [data-theme="dark"] select { background: var(--surface); color: var(--text-primary); }
 
-/* wimbledon green fix for dark mode */
+/* green fixes for dark mode */
 [data-theme="dark"] .text-green-600 { color: #4ADE80 !important; }
 [data-theme="dark"] .text-green-700 { color: #22C55E !important; }

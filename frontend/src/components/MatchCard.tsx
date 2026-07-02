@@ -20,6 +20,23 @@ const ROUND_SHORT: Record<string, string> = {
   'Round of 16': 'R4', 'Round of 32': 'R3', 'Round of 64': 'R2', 'Round of 128': 'R1',
 }
 
+function formatUpcomingTime(date?: string, time?: string): string {
+  if (!date) return time || ''
+  try {
+    const matchDate = new Date(date)
+    if (isNaN(matchDate.getTime())) return time || date
+    const today = new Date()
+    const todayMid = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+    const tomorMid = new Date(todayMid.getTime() + 86400000)
+    const matchMid = new Date(matchDate.getFullYear(), matchDate.getMonth(), matchDate.getDate())
+    let day: string
+    if (matchMid.getTime() === todayMid.getTime()) day = 'Today'
+    else if (matchMid.getTime() === tomorMid.getTime()) day = 'Tomorrow'
+    else day = matchDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    return time ? `${day} ${time}` : day
+  } catch { return time || date || '' }
+}
+
 async function shareMatch(match: Match) {
   try {
     await shareScoreImage({
@@ -49,7 +66,9 @@ export default function MatchCard({ match, hideMeta }: Props) {
   const roundParts = rawRound.split(' - ')
   const roundKey   = ROUND_SHORT[roundParts[0]] ? roundParts[0] : roundParts[roundParts.length - 1]
   const roundLabel = ROUND_SHORT[roundKey] || ROUND_SHORT[rawRound] || rawRound
-  const timeLabel  = (match as any).time || (match as any).date || ''
+  const upcomingLabel = (!isLive && !isFinished)
+    ? formatUpcomingTime((match as any).date, (match as any).time)
+    : ((match as any).time || (match as any).date || '')
 
   const setsData: {p1: string, p2: string}[] = (match as any).sets?.length
     ? (match as any).sets
@@ -108,7 +127,7 @@ export default function MatchCard({ match, hideMeta }: Props) {
             ) : isFinished ? (
               <span className="text-[11px] font-bold text-gray-600 uppercase tracking-wide">FINAL</span>
             ) : (
-              <span className="text-[11px] font-semibold text-gray-600">{timeLabel}</span>
+              <span className="text-[11px] font-semibold text-gray-600">{upcomingLabel}</span>
             )}
             <button
               onClick={e => { e.preventDefault(); e.stopPropagation(); shareMatch(match) }}
