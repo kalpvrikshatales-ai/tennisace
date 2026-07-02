@@ -23,7 +23,11 @@ interface Props { result: Result; hideMeta?: boolean }
 
 const ROUND_SHORT: Record<string, string> = {
   'Round of 128': 'R1', 'Round of 64': 'R2', 'Round of 32': 'R3', 'Round of 16': 'R4',
-  'Quarter-Finals': 'QF', 'Semi-Finals': 'SF', 'Final': 'F',
+  'Quarter-Finals': 'QF', 'Quarter-Final': 'QF',
+  'Semi-Finals': 'SF', 'Semi-Final': 'SF',
+  'Final': 'FINAL', 'F': 'FINAL',
+  '1/2-finals': 'SF', '1/4-finals': 'QF', '1/8-finals': 'R4',
+  '1/16-finals': 'R3', '1/32-finals': 'R2', '1/64-finals': 'R1',
   R1: 'R1', R2: 'R2', R3: 'R3', R4: 'R4', QF: 'QF', SF: 'SF',
 }
 
@@ -64,12 +68,12 @@ export default function ResultCard({ result, hideMeta }: Props) {
               </span>
             )}
             {roundLabel && (
-              <span className="text-[10px] font-semibold text-gray-300">{hideMeta ? roundLabel : `· ${roundLabel}`}</span>
+              <span className="text-[11px] font-bold text-gray-500">{hideMeta ? roundLabel : `· ${roundLabel}`}</span>
             )}
           </div>
           <div className="flex items-center gap-1.5 flex-shrink-0">
-            <span className="text-[10px] font-semibold text-gray-300 uppercase tracking-wide">Final</span>
-            <span className="text-[10px] text-gray-300">{result.date}</span>
+            <span className="text-[11px] font-bold text-gray-600 uppercase tracking-wide">FINAL</span>
+            <span className="text-[11px] text-gray-500">{result.date}</span>
           </div>
         </div>
 

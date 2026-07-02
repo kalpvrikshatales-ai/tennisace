@@ -17,32 +17,25 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
   if (!show) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-      {/* Background animation */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute w-96 h-96 rounded-full bg-[#00C875] opacity-5 -top-20 -left-20 blur-3xl animate-pulse" />
-        <div className="absolute w-96 h-96 rounded-full bg-[#00C875] opacity-5 -bottom-20 -right-20 blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-      </div>
-
-      {/* Logo container */}
-      <div className="relative z-10 flex flex-col items-center justify-center">
-        {/* Animated logo */}
-        <div className="animate-bounce">
-          <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-[#00C875] to-[#00a860] flex items-center justify-center shadow-2xl">
-            <span className="text-5xl">🎾</span>
-          </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
+      <div className="flex flex-col items-center justify-center gap-6">
+        {/* Logo */}
+        <div className="w-24 h-24 rounded-3xl overflow-hidden shadow-[0_0_40px_rgba(0,200,117,0.25)]">
+          <img src="/logo.png" alt="TennisAce" className="w-full h-full object-cover" />
         </div>
 
-        {/* Brand name */}
-        <h1 className="mt-6 text-3xl font-black text-white tracking-tight">
-          TennisAce
-        </h1>
-        <p className="mt-2 text-sm text-gray-400 tracking-widest uppercase font-semibold">
-          Professional Tennis Insights
-        </p>
+        {/* Brand */}
+        <div className="text-center">
+          <h1 className="text-3xl font-black text-white tracking-tight">
+            Tennis<span className="text-[#00C875]">Ace</span>
+          </h1>
+          <p className="mt-1 text-[11px] text-gray-500 tracking-widest uppercase">
+            Feel every match. Live.
+          </p>
+        </div>
 
-        {/* Loading indicator */}
-        <div className="mt-8 flex gap-1.5">
+        {/* Loading dots */}
+        <div className="flex gap-1.5">
           <div className="w-1.5 h-1.5 rounded-full bg-[#00C875] animate-bounce" />
           <div className="w-1.5 h-1.5 rounded-full bg-[#00C875] animate-bounce" style={{ animationDelay: '0.2s' }} />
           <div className="w-1.5 h-1.5 rounded-full bg-[#00C875] animate-bounce" style={{ animationDelay: '0.4s' }} />

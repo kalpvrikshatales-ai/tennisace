@@ -8,11 +8,16 @@ import { shareScoreImage } from '@/lib/shareImage'
 interface Props { match: Match; hideMeta?: boolean }
 
 const SURFACE_DOT: Record<string, string> = {
-  Grass: '#22C55E', Clay: '#F97316', Hard: '#60A5FA',
+  Grass: '#22C55E', Clay: '#F97316', Hard: '#9CA3AF',
 }
 
 const ROUND_SHORT: Record<string, string> = {
   R1: 'R1', R2: 'R2', R3: 'R3', R4: 'R4', QF: 'QF', SF: 'SF', Final: 'F',
+  'Quarter-Finals': 'QF', 'Quarter-Final': 'QF',
+  'Semi-Finals': 'SF', 'Semi-Final': 'SF',
+  '1/2-finals': 'SF', '1/4-finals': 'QF', '1/8-finals': 'R4',
+  '1/16-finals': 'R3', '1/32-finals': 'R2', '1/64-finals': 'R1',
+  'Round of 16': 'R4', 'Round of 32': 'R3', 'Round of 64': 'R2', 'Round of 128': 'R1',
 }
 
 async function shareMatch(match: Match) {
@@ -39,7 +44,11 @@ export default function MatchCard({ match, hideMeta }: Props) {
   const gp         = match.game_score ? match.game_score.split('-') : []
   const surface    = (match as any).surface as string | undefined
   const surfDot    = SURFACE_DOT[surface || 'Hard'] || SURFACE_DOT.Hard
-  const roundLabel = ROUND_SHORT[(match as any).round] || (match as any).round || ''
+  // Handle formats: "R1 - 1st Round", "Quarter-Finals", "1/8-finals", etc.
+  const rawRound   = (match as any).round || ''
+  const roundParts = rawRound.split(' - ')
+  const roundKey   = ROUND_SHORT[roundParts[0]] ? roundParts[0] : roundParts[roundParts.length - 1]
+  const roundLabel = ROUND_SHORT[roundKey] || ROUND_SHORT[rawRound] || rawRound
   const timeLabel  = (match as any).time || (match as any).date || ''
 
   const setsData: {p1: string, p2: string}[] = (match as any).sets?.length
@@ -86,20 +95,20 @@ export default function MatchCard({ match, hideMeta }: Props) {
               </>
             )}
             {roundLabel && (
-              <span className="text-[10px] font-semibold text-gray-300">{hideMeta ? roundLabel : `· ${roundLabel}`}</span>
+              <span className="text-[11px] font-bold text-gray-500">{hideMeta ? roundLabel : `· ${roundLabel}`}</span>
             )}
           </div>
 
-          <div className="flex items-center gap-1.5 flex-shrink-0">
+          <div className="flex items-center gap-1 flex-shrink-0">
             {isLive ? (
-              <span className="flex items-center gap-1 text-[10px] font-bold text-[#00C875] uppercase tracking-widest">
+              <span className="flex items-center gap-1 text-[10px] font-black text-[#00C875] bg-black px-1.5 py-0.5 rounded tracking-wider">
                 <span className="live-dot inline-block w-1.5 h-1.5 rounded-full bg-[#00C875]" />
-                {match.status?.startsWith('Set') ? match.status : 'Live'}
+                LIVE
               </span>
             ) : isFinished ? (
-              <span className="text-[10px] font-semibold text-gray-300 uppercase tracking-wide">Final</span>
+              <span className="text-[11px] font-bold text-gray-600 uppercase tracking-wide">FINAL</span>
             ) : (
-              <span className="text-[10px] text-gray-400">{timeLabel}</span>
+              <span className="text-[11px] font-semibold text-gray-600">{timeLabel}</span>
             )}
             <button
               onClick={e => { e.preventDefault(); e.stopPropagation(); shareMatch(match) }}
@@ -145,15 +154,15 @@ export default function MatchCard({ match, hideMeta }: Props) {
                     {p.name}
                   </span>
                   {p.serving && isLive && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 flex-shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#00C875] flex-shrink-0" />
                   )}
                 </div>
 
                 {/* Score columns */}
                 <div className="flex items-center gap-1.5 flex-shrink-0">
                   {isLive && (
-                    <span className={`text-[13px] font-black tabular-nums w-6 text-right ${
-                      p.serving ? 'text-[#00C875]' : 'text-gray-300'
+                    <span className={`text-[12px] font-black tabular-nums text-center min-w-[22px] rounded px-1 py-px ${
+                      p.serving ? 'bg-black text-[#00C875]' : 'text-gray-400 w-6'
                     }`}>
                       {p.gameScore || '0'}
                     </span>
@@ -184,9 +193,9 @@ export default function MatchCard({ match, hideMeta }: Props) {
         {/* Column label row */}
         {(setsData.length > 0 || isLive) && (
           <div className="flex items-center gap-1.5 justify-end mt-0.5">
-            {isLive && <span className="text-[8px] text-gray-300 uppercase w-6 text-right">Pts</span>}
+            {isLive && <span className="text-[8px] text-gray-400 uppercase min-w-[22px] text-center">Pts</span>}
             {setsData.map((_, si) => (
-              <span key={si} className="text-[8px] text-gray-300 uppercase w-4 text-right">S{si + 1}</span>
+              <span key={si} className="text-[8px] text-gray-400 uppercase w-4 text-right">S{si + 1}</span>
             ))}
           </div>
         )}

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import ThemeToggle from '@/components/ThemeToggle'
 import MatchCard from '@/components/MatchCard'
 import MatchCardSkeleton from '@/components/MatchCardSkeleton'
 import RankingsList from '@/components/RankingsList'
@@ -20,7 +21,16 @@ const API = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
 type Tab = 'matches' | 'rankings' | 'news' | 'wimbledon'
 
 const SURFACE_DOT: Record<string, string> = {
-  Grass: '#22C55E', Clay: '#F97316', Hard: '#60A5FA',
+  Grass: '#22C55E', Clay: '#F97316', Hard: '#9CA3AF',
+}
+
+const ROUND_DISPLAY: Record<string, string> = {
+  R1: 'R1', R2: 'R2', R3: 'R3', R4: 'R4', QF: 'QF', SF: 'SF', F: 'FINAL', Final: 'FINAL',
+  'Quarter-Finals': 'QF', 'Quarter-Final': 'QF',
+  'Semi-Finals': 'SF', 'Semi-Final': 'SF',
+  '1/2-finals': 'SF', '1/4-finals': 'QF', '1/8-finals': 'R4',
+  '1/16-finals': 'R3', '1/32-finals': 'R2', '1/64-finals': 'R1',
+  'Round of 16': 'R16', 'Round of 32': 'R32', 'Round of 64': 'R64', 'Round of 128': 'R128',
 }
 
 function getSurface(tournament: string, item?: any): string {
@@ -33,8 +43,8 @@ function getSurface(tournament: string, item?: any): string {
   return 'Hard'
 }
 
-function groupByTournament<T extends { tournament?: string }>(items: T[]): { tournament: string; surface: string; items: T[] }[] {
-  const groups: { tournament: string; surface: string; items: T[] }[] = []
+function groupByTournament<T extends { tournament?: string }>(items: T[]): { tournament: string; surface: string; round: string; items: T[] }[] {
+  const groups: { tournament: string; surface: string; round: string; items: T[] }[] = []
   const idx = new Map<string, number>()
   for (const item of items) {
     const key = item.tournament || 'Other'
@@ -42,24 +52,28 @@ function groupByTournament<T extends { tournament?: string }>(items: T[]): { tou
       groups[idx.get(key)!].items.push(item)
     } else {
       idx.set(key, groups.length)
-      groups.push({ tournament: key, surface: getSurface(key, item), items: [item] })
+      const rawRound = (item as any).round || ''
+      const roundPart = rawRound.split(' - ').pop() || rawRound
+      groups.push({ tournament: key, surface: getSurface(key, item), round: roundPart, items: [item] })
     }
   }
   return groups
 }
 
-function TournamentHeader({ tournament, surface }: { tournament: string; surface: string }) {
-  const dot = SURFACE_DOT[surface] || '#00C875'
+function TournamentHeader({ tournament, surface, round }: { tournament: string; surface: string; round?: string }) {
+  const dot = SURFACE_DOT[surface] || '#9CA3AF'
   const isWimbledon = tournament.toLowerCase().includes('wimbledon')
+  const roundDisplay = round ? (ROUND_DISPLAY[round] || round) : ''
   return (
     <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-black">
       <div className="w-[3px] h-4 rounded-full bg-[#00C875] flex-shrink-0" />
-      {isWimbledon && (
-        <span className="text-[11px] font-black text-[#00C875] flex-shrink-0">W</span>
-      )}
+      {isWimbledon && <span className="text-[11px] font-black text-[#00C875] flex-shrink-0">W</span>}
       <span className="text-[11px] font-black text-white uppercase tracking-widest flex-1 truncate">
         {tournament}
       </span>
+      {roundDisplay && (
+        <span className="text-[10px] font-bold text-gray-400 flex-shrink-0">{roundDisplay}</span>
+      )}
       <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: dot }} />
     </div>
   )
@@ -202,13 +216,16 @@ export default function Home() {
             </span>
           </Link>
 
-          {/* Right: Bell icon */}
-          <button
-            onClick={() => setNotifOn(v => !v)}
-            className={`w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors ${notifOn ? 'text-[#00C875]' : 'text-gray-400'}`}
-          >
-            <BellIcon active={notifOn} />
-          </button>
+          {/* Right: Theme + Bell */}
+          <div className="flex items-center gap-0.5">
+            <ThemeToggle />
+            <button
+              onClick={() => setNotifOn(v => !v)}
+              className={`w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors ${notifOn ? 'text-[#00C875]' : 'text-gray-400'}`}
+            >
+              <BellIcon active={notifOn} />
+            </button>
+          </div>
         </div>
 
         {/* Tab nav */}
@@ -245,9 +262,9 @@ export default function Home() {
             {/* Filter pills */}
             <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mb-4">
               {([
-                { key: 'live',      label: `🔴 Live${liveMatches.length > 0 ? ` ${liveMatches.length}` : ''}` },
-                { key: 'next',      label: '📅 Next' },
-                { key: 'completed', label: '✓ Completed' },
+                { key: 'live',      label: liveMatches.length > 0 ? `Live ${liveMatches.length}` : 'Live' },
+                { key: 'next',      label: 'Next' },
+                { key: 'completed', label: 'Completed' },
               ] as const).map(({ key, label }) => (
                 <button
                   key={key}
@@ -266,7 +283,7 @@ export default function Home() {
             {/* LIVE NOW */}
             {matchFilter === 'live' && <section>
               <SectionHeader
-                title="🔴 Live Now"
+                title="Live Now"
                 count={liveMatches.length}
                 sub={liveMatches.length > 0 ? 'Updates every 30s' : undefined}
               />
@@ -284,7 +301,7 @@ export default function Home() {
                 <div className="space-y-3">
                   {groupByTournament(liveMatches).map(group => (
                     <div key={group.tournament} className="space-y-1">
-                      <TournamentHeader tournament={group.tournament} surface={group.surface} />
+                      <TournamentHeader tournament={group.tournament} surface={group.surface} round={group.round} />
                       {group.items.map(m => <MatchCard key={m.match_id} match={m} hideMeta />)}
                     </div>
                   ))}
@@ -294,7 +311,7 @@ export default function Home() {
 
             {/* UPCOMING */}
             {matchFilter === 'next' && <section>
-              <SectionHeader title="📅 Upcoming" count={fixtures.length} sub="Next 7 days" />
+              <SectionHeader title="Upcoming" count={fixtures.length} sub="Next 7 days" />
               {loadingFixtures ? (
                 <div className="space-y-2">{[...Array(4)].map((_, i) => <MatchCardSkeleton key={i} />)}</div>
               ) : fixtures.length === 0 ? (
@@ -303,7 +320,7 @@ export default function Home() {
                 <div className="space-y-3">
                   {groupByTournament(sortByPriority(fixtures)).map(group => (
                     <div key={group.tournament} className="space-y-1">
-                      <TournamentHeader tournament={group.tournament} surface={group.surface} />
+                      <TournamentHeader tournament={group.tournament} surface={group.surface} round={group.round} />
                       {group.items.map(f => <MatchCard key={f.match_id} match={f} hideMeta />)}
                     </div>
                   ))}
@@ -313,7 +330,7 @@ export default function Home() {
 
             {/* COMPLETED */}
             {matchFilter === 'completed' && <section>
-              <SectionHeader title="✓ Completed" count={results.length} sub="Last 7 days" />
+              <SectionHeader title="Completed" count={results.length} sub="Last 7 days" />
               {loadingResults ? (
                 <div className="space-y-2">{[...Array(4)].map((_, i) => <ResultCardSkeleton key={i} />)}</div>
               ) : results.length === 0 ? (
@@ -322,7 +339,7 @@ export default function Home() {
                 <div className="space-y-3">
                   {groupByTournament(results).map(group => (
                     <div key={group.tournament} className="space-y-1">
-                      <TournamentHeader tournament={group.tournament} surface={group.surface} />
+                      <TournamentHeader tournament={group.tournament} surface={group.surface} round={group.round} />
                       {group.items.map(r => <ResultCard key={r.match_id} result={r} hideMeta />)}
                     </div>
                   ))}
