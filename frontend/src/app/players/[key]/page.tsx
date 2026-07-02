@@ -9,7 +9,7 @@ import { PlayStyleSection, StrengthsWeaknesses, FavoriteSurface, TitlesByService
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 const SURFACE_DOT: Record<string, string> = {
-  Grass: '#22C55E', Clay: '#F97316', Hard: '#3B82F6',
+  Grass: '#22C55E', Clay: '#F97316', Hard: '#9CA3AF',
 }
 
 function StatBox({ label, value, sub }: { label: string; value: string | number | null | undefined; sub?: string }) {
@@ -55,14 +55,14 @@ function MatchRow({ m, playerKey }: { m: any; playerKey: number }) {
   const opp = isPlayer1 ? m.player2 : m.player1
   const oppKey = isPlayer1 ? m.player2_key : m.player1_key
   const oppImg = isPlayer1 ? m.player2_img : m.player1_img
-  const surfDot = SURFACE_DOT[m.surface || 'Hard'] || '#3B82F6'
+  const surfDot = SURFACE_DOT[m.surface || 'Hard'] || '#9CA3AF'
 
   return (
     <Link href={`/matches/${m.match_id}`}>
       <div className="card px-4 py-3 flex items-center gap-3 cursor-pointer card-glow">
         {/* Result badge */}
         <span className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-black flex-shrink-0 ${
-          won ? 'bg-green-100 text-green-700' : 'bg-red-50 text-red-500'
+          won ? 'bg-[#00C875]/15 text-[#00C875]' : 'bg-gray-100 text-gray-500'
         }`}>{won ? 'W' : 'L'}</span>
 
         {/* Opponent */}
@@ -275,7 +275,7 @@ export default function PlayerPage() {
             <div className="card p-4">
               <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-4">Surface Records (Career)</p>
               <div className="space-y-4">
-                <SurfaceBar label="🔵 Hard" won={careerTotals.hw} lost={careerTotals.hl} color="#3B82F6" />
+                <SurfaceBar label="Hard" won={careerTotals.hw} lost={careerTotals.hl} color="#9CA3AF" />
                 <SurfaceBar label="🏺 Clay" won={careerTotals.cw} lost={careerTotals.cl} color="#F97316" />
                 <SurfaceBar label="🌿 Grass" won={careerTotals.gw} lost={careerTotals.gl} color="#22C55E" />
               </div>
@@ -320,7 +320,7 @@ export default function PlayerPage() {
                 </div>
                 <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-gray-100">
                   {[
-                    { label: '🔵 Hard', w: parseInt(s.hard_won||0), l: parseInt(s.hard_lost||0), c: '#3B82F6' },
+                    { label: 'Hard', w: parseInt(s.hard_won||0), l: parseInt(s.hard_lost||0), c: '#9CA3AF' },
                     { label: '🏺 Clay', w: parseInt(s.clay_won||0), l: parseInt(s.clay_lost||0), c: '#F97316' },
                     { label: '🌿 Grass', w: parseInt(s.grass_won||0), l: parseInt(s.grass_lost||0), c: '#22C55E' },
                   ].map(surf => (
