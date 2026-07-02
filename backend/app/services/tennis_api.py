@@ -108,10 +108,19 @@ async def get_live_matches():
                 params={"method": "get_livescore", "APIkey": API_KEY},
                 timeout=10,
             )
-            raw_matches = r.json().get("result", [])
-            if not isinstance(raw_matches, list):
+            resp_json = r.json()
+            if resp_json.get("error") == "1":
                 raw_matches = []
-            matches = [_normalize_match(m) for m in raw_matches]
+            else:
+                raw_matches = resp_json.get("result", [])
+                if not isinstance(raw_matches, list):
+                    raw_matches = []
+            matches = [
+                _normalize_match(m) for m in raw_matches
+                if (m.get("event_first_player") or "").strip()
+                and (m.get("event_second_player") or "").strip()
+                and (m.get("event_key") or m.get("match_id") or "")
+            ]
 
             # Cache the results in memory
             _live_matches_cache["data"] = matches

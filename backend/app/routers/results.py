@@ -85,7 +85,10 @@ async def _fetch_all(c: httpx.AsyncClient, start: str, stop: str) -> list:
             "date_start": start,
             "date_stop": stop,
         }, timeout=15)
-        raw = r.json().get("result", [])
+        resp_json = r.json()
+        if resp_json.get("error") == "1":
+            return []
+        raw = resp_json.get("result", [])
         return raw if isinstance(raw, list) else []
     except Exception:
         return []

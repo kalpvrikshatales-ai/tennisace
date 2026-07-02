@@ -44,7 +44,8 @@ async def match_detail(match_id: str, response: Response):
                 "APIkey": API_KEY,
                 "event_key": match_id,
             }, timeout=12)
-            raw_list = r.json().get("result", [])
+            resp = r.json()
+            raw_list = [] if resp.get("error") == "1" else resp.get("result", [])
             if raw_list:
                 raw = raw_list[0]
                 result = _normalize_match(raw)
@@ -65,7 +66,8 @@ async def match_detail(match_id: str, response: Response):
                 "APIkey": API_KEY,
                 "date_start": str(start), "date_stop": str(stop),
             }, timeout=10)
-            raw_list2 = r2.json().get("result", [])
+            resp2 = r2.json()
+            raw_list2 = [] if resp2.get("error") == "1" else resp2.get("result", [])
             if isinstance(raw_list2, list):
                 found = next((m for m in raw_list2 if str(m.get("event_key", "")) == match_id), None)
                 if found:
@@ -84,7 +86,8 @@ async def match_detail(match_id: str, response: Response):
                 "APIkey": API_KEY,
                 "date_start": str(start), "date_stop": str(stop),
             }, timeout=10)
-            raw_list3 = r3.json().get("result", [])
+            resp3 = r3.json()
+            raw_list3 = [] if resp3.get("error") == "1" else resp3.get("result", [])
             if isinstance(raw_list3, list):
                 found = next((m for m in raw_list3 if str(m.get("event_key", "")) == match_id), None)
                 if found:

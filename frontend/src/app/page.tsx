@@ -129,7 +129,7 @@ export default function Home() {
     getLiveMatches().then(data => {
       const m = data.matches ?? []
       const valid = validateMatches(m)
-      setLiveMatches(sortByPriority(valid.data || m))
+      setLiveMatches(valid.data ? sortByPriority(valid.data) : [])
       setLoadingLive(false)
     }).catch(() => setLoadingLive(false))
 
@@ -143,7 +143,7 @@ export default function Home() {
     getResults(7).then(data => {
       const r = data.results ?? []
       const valid = validateMatches(r)
-      setResults(valid.data || r)
+      setResults(valid.data ?? [])
       setLoadingResults(false)
     }).catch(() => setLoadingResults(false))
   }, [])
@@ -169,7 +169,7 @@ export default function Home() {
       getLiveMatches().then(data => {
         const m = data.matches ?? []
         const valid = validateMatches(m)
-        setLiveMatches(sortByPriority(valid.data || m))
+        setLiveMatches(valid.data ? sortByPriority(valid.data) : [])
       }).catch(() => {})
     }, 30_000)
     return () => clearInterval(interval)
