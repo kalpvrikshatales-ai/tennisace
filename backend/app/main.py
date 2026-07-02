@@ -23,7 +23,7 @@ if sentry_dsn:
             FastApiIntegration(),
             StarletteIntegration(),
         ],
-        traces_sample_rate=0.05,
+        traces_sample_rate=0.0,
         # profiles_sample_rate removed — profiling uses too much memory on free tier
     )
 
