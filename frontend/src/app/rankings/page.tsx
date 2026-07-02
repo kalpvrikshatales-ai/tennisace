@@ -186,7 +186,7 @@ export default function RankingsPage() {
               <path d="M19 12H5M12 5l-7 7 7 7"/>
             </svg>
           </button>
-          <img src="/logo.png" alt="TennisAce" className="h-7 w-auto" />
+          <img src="/logo.png" alt="TennisAce" className="h-7 w-7 rounded-xl object-cover flex-shrink-0" />
           <span className="text-[15px] font-black text-gray-900">Rankings</span>
         </div>
 

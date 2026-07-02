@@ -148,7 +148,7 @@ export default function LoungesPage() {
             Back
           </Link>
           <div className="h-4 w-px bg-gray-200" />
-          <img src="/logo.png" alt="TennisAce" className="h-7 w-auto" />
+          <img src="/logo.png" alt="TennisAce" className="h-7 w-7 rounded-xl object-cover flex-shrink-0" />
           <span className="text-lg font-black text-gray-900 ml-1">Lounges</span>
           {profile && (
             <button onClick={() => setShowProfile(true)} className="ml-auto flex items-center gap-2">

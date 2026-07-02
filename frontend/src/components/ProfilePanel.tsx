@@ -86,7 +86,7 @@ export default function ProfilePanel({ open, onClose }: Props) {
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-100">
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="" className="h-7 w-auto" />
+            <img src="/logo.png" alt="" className="h-7 w-7 rounded-xl object-cover flex-shrink-0" />
             <span className="font-black text-[16px]">Tennis<span className="text-[#00C875]">Ace</span></span>
           </div>
           <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400">

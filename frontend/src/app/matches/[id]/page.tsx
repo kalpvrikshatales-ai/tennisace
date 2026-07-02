@@ -128,7 +128,7 @@ export default function MatchPage() {
               <path d="M19 12H5M12 5l-7 7 7 7"/>
             </svg>
           </button>
-          <img src="/logo.png" alt="TennisAce" className="h-6 w-auto" />
+          <img src="/logo.png" alt="TennisAce" className="h-6 w-6 rounded-lg object-cover flex-shrink-0" />
         </div>
       </header>
 

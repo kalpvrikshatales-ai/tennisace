@@ -70,7 +70,7 @@ export default function AdminPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
         <div className="w-full max-w-sm">
           <div className="text-center mb-8">
-            <img src="/logo.png" alt="TennisAce" className="h-10 w-auto mx-auto mb-3" />
+            <img src="/logo.png" alt="TennisAce" className="h-16 w-16 rounded-2xl object-cover mx-auto mb-3" />
             <h1 className="text-[22px] font-black text-gray-900">Admin Dashboard</h1>
             <p className="text-gray-400 text-sm mt-1">TennisAce — private access only</p>
           </div>
@@ -104,7 +104,7 @@ export default function AdminPage() {
       <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="TennisAce" className="h-7 w-auto" />
+            <img src="/logo.png" alt="TennisAce" className="h-7 w-7 rounded-xl object-cover flex-shrink-0" />
             <span className="text-[16px] font-black text-gray-900">Admin</span>
             <span className="text-[10px] font-bold text-white bg-green-500 px-2 py-0.5 rounded-full">PRIVATE</span>
           </div>

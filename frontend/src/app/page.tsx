@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import ThemeToggle from '@/components/ThemeToggle'
+import SearchModal from '@/components/SearchModal'
 import MatchCard from '@/components/MatchCard'
 import MatchCardSkeleton from '@/components/MatchCardSkeleton'
 import RankingsList from '@/components/RankingsList'
@@ -107,6 +108,7 @@ export default function Home() {
   const [tab, setTab] = useState<Tab>('matches')
   const [matchFilter, setMatchFilter] = useState<'live' | 'next' | 'completed'>('live')
   const [profileOpen, setProfileOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
   const [notifOn, setNotifOn] = useState(false)
 
   // Matches tab data
@@ -210,14 +212,23 @@ export default function Home() {
 
           {/* Center: Logo + name */}
           <Link href="/" className="flex-1 flex items-center justify-center gap-2 hover:opacity-80 transition-opacity">
-            <img src="/logo.png" alt="TennisAce" className="h-7 w-auto" />
+            <img src="/logo.png" alt="TennisAce" className="h-7 w-7 rounded-xl object-cover flex-shrink-0" />
             <span className="text-[18px] font-black tracking-tight text-gray-900">
               Tennis<span className="text-[#00C875]">Ace</span>
             </span>
           </Link>
 
-          {/* Right: Theme + Bell */}
+          {/* Right: Search + Theme + Bell */}
           <div className="flex items-center gap-0.5">
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-400"
+              aria-label="Search"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+              </svg>
+            </button>
             <ThemeToggle />
             <button
               onClick={() => setNotifOn(v => !v)}
@@ -321,7 +332,7 @@ export default function Home() {
                   {groupByTournament(sortByPriority(fixtures)).map(group => (
                     <div key={group.tournament} className="space-y-1">
                       <TournamentHeader tournament={group.tournament} surface={group.surface} round={group.round} />
-                      {group.items.map(f => <MatchCard key={f.match_id} match={f} hideMeta />)}
+                      {group.items.map(f => <MatchCard key={f.match_id} match={f} hideMeta forceUpcoming />)}
                     </div>
                   ))}
                 </div>
@@ -475,6 +486,13 @@ export default function Home() {
 
       {/* ── PROFILE PANEL ─────────────────────────────────── */}
       <ProfilePanel open={profileOpen} onClose={() => setProfileOpen(false)} />
+
+      {/* ── SEARCH ────────────────────────────────────────── */}
+      <SearchModal
+        isOpen={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        data={{ matches: liveMatches, fixtures, results }}
+      />
     </div>
   )
 }

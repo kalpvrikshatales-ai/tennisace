@@ -5,7 +5,7 @@ import { getPlayerCountry } from '@/lib/playerCountries'
 import type { Match } from '@/types'
 import { shareScoreImage } from '@/lib/shareImage'
 
-interface Props { match: Match; hideMeta?: boolean }
+interface Props { match: Match; hideMeta?: boolean; forceUpcoming?: boolean }
 
 const SURFACE_DOT: Record<string, string> = {
   Grass: '#22C55E', Clay: '#F97316', Hard: '#9CA3AF',
@@ -20,11 +20,19 @@ const ROUND_SHORT: Record<string, string> = {
   'Round of 16': 'R4', 'Round of 32': 'R3', 'Round of 64': 'R2', 'Round of 128': 'R1',
 }
 
+function getTzAbbr(): string {
+  try {
+    const parts = new Intl.DateTimeFormat('en', { timeZoneName: 'short' }).formatToParts(new Date())
+    return parts.find(p => p.type === 'timeZoneName')?.value || ''
+  } catch { return '' }
+}
+
 function formatUpcomingTime(date?: string, time?: string): string {
-  if (!date) return time || ''
+  const tz = getTzAbbr()
+  if (!date) return time ? `${time}${tz ? ` ${tz}` : ''}` : ''
   try {
     const matchDate = new Date(date)
-    if (isNaN(matchDate.getTime())) return time || date
+    if (isNaN(matchDate.getTime())) return time ? `${time}${tz ? ` ${tz}` : ''}` : date
     const today = new Date()
     const todayMid = new Date(today.getFullYear(), today.getMonth(), today.getDate())
     const tomorMid = new Date(todayMid.getTime() + 86400000)
@@ -33,7 +41,7 @@ function formatUpcomingTime(date?: string, time?: string): string {
     if (matchMid.getTime() === todayMid.getTime()) day = 'Today'
     else if (matchMid.getTime() === tomorMid.getTime()) day = 'Tomorrow'
     else day = matchDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-    return time ? `${day} ${time}` : day
+    return time ? `${day} · ${time}${tz ? ` ${tz}` : ''}` : day
   } catch { return time || date || '' }
 }
 
@@ -51,10 +59,12 @@ async function shareMatch(match: Match) {
   }
 }
 
-export default function MatchCard({ match, hideMeta }: Props) {
-  const isLive     = match.status === 'In Progress' || match.status === 'live' || match.status === '1'
-                     || (match.status || '').startsWith('Set')
-  const isFinished = match.status === 'Finished' || match.status === 'After Penalties'
+export default function MatchCard({ match, hideMeta, forceUpcoming }: Props) {
+  const isLive     = !forceUpcoming && (
+    match.status === 'In Progress' || match.status === 'live' || match.status === '1'
+    || (match.status || '').startsWith('Set')
+  )
+  const isFinished = !forceUpcoming && (match.status === 'Finished' || match.status === 'After Penalties')
   const sets       = match.score ? match.score.split(',').map(s => s.trim()) : []
   const serving1   = match.serve === match.player1 || match.serve === 'First Player' || match.serve === '1'
   const serving2   = match.serve === match.player2 || match.serve === 'Second Player' || match.serve === '2'

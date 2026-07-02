@@ -470,7 +470,7 @@ export default function WimbledonHub() {
               <path d="M19 12H5M12 5l-7 7 7 7"/>
             </svg>
           </button>
-          <img src="/logo.png" alt="TennisAce" className="h-7 w-auto" />
+          <img src="/logo.png" alt="TennisAce" className="h-7 w-7 rounded-xl object-cover flex-shrink-0" />
           <div className="h-4 w-px bg-gray-200" />
           <div className="flex items-center gap-2">
             <img src="/gs-wimbledon.png" alt="Wimbledon" className="h-6 w-auto object-contain" />
