@@ -8,26 +8,26 @@
 
 :root {
   --bg:           #FFFFFF;
-  --bg-subtle:    #F8FAFC;
-  --bg-muted:     #F1F5F9;
+  --bg-subtle:    #F7F7F7;
+  --bg-muted:     #EFEFEF;
   --surface:      #FFFFFF;
 
-  --border:       #E2E8F0;
-  --border-light: #F1F5F9;
+  --border:       #E5E5E5;
+  --border-light: #F0F0F0;
 
-  --text-primary:   #0F172A;
-  --text-secondary: #475569;
-  --text-muted:     #94A3B8;
+  --text-primary:   #000000;
+  --text-secondary: #444444;
+  --text-muted:     #999999;
 
   --green:       #00C875;
   --green-dark:  #009A58;
   --green-light: #E6FAF2;
-  --wimbledon:   #22C55E;    /* lighter, more vibrant */
+  --wimbledon:   #00C875;
 
-  --shadow-xs: 0 1px 2px rgba(15,23,42,0.04);
-  --shadow-sm: 0 1px 3px rgba(15,23,42,0.07), 0 1px 2px rgba(15,23,42,0.04);
-  --shadow-md: 0 4px 12px rgba(15,23,42,0.08), 0 2px 4px rgba(15,23,42,0.04);
-  --shadow-lg: 0 10px 24px rgba(15,23,42,0.10), 0 4px 8px rgba(15,23,42,0.05);
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 24px rgba(0,0,0,0.10), 0 4px 8px rgba(0,0,0,0.05);
 }
 
 * { box-sizing: border-box; }
@@ -175,15 +175,15 @@ a.card { animation: fadeUp 0.2s ease both; }
    DARK MODE — full coverage
    ============================ */
 [data-theme="dark"] {
-  --bg:           #0A0F1A;
-  --bg-subtle:    #111827;
-  --bg-muted:     #1F2937;
-  --surface:      #111827;
-  --border:       #1F2937;
-  --border-light: #1F2937;
-  --text-primary:   #F9FAFB;
-  --text-secondary: #9CA3AF;
-  --text-muted:     #6B7280;
+  --bg:           #000000;
+  --bg-subtle:    #0A0A0A;
+  --bg-muted:     #141414;
+  --surface:      #111111;
+  --border:       #1E1E1E;
+  --border-light: #1E1E1E;
+  --text-primary:   #FFFFFF;
+  --text-secondary: #AAAAAA;
+  --text-muted:     #666666;
   color-scheme: dark;
 }
 
@@ -213,13 +213,13 @@ a.card { animation: fadeUp 0.2s ease both; }
 }
 
 [data-theme="dark"] header {
-  background: rgba(10, 15, 26, 0.96) !important;
-  border-bottom-color: #1F2937 !important;
+  background: rgba(0, 0, 0, 0.96) !important;
+  border-bottom-color: #1E1E1E !important;
 }
 
 [data-theme="dark"] .bottom-nav {
-  background: rgba(10, 15, 26, 0.98);
-  border-top-color: #1F2937;
+  background: rgba(0, 0, 0, 0.98);
+  border-top-color: #1E1E1E;
 }
 
 [data-theme="dark"] .bg-gray-50,
@@ -229,7 +229,7 @@ a.card { animation: fadeUp 0.2s ease both; }
 [data-theme="dark"] .border-gray-200 { border-color: var(--border) !important; }
 
 [data-theme="dark"] .animate-pulse {
-  background: linear-gradient(90deg, #111827 25%, #1F2937 50%, #111827 75%) !important;
+  background: linear-gradient(90deg, #111111 25%, #1E1E1E 50%, #111111 75%) !important;
   background-size: 200% 100% !important;
   animation: shimmer 1.4s ease-in-out infinite !important;
 }

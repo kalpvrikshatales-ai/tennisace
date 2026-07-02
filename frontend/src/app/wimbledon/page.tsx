@@ -8,7 +8,6 @@ import { getLiveMatches, getPlayer, getRankings } from '@/lib/api'
 import { sortByPriority } from '@/lib/matchPriority'
 import { validateMatches } from '@/lib/dataValidator'
 import { monitor } from '@/lib/integrityMonitor'
-import CardVoting from '@/components/CardVoting'
 
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
@@ -279,22 +278,6 @@ function UpcomingRow({ match, rankMap }: { match: any; rankMap: Map<number, any>
         )}
       </Link>
 
-      {/* Compare + Voting — both OUTSIDE the Link so clicks don't navigate */}
-      <div className="px-4 pb-4 space-y-3 border-t border-gray-100 pt-3">
-        {match.player1_key && match.player2_key && (
-          <Link
-            href={`/compare?p1=${match.player1_key}&p2=${match.player2_key}`}
-            className="text-[11px] font-bold block text-center py-1.5 rounded-lg bg-gray-50 hover:bg-green-50 transition-colors"
-            style={{ color: GREEN }}
-          >
-            Full Player Comparison →
-          </Link>
-        )}
-        <div>
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Who wins?</p>
-          <CardVoting matchId={matchId} player1={match.player1} player2={match.player2} />
-        </div>
-      </div>
     </div>
   )
 }

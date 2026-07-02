@@ -39,10 +39,10 @@ export default function SignInModal({ onClose }: Props) {
           </div>
 
           <h2 className="text-[20px] font-black text-gray-900 text-center mb-2">
-            Sync your vote
+            Sign in to TennisAce
           </h2>
           <p className="text-gray-400 text-[14px] text-center mb-6 leading-relaxed">
-            Sign in with Google to sync your votes across all devices and get notified when your favourite players are on court.
+            Sign in with Google to save your favourite players and get notified when they're on court.
           </p>
 
           {/* Google sign-in */}

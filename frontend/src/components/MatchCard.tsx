@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { getPlayerCountry } from '@/lib/playerCountries'
-import CardVoting from './CardVoting'
 import type { Match } from '@/types'
 import { shareScoreImage } from '@/lib/shareImage'
 
@@ -219,23 +218,6 @@ export default function MatchCard({ match, hideMeta }: Props) {
           </div>
         )}
       </Link>
-
-      {/* Voting — outside Link */}
-      <div className="px-3.5 pb-3 pt-2 border-t border-gray-100">
-        <div className="flex items-center justify-between mb-1.5">
-          <p className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">Who wins?</p>
-          {(match as any).player1_key && (match as any).player2_key && (
-            <Link
-              href={`/compare?p1=${(match as any).player1_key}&p2=${(match as any).player2_key}`}
-              onClick={e => e.stopPropagation()}
-              className="text-[10px] font-bold text-[#00C875] hover:text-green-600 uppercase tracking-widest"
-            >
-              Compare →
-            </Link>
-          )}
-        </div>
-        <CardVoting matchId={match.match_id} player1={match.player1} player2={match.player2} />
-      </div>
     </div>
   )
 }
