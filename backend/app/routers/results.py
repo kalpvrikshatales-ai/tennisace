@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Response
-import httpx, os, asyncio
+import httpx, os, asyncio, logging
 from dotenv import load_dotenv
 from datetime import date, timedelta
+from typing import List
 from app.data.player_enrichment import get_surface
 from app.services.redis_cache import get_cached, set_cached
 
 load_dotenv()
+log = logging.getLogger(__name__)
 
 router = APIRouter()
 API_KEY = os.getenv("TENNIS_API_KEY", "")
@@ -76,22 +78,48 @@ def _norm(raw: dict) -> dict:
     }
 
 
-async def _fetch_all(c: httpx.AsyncClient, start: str, stop: str) -> list:
-    """Single call — API returns ALL match types regardless of event_type param."""
+async def _fetch_day(c: httpx.AsyncClient, d: date) -> list:
+    """Fetch all fixtures for a single day — multi-day ranges return empty from the API."""
     try:
         r = await c.get(BASE, params={
             "method": "get_fixtures",
             "APIkey": API_KEY,
-            "date_start": start,
-            "date_stop": stop,
-        }, timeout=15)
+            "date_start": str(d), "date_stop": str(d),
+        }, timeout=12)
         resp_json = r.json()
         if resp_json.get("error") == "1":
+            err_msg = (resp_json.get("result") or [{}])[0].get("msg", "unknown")
+            log.error("[RESULTS] API auth error on get_fixtures %s: %s. Check TENNIS_API_KEY.", d, err_msg)
             return []
         raw = resp_json.get("result", [])
         return raw if isinstance(raw, list) else []
-    except Exception:
+    except Exception as exc:
+        log.error("[RESULTS] Exception fetching fixtures for %s: %s", d, exc)
         return []
+
+
+async def _fetch_all(c: httpx.AsyncClient, start: str, stop: str) -> list:
+    """Fetch fixtures for a date range by querying each day concurrently and merging."""
+    if not API_KEY:
+        log.error("[RESULTS] TENNIS_API_KEY is not set — fixtures/results will be empty")
+        return []
+    start_d = date.fromisoformat(start)
+    stop_d = date.fromisoformat(stop)
+    days: List[date] = []
+    d = start_d
+    while d <= stop_d:
+        days.append(d)
+        d += timedelta(days=1)
+    day_results = await asyncio.gather(*[_fetch_day(c, d) for d in days])
+    merged = []
+    seen: set = set()
+    for day_matches in day_results:
+        for m in day_matches:
+            key = m.get("event_key")
+            if key and key not in seen:
+                seen.add(key)
+                merged.append(m)
+    return merged
 
 
 @router.get("/results")

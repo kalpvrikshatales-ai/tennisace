@@ -1,10 +1,11 @@
 from fastapi import APIRouter, HTTPException, Response
-import httpx, os
+import httpx, os, logging
 from dotenv import load_dotenv
 from app.services.tennis_api import get_live_matches, _normalize_match
 from app.services.redis_cache import get_cached, set_cached
 
 load_dotenv()
+log = logging.getLogger(__name__)
 router = APIRouter()
 API_KEY = os.getenv("TENNIS_API_KEY", "")
 BASE = "https://api.api-tennis.com/tennis/"
@@ -34,6 +35,7 @@ async def live_matches(response: Response, limit: int = 50):
 async def match_detail(match_id: str, response: Response):
     """Full match detail — tries live first, then fetches from API directly."""
     if not API_KEY:
+        log.error("[MATCHES] TENNIS_API_KEY is not set — match detail will always 404")
         raise HTTPException(status_code=404, detail="No API key configured")
 
     async with httpx.AsyncClient() as c:
@@ -45,7 +47,12 @@ async def match_detail(match_id: str, response: Response):
                 "event_key": match_id,
             }, timeout=12)
             resp = r.json()
-            raw_list = [] if resp.get("error") == "1" else resp.get("result", [])
+            if resp.get("error") == "1":
+                err_msg = resp.get("result", [{}])[0].get("msg", "unknown") if resp.get("result") else "unknown"
+                log.error("[MATCHES] API auth error on get_livescore for %s: %s. Check TENNIS_API_KEY.", match_id, err_msg)
+                raw_list = []
+            else:
+                raw_list = resp.get("result", [])
             if raw_list:
                 raw = raw_list[0]
                 result = _normalize_match(raw)
@@ -56,9 +63,10 @@ async def match_detail(match_id: str, response: Response):
                     await set_cached(f"match_stats:{match_id}", result["statistics"], ttl=172800)
                 response.headers["Cache-Control"] = "public, max-age=30"
                 return result
-        except Exception:
-            pass
+        except Exception as exc:
+            log.error("[MATCHES] Exception on get_livescore for %s: %s", match_id, exc)
 
+        import asyncio
         from datetime import date, timedelta
 
         # ── 2. Check Redis cache for previously seen completed match ───────────
@@ -67,54 +75,55 @@ async def match_detail(match_id: str, response: Response):
             response.headers["Cache-Control"] = "public, max-age=3600"
             return cached_detail
 
-        # ── 3. Upcoming fixtures (next 14 days) ────────────────────────────────
-        try:
-            stop = date.today() + timedelta(days=14)
-            start = date.today()
-            r2 = await c.get(BASE, params={
-                "method": "get_fixtures",
-                "APIkey": API_KEY,
-                "date_start": str(start), "date_stop": str(stop),
-            }, timeout=12)
-            resp2 = r2.json()
-            raw_list2 = [] if resp2.get("error") == "1" else resp2.get("result", [])
-            if isinstance(raw_list2, list):
-                found = next((m for m in raw_list2 if str(m.get("event_key", "")) == match_id), None)
-                if found:
-                    result = _normalize_match(found)
-                    result["point_by_point"] = []
-                    response.headers["Cache-Control"] = "public, max-age=300"
-                    return result
-        except Exception:
-            pass
+        today = date.today()
 
-        # ── 4. Recent results (last 14 days — finished matches) ────────────────
-        try:
-            stop = date.today()
-            start = stop - timedelta(days=14)
-            r3 = await c.get(BASE, params={
-                "method": "get_fixtures",
-                "APIkey": API_KEY,
-                "date_start": str(start), "date_stop": str(stop),
-            }, timeout=20)
-            resp3 = r3.json()
-            raw_list3 = [] if resp3.get("error") == "1" else resp3.get("result", [])
-            if isinstance(raw_list3, list):
-                found = next((m for m in raw_list3 if str(m.get("event_key", "")) == match_id), None)
-                if found:
-                    result = _normalize_match(found)
-                    result["point_by_point"] = []
-                    # Merge cached statistics from when the match was live
-                    cached_stats = await get_cached(f"match_stats:{match_id}")
-                    if cached_stats:
-                        result["statistics"] = cached_stats
-                    # Cache this completed match detail for 1h so future requests skip the 14-day search
-                    await set_cached(f"match_detail:{match_id}", result, ttl=3600)
-                    response.headers["Cache-Control"] = "public, max-age=3600"
-                    return result
-        except Exception:
-            pass
+        async def _fetch_day(d: date) -> list:
+            """Fetch all fixtures for a single day — the only range the API supports."""
+            try:
+                r = await c.get(BASE, params={
+                    "method": "get_fixtures",
+                    "APIkey": API_KEY,
+                    "date_start": str(d), "date_stop": str(d),
+                }, timeout=12)
+                resp = r.json()
+                if resp.get("error") == "1":
+                    log.error("[MATCHES] API auth error on get_fixtures %s: %s", d,
+                              (resp.get("result") or [{}])[0].get("msg", "?"))
+                    return []
+                raw = resp.get("result", [])
+                return raw if isinstance(raw, list) else []
+            except Exception as exc:
+                log.error("[MATCHES] Exception fetching fixtures for %s: %s", d, exc)
+                return []
 
+        # ── 3. Search upcoming days (today + 7) concurrently ──────────────────
+        upcoming_days = [today + timedelta(days=i) for i in range(8)]
+        upcoming_results = await asyncio.gather(*[_fetch_day(d) for d in upcoming_days])
+        for day_matches in upcoming_results:
+            found = next((m for m in day_matches if str(m.get("event_key", "")) == match_id), None)
+            if found:
+                result = _normalize_match(found)
+                result["point_by_point"] = []
+                result["statistics"] = found.get("statistics", [])
+                response.headers["Cache-Control"] = "public, max-age=300"
+                return result
+
+        # ── 4. Search past days (yesterday going back 7) concurrently ─────────
+        past_days = [today - timedelta(days=i) for i in range(1, 8)]
+        past_results = await asyncio.gather(*[_fetch_day(d) for d in past_days])
+        for day_matches in past_results:
+            found = next((m for m in day_matches if str(m.get("event_key", "")) == match_id), None)
+            if found:
+                result = _normalize_match(found)
+                result["point_by_point"] = []
+                # Statistics come from get_fixtures for completed matches
+                result["statistics"] = found.get("statistics", [])
+                # Cache for 1h so future requests skip the search
+                await set_cached(f"match_detail:{match_id}", result, ttl=3600)
+                response.headers["Cache-Control"] = "public, max-age=3600"
+                return result
+
+    log.warning("[MATCHES] Match %s not found in livescore, Redis cache, upcoming or past fixtures (all 4 paths exhausted)", match_id)
     raise HTTPException(status_code=404, detail="Match not found")
 
 

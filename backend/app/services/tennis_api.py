@@ -1,10 +1,11 @@
-import httpx, os, asyncio, time
+import httpx, os, asyncio, time, logging
 from dotenv import load_dotenv
 from app.services.db import upsert_match, get_live_from_db, get_tournaments_from_db
 from app.data.player_enrichment import get_surface
 from app.services.redis_cache import set_cached
 
 load_dotenv()
+log = logging.getLogger(__name__)
 
 API_KEY = os.getenv("TENNIS_API_KEY")
 BASE_URL = "https://api.api-tennis.com/tennis/"
@@ -97,6 +98,7 @@ async def get_live_matches():
         return _live_matches_cache["data"]
 
     if not API_KEY:
+        log.error("[TENNIS_API] TENNIS_API_KEY is not set — live matches will be empty or mock")
         db_matches = await get_live_from_db()
         if db_matches:
             return db_matches
@@ -111,6 +113,8 @@ async def get_live_matches():
             )
             resp_json = r.json()
             if resp_json.get("error") == "1":
+                err_msg = resp_json.get("result", [{}])[0].get("msg", "unknown") if resp_json.get("result") else "unknown"
+                log.error("[TENNIS_API] API auth error on get_livescore: %s (cod %s). Check TENNIS_API_KEY.", err_msg, resp_json.get("result", [{}])[0].get("cod") if resp_json.get("result") else "?")
                 raw_matches = []
             else:
                 raw_matches = resp_json.get("result", [])
@@ -136,7 +140,8 @@ async def get_live_matches():
             _live_matches_cache["timestamp"] = time.time()
 
             return matches
-        except Exception:
+        except Exception as exc:
+            log.error("[TENNIS_API] Exception during get_livescore: %s", exc)
             db_matches = await get_live_from_db()
             return db_matches if db_matches is not None else _mock_matches()
 
