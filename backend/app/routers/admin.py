@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 import httpx, os
 from app.services.db import _headers, _ready, SUPABASE_URL
-from app.services.redis_cache import get_cached, set_cached
+from app.services.redis_cache import get_cached, set_cached, flush_pattern
 
 router = APIRouter()
 
@@ -75,3 +75,11 @@ async def admin_stats(key: str = ""):
 
     await set_cached("admin:stats", stats, ttl=60)  # cache 1 minute
     return stats
+
+
+@router.post("/flush-cache")
+async def flush_cache(key: str = "", pattern: str = "*"):
+    """Flush Redis cache keys matching pattern. Requires admin key."""
+    _check_key(key)
+    await flush_pattern(pattern)
+    return {"flushed": True, "pattern": pattern}

@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Response
 import httpx, os
 from dotenv import load_dotenv
 from app.services.tennis_api import get_live_matches, _normalize_match
+from app.services.redis_cache import get_cached, set_cached
 
 load_dotenv()
 router = APIRouter()
@@ -34,10 +35,9 @@ async def match_detail(match_id: str, response: Response):
     """Full match detail — tries live first, then fetches from API directly."""
     if not API_KEY:
         raise HTTPException(status_code=404, detail="No API key configured")
-    response.headers["Cache-Control"] = "public, max-age=300"
 
     async with httpx.AsyncClient() as c:
-        # Fetch from livescore API directly (works for both live and recent)
+        # ── 1. Try livescore (live and very recently finished matches) ──────────
         try:
             r = await c.get(BASE, params={
                 "method": "get_livescore",
@@ -51,13 +51,23 @@ async def match_detail(match_id: str, response: Response):
                 result = _normalize_match(raw)
                 result["point_by_point"] = raw.get("pointbypoint", [])
                 result["scores_raw"] = raw.get("scores", [])
+                # Cache stats separately so completed-match requests can use them later
+                if result.get("statistics"):
+                    await set_cached(f"match_stats:{match_id}", result["statistics"], ttl=172800)
+                response.headers["Cache-Control"] = "public, max-age=30"
                 return result
         except Exception:
             pass
 
         from datetime import date, timedelta
 
-        # Fallback 1: upcoming fixtures (next 14 days — scheduled matches)
+        # ── 2. Check Redis cache for previously seen completed match ───────────
+        cached_detail = await get_cached(f"match_detail:{match_id}")
+        if cached_detail:
+            response.headers["Cache-Control"] = "public, max-age=3600"
+            return cached_detail
+
+        # ── 3. Upcoming fixtures (next 14 days) ────────────────────────────────
         try:
             stop = date.today() + timedelta(days=14)
             start = date.today()
@@ -65,7 +75,7 @@ async def match_detail(match_id: str, response: Response):
                 "method": "get_fixtures",
                 "APIkey": API_KEY,
                 "date_start": str(start), "date_stop": str(stop),
-            }, timeout=10)
+            }, timeout=12)
             resp2 = r2.json()
             raw_list2 = [] if resp2.get("error") == "1" else resp2.get("result", [])
             if isinstance(raw_list2, list):
@@ -73,11 +83,12 @@ async def match_detail(match_id: str, response: Response):
                 if found:
                     result = _normalize_match(found)
                     result["point_by_point"] = []
+                    response.headers["Cache-Control"] = "public, max-age=300"
                     return result
         except Exception:
             pass
 
-        # Fallback 2: recent results (last 14 days — finished matches)
+        # ── 4. Recent results (last 14 days — finished matches) ────────────────
         try:
             stop = date.today()
             start = stop - timedelta(days=14)
@@ -85,7 +96,7 @@ async def match_detail(match_id: str, response: Response):
                 "method": "get_fixtures",
                 "APIkey": API_KEY,
                 "date_start": str(start), "date_stop": str(stop),
-            }, timeout=10)
+            }, timeout=20)
             resp3 = r3.json()
             raw_list3 = [] if resp3.get("error") == "1" else resp3.get("result", [])
             if isinstance(raw_list3, list):
@@ -93,6 +104,13 @@ async def match_detail(match_id: str, response: Response):
                 if found:
                     result = _normalize_match(found)
                     result["point_by_point"] = []
+                    # Merge cached statistics from when the match was live
+                    cached_stats = await get_cached(f"match_stats:{match_id}")
+                    if cached_stats:
+                        result["statistics"] = cached_stats
+                    # Cache this completed match detail for 1h so future requests skip the 14-day search
+                    await set_cached(f"match_detail:{match_id}", result, ttl=3600)
+                    response.headers["Cache-Control"] = "public, max-age=3600"
                     return result
         except Exception:
             pass

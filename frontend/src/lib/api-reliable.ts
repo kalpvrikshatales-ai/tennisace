@@ -22,7 +22,7 @@ const CONFIG = {
   RETRY_DELAY_MS: 2000,
   CACHE_TTL_MS: 5 * 60 * 1000, // 5 minutes fresh
   CACHE_STALE_TTL_MS: 60 * 60 * 1000, // 1 hour stale-but-usable
-  CACHE_KEY_PREFIX: 'ta_cache_',
+  CACHE_KEY_PREFIX: 'ta2_', // bumped from ta_cache_ to bust stale empty caches from broken API key era
 }
 
 interface CacheEntry<T> {

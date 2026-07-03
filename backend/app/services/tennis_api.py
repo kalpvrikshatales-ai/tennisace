@@ -2,6 +2,7 @@ import httpx, os, asyncio, time
 from dotenv import load_dotenv
 from app.services.db import upsert_match, get_live_from_db, get_tournaments_from_db
 from app.data.player_enrichment import get_surface
+from app.services.redis_cache import set_cached
 
 load_dotenv()
 
@@ -121,6 +122,14 @@ async def get_live_matches():
                 and (m.get("event_second_player") or "").strip()
                 and (m.get("event_key") or m.get("match_id") or "")
             ]
+
+            # Cache statistics in Redis for each live match (48h TTL)
+            # so completed-match detail pages can still show stats after the match ends
+            for raw_m in raw_matches:
+                stats = raw_m.get("statistics", [])
+                mid = str(raw_m.get("event_key") or raw_m.get("match_id") or "")
+                if stats and mid:
+                    asyncio.create_task(set_cached(f"match_stats:{mid}", stats, ttl=172800))
 
             # Cache the results in memory
             _live_matches_cache["data"] = matches
