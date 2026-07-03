@@ -152,7 +152,7 @@ export const getLiveMatches = () =>
   fetchWithReliability(
     '/matches/live',
     { matches: [] },
-    { cacheKey: 'live_matches' }
+    { skipCache: true }  // backend sends Cache-Control:max-age=30; localStorage cache would mask updates
   )
 
 export const getTournaments = () =>
