@@ -1,4 +1,7 @@
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+let API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+if (typeof window !== 'undefined' && API === 'http://localhost:8000') {
+  API = 'https://tennisace.onrender.com'
+}
 
 export const getLiveMatches  = () => fetch(`${API}/matches/live`).then(r => r.json())
 export const getTournaments  = () => fetch(`${API}/tournaments/`).then(r => r.json())

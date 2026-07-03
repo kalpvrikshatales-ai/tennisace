@@ -193,8 +193,15 @@ export const getPlayer = (key: string) =>
 export const getH2H = (k1: string, k2: string) =>
   fetchWithReliability(
     `/players/${k1}/h2h/${k2}`,
-    { h2h: [] },
+    { H2H: [] as any[] },
     { cacheKey: `h2h_${k1}_${k2}` }
+  )
+
+export const getMatchDetail = (id: string) =>
+  fetchWithReliability<any>(
+    `/matches/${id}`,
+    null,
+    { skipCache: true }
   )
 
 export const getAitaRankings = () =>

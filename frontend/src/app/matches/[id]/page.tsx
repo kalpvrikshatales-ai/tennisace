@@ -3,10 +3,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { getH2H } from '@/lib/api'
+import { getH2H, getMatchDetail } from '@/lib/api-reliable'
 import PointByPoint from '@/components/PointByPoint'
-
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 const SURFACE_COLOR: Record<string, string> = {
   Grass: '#22C55E', Clay: '#F97316', Hard: '#9CA3AF',
@@ -78,7 +76,7 @@ export default function MatchPage() {
 
   const fetchMatch = useCallback(async () => {
     try {
-      const data = await fetch(`${API}/matches/${id}`).then(r => r.json())
+      const data = await getMatchDetail(id)
       if (data?.player1) {
         setMatch(data)
         if (data.player1_key && data.player2_key) {
