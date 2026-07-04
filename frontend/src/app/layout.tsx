@@ -8,8 +8,8 @@ import { Analytics } from '@vercel/analytics/react'
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 export const metadata: Metadata = {
-  title: 'TennisAce — Feel every match. Live.',
-  description: 'Live tennis scores from every tournament worldwide. Wimbledon, US Open, Roland Garros, Australian Open — feel every match.',
+  title: 'TennisAce — Live Tennis Scores | ATP, WTA & Grand Slam Results',
+  description: 'Live tennis scores, ATP rankings, WTA results and Wimbledon 2026 updates. Real-time match tracker for every tournament worldwide.',
   manifest: '/manifest.json',
   themeColor: '#FFFFFF',
   viewport: 'width=device-width, initial-scale=1',
@@ -22,8 +22,8 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
-    title: 'TennisAce — Feel every match. Live.',
-    description: 'Live tennis scores from every tournament worldwide.',
+    title: 'TennisAce — Live Tennis Scores | ATP, WTA & Grand Slam Results',
+    description: 'Live tennis scores, ATP rankings, WTA results and Wimbledon 2026 updates. Real-time match tracker for every tournament worldwide.',
     url: 'https://tennisace.live',
     siteName: 'TennisAce',
     type: 'website',
