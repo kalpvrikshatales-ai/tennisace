@@ -159,7 +159,7 @@ export default function PlayerPage() {
   const router = useRouter()
   const [player, setPlayer] = useState<any>(null)
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'overview' | 'insights' | 'stats' | 'matches'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'insights' | 'stats' | 'matches'>('matches')
 
   useEffect(() => {
     getPlayer(key)
@@ -232,7 +232,7 @@ export default function PlayerPage() {
               <path d="M19 12H5M12 5l-7 7 7 7"/>
             </svg>
           </button>
-          <span className="text-[15px] font-black text-gray-900 truncate">{player.player_full_name}</span>
+          <span className="text-[15px] font-black text-gray-900 truncate">{player.player_full_name || player.player_name}</span>
         </div>
       </header>
 
@@ -241,35 +241,42 @@ export default function PlayerPage() {
         {/* ── Player hero ── */}
         <div className="flex items-start gap-4 mb-6 pt-2">
           {player.player_logo ? (
-            <img src={player.player_logo} alt={player.player_full_name}
+            <img src={player.player_logo} alt={player.player_full_name || player.player_name}
               className="w-20 h-20 rounded-2xl object-cover border-2 border-gray-100 flex-shrink-0"
               onError={e => e.currentTarget.style.display='none'} />
           ) : (
             <div className="w-20 h-20 rounded-2xl bg-gray-100 flex-shrink-0 flex items-center justify-center">
-              <span className="text-2xl font-black text-gray-400">{player.player_full_name?.slice(0,1)}</span>
+              <span className="text-2xl font-black text-gray-400">
+                {(player.player_full_name || player.player_name)?.slice(0, 1)}
+              </span>
             </div>
           )}
           <div className="flex-1 min-w-0">
             <h1 className="text-[24px] font-black text-gray-900 leading-tight tracking-tight">
-              {player.player_full_name}
+              {player.player_full_name || player.player_name}
             </h1>
             <p className="text-[14px] text-gray-500 mt-0.5">
               {getFlag(player.player_country)} {player.player_country}
               {player.age && ` · ${player.age} yrs`}
+              {player.height_cm && ` · ${player.height_cm} cm`}
             </p>
-            {/* Rank + Year stats */}
-            <div className="flex items-center gap-3 mt-2 flex-wrap">
+            <div className="flex items-center gap-2 mt-2 flex-wrap">
               {(player.current_rank || currentYear?.rank) && (
                 <span className="text-[13px] font-black text-[#00C875]">
                   #{player.current_rank || currentYear?.rank} ATP
                 </span>
               )}
+              {(player.atp_titles || careerTotals.titles > 0) && (
+                <span className="text-[11px] font-bold text-gray-700 bg-yellow-50 border border-yellow-200 px-2 py-0.5 rounded-full">
+                  {player.atp_titles || careerTotals.titles} titles
+                </span>
+              )}
               {player.career_high && (
-                <span className="text-[11px] text-gray-400">Career high #{player.career_high}</span>
+                <span className="text-[11px] text-gray-400">Peak #{player.career_high}</span>
               )}
               {player.hand && (
                 <span className="text-[11px] font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
-                  {player.hand === 'Left' ? '🤚' : '✋'} {player.hand}-handed
+                  {player.hand === 'Left' ? '🤚' : '✋'} {player.hand}
                 </span>
               )}
             </div>
@@ -369,7 +376,7 @@ export default function PlayerPage() {
                   <span className="text-[15px] font-black text-gray-900">{s.season}</span>
                   <span className="text-[13px] font-bold text-[#00C875]">#{s.rank}</span>
                 </div>
-                <div className="grid grid-cols-3 gap-3 text-center">
+                <div className="grid grid-cols-4 gap-3 text-center">
                   <div>
                     <p className="text-[18px] font-black text-gray-900">{s.matches_won}</p>
                     <p className="text-[10px] text-gray-400 uppercase">Wins</p>
@@ -377,6 +384,14 @@ export default function PlayerPage() {
                   <div>
                     <p className="text-[18px] font-black text-gray-900">{s.matches_lost}</p>
                     <p className="text-[10px] text-gray-400 uppercase">Losses</p>
+                  </div>
+                  <div>
+                    <p className="text-[18px] font-black text-[#00C875]">
+                      {parseInt(s.matches_won||0) + parseInt(s.matches_lost||0) > 0
+                        ? Math.round(parseInt(s.matches_won) / (parseInt(s.matches_won) + parseInt(s.matches_lost)) * 100) + '%'
+                        : '—'}
+                    </p>
+                    <p className="text-[10px] text-gray-400 uppercase">Win%</p>
                   </div>
                   <div>
                     <p className="text-[18px] font-black text-[#F59E0B]">{s.titles}</p>
