@@ -35,6 +35,9 @@ export const metadata: Metadata = {
     description: 'Live tennis scores from every tournament worldwide.',
     images: ['https://tennisace.live/og.png'],
   },
+  verification: {
+    google: 'SGBHDbGl7iiOC1QnXy5-8PxZrqnPzjyt94iCI85Ydh4',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
