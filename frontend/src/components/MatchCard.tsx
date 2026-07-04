@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { getPlayerCountry } from '@/lib/playerCountries'
 import type { Match } from '@/types'
 import { shareScoreImage } from '@/lib/shareImage'
+import { matchToSlug } from '@/lib/matchSlug'
 
 interface Props { match: Match; hideMeta?: boolean; forceUpcoming?: boolean }
 
@@ -121,7 +122,7 @@ export default function MatchCard({ match, hideMeta, forceUpcoming }: Props) {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
     <Link
-      href={`/matches/${match.match_id}`}
+      href={`/match/${matchToSlug(match)}`}
       className={`block bg-white rounded-xl border overflow-hidden cursor-pointer transition-all ${
         isLive
           ? 'border-[#00C875]/40 shadow-[0_0_0_1px_rgba(0,200,117,0.15)]'

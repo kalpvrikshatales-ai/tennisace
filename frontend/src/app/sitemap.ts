@@ -1,4 +1,6 @@
 import type { MetadataRoute } from 'next'
+import type { Match } from '@/types'
+import { matchToSlug } from '@/lib/matchSlug'
 
 const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
 
@@ -38,11 +40,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })
     if (res.ok) {
       const data = await res.json()
-      const matches: { match_id: string }[] = data.matches ?? []
+      const matches: Match[] = data.matches ?? []
       matchEntries = matches
-        .filter(m => m.match_id)
+        .filter(m => m.match_id && m.player1 && m.player2)
         .map(m => ({
-          url: `https://tennisace.live/matches/${m.match_id}`,
+          url: `https://tennisace.live/match/${matchToSlug(m)}`,
           lastModified: new Date(),
           changeFrequency: 'always' as const,
           priority: 0.9,
