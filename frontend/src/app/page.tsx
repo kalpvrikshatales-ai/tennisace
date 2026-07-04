@@ -106,7 +106,7 @@ function SectionHeader({ title, count, sub }: { title: string; count?: number; s
 
 export default function Home() {
   const [tab, setTab] = useState<Tab>('matches')
-  const [matchFilter, setMatchFilter] = useState<'live' | 'next' | 'completed'>('live')
+  const [matchFilter, setMatchFilter] = useState<'live' | 'next' | 'completed' | 'all'>('live')
   const [profileOpen, setProfileOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [notifOn, setNotifOn] = useState(false)
@@ -276,6 +276,7 @@ export default function Home() {
                 { key: 'live',      label: liveMatches.length > 0 ? `Live ${liveMatches.length}` : 'Live' },
                 { key: 'next',      label: 'Next' },
                 { key: 'completed', label: 'Completed' },
+                { key: 'all',       label: 'All' },
               ] as const).map(({ key, label }) => (
                 <button
                   key={key}
@@ -356,6 +357,66 @@ export default function Home() {
                   ))}
                 </div>
               )}
+            </section>}
+
+            {/* ALL */}
+            {matchFilter === 'all' && <section className="space-y-6">
+              {/* Live */}
+              {(loadingLive || liveMatches.length > 0) && (
+                <div>
+                  <SectionHeader title="Live Now" count={liveMatches.length} sub={liveMatches.length > 0 ? 'Updates every 30s' : undefined} />
+                  {loadingLive ? (
+                    <div className="space-y-3">{[...Array(2)].map((_, i) => <MatchCardSkeleton key={i} />)}</div>
+                  ) : (
+                    <div className="space-y-3">
+                      {groupByTournament(liveMatches).map(group => (
+                        <div key={group.tournament} className="space-y-1">
+                          <TournamentHeader tournament={group.tournament} surface={group.surface} round={group.round} />
+                          {group.items.map(m => <MatchCard key={m.match_id} match={m} hideMeta />)}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Upcoming */}
+              <div>
+                <SectionHeader title="Upcoming" count={fixtures.length} sub="Next 7 days" />
+                {loadingFixtures ? (
+                  <div className="space-y-2">{[...Array(3)].map((_, i) => <MatchCardSkeleton key={i} />)}</div>
+                ) : fixtures.length === 0 ? (
+                  <div className="card p-4 text-center"><p className="text-gray-400 text-[13px]">No scheduled matches</p></div>
+                ) : (
+                  <div className="space-y-3">
+                    {groupByTournament(sortByPriority(fixtures)).map(group => (
+                      <div key={group.tournament} className="space-y-1">
+                        <TournamentHeader tournament={group.tournament} surface={group.surface} round={group.round} />
+                        {group.items.map(f => <MatchCard key={f.match_id} match={f} hideMeta forceUpcoming />)}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Completed */}
+              <div>
+                <SectionHeader title="Completed" count={results.length} sub="Last 7 days" />
+                {loadingResults ? (
+                  <div className="space-y-2">{[...Array(3)].map((_, i) => <ResultCardSkeleton key={i} />)}</div>
+                ) : results.length === 0 ? (
+                  <div className="card p-4 text-center"><p className="text-gray-400 text-[13px]">No recent results</p></div>
+                ) : (
+                  <div className="space-y-3">
+                    {groupByTournament(results).map(group => (
+                      <div key={group.tournament} className="space-y-1">
+                        <TournamentHeader tournament={group.tournament} surface={group.surface} round={group.round} />
+                        {group.items.map(r => <ResultCard key={r.match_id} result={r} hideMeta />)}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </section>}
           </div>
         )}
