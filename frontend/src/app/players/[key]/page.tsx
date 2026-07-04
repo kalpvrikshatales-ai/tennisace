@@ -5,8 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getFlag } from '@/lib/flags'
 import { PlayStyleSection, StrengthsWeaknesses, FavoriteSurface, TitlesByService, RecentFormGraph } from '@/components/PlayerInsights'
-
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+import { getPlayer } from '@/lib/api-reliable'
 
 const SURFACE_DOT: Record<string, string> = {
   Grass: '#22C55E', Clay: '#F97316', Hard: '#9CA3AF',
@@ -88,6 +87,73 @@ function MatchRow({ m, playerKey }: { m: any; playerKey: number }) {
   )
 }
 
+function FormStreak({ form }: { form: any }) {
+  if (!form?.streak?.length) return null
+  return (
+    <div className="card p-4">
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Current Form</p>
+        <span className="text-[12px] font-bold text-gray-700">
+          {form.wins}W {form.losses}L
+          <span className="text-[#00C875] ml-1.5">{form.win_pct}%</span>
+        </span>
+      </div>
+      <div className="flex items-center gap-1.5 flex-wrap">
+        {form.streak.map((r: string, i: number) => (
+          <span key={i} className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-black ${
+            r === 'W' ? 'bg-[#00C875]/15 text-[#00C875]' : 'bg-gray-100 text-gray-500'
+          }`}>{r}</span>
+        ))}
+        <span className="text-[10px] text-gray-400 ml-1">last {form.streak.length}</span>
+      </div>
+    </div>
+  )
+}
+
+function PredictionCard({ prediction }: { prediction: any }) {
+  if (!prediction) return null
+  const prob = prediction.win_probability
+  const color = prob >= 60 ? '#00C875' : prob >= 45 ? '#F59E0B' : '#EF4444'
+  const oppKey = prediction.opponent_key
+  return (
+    <div className="card p-4">
+      <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">Match Prediction</p>
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex-1 min-w-0 pr-3">
+          {oppKey ? (
+            <Link href={`/players/${oppKey}`}>
+              <p className="text-[14px] font-bold text-gray-900 hover:text-[#00C875] truncate">
+                vs {prediction.opponent}
+              </p>
+            </Link>
+          ) : (
+            <p className="text-[14px] font-bold text-gray-900 truncate">vs {prediction.opponent}</p>
+          )}
+          <p className="text-[11px] text-gray-400 mt-0.5 truncate">{prediction.tournament}</p>
+          <div className="flex items-center gap-1.5 mt-0.5">
+            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-gray-100 text-gray-600">{prediction.surface}</span>
+            {prediction.date && <span className="text-[10px] text-gray-400">{prediction.date}</span>}
+          </div>
+        </div>
+        <div className="text-right flex-shrink-0">
+          <p className="text-[30px] font-black leading-none" style={{ color }}>{prob}%</p>
+          <p className="text-[10px] text-gray-400 mt-0.5">win probability</p>
+        </div>
+      </div>
+      <div className="h-2 rounded-full bg-gray-100 overflow-hidden mb-3">
+        <div className="h-full rounded-full" style={{ width: `${prob}%`, background: color }} />
+      </div>
+      <div className="flex items-center gap-4 text-[11px] text-gray-500 flex-wrap">
+        <span>Form: <span className="font-bold text-gray-700">{prediction.form_record}</span></span>
+        {prediction.surface_record && (
+          <span>Surface: <span className="font-bold text-gray-700">{prediction.surface_record}</span></span>
+        )}
+        <span className="ml-auto text-[10px] text-gray-400 capitalize">{prediction.confidence} confidence</span>
+      </div>
+    </div>
+  )
+}
+
 export default function PlayerPage() {
   const { key } = useParams<{ key: string }>()
   const router = useRouter()
@@ -96,8 +162,7 @@ export default function PlayerPage() {
   const [activeTab, setActiveTab] = useState<'overview' | 'insights' | 'stats' | 'matches'>('overview')
 
   useEffect(() => {
-    fetch(`${API}/players/${key}`)
-      .then(r => r.json())
+    getPlayer(key)
       .then(d => { setPlayer(d); setLoading(false) })
       .catch(() => setLoading(false))
   }, [key])
@@ -339,8 +404,56 @@ export default function PlayerPage() {
 
         {/* ── Matches tab ── */}
         {activeTab === 'matches' && (
-          <div className="space-y-5">
-            {/* Recent */}
+          <div className="space-y-4">
+            {/* Form streak */}
+            <FormStreak form={player.form} />
+
+            {/* Prediction */}
+            <PredictionCard prediction={player.prediction} />
+
+            {/* Upcoming */}
+            {player.upcoming_matches?.length > 0 && (
+              <div>
+                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">Upcoming</p>
+                <div className="space-y-2">
+                  {player.upcoming_matches.map((m: any, i: number) => {
+                    const playerIsP1 = parseInt(key) === m.player1_key
+                    const opp = playerIsP1 ? m.player2 : m.player1
+                    const oppKey = playerIsP1 ? m.player2_key : m.player1_key
+                    const oppImg = playerIsP1 ? m.player2_img : m.player1_img
+                    return (
+                      <Link key={i} href={`/matches/${m.match_id}`}>
+                        <div className="card px-4 py-3 flex items-center gap-3 cursor-pointer card-glow">
+                          <span className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-black flex-shrink-0 bg-gray-100 text-gray-400">VS</span>
+                          <div className="flex items-center gap-2 flex-1 min-w-0">
+                            {oppImg && (
+                              <img src={oppImg} alt="" className="w-7 h-7 rounded-full object-cover bg-gray-100 flex-shrink-0"
+                                onError={e => e.currentTarget.style.display = 'none'} />
+                            )}
+                            <div className="min-w-0">
+                              {oppKey ? (
+                                <Link href={`/players/${oppKey}`} onClick={e => e.stopPropagation()}>
+                                  <p className="text-[13px] font-bold text-gray-900 hover:text-[#00C875] truncate">{opp}</p>
+                                </Link>
+                              ) : (
+                                <p className="text-[13px] font-bold text-gray-900 truncate">{opp}</p>
+                              )}
+                              <p className="text-[10px] text-gray-400 truncate mt-0.5">{m.tournament} · {m.round}</p>
+                            </div>
+                          </div>
+                          <div className="text-right flex-shrink-0">
+                            <p className="text-[12px] font-bold text-[#00C875]">{m.time || 'TBD'}</p>
+                            <p className="text-[10px] text-gray-400">{m.date}</p>
+                          </div>
+                        </div>
+                      </Link>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Recent results */}
             {player.recent_matches?.length > 0 && (
               <div>
                 <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">Recent Results</p>
@@ -352,30 +465,7 @@ export default function PlayerPage() {
               </div>
             )}
 
-            {/* Upcoming */}
-            {player.upcoming_matches?.length > 0 && (
-              <div>
-                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">Upcoming</p>
-                <div className="space-y-2">
-                  {player.upcoming_matches.map((m: any, i: number) => (
-                    <div key={i} className="card px-4 py-3 flex items-center justify-between">
-                      <div>
-                        <p className="text-[13px] font-bold text-gray-900">
-                          vs {parseInt(key) === m.player1_key ? m.player2 : m.player1}
-                        </p>
-                        <p className="text-[11px] text-gray-400">{m.tournament} · {m.round}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-[12px] font-bold text-[#00C875]">{m.time || 'TBD'}</p>
-                        <p className="text-[10px] text-gray-400">{m.date}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {!player.recent_matches?.length && !player.upcoming_matches?.length && (
+            {!player.form?.streak?.length && !player.upcoming_matches?.length && !player.recent_matches?.length && (
               <div className="card p-8 text-center">
                 <p className="text-3xl mb-3">🎾</p>
                 <p className="text-gray-500 text-sm">No recent matches found</p>

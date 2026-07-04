@@ -80,27 +80,96 @@ def _calc_age(bday: str):
     return None
 
 
-def _norm_recent(m: dict) -> dict:
+def _norm_match(m: dict) -> dict:
     scores = m.get("scores", [])
     set_score = ", ".join(
         f"{s.get('score_first','')}-{s.get('score_second','')}"
         for s in scores if s.get("score_first") not in ("", None, "0") or s.get("score_second") not in ("", None, "0")
     )
     return {
-        "match_id":   str(m.get("event_key", "")),
-        "player1":    m.get("event_first_player", ""),
-        "player2":    m.get("event_second_player", ""),
+        "match_id":    str(m.get("event_key", "")),
+        "player1":     m.get("event_first_player", ""),
+        "player2":     m.get("event_second_player", ""),
         "player1_key": m.get("first_player_key"),
         "player2_key": m.get("second_player_key"),
         "player1_img": m.get("event_first_player_logo"),
         "player2_img": m.get("event_second_player_logo"),
-        "score":      set_score or m.get("event_final_result", ""),
-        "status":     m.get("event_status", ""),
-        "winner":     m.get("event_winner"),
-        "tournament": m.get("tournament_name", ""),
-        "surface":    get_surface(m.get("tournament_name", ""), m.get("event_type_type", "")),
-        "round":      m.get("tournament_round", "").split(" - ")[-1],
-        "date":       m.get("event_date", ""),
+        "score":       set_score or m.get("event_final_result", ""),
+        "status":      m.get("event_status", ""),
+        "winner":      m.get("event_winner"),
+        "tournament":  m.get("tournament_name", ""),
+        "surface":     get_surface(m.get("tournament_name", ""), m.get("event_type_type", "")),
+        "round":       m.get("tournament_round", "").split(" - ")[-1],
+        "date":        m.get("event_date", ""),
+        "time":        m.get("event_time", ""),
+    }
+
+_norm_recent = _norm_match  # alias — used by H2H code path
+
+
+def _did_win(m: dict, key_int: int) -> bool:
+    p1k = m.get("player1_key")
+    try:
+        is_p1 = int(p1k) == key_int
+    except (TypeError, ValueError):
+        is_p1 = True
+    w = m.get("winner", "")
+    return (w == "First Player" and is_p1) or (w == "Second Player" and not is_p1)
+
+
+def _compute_form(recent: list, key_int: int) -> dict:
+    last10 = recent[:10]
+    streak = ["W" if _did_win(m, key_int) else "L" for m in last10]
+    wins = streak.count("W")
+    return {
+        "streak": streak,
+        "wins": wins,
+        "losses": len(streak) - wins,
+        "win_pct": round(wins / len(streak) * 100) if streak else 0,
+    }
+
+
+def _compute_prediction(upcoming: list, recent: list, key_int: int):
+    if not upcoming or not recent:
+        return None
+    next_m = upcoming[0]
+    surface = next_m.get("surface", "Hard")
+    last10 = recent[:10]
+
+    overall_wins = sum(1 for m in last10 if _did_win(m, key_int))
+    base_prob = overall_wins / len(last10) if last10 else 0.5
+
+    surf_matches = [m for m in last10 if m.get("surface") == surface]
+    if surf_matches:
+        surf_wins = sum(1 for m in surf_matches if _did_win(m, key_int))
+        weight = min(len(surf_matches) / 5.0, 1.0)
+        prob = (surf_wins / len(surf_matches)) * weight + base_prob * (1 - weight)
+        surface_record = f"{surf_wins}W {len(surf_matches) - surf_wins}L"
+    else:
+        prob = base_prob
+        surface_record = None
+
+    p1k = next_m.get("player1_key")
+    try:
+        is_p1 = int(p1k) == key_int
+    except (TypeError, ValueError):
+        is_p1 = True
+    opp_side = "player2" if is_p1 else "player1"
+    opp_key_side = "player2_key" if is_p1 else "player1_key"
+
+    confidence = "high" if len(last10) >= 8 else "medium" if len(last10) >= 5 else "low"
+    return {
+        "win_probability": round(prob * 100),
+        "opponent": next_m.get(opp_side, "Opponent"),
+        "opponent_key": next_m.get(opp_key_side),
+        "surface": surface,
+        "tournament": next_m.get("tournament", ""),
+        "form_record": f"{overall_wins}W {len(last10) - overall_wins}L",
+        "surface_record": f"{surface_record} on {surface}" if surface_record else None,
+        "confidence": confidence,
+        "match_id": next_m.get("match_id"),
+        "date": next_m.get("date", ""),
+        "time": next_m.get("time", ""),
     }
 
 
@@ -109,72 +178,127 @@ async def player_profile(player_key: str, response: Response):
     key_int = int(player_key) if player_key.isdigit() else 0
     response.headers["Cache-Control"] = "public, max-age=3600"
 
+    # Redis cache for full profile (1 hour) — avoids 35 concurrent API calls on every page view
+    cache_key = f"player_profile_v3:{player_key}"
+    cached = await get_cached(cache_key)
+    if cached:
+        return cached
+
+    today = date.today()
+
     async with httpx.AsyncClient() as c:
-        # Fetch profile + recent results in parallel
-        stop = date.today()
-        start = stop - timedelta(days=60)
-
-        profile_task = c.get(BASE, params={"method": "get_players", "APIkey": API_KEY, "player_key": player_key}, timeout=12)
-        recent_task  = c.get(BASE, params={
-            "method": "get_events", "APIkey": API_KEY,
-            "date_start": str(start), "date_stop": str(stop),
-            "player_key": player_key,
-        }, timeout=12)
-        upcoming_task = c.get(BASE, params={
-            "method": "get_fixtures", "APIkey": API_KEY,
-            "date_start": str(stop), "date_stop": str(stop + timedelta(days=30)),
-            "player_key": player_key,
+        # 1. Profile fetch
+        profile_coro = c.get(BASE, params={
+            "method": "get_players", "APIkey": API_KEY, "player_key": player_key,
         }, timeout=12)
 
-        profile_r, recent_r, upcoming_r = await asyncio.gather(
-            profile_task, recent_task, upcoming_task,
+        # 2. Per-day recent: last 21 days — API only returns data for single-day date_start==date_stop
+        past_days = [today - timedelta(days=i) for i in range(21)]
+        recent_coros = [
+            c.get(BASE, params={
+                "method": "get_fixtures", "APIkey": API_KEY,
+                "date_start": str(d), "date_stop": str(d),
+                "player_key": player_key,
+            }, timeout=12) for d in past_days
+        ]
+
+        # 3. Per-day upcoming: next 14 days
+        future_days = [today + timedelta(days=i) for i in range(1, 15)]
+        upcoming_coros = [
+            c.get(BASE, params={
+                "method": "get_fixtures", "APIkey": API_KEY,
+                "date_start": str(d), "date_stop": str(d),
+                "player_key": player_key,
+            }, timeout=12) for d in future_days
+        ]
+
+        all_results = await asyncio.gather(
+            profile_coro, *recent_coros, *upcoming_coros,
             return_exceptions=True,
         )
+
+    # Separate results
+    profile_r = all_results[0]
+    recent_rs = all_results[1:22]    # 21 day results
+    upcoming_rs = all_results[22:]   # 14 day results
 
     # Parse profile
     player = {}
     if not isinstance(profile_r, Exception):
-        result = profile_r.json().get("result", [])
-        player = result[0] if result else {}
+        try:
+            result = profile_r.json().get("result", [])
+            player = result[0] if result else {}
+        except Exception:
+            pass
 
-    # Parse recent results
-    recent = []
-    if not isinstance(recent_r, Exception):
-        raw_recent = recent_r.json().get("result", [])
-        if isinstance(raw_recent, list):
-            finished = [_norm_recent(m) for m in raw_recent
-                        if m.get("event_status") in ("Finished", "After Penalties")]
-            recent = sorted(finished, key=lambda m: m.get("date", ""), reverse=True)[:15]
+    # Collect + deduplicate recent (finished) matches across days
+    recent_raw = []
+    for r in recent_rs:
+        if not isinstance(r, Exception):
+            try:
+                data = r.json().get("result", [])
+                if isinstance(data, list):
+                    recent_raw.extend(data)
+            except Exception:
+                pass
 
-    # Parse upcoming
-    upcoming = []
-    if not isinstance(upcoming_r, Exception):
-        raw_upcoming = upcoming_r.json().get("result", [])
-        if isinstance(raw_upcoming, list):
-            upcoming = [_norm_recent(m) for m in raw_upcoming[:6]]
+    seen: set = set()
+    recent: list = []
+    for m in sorted(
+        [_norm_match(m) for m in recent_raw
+         if m.get("event_status") in ("Finished", "After Penalties") or m.get("event_winner")],
+        key=lambda m: m.get("date", ""), reverse=True,
+    ):
+        if m["match_id"] and m["match_id"] not in seen:
+            seen.add(m["match_id"])
+            recent.append(m)
+        if len(recent) >= 15:
+            break
+
+    # Collect + deduplicate upcoming matches across days
+    upcoming_raw = []
+    for r in upcoming_rs:
+        if not isinstance(r, Exception):
+            try:
+                data = r.json().get("result", [])
+                if isinstance(data, list):
+                    upcoming_raw.extend(data)
+            except Exception:
+                pass
+
+    seen2: set = set()
+    upcoming: list = []
+    for m in sorted(upcoming_raw, key=lambda m: (m.get("event_date", ""), m.get("event_time", ""))):
+        mid = str(m.get("event_key", ""))
+        status = m.get("event_status", "")
+        winner = m.get("event_winner")
+        if mid and mid not in seen2 and not winner and status not in ("Finished", "After Penalties"):
+            seen2.add(mid)
+            upcoming.append(_norm_match(m))
+        if len(upcoming) >= 6:
+            break
+
+    # Compute form streak and prediction
+    form = _compute_form(recent, key_int)
+    prediction = _compute_prediction(upcoming, recent, key_int)
 
     # Enrich with local data
     enrichment = get_player_enrichment(key_int)
-
-    # Calculate age
     age = _calc_age(player.get("player_bday", ""))
 
-    # Current ranking from stats
     stats = player.get("stats", [])
     current_stats = next(
         (s for s in stats if s.get("season") == "2026" and s.get("type") == "singles"), None
     ) or next((s for s in sorted(stats, key=lambda x: x.get("season", ""), reverse=True)
                if s.get("type") == "singles"), None)
 
-    return {
+    result_data = {
         **player,
-        # Computed
         "age": age,
         "current_rank": current_stats.get("rank") if current_stats else None,
         "ytd_titles":   current_stats.get("titles", "0") if current_stats else "0",
         "ytd_wins":     current_stats.get("matches_won", "0") if current_stats else "0",
         "ytd_losses":   current_stats.get("matches_lost", "0") if current_stats else "0",
-        # Enriched (from local data)
         "height_cm":    enrichment.get("height_cm"),
         "weight_kg":    enrichment.get("weight_kg"),
         "hand":         enrichment.get("hand"),
@@ -185,10 +309,14 @@ async def player_profile(player_key: str, response: Response):
         "prize_money":  enrichment.get("prize_money_usd"),
         "grand_slams":  enrichment.get("grand_slams", 0),
         "atp_titles":   enrichment.get("atp_titles") or enrichment.get("wta_titles"),
-        # Matches
         "recent_matches":   recent,
         "upcoming_matches": upcoming,
+        "form":             form,
+        "prediction":       prediction,
     }
+
+    await set_cached(cache_key, result_data, ttl=3600)
+    return result_data
 
 
 @router.get("/{player_key}/h2h/{opponent_key}")
