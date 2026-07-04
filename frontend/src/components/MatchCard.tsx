@@ -99,7 +99,27 @@ export default function MatchCard({ match, hideMeta, forceUpcoming }: Props) {
     { name: match.player2, img: match.player2_img, serving: serving2, key: match.player2_key, playerIdx: 2, setsWon: p2SetsWon, gameScore: gameP2 },
   ]
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'SportsEvent',
+    name: `${match.player1} vs ${match.player2}`,
+    startDate: (match as any).date || (match as any).time,
+    eventStatus: isLive
+      ? 'https://schema.org/EventScheduled'
+      : 'https://schema.org/EventCompleted',
+    location: {
+      '@type': 'Place',
+      name: match.tournament,
+    },
+    competitor: [
+      { '@type': 'SportsTeam', name: match.player1 },
+      { '@type': 'SportsTeam', name: match.player2 },
+    ],
+  }
+
   return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
     <Link
       href={`/matches/${match.match_id}`}
       className={`block bg-white rounded-xl border overflow-hidden cursor-pointer transition-all ${
@@ -230,5 +250,6 @@ export default function MatchCard({ match, hideMeta, forceUpcoming }: Props) {
         )}
       </div>
     </Link>
+    </>
   )
 }
