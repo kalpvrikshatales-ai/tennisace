@@ -61,3 +61,41 @@ def root(): return {"app":"TennisAce","domain":"tennisace.live","status":"live"}
 
 @app.get("/health")
 def health(): return {"status":"ok"}
+
+@app.get("/health/live")
+async def health_live():
+    """Diagnostic endpoint: live pipeline status, key health, cache state."""
+    from app.services import tennis_api as _ta
+    from app.services.redis_cache import get_cached
+
+    raw_key = os.getenv("TENNIS_API_KEY", "")
+    if not raw_key:
+        key_status = "NOT_SET"
+        masked = "—"
+    elif len(raw_key) < 12:
+        key_status = "TOO_SHORT"
+        masked = raw_key[:4] + "..."
+    else:
+        key_status = "SET"
+        masked = f"{raw_key[:8]}...{raw_key[-4:]}"
+
+    cache = _ta._live_matches_cache
+    cache_age = round(time.time() - cache["timestamp"], 1) if cache["timestamp"] else None
+    mem_count = len(cache["data"]) if cache["data"] is not None else -1
+
+    redis_fallback = await get_cached(_ta._REDIS_LIVE_KEY)
+    redis_count = len(redis_fallback) if redis_fallback else 0
+
+    return {
+        "api_key_status": key_status,
+        "api_key_masked": masked,
+        "in_memory": {
+            "match_count": mem_count,
+            "age_seconds": cache_age,
+            "source": cache.get("source", "none"),
+        },
+        "redis_fallback": {
+            "match_count": redis_count,
+        },
+        "live_matches_total": max(mem_count, 0),
+    }

@@ -24,11 +24,18 @@ def _match_priority(m: dict) -> int:
 
 @router.get("/live")
 async def live_matches(response: Response, limit: int = 50):
+    from app.services import tennis_api as _ta
     matches = await get_live_matches()
     response.headers["Cache-Control"] = "public, max-age=30"
-    # Sort Grand Slams first before slicing — ensures Wimbledon isn't cut off
     sorted_matches = sorted(matches, key=_match_priority)
-    return {"matches": sorted_matches[:limit], "count": len(sorted_matches[:limit]), "total": len(matches)}
+    sliced = sorted_matches[:limit]
+    return {
+        "matches": sliced,
+        "count": len(sliced),
+        "total": len(matches),
+        "source": _ta._live_matches_cache.get("source", "unknown"),
+        "last_updated": _ta._live_matches_cache.get("timestamp"),
+    }
 
 
 @router.get("/{match_id}")
