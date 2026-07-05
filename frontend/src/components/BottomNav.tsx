@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useAuth } from '@/components/AuthProvider'
 
 type Tab = 'live' | 'results' | 'upcoming' | 'tournaments' | 'rankings' | 'news'
 
@@ -51,8 +52,10 @@ const SparringIcon = (active: boolean) => (
 
 export default function BottomNav({ tab, setTab, liveCount }: Props) {
   const pathname = usePathname()
+  const { user, profile } = useAuth()
   const isLounges  = pathname === '/lounges'
   const isSparring = pathname === '/sparring' || pathname.startsWith('/sparring/')
+  const isProfile  = pathname === '/profile' || pathname === '/auth/login'
 
   const tabItems = [
     { key: 'live' as Tab, label: 'Live', icon: LiveIcon },
@@ -112,6 +115,35 @@ export default function BottomNav({ tab, setTab, liveCount }: Props) {
           <div className="relative z-10">{LoungesIcon(isLounges)}</div>
           <span className={`text-[11px] font-bold z-10 ${isLounges ? 'text-purple-500' : 'text-gray-400'}`}>
             Lounges
+          </span>
+        </Link>
+
+        {/* Profile / Sign in */}
+        <Link href={user ? '/profile' : '/auth/login'}
+          className="flex flex-col items-center justify-center gap-1 flex-1 min-h-[56px] relative transition-all active:scale-95">
+          {isProfile && (
+            <span className="absolute inset-x-2 inset-y-0 rounded-2xl bg-[#00C875]/10" />
+          )}
+          <div className="relative z-10">
+            {user && (profile?.full_name || user.user_metadata?.avatar_url) ? (
+              user.user_metadata?.avatar_url ? (
+                <img src={user.user_metadata.avatar_url} alt=""
+                  className="w-[26px] h-[26px] rounded-full object-cover border-2 border-transparent"
+                  style={{ borderColor: isProfile ? '#00C875' : 'transparent' }} />
+              ) : (
+                <div className={`w-[26px] h-[26px] rounded-full flex items-center justify-center text-[10px] font-black ${isProfile ? 'bg-[#00C875] text-black' : 'bg-gray-200 text-gray-600'}`}>
+                  {(profile?.full_name || '?').slice(0, 2).toUpperCase()}
+                </div>
+              )
+            ) : (
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+                <circle cx="12" cy="8" r="4" stroke={isProfile ? '#00C875' : 'currentColor'} opacity={isProfile ? 1 : 0.35} />
+                <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke={isProfile ? '#00C875' : 'currentColor'} opacity={isProfile ? 1 : 0.35} />
+              </svg>
+            )}
+          </div>
+          <span className={`text-[11px] font-bold z-10 ${isProfile ? 'text-[#00C875]' : 'text-gray-400'}`}>
+            {user ? 'Profile' : 'Sign in'}
           </span>
         </Link>
       </div>

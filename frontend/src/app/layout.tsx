@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import LayoutWrapper from '@/components/LayoutWrapper'
 import ServiceWorkerUpdater from '@/components/ServiceWorkerUpdater'
+import AuthProvider from '@/components/AuthProvider'
 import { Analytics } from '@vercel/analytics/react'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
@@ -56,7 +57,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="apple-mobile-web-app-title" content="TennisAce" />
       </head>
       <body className="font-sans min-h-screen bg-white text-gray-900">
-        <LayoutWrapper>{children}</LayoutWrapper>
+        <AuthProvider>
+          <LayoutWrapper>{children}</LayoutWrapper>
+        </AuthProvider>
         <ServiceWorkerUpdater />
         <Analytics />
       </body>

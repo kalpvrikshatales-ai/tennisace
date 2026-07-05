@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import SplashScreen from './SplashScreen'
+import AuthHeader from './AuthHeader'
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const [splashComplete, setSplashComplete] = useState(false)
@@ -9,6 +10,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   return (
     <>
       {!splashComplete && <SplashScreen onComplete={() => setSplashComplete(true)} />}
+      <AuthHeader />
       {children}
     </>
   )

@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/components/AuthProvider'
 
 const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
 
@@ -56,6 +57,7 @@ function Label({ text }: { text: string }) {
 export default function CreateSparringPage() {
   const router  = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
+  const { user } = useAuth()
 
   // Role — first choice
   const [role, setRole] = useState<'player' | 'coach' | ''>('')
@@ -103,6 +105,15 @@ export default function CreateSparringPage() {
     if (from === 'requests') setBanner('You need a profile to view your requests.')
     if (from === 'login')    setBanner('No profile found for that email.')
   }, [])
+
+  // Pre-fill from Supabase Auth — skip email OTP if already signed in
+  useEffect(() => {
+    if (!user) return
+    if (user.email) setEmail(user.email)
+    const authName = user.user_metadata?.full_name ?? user.user_metadata?.name ?? ''
+    if (authName && !name) setName(authName)
+    setEmailVerified(true)
+  }, [user])
 
   function handleEmailChange(val: string) {
     setEmail(val)
@@ -301,38 +312,49 @@ export default function CreateSparringPage() {
         {/* Email + OTP */}
         <div style={{ marginBottom: 18 }}>
           <Label text="Email * (used to access your requests)" />
-          <div style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
-            <input value={email} onChange={e => handleEmailChange(e.target.value)} placeholder="you@example.com" type="email" disabled={emailVerified}
-              style={{ ...inputStyle, flex: 1, color: emailVerified ? '#555' : '#fff', borderColor: emailVerified ? '#1a3a1a' : '#333' }} />
-            {emailVerified ? (
-              <div style={{ display: 'flex', alignItems: 'center', padding: '0 12px', background: '#0a1a0a', border: '1px solid #1a3a1a', borderRadius: 6, color: '#39FF14', fontSize: 13, fontWeight: 800, whiteSpace: 'nowrap' }}>
-                ✓ Verified
-              </div>
-            ) : (
-              <button onClick={sendOtp} disabled={sending || !email.includes('@')}
-                style={{ padding: '0 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: 13, whiteSpace: 'nowrap',
-                  background: sending || !email.includes('@') ? '#222' : '#39FF14',
-                  color: sending || !email.includes('@') ? '#555' : '#000' }}>
-                {sending ? '…' : otpSent ? 'Resend' : 'Send Code'}
-              </button>
-            )}
-          </div>
-          {emailError && <p style={{ color: '#e87070', fontSize: 12, margin: '0 0 8px' }}>{emailError}</p>}
-          {otpSent && !emailVerified && (
-            <div style={{ background: '#0d0d0d', border: '1px solid #222', borderRadius: 8, padding: 16 }}>
-              <p style={{ color: '#aaa', fontSize: 12, margin: '0 0 10px' }}>Check your inbox — 6-digit code sent to {email}</p>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <input value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="000000" inputMode="numeric" maxLength={6}
-                  style={{ ...inputStyle, flex: 1, textAlign: 'center', fontSize: 22, fontWeight: 900, letterSpacing: 8 }} />
-                <button onClick={verifyOtp} disabled={verifying || otp.length < 6}
-                  style={{ padding: '0 16px', borderRadius: 6, border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: 13,
-                    background: verifying || otp.length < 6 ? '#222' : '#39FF14',
-                    color: verifying || otp.length < 6 ? '#555' : '#000' }}>
-                  {verifying ? '…' : 'Verify'}
-                </button>
-              </div>
-              {otpError && <p style={{ color: '#e87070', fontSize: 12, margin: '8px 0 0' }}>{otpError}</p>}
+          {user ? (
+            // Authenticated via Supabase — skip OTP entirely
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#0a1a0a', border: '1px solid #1a3a1a', borderRadius: 8, padding: '11px 14px' }}>
+              <span style={{ color: '#39FF14', fontSize: 14, fontWeight: 800 }}>✓</span>
+              <span style={{ color: '#aaa', fontSize: 13 }}>{email}</span>
+              <span style={{ marginLeft: 'auto', color: '#39FF14', fontSize: 11, fontWeight: 700 }}>via account</span>
             </div>
+          ) : (
+            <>
+              <div style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
+                <input value={email} onChange={e => handleEmailChange(e.target.value)} placeholder="you@example.com" type="email" disabled={emailVerified}
+                  style={{ ...inputStyle, flex: 1, color: emailVerified ? '#555' : '#fff', borderColor: emailVerified ? '#1a3a1a' : '#333' }} />
+                {emailVerified ? (
+                  <div style={{ display: 'flex', alignItems: 'center', padding: '0 12px', background: '#0a1a0a', border: '1px solid #1a3a1a', borderRadius: 6, color: '#39FF14', fontSize: 13, fontWeight: 800, whiteSpace: 'nowrap' }}>
+                    ✓ Verified
+                  </div>
+                ) : (
+                  <button onClick={sendOtp} disabled={sending || !email.includes('@')}
+                    style={{ padding: '0 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: 13, whiteSpace: 'nowrap',
+                      background: sending || !email.includes('@') ? '#222' : '#39FF14',
+                      color: sending || !email.includes('@') ? '#555' : '#000' }}>
+                    {sending ? '…' : otpSent ? 'Resend' : 'Send Code'}
+                  </button>
+                )}
+              </div>
+              {emailError && <p style={{ color: '#e87070', fontSize: 12, margin: '0 0 8px' }}>{emailError}</p>}
+              {otpSent && !emailVerified && (
+                <div style={{ background: '#0d0d0d', border: '1px solid #222', borderRadius: 8, padding: 16 }}>
+                  <p style={{ color: '#aaa', fontSize: 12, margin: '0 0 10px' }}>Check your inbox — 6-digit code sent to {email}</p>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <input value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="000000" inputMode="numeric" maxLength={6}
+                      style={{ ...inputStyle, flex: 1, textAlign: 'center', fontSize: 22, fontWeight: 900, letterSpacing: 8 }} />
+                    <button onClick={verifyOtp} disabled={verifying || otp.length < 6}
+                      style={{ padding: '0 16px', borderRadius: 6, border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: 13,
+                        background: verifying || otp.length < 6 ? '#222' : '#39FF14',
+                        color: verifying || otp.length < 6 ? '#555' : '#000' }}>
+                      {verifying ? '…' : 'Verify'}
+                    </button>
+                  </div>
+                  {otpError && <p style={{ color: '#e87070', fontSize: 12, margin: '8px 0 0' }}>{otpError}</p>}
+                </div>
+              )}
+            </>
           )}
           <p style={{ color: '#444', fontSize: 11, margin: '6px 0 0' }}>Used to log in to My Requests. Never shown publicly.</p>
         </div>
