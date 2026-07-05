@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import type { Match } from '@/types'
 import { parseMatchSlug } from '@/lib/matchSlug'
 import ShareButton from './ShareButton'
+import LiveMatchDetail from './LiveMatchDetail'
 
 const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
 
@@ -342,6 +343,16 @@ export default async function MatchPage({ params }: { params: { slug: string } }
       { '@type': 'SportsTeam', name: match.player1 },
       { '@type': 'SportsTeam', name: match.player2 },
     ],
+  }
+
+  // Live matches get the full rich detail view (black hero, tabs, stats, PBP)
+  if (isLive) {
+    return (
+      <>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+        <LiveMatchDetail matchId={match.match_id} initialMatch={match} />
+      </>
+    )
   }
 
   const players = [
