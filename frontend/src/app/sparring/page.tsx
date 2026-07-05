@@ -30,12 +30,20 @@ async function fetchProfiles(params: Record<string, string>) {
   if (params.time)    qs.set('time',    params.time)
 
   try {
-    const res = await fetch(`${BACKEND}/sparring/profiles?${qs}`, {
-      next: { revalidate: 60 },
-    })
-    if (!res.ok) return []
-    const data = await res.json()
-    return data.profiles ?? []
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), 15000)
+    try {
+      const res = await fetch(`${BACKEND}/sparring/profiles?${qs}`, {
+        signal: controller.signal,
+        next: { revalidate: 60 },
+      })
+      clearTimeout(timer)
+      if (!res.ok) return []
+      const data = await res.json()
+      return Array.isArray(data.profiles) ? data.profiles : []
+    } finally {
+      clearTimeout(timer)
+    }
   } catch {
     return []
   }
@@ -120,11 +128,8 @@ export default async function SparringPage({
                 <Link key={p.id} href={`/sparring/${p.id}`} style={{ textDecoration: 'none' }}>
                   <div style={{
                     background: '#111', border: '1px solid #222', borderRadius: 10,
-                    overflow: 'hidden', transition: 'border-color 0.15s',
-                  }}
-                    onMouseEnter={e => (e.currentTarget.style.borderColor = '#39FF14')}
-                    onMouseLeave={e => (e.currentTarget.style.borderColor = '#222')}
-                  >
+                    overflow: 'hidden',
+                  }}>
                     {/* Photo */}
                     <div style={{ height: 160, background: '#1a1a1a', position: 'relative', overflow: 'hidden' }}>
                       {p.photo_url ? (
