@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Suspense } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import SparringFilters from './SparringFilters'
 
 const LEVEL_STYLE: Record<string, { bg: string; color: string }> = {
@@ -110,6 +110,11 @@ function PlayerCard({ p }: { p: any }) {
 }
 
 export default function SparringDiscover({ initialProfiles }: { initialProfiles: any[] }) {
+  const [ownId, setOwnId] = useState<string | null>(null)
+  useEffect(() => { setOwnId(localStorage.getItem('sparring_profile_id')) }, [])
+
+  const profiles = ownId ? initialProfiles.filter(p => p.id !== ownId) : initialProfiles
+
   return (
     <div style={{ background: '#000', minHeight: '100vh', paddingBottom: 80 }}>
       {/* Header */}
@@ -192,7 +197,7 @@ export default function SparringDiscover({ initialProfiles }: { initialProfiles:
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 12 }}>
-            {initialProfiles.map((p: any) => <PlayerCard key={p.id} p={p} />)}
+            {profiles.map((p: any) => <PlayerCard key={p.id} p={p} />)}
           </div>
         )}
       </div>

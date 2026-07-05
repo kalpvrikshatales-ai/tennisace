@@ -185,9 +185,10 @@ function RequestModal({ profile, onClose }: { profile: Profile; onClose: () => v
 export default function SparringProfilePage() {
   const { id }    = useParams<{ id: string }>()
   const router    = useRouter()
-  const [profile,   setProfile]   = useState<Profile | null>(null)
-  const [loading,   setLoading]   = useState(true)
-  const [showModal, setShowModal] = useState(false)
+  const [profile,      setProfile]      = useState<Profile | null>(null)
+  const [loading,      setLoading]      = useState(true)
+  const [showModal,    setShowModal]    = useState(false)
+  const [isOwnProfile, setIsOwnProfile] = useState(false)
 
   function handleRequestClick() {
     if (!localStorage.getItem('sparring_profile_id')) {
@@ -206,6 +207,9 @@ export default function SparringProfilePage() {
   }, [id])
 
   useEffect(() => { load() }, [load])
+  useEffect(() => {
+    setIsOwnProfile(localStorage.getItem('sparring_profile_id') === id)
+  }, [id])
 
   if (loading) {
     return (
@@ -345,10 +349,21 @@ export default function SparringProfilePage() {
         </div>
 
         {/* CTA */}
-        <button onClick={handleRequestClick}
-          style={{ width: '100%', background: isCoach ? '#8080ff' : '#39FF14', border: 'none', borderRadius: 8, color: '#000', fontWeight: 900, fontSize: 16, padding: '16px', cursor: 'pointer', letterSpacing: -0.3 }}>
-          {isCoach ? 'Request a Session' : 'Request to Play'}
-        </button>
+        {isOwnProfile ? (
+          <Link href="/sparring/create" style={{
+            display: 'block', width: '100%', boxSizing: 'border-box',
+            background: '#1a1a1a', border: '1px solid #333', borderRadius: 8,
+            color: '#aaa', fontWeight: 800, fontSize: 16, padding: '16px',
+            textAlign: 'center', textDecoration: 'none', letterSpacing: -0.3,
+          }}>
+            Edit my profile
+          </Link>
+        ) : (
+          <button onClick={handleRequestClick}
+            style={{ width: '100%', background: isCoach ? '#8080ff' : '#39FF14', border: 'none', borderRadius: 8, color: '#000', fontWeight: 900, fontSize: 16, padding: '16px', cursor: 'pointer', letterSpacing: -0.3 }}>
+            {isCoach ? 'Request a Session' : 'Request to Play'}
+          </button>
+        )}
       </div>
 
       {showModal && <RequestModal profile={profile} onClose={() => setShowModal(false)} />}
