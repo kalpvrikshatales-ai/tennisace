@@ -240,9 +240,10 @@ async def create_request(body: dict):
     if not requester_name or not requester_city:
         raise HTTPException(422, "requester_name and requester_city are required")
     return await _post("sparring_requests", {
-        "to_profile_id":  to_id,
-        "requester_name": requester_name,
-        "requester_city": requester_city,
+        "to_profile_id":   to_id,
+        "from_profile_id": None,
+        "requester_name":  requester_name,
+        "requester_city":  requester_city,
     })
 
 
