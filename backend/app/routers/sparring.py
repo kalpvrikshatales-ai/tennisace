@@ -122,6 +122,20 @@ async def list_profiles(
     return {"profiles": profiles, "total": len(profiles)}
 
 
+# ── GET /sparring/profiles/by-email ──────────────────────────────────────────
+
+@router.get("/profiles/by-email")
+async def get_profile_by_email(email: str = Query(...)):
+    rows = await _get("sparring_profiles", {
+        "email":  f"eq.{email.lower().strip()}",
+        "select": "id,name,photo_url,city,country,level,role,created_at",
+        "limit":  1,
+    })
+    if not rows:
+        raise HTTPException(404, "No profile found for this email")
+    return rows[0]
+
+
 # ── GET /sparring/profiles/{id} ───────────────────────────────────────────────
 
 @router.get("/profiles/{profile_id}")

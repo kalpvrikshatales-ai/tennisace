@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 
 const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
@@ -97,8 +98,9 @@ export default function CreateSparringPage() {
   useEffect(() => {
     const p = new URLSearchParams(window.location.search)
     const from = p.get('from')
-    if (from === 'request')  setBanner('Create your profile first to send a request.')
-    if (from === 'requests') setBanner('Create your profile to access your requests.')
+    if (from === 'request')  setBanner('You need a profile to send a request.')
+    if (from === 'requests') setBanner('You need a profile to view your requests.')
+    if (from === 'login')    setBanner('No profile found for that email.')
   }, [])
 
   function handleEmailChange(val: string) {
@@ -226,8 +228,17 @@ export default function CreateSparringPage() {
       <div style={{ maxWidth: 540, margin: '0 auto', padding: '20px 16px' }}>
 
         {banner && (
-          <div style={{ background: '#1a1a0a', border: '1px solid #3a3a1a', borderRadius: 8, padding: '12px 16px', marginBottom: 20 }}>
-            <p style={{ color: '#d4b84a', fontSize: 14, fontWeight: 700, margin: 0 }}>👋 {banner}</p>
+          <div style={{ background: '#1a1a0a', border: '1px solid #3a3a1a', borderRadius: 10, padding: '16px', marginBottom: 24 }}>
+            <p style={{ color: '#d4b84a', fontSize: 14, fontWeight: 700, margin: '0 0 14px' }}>👋 {banner}</p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              <Link href="/sparring/login"
+                style={{ display: 'block', textAlign: 'center', padding: '10px', borderRadius: 6, background: '#111', border: '1px solid #444', color: '#fff', fontWeight: 700, fontSize: 13, textDecoration: 'none' }}>
+                Sign in to existing profile
+              </Link>
+              <span style={{ display: 'block', textAlign: 'center', padding: '10px', borderRadius: 6, background: '#39FF14', color: '#000', fontWeight: 800, fontSize: 13 }}>
+                Create new profile ↓
+              </span>
+            </div>
           </div>
         )}
 

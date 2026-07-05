@@ -96,12 +96,13 @@ function SentCard({ req }: { req: Request }) {
 
 export default function MyRequestsPage() {
   const router = useRouter()
-  const [email,      setEmail]      = useState<string | null>(null)
-  const [received,   setReceived]   = useState<Request[]>([])
-  const [sent,       setSent]       = useState<Request[]>([])
-  const [loading,    setLoading]    = useState(true)
-  const [acting,     setActing]     = useState<string | null>(null)
-  const [fetchError, setFetchError] = useState('')
+  const [email,           setEmail]           = useState<string | null>(null)
+  const [received,        setReceived]        = useState<Request[]>([])
+  const [sent,            setSent]            = useState<Request[]>([])
+  const [loading,         setLoading]         = useState(true)
+  const [acting,          setActing]          = useState<string | null>(null)
+  const [fetchError,      setFetchError]      = useState('')
+  const [showSignOutModal,setShowSignOutModal] = useState(false)
 
   const loadRequests = useCallback(async (em: string) => {
     setLoading(true); setFetchError('')
@@ -127,7 +128,7 @@ export default function MyRequestsPage() {
     loadRequests(em)
   }, [router, loadRequests])
 
-  function signOut() {
+  function confirmSignOut() {
     localStorage.removeItem(PROFILE_KEY)
     localStorage.removeItem(EMAIL_KEY)
     router.push('/sparring')
@@ -184,11 +185,32 @@ export default function MyRequestsPage() {
           <p style={{ color: '#555', fontSize: 13, margin: 0 }}>
             Signed in as <span style={{ color: '#fff', fontWeight: 700 }}>{email}</span>
           </p>
-          <button onClick={signOut}
+          <button onClick={() => setShowSignOutModal(true)}
             style={{ background: 'none', border: 'none', color: '#555', fontSize: 12, cursor: 'pointer' }}>
             Sign out
           </button>
         </div>
+
+        {showSignOutModal && (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: 16 }}>
+            <div style={{ background: '#111', border: '1px solid #222', borderRadius: 12, padding: 24, maxWidth: 340, width: '100%' }}>
+              <p style={{ color: '#fff', fontWeight: 900, fontSize: 18, margin: '0 0 8px' }}>Sign out?</p>
+              <p style={{ color: '#555', fontSize: 14, margin: '0 0 24px', lineHeight: 1.5 }}>
+                You can sign back in with your email anytime.
+              </p>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button onClick={() => setShowSignOutModal(false)}
+                  style={{ flex: 1, background: '#1a1a1a', border: '1px solid #333', borderRadius: 6, color: '#aaa', fontWeight: 700, fontSize: 14, padding: '11px', cursor: 'pointer' }}>
+                  Cancel
+                </button>
+                <button onClick={confirmSignOut}
+                  style={{ flex: 1, background: '#333', border: 'none', borderRadius: 6, color: '#fff', fontWeight: 800, fontSize: 14, padding: '11px', cursor: 'pointer' }}>
+                  Sign out
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div style={{ marginBottom: 28 }}>
           <p style={{ color: '#aaa', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, margin: '0 0 12px' }}>

@@ -137,6 +137,17 @@ export default function SparringDiscover({ initialProfiles }: { initialProfiles:
                 My Requests
               </Link>
               <Link
+                href="/sparring/login"
+                style={{
+                  background: 'transparent', color: '#aaa', fontWeight: 700,
+                  fontSize: 12, padding: '8px 12px', borderRadius: 6,
+                  textDecoration: 'none', whiteSpace: 'nowrap',
+                  border: '1px solid #333',
+                }}
+              >
+                Sign in
+              </Link>
+              <Link
                 href="/sparring/create"
                 style={{
                   background: '#39FF14', color: '#000', fontWeight: 800,
