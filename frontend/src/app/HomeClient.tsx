@@ -207,6 +207,8 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
     { key: 'news',     label: 'News',     icon: '📰' },
     { key: 'wimbledon',label: 'Wimbledon',icon: '🌿' },
   ]
+  const preWimbledonTabs = tabs.slice(0, 3)
+  const postWimbledonTabs = tabs.slice(3)
 
   return (
     <div className="min-h-screen">
@@ -256,7 +258,7 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
         {/* Tab nav */}
         {/* Desktop tab row only — mobile uses bottom nav */}
         <div className="max-w-3xl mx-auto hidden md:flex overflow-x-auto scrollbar-hide border-t border-gray-100">
-          {tabs.map(({ key, label, icon }) => (
+          {preWimbledonTabs.map(({ key, label, icon }) => (
             <button
               key={key}
               onClick={() => setTab(key)}
@@ -273,6 +275,27 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
                   {liveMatches.length}
                 </span>
               )}
+            </button>
+          ))}
+          <Link
+            href="/sparring"
+            className="flex-1 flex items-center justify-center gap-1.5 py-3 px-3 text-[13px] font-semibold transition-all border-b-2 border-transparent text-gray-400 hover:text-gray-600 whitespace-nowrap"
+          >
+            <span>🤝</span>
+            <span>Find a Partner</span>
+          </Link>
+          {postWimbledonTabs.map(({ key, label, icon }) => (
+            <button
+              key={key}
+              onClick={() => setTab(key)}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-3 px-3 text-[13px] font-semibold transition-all border-b-2 whitespace-nowrap ${
+                tab === key
+                  ? 'border-[#00C875] text-gray-900'
+                  : 'border-transparent text-gray-400 hover:text-gray-600'
+              }`}
+            >
+              <span>{icon}</span>
+              <span>{label}</span>
             </button>
           ))}
         </div>
