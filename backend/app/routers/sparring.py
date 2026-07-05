@@ -186,6 +186,15 @@ async def create_profile(body: dict):
     if not all([profile_body["name"], profile_body["city"], profile_body["country"], profile_body["level"]]):
         raise HTTPException(422, "name, city, country, level are required")
 
+    if profile_body.get("email"):
+        existing = await _get("sparring_profiles", {
+            "email": f"eq.{profile_body['email']}",
+            "select": "id",
+            "limit": 1,
+        })
+        if existing:
+            raise HTTPException(409, "A profile already exists for this email. Sign in instead.")
+
     profile = await _post("sparring_profiles", profile_body)
     profile_id = profile.get("id")
 

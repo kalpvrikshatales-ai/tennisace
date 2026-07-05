@@ -90,10 +90,11 @@ export default function CreateSparringPage() {
   const [otpError,      setOtpError]      = useState('')
 
   // Submit
-  const [creating,  setCreating]  = useState(false)
-  const [uploading, setUploading] = useState(false)
-  const [error,     setError]     = useState('')
-  const [banner,    setBanner]    = useState('')
+  const [creating,      setCreating]      = useState(false)
+  const [uploading,     setUploading]     = useState(false)
+  const [error,         setError]         = useState('')
+  const [banner,        setBanner]        = useState('')
+  const [alreadyExists, setAlreadyExists] = useState(false)
 
   useEffect(() => {
     const p = new URLSearchParams(window.location.search)
@@ -202,6 +203,7 @@ export default function CreateSparringPage() {
           availability,
         }),
       })
+      if (res.status === 409) { setAlreadyExists(true); return }
       if (!res.ok) { const d = await res.json(); throw new Error(d.detail ?? 'Failed to create profile') }
       const profile = await res.json()
       localStorage.setItem('sparring_profile_id', profile.id)
@@ -441,13 +443,24 @@ export default function CreateSparringPage() {
           </div>
         </div>
 
+        {alreadyExists && (
+          <div style={{ background: '#0d1a0d', border: '1px solid #1a3a1a', borderRadius: 10, padding: '18px 16px', marginBottom: 16 }}>
+            <p style={{ color: '#39FF14', fontWeight: 800, fontSize: 15, margin: '0 0 6px' }}>You already have a profile</p>
+            <p style={{ color: '#aaa', fontSize: 13, margin: '0 0 16px' }}>Sign in to access your requests and profile.</p>
+            <button onClick={() => router.push('/sparring/login')}
+              style={{ background: '#39FF14', border: 'none', borderRadius: 6, color: '#000', fontWeight: 900, fontSize: 14, padding: '11px 20px', cursor: 'pointer' }}>
+              Sign in →
+            </button>
+          </div>
+        )}
+
         {error && (
           <div style={{ background: '#2a1a1a', border: '1px solid #5a2a2a', borderRadius: 6, padding: '10px 14px', marginBottom: 16 }}>
             <p style={{ color: '#e87070', fontSize: 13, margin: 0 }}>{error}</p>
           </div>
         )}
 
-        <button onClick={submit} disabled={!emailVerified || creating}
+        {!alreadyExists && <button onClick={submit} disabled={!emailVerified || creating}
           style={{
             width: '100%', border: 'none', borderRadius: 8, fontWeight: 900, fontSize: 16, padding: '16px', letterSpacing: -0.3,
             background: emailVerified && !creating ? '#39FF14' : '#1a1a1a',
@@ -455,7 +468,7 @@ export default function CreateSparringPage() {
             cursor: emailVerified && !creating ? 'pointer' : 'not-allowed',
           }}>
           {creating ? 'Creating profile…' : emailVerified ? `Create ${role === 'coach' ? 'Coach' : 'Player'} Profile` : 'Verify your email first'}
-        </button>
+        </button>}
       </div>
     </div>
   )
