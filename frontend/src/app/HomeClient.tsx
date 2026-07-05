@@ -552,8 +552,8 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
         )}
 
         <p style={{ fontSize: 12, paddingTop: 8, textAlign: 'center', color: '#9CA3AF' }}>
-          <a href="https://instagram.com/tennisace.live" target="_blank" rel="noopener noreferrer">
-            Follow live match analysis → @tennisace.live on Instagram
+          <a href="https://instagram.com/tennisacelive" target="_blank" rel="noopener noreferrer">
+            Follow live match analysis → @tennisacelive on Instagram
           </a>
         </p>
       </main>
