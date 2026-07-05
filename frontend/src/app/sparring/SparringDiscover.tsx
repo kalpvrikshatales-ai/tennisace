@@ -61,9 +61,19 @@ function PlayerCard({ p }: { p: any }) {
         </div>
 
         <div style={{ padding: '12px 14px 14px' }}>
-          <p style={{ color: '#fff', fontWeight: 800, fontSize: 15, margin: '0 0 2px' }}>
-            {p.name}
-          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+            <p style={{ color: '#fff', fontWeight: 800, fontSize: 15, margin: 0 }}>
+              {p.name}
+            </p>
+            <span style={{
+              background: p.role === 'coach' ? '#1a1a3a' : '#0a1a0a',
+              color:      p.role === 'coach' ? '#8080ff' : '#39FF14',
+              fontSize: 10, fontWeight: 800, padding: '2px 6px', borderRadius: 4,
+              textTransform: 'uppercase', letterSpacing: 0.5, flexShrink: 0,
+            }}>
+              {p.role === 'coach' ? '🎓 Coach' : '🎾 Player'}
+            </span>
+          </div>
           <p style={{ color: '#555', fontSize: 12, margin: '0 0 10px' }}>
             {p.city}, {p.country}
           </p>

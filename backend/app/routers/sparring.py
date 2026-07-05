@@ -88,7 +88,7 @@ async def list_profiles(
 
     # email and phone intentionally excluded from public listing
     params: dict = {
-        "select": "id,name,photo_url,city,country,level,surface,play_type,bio,created_at",
+        "select": "id,name,photo_url,city,country,level,surface,play_type,bio,role,favorite_players,coaching_level,coaching_fee,created_at",
         "order":  "created_at.desc",
         "limit":  limit,
         "offset": offset,
@@ -153,21 +153,24 @@ async def create_profile(body: dict):
     availability: list = body.pop("availability", [])
 
     profile_body = {
-        "name":           body.get("name", "").strip(),
-        "photo_url":      body.get("photo_url"),
-        "city":           body.get("city", "").strip(),
-        "country":        body.get("country", "").strip(),
-        "level":          body.get("level"),
-        "surface":        body.get("surface", []),
-        "play_type":      body.get("play_type"),
-        "bio":            body.get("bio", "").strip() or None,
-        "email":          body.get("email") or None,
-        "email_verified": body.get("email_verified", False),
-        "phone":          body.get("phone") or None,
+        "name":            body.get("name", "").strip(),
+        "photo_url":       body.get("photo_url"),
+        "city":            body.get("city", "").strip(),
+        "country":         body.get("country", "").strip(),
+        "level":           body.get("level"),
+        "surface":         body.get("surface", []),
+        "play_type":       body.get("play_type") or None,
+        "bio":             body.get("bio", "").strip() or None,
+        "role":            body.get("role") or "player",
+        "favorite_players":body.get("favorite_players", "").strip() or None,
+        "coaching_level":  body.get("coaching_level", "").strip() or None,
+        "coaching_fee":    body.get("coaching_fee", "").strip() or None,
+        "email":           body.get("email") or None,
+        "email_verified":  body.get("email_verified", False),
+        "phone":           body.get("phone") or None,
     }
-    if not all([profile_body["name"], profile_body["city"], profile_body["country"],
-                profile_body["level"], profile_body["play_type"]]):
-        raise HTTPException(422, "name, city, country, level, play_type are required")
+    if not all([profile_body["name"], profile_body["city"], profile_body["country"], profile_body["level"]]):
+        raise HTTPException(422, "name, city, country, level are required")
 
     profile = await _post("sparring_profiles", profile_body)
     profile_id = profile.get("id")
@@ -202,7 +205,8 @@ async def update_profile(profile_id: str, body: dict):
 
     update_fields = {k: v for k, v in body.items()
                      if k in ("name", "photo_url", "city", "country", "level",
-                              "surface", "play_type", "bio",
+                              "surface", "play_type", "bio", "role",
+                              "favorite_players", "coaching_level", "coaching_fee",
                               "email", "email_verified", "phone")}
     if not update_fields and availability is None:
         raise HTTPException(422, "Nothing to update")
