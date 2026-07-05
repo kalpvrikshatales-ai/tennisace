@@ -2,8 +2,13 @@ from fastapi import APIRouter, HTTPException, Query
 from typing import Optional
 from pydantic import BaseModel
 import uuid
+import os
 import httpx
+import resend
 from app.services.db import _headers, _ready, SUPABASE_URL
+
+resend.api_key = os.getenv("RESEND_API_KEY", "")
+FROM = "TennisAce <noreply@tennisace.live>"
 
 router = APIRouter()
 
@@ -235,6 +240,18 @@ async def update_profile(profile_id: str, body: dict):
     return profile
 
 
+# ── email helpers ─────────────────────────────────────────────────────────────
+
+def _send(to: str, subject: str, html: str) -> None:
+    """Fire-and-forget email. Fails silently."""
+    try:
+        if not resend.api_key or not to:
+            return
+        resend.Emails.send({"from": FROM, "to": to, "subject": subject, "html": html})
+    except Exception:
+        pass
+
+
 # ── POST /sparring/requests ───────────────────────────────────────────────────
 
 class SparringRequestCreate(BaseModel):
@@ -251,7 +268,8 @@ async def create_request(body: SparringRequestCreate):
     requester_city = body.requester_city.strip()
     if not requester_name or not requester_city:
         raise HTTPException(422, "requester_name and requester_city are required")
-    return await _post("sparring_requests", {
+
+    result = await _post("sparring_requests", {
         "to_profile_id":   str(body.to_profile_id),
         "from_profile_id": str(body.from_profile_id) if body.from_profile_id else None,
         "requester_name":  requester_name,
@@ -259,6 +277,35 @@ async def create_request(body: SparringRequestCreate):
         "from_email":      body.from_email or None,
         "from_phone":      body.from_phone or None,
     })
+
+    # Notify profile owner — fetch their email then send
+    owner_rows = await _get("sparring_profiles", {
+        "id":     f"eq.{body.to_profile_id}",
+        "select": "email",
+        "limit":  1,
+    })
+    owner_email = owner_rows[0].get("email") if owner_rows else None
+    _send(
+        to=owner_email,
+        subject="Someone wants to play tennis with you 🎾",
+        html=f"""
+        <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#f9f9f9;border-radius:8px">
+          <h2 style="margin:0 0 8px;color:#000">New sparring request</h2>
+          <p style="color:#444;margin:0 0 20px">
+            <strong>{requester_name}</strong> from <strong>{requester_city}</strong>
+            wants to hit with you on TennisAce.
+          </p>
+          <a href="https://tennisace.live/sparring/my-requests"
+             style="display:inline-block;background:#39FF14;color:#000;font-weight:800;
+                    padding:12px 24px;border-radius:6px;text-decoration:none;font-size:15px">
+            See request &amp; respond →
+          </a>
+          <p style="color:#999;font-size:12px;margin:24px 0 0">TennisAce Sparring</p>
+        </div>
+        """,
+    )
+
+    return result
 
 
 # ── GET /sparring/requests/received ──────────────────────────────────────────
@@ -339,10 +386,10 @@ async def update_request(request_id: str, body: dict):
     if status not in ("accepted", "declined"):
         raise HTTPException(422, "status must be 'accepted' or 'declined'")
 
-    # Fetch request before patching so we have profile id and from_phone
+    # Fetch request before patching so we have profile id, from_phone, from_email
     req_rows = await _get("sparring_requests", {
         "id":     f"eq.{request_id}",
-        "select": "to_profile_id,from_phone",
+        "select": "to_profile_id,from_phone,from_email,requester_name",
         "limit":  1,
     })
 
@@ -350,13 +397,74 @@ async def update_request(request_id: str, body: dict):
 
     if status == "accepted" and req_rows:
         req = req_rows[0]
-        # Fetch profile owner phone for mutual reveal
+        # Fetch profile owner name + phone for mutual reveal
         profile_rows = await _get("sparring_profiles", {
             "id":     f"eq.{req['to_profile_id']}",
-            "select": "phone",
+            "select": "name,phone",
             "limit":  1,
         })
-        updated["to_phone"]   = profile_rows[0].get("phone") if profile_rows else None
-        updated["from_phone"] = req.get("from_phone")
+        owner        = profile_rows[0] if profile_rows else {}
+        to_phone     = owner.get("phone")
+        from_phone   = req.get("from_phone")
+        from_email   = req.get("from_email")
+        requester_name = updated.get("requester_name") or req.get("requester_name", "Your partner")
+        owner_name   = owner.get("name", "Your partner")
+
+        updated["to_phone"]   = to_phone
+        updated["from_phone"] = from_phone
+
+        # Re-fetch request for requester_name if not on updated
+        if not requester_name:
+            req_detail = await _get("sparring_requests", {
+                "id": f"eq.{request_id}", "select": "requester_name", "limit": 1,
+            })
+            requester_name = req_detail[0].get("requester_name", "Your partner") if req_detail else "Your partner"
+
+        wa_from = f"https://wa.me/{from_phone.lstrip('+').replace(' ', '')}" if from_phone else None
+        wa_to   = f"https://wa.me/{to_phone.lstrip('+').replace(' ', '')}"   if to_phone   else None
+
+        def _phone_line(phone: str | None, wa: str | None) -> str:
+            if not phone:
+                return "<p style='color:#555'>No phone number provided.</p>"
+            link = f'<a href="{wa}" style="color:#39FF14">Message on WhatsApp →</a>' if wa else ""
+            return f"<p style='color:#000;font-size:18px;font-weight:800'>{phone}</p>{link}"
+
+        # Email to profile owner
+        owner_email_rows = await _get("sparring_profiles", {
+            "id": f"eq.{req['to_profile_id']}", "select": "email", "limit": 1,
+        })
+        owner_email = owner_email_rows[0].get("email") if owner_email_rows else None
+        _send(
+            to=owner_email,
+            subject=f"You accepted {requester_name}'s request 🎾",
+            html=f"""
+            <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#f9f9f9;border-radius:8px">
+              <h2 style="margin:0 0 8px;color:#000">You're on! 🎾</h2>
+              <p style="color:#444;margin:0 0 16px">
+                You accepted <strong>{requester_name}</strong>'s request.
+                Here's their contact:
+              </p>
+              {_phone_line(from_phone, wa_from)}
+              <p style="color:#999;font-size:12px;margin:24px 0 0">TennisAce Sparring</p>
+            </div>
+            """,
+        )
+
+        # Email to requester
+        _send(
+            to=from_email,
+            subject=f"{owner_name} accepted your request! 🎾",
+            html=f"""
+            <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#f9f9f9;border-radius:8px">
+              <h2 style="margin:0 0 8px;color:#000">Your request was accepted! 🎾</h2>
+              <p style="color:#444;margin:0 0 16px">
+                <strong>{owner_name}</strong> accepted your sparring request.
+                Here's their contact:
+              </p>
+              {_phone_line(to_phone, wa_to)}
+              <p style="color:#999;font-size:12px;margin:24px 0 0">TennisAce Sparring</p>
+            </div>
+            """,
+        )
 
     return updated
