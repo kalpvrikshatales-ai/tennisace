@@ -259,9 +259,16 @@ export default function SparringProfilePage() {
           <div style={{
             width: '100%', height: '100%',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 80, color: '#2a2a2a',
+            background: '#0a1a0a',
           }}>
-            🎾
+            <div style={{
+              width: 100, height: 100, borderRadius: '50%',
+              background: '#39FF14',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 42, fontWeight: 900, color: '#000',
+            }}>
+              {(profile.name ?? '?')[0].toUpperCase()}
+            </div>
           </div>
         )}
         {/* Bottom gradient */}

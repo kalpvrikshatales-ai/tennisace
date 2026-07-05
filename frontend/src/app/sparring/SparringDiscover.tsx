@@ -38,9 +38,16 @@ function PlayerCard({ p }: { p: any }) {
             <div style={{
               width: '100%', height: '100%',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 48, color: '#333',
+              background: '#0a1a0a',
             }}>
-              🎾
+              <div style={{
+                width: 64, height: 64, borderRadius: '50%',
+                background: '#39FF14',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 26, fontWeight: 900, color: '#000',
+              }}>
+                {(p.name ?? '?')[0].toUpperCase()}
+              </div>
             </div>
           )}
           <span style={{

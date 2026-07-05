@@ -40,10 +40,19 @@ const NewsIcon = (active: boolean) => (
     <path d="M10 9h6M10 13h6M10 17h4" stroke={active ? '#00C875' : 'currentColor'} opacity={active ? 0.7 : 0.25} />
   </svg>
 )
+const SparringIcon = (active: boolean) => (
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="8" stroke={active ? '#39FF14' : 'currentColor'} opacity={active ? 1 : 0.35} />
+    <path d="M6.5 6.5 C9 9 15 9 17.5 6.5" stroke={active ? '#39FF14' : 'currentColor'} opacity={active ? 0.8 : 0.25} />
+    <path d="M6.5 17.5 C9 15 15 15 17.5 17.5" stroke={active ? '#39FF14' : 'currentColor'} opacity={active ? 0.8 : 0.25} />
+    <path d="M4 12 h16" stroke={active ? '#39FF14' : 'currentColor'} opacity={active ? 0.8 : 0.25} />
+  </svg>
+)
 
 export default function BottomNav({ tab, setTab, liveCount }: Props) {
   const pathname = usePathname()
-  const isLounges = pathname === '/lounges'
+  const isLounges  = pathname === '/lounges'
+  const isSparring = pathname === '/sparring' || pathname.startsWith('/sparring/')
 
   const tabItems = [
     { key: 'live' as Tab, label: 'Live', icon: LiveIcon },
@@ -81,6 +90,18 @@ export default function BottomNav({ tab, setTab, liveCount }: Props) {
             </button>
           )
         })}
+
+        {/* Sparring */}
+        <Link href="/sparring"
+          className="flex flex-col items-center justify-center gap-1 flex-1 min-h-[56px] relative transition-all active:scale-95">
+          {isSparring && (
+            <span className="absolute inset-x-2 inset-y-0 rounded-2xl bg-[#39FF14]/10" />
+          )}
+          <div className="relative z-10">{SparringIcon(isSparring)}</div>
+          <span className={`text-[11px] font-bold z-10 ${isSparring ? 'text-[#39FF14]' : 'text-gray-400'}`}>
+            Sparring
+          </span>
+        </Link>
 
         {/* Lounges */}
         <Link href="/lounges"

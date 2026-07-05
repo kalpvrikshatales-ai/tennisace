@@ -1,5 +1,7 @@
 from fastapi import APIRouter, HTTPException, Query
 from typing import Optional
+from pydantic import BaseModel
+import uuid
 import httpx
 from app.services.db import _headers, _ready, SUPABASE_URL
 
@@ -230,18 +232,21 @@ async def update_profile(profile_id: str, body: dict):
 
 # ── POST /sparring/requests ───────────────────────────────────────────────────
 
+class SparringRequestCreate(BaseModel):
+    to_profile_id:   uuid.UUID
+    from_profile_id: Optional[uuid.UUID] = None
+    requester_name:  str
+    requester_city:  str
+
 @router.post("/requests", status_code=201)
-async def create_request(body: dict):
-    to_id          = body.get("to_profile_id")
-    requester_name = (body.get("requester_name") or "").strip()
-    requester_city = (body.get("requester_city") or "").strip()
-    if not to_id:
-        raise HTTPException(422, "to_profile_id is required")
+async def create_request(body: SparringRequestCreate):
+    requester_name = body.requester_name.strip()
+    requester_city = body.requester_city.strip()
     if not requester_name or not requester_city:
         raise HTTPException(422, "requester_name and requester_city are required")
     return await _post("sparring_requests", {
-        "to_profile_id":   to_id,
-        "from_profile_id": None,
+        "to_profile_id":   str(body.to_profile_id),
+        "from_profile_id": str(body.from_profile_id) if body.from_profile_id else None,
         "requester_name":  requester_name,
         "requester_city":  requester_city,
     })
