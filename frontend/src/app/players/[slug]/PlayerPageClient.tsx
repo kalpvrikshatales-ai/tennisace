@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getFlag } from '@/lib/flags'
 import { PlayStyleSection, StrengthsWeaknesses, FavoriteSurface, TitlesByService, RecentFormGraph } from '@/components/PlayerInsights'
-import { getPlayer } from '@/lib/api-reliable'
+import { toSlug } from '@/lib/playerSlug'
 
 const SURFACE_DOT: Record<string, string> = {
   Grass: '#22C55E', Clay: '#F97316', Hard: '#9CA3AF',
@@ -52,19 +52,15 @@ function MatchRow({ m, playerKey }: { m: any; playerKey: number }) {
   const isPlayer1 = m.player1_key === playerKey
   const won = (m.winner === 'First Player' && isPlayer1) || (m.winner === 'Second Player' && !isPlayer1)
   const opp = isPlayer1 ? m.player2 : m.player1
-  const oppKey = isPlayer1 ? m.player2_key : m.player1_key
   const oppImg = isPlayer1 ? m.player2_img : m.player1_img
   const surfDot = SURFACE_DOT[m.surface || 'Hard'] || '#9CA3AF'
 
   return (
     <Link href={`/matches/${m.match_id}`}>
       <div className="card px-4 py-3 flex items-center gap-3 cursor-pointer card-glow">
-        {/* Result badge */}
         <span className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-black flex-shrink-0 ${
           won ? 'bg-[#00C875]/15 text-[#00C875]' : 'bg-gray-100 text-gray-500'
         }`}>{won ? 'W' : 'L'}</span>
-
-        {/* Opponent */}
         <div className="flex items-center gap-2 flex-1 min-w-0">
           {oppImg && <img src={oppImg} alt="" className="w-7 h-7 rounded-full object-cover bg-gray-100 flex-shrink-0"
             onError={e => e.currentTarget.style.display='none'} />}
@@ -76,8 +72,6 @@ function MatchRow({ m, playerKey }: { m: any; playerKey: number }) {
             </div>
           </div>
         </div>
-
-        {/* Score */}
         <div className="text-right flex-shrink-0">
           <p className="text-[12px] font-bold text-gray-700 tabular-nums">{m.score || '-'}</p>
           <p className="text-[10px] text-gray-400">{m.date}</p>
@@ -114,14 +108,13 @@ function PredictionCard({ prediction }: { prediction: any }) {
   if (!prediction) return null
   const prob = prediction.win_probability
   const color = prob >= 60 ? '#00C875' : prob >= 45 ? '#F59E0B' : '#EF4444'
-  const oppKey = prediction.opponent_key
   return (
     <div className="card p-4">
       <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">Match Prediction</p>
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1 min-w-0 pr-3">
-          {oppKey ? (
-            <Link href={`/players/${oppKey}`}>
+          {prediction.opponent ? (
+            <Link href={`/players/${toSlug(prediction.opponent)}`}>
               <p className="text-[14px] font-bold text-gray-900 hover:text-[#00C875] truncate">
                 vs {prediction.opponent}
               </p>
@@ -154,43 +147,10 @@ function PredictionCard({ prediction }: { prediction: any }) {
   )
 }
 
-export default function PlayerPage() {
-  const { key } = useParams<{ key: string }>()
+export default function PlayerPageClient({ player, playerKey }: { player: any; playerKey: number }) {
   const router = useRouter()
-  const [player, setPlayer] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'overview' | 'insights' | 'stats' | 'matches'>('matches')
 
-  useEffect(() => {
-    getPlayer(key)
-      .then(d => { setPlayer(d); setLoading(false) })
-      .catch(() => setLoading(false))
-  }, [key])
-
-  if (loading) return (
-    <div className="min-h-screen">
-      <header className="sticky top-0 z-20">
-        <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
-          <button onClick={() => router.back()} className="text-gray-400 hover:text-gray-700 text-sm">← Back</button>
-        </div>
-      </header>
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-3">
-        {[...Array(4)].map((_, i) => <div key={i} className="h-24 rounded-2xl animate-pulse bg-gray-100" />)}
-      </div>
-    </div>
-  )
-
-  if (!player?.player_key) return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <p className="text-4xl mb-4">🎾</p>
-        <p className="text-gray-500">Player not found</p>
-        <button onClick={() => router.back()} className="mt-4 text-[#00C875] font-semibold">← Go back</button>
-      </div>
-    </div>
-  )
-
-  // Parse stats
   const allStats = player.stats || []
   const singlesStats = allStats.filter((s: any) => s.type === 'singles')
     .sort((a: any, b: any) => parseInt(b.season) - parseInt(a.season))
@@ -207,7 +167,6 @@ export default function PlayerPage() {
   const careerWinPct = careerTotals.won + careerTotals.lost > 0
     ? Math.round(careerTotals.won / (careerTotals.won + careerTotals.lost) * 100) : 0
 
-  // Prize money format
   const formatMoney = (usd: number) => {
     if (usd >= 1_000_000) return `$${(usd / 1_000_000).toFixed(1)}M`
     if (usd >= 1_000) return `$${Math.round(usd / 1_000)}K`
@@ -238,7 +197,7 @@ export default function PlayerPage() {
 
       <main className="max-w-2xl mx-auto px-4 pb-nav md:pb-8">
 
-        {/* ── Player hero ── */}
+        {/* Player hero */}
         <div className="flex items-start gap-4 mb-6 pt-2">
           {player.player_logo ? (
             <img src={player.player_logo} alt={player.player_full_name || player.player_name}
@@ -283,7 +242,7 @@ export default function PlayerPage() {
           </div>
         </div>
 
-        {/* ── Quick stats row ── */}
+        {/* Quick stats row */}
         <div className="grid grid-cols-4 gap-2 mb-6">
           <StatBox label="Rank" value={player.current_rank || currentYear?.rank} sub="ATP" />
           <StatBox label="Win%" value={`${careerWinPct}%`} />
@@ -291,7 +250,7 @@ export default function PlayerPage() {
           <StatBox label="GS" value={player.grand_slams ?? '—'} />
         </div>
 
-        {/* ── Tabs ── */}
+        {/* Tabs */}
         <div className="flex gap-0 border-b border-gray-200 mb-5">
           {tabs.map(t => (
             <button key={t.key} onClick={() => setActiveTab(t.key as any)}
@@ -303,10 +262,9 @@ export default function PlayerPage() {
           ))}
         </div>
 
-        {/* ── Overview tab ── */}
+        {/* Overview tab */}
         {activeTab === 'overview' && (
           <div className="space-y-5">
-            {/* Personal info */}
             <div className="card p-4">
               <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">Personal</p>
               <InfoRow label="Born" value={player.player_bday} icon="🎂" />
@@ -320,7 +278,6 @@ export default function PlayerPage() {
               <InfoRow label="Coach" value={player.coach} icon="👨‍🏫" />
             </div>
 
-            {/* Career info */}
             <div className="card p-4">
               <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">Career</p>
               <InfoRow label="Career High" value={player.career_high ? `#${player.career_high}` : null} icon="🏆" />
@@ -331,7 +288,6 @@ export default function PlayerPage() {
               <InfoRow label="Career W/L" value={`${careerTotals.won}W ${careerTotals.lost}L (${careerWinPct}%)`} icon="📈" />
             </div>
 
-            {/* This year */}
             {currentYear && (
               <div className="card p-4">
                 <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">
@@ -343,7 +299,6 @@ export default function PlayerPage() {
               </div>
             )}
 
-            {/* Surface records */}
             <div className="card p-4">
               <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-4">Surface Records (Career)</p>
               <div className="space-y-4">
@@ -355,7 +310,7 @@ export default function PlayerPage() {
           </div>
         )}
 
-        {/* ── Insights tab ── */}
+        {/* Insights tab */}
         {activeTab === 'insights' && (
           <div className="space-y-5">
             <PlayStyleSection player={player} />
@@ -366,7 +321,7 @@ export default function PlayerPage() {
           </div>
         )}
 
-        {/* ── Stats tab ── */}
+        {/* Stats tab */}
         {activeTab === 'stats' && (
           <div className="space-y-3">
             <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Season-by-Season Singles</p>
@@ -417,24 +372,19 @@ export default function PlayerPage() {
           </div>
         )}
 
-        {/* ── Matches tab ── */}
+        {/* Matches tab */}
         {activeTab === 'matches' && (
           <div className="space-y-4">
-            {/* Form streak */}
             <FormStreak form={player.form} />
-
-            {/* Prediction */}
             <PredictionCard prediction={player.prediction} />
 
-            {/* Upcoming */}
             {player.upcoming_matches?.length > 0 && (
               <div>
                 <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">Upcoming</p>
                 <div className="space-y-2">
                   {player.upcoming_matches.map((m: any, i: number) => {
-                    const playerIsP1 = parseInt(key) === m.player1_key
+                    const playerIsP1 = playerKey === m.player1_key
                     const opp = playerIsP1 ? m.player2 : m.player1
-                    const oppKey = playerIsP1 ? m.player2_key : m.player1_key
                     const oppImg = playerIsP1 ? m.player2_img : m.player1_img
                     return (
                       <Link key={i} href={`/matches/${m.match_id}`}>
@@ -446,8 +396,8 @@ export default function PlayerPage() {
                                 onError={e => e.currentTarget.style.display = 'none'} />
                             )}
                             <div className="min-w-0">
-                              {oppKey ? (
-                                <Link href={`/players/${oppKey}`} onClick={e => e.stopPropagation()}>
+                              {opp ? (
+                                <Link href={`/players/${toSlug(opp)}`} onClick={e => e.stopPropagation()}>
                                   <p className="text-[13px] font-bold text-gray-900 hover:text-[#00C875] truncate">{opp}</p>
                                 </Link>
                               ) : (
@@ -468,13 +418,12 @@ export default function PlayerPage() {
               </div>
             )}
 
-            {/* Recent results */}
             {player.recent_matches?.length > 0 && (
               <div>
                 <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">Recent Results</p>
                 <div className="space-y-2">
                   {player.recent_matches.map((m: any, i: number) => (
-                    <MatchRow key={i} m={m} playerKey={parseInt(key)} />
+                    <MatchRow key={i} m={m} playerKey={playerKey} />
                   ))}
                 </div>
               </div>

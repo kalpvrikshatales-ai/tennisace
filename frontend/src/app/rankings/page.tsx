@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { getFlag } from '@/lib/flags'
 import VirtualizedRankingsList from '@/components/VirtualizedRankingsList'
 import { getRankings, getAitaRankings } from '@/lib/api-reliable'
+import { toSlug } from '@/lib/playerSlug'
 
 type Tour = 'ATP' | 'WTA' | 'AITA' | 'ITF'
 
@@ -188,6 +189,7 @@ export default function RankingsPage() {
           </button>
           <img src="/logo.png" alt="TennisAce" className="h-7 w-7 rounded-xl object-cover flex-shrink-0" />
           <span className="text-[15px] font-black text-gray-900">Rankings</span>
+          <Link href="/players" className="ml-auto text-[13px] font-bold text-[#00C875]">Players →</Link>
         </div>
 
         {/* Tour tabs */}
@@ -318,7 +320,7 @@ export default function RankingsPage() {
               <div className="space-y-1.5">
                 {visible.map((r, i) => (
                   <div key={i} className={`card flex items-center gap-3 px-4 py-3 ${(r as any).player_key ? 'cursor-pointer card-glow' : ''}`}
-                    onClick={() => (r as any).player_key && router.push(`/players/${(r as any).player_key}`)}>
+                    onClick={() => (r as any).player_key && router.push(`/players/${toSlug(r.player)}`)}>
                     {/* Rank */}
                     <div className="w-9 flex-shrink-0 text-center">
                       <span className={`text-[14px] font-black tabular-nums ${

@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { getFlag } from '@/lib/flags'
+import { toSlug } from '@/lib/playerSlug'
 import { useState, useEffect, useRef } from 'react'
 
 interface RankEntry {
@@ -67,7 +68,7 @@ export default function VirtualizedRankingsList({ items, height }: Props) {
                   {getFlag(item.country)}
                 </span>
               )}
-              <Link href={item.player_key ? `/players/${item.player_key}` : '#'}>
+              <Link href={item.player ? `/players/${toSlug(item.player)}` : '#'}>
                 <span className="text-xs font-semibold text-gray-900 truncate hover:text-blue-600">
                   {item.player}
                 </span>

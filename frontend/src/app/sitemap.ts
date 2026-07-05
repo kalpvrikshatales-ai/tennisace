@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next'
 import type { Match } from '@/types'
 import { matchToSlug } from '@/lib/matchSlug'
+import { toSlug } from '@/lib/playerSlug'
 
 const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
 
@@ -15,6 +16,12 @@ const STATIC_ROUTES: MetadataRoute.Sitemap = [
     url: 'https://tennisace.live/rankings',
     lastModified: new Date(),
     changeFrequency: 'hourly',
+    priority: 0.8,
+  },
+  {
+    url: 'https://tennisace.live/players',
+    lastModified: new Date(),
+    changeFrequency: 'weekly',
     priority: 0.8,
   },
   {
@@ -33,6 +40,7 @@ const STATIC_ROUTES: MetadataRoute.Sitemap = [
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let matchEntries: MetadataRoute.Sitemap = []
+  let playerEntries: MetadataRoute.Sitemap = []
 
   try {
     const res = await fetch(`${BACKEND}/matches/live`, {
@@ -54,5 +62,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Backend unavailable — static routes still returned below
   }
 
-  return [...STATIC_ROUTES, ...matchEntries]
+  try {
+    const res = await fetch(`${BACKEND}/players/rankings?type=ATP&limit=50`, {
+      next: { revalidate: 86400 },
+    })
+    if (res.ok) {
+      const data = await res.json()
+      playerEntries = (data.rankings ?? [])
+        .filter((r: any) => r.player && r.player_key)
+        .map((r: any) => ({
+          url: `https://tennisace.live/players/${toSlug(r.player)}`,
+          lastModified: new Date(),
+          changeFrequency: 'weekly' as const,
+          priority: 0.8,
+        }))
+    }
+  } catch {}
+
+  return [...STATIC_ROUTES, ...matchEntries, ...playerEntries]
 }
