@@ -88,19 +88,32 @@ function RequestModal({
   profile: Profile
   onClose: () => void
 }) {
-  const [fromId, setFromId] = useState('')
+  const [requesterName, setRequesterName] = useState('')
+  const [requesterCity, setRequesterCity] = useState('')
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
 
+  const fieldStyle = {
+    width: '100%', boxSizing: 'border-box' as const,
+    background: '#1a1a1a', border: '1px solid #333', borderRadius: 6,
+    color: '#fff', padding: '10px 12px', fontSize: 14,
+    outline: 'none', marginBottom: 12,
+  }
+
   const send = async () => {
-    if (!fromId.trim()) { setError('Enter your profile ID'); return }
+    if (!requesterName.trim()) { setError('Enter your name'); return }
+    if (!requesterCity.trim()) { setError('Enter your city'); return }
     setLoading(true); setError('')
     try {
       const res = await fetch(`${BACKEND}/sparring/requests`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ from_profile_id: fromId.trim(), to_profile_id: profile.id }),
+        body: JSON.stringify({
+          to_profile_id:  profile.id,
+          requester_name: requesterName.trim(),
+          requester_city: requesterCity.trim(),
+        }),
       })
       if (!res.ok) { const d = await res.json(); throw new Error(d.detail ?? 'Failed') }
       setSent(true)
@@ -148,18 +161,22 @@ function RequestModal({
               Send a sparring request to {profile.name}
             </p>
             <label style={{ color: '#aaa', fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 6 }}>
-              Your profile ID
+              Your name
             </label>
             <input
-              value={fromId}
-              onChange={e => setFromId(e.target.value)}
-              placeholder="Paste your profile ID…"
-              style={{
-                width: '100%', boxSizing: 'border-box',
-                background: '#1a1a1a', border: '1px solid #333', borderRadius: 6,
-                color: '#fff', padding: '10px 12px', fontSize: 14,
-                outline: 'none', marginBottom: 12,
-              }}
+              value={requesterName}
+              onChange={e => setRequesterName(e.target.value)}
+              placeholder="e.g. Alex"
+              style={fieldStyle}
+            />
+            <label style={{ color: '#aaa', fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 6 }}>
+              Your city
+            </label>
+            <input
+              value={requesterCity}
+              onChange={e => setRequesterCity(e.target.value)}
+              placeholder="e.g. London"
+              style={fieldStyle}
             />
             {error && (
               <p style={{ color: '#e87070', fontSize: 12, margin: '0 0 12px' }}>{error}</p>

@@ -232,13 +232,18 @@ async def update_profile(profile_id: str, body: dict):
 
 @router.post("/requests", status_code=201)
 async def create_request(body: dict):
-    from_id = body.get("from_profile_id")
-    to_id   = body.get("to_profile_id")
-    if not from_id or not to_id:
-        raise HTTPException(422, "from_profile_id and to_profile_id are required")
-    if from_id == to_id:
-        raise HTTPException(422, "Cannot request to play with yourself")
-    return await _post("sparring_requests", {"from_profile_id": from_id, "to_profile_id": to_id})
+    to_id          = body.get("to_profile_id")
+    requester_name = (body.get("requester_name") or "").strip()
+    requester_city = (body.get("requester_city") or "").strip()
+    if not to_id:
+        raise HTTPException(422, "to_profile_id is required")
+    if not requester_name or not requester_city:
+        raise HTTPException(422, "requester_name and requester_city are required")
+    return await _post("sparring_requests", {
+        "to_profile_id":  to_id,
+        "requester_name": requester_name,
+        "requester_city": requester_city,
+    })
 
 
 # ── PUT /sparring/requests/{id} ───────────────────────────────────────────────
