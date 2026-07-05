@@ -81,6 +81,15 @@ function AvailabilityGrid({ availability }: { availability: { day: string; time:
   )
 }
 
+const COUNTRY_CODES = [
+  { code: '+91', flag: '🇮🇳' },
+  { code: '+1',  flag: '🇺🇸' },
+  { code: '+44', flag: '🇬🇧' },
+  { code: '+61', flag: '🇦🇺' },
+  { code: '+971',flag: '🇦🇪' },
+  { code: '+65', flag: '🇸🇬' },
+]
+
 function RequestModal({
   profile,
   onClose,
@@ -90,6 +99,8 @@ function RequestModal({
 }) {
   const [requesterName, setRequesterName] = useState('')
   const [requesterCity, setRequesterCity] = useState('')
+  const [countryCode,   setCountryCode]   = useState('+91')
+  const [phoneNumber,   setPhoneNumber]   = useState('')
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
@@ -104,6 +115,7 @@ function RequestModal({
   const send = async () => {
     if (!requesterName.trim()) { setError('Enter your name'); return }
     if (!requesterCity.trim()) { setError('Enter your city'); return }
+    if (!phoneNumber.trim())   { setError('Enter your phone number'); return }
     setLoading(true); setError('')
     try {
       const res = await fetch(`${BACKEND}/sparring/requests`, {
@@ -113,6 +125,7 @@ function RequestModal({
           to_profile_id:  profile.id,
           requester_name: requesterName.trim(),
           requester_city: requesterCity.trim(),
+          from_phone:     `${countryCode}${phoneNumber.trim()}`,
         }),
       })
       if (!res.ok) { const d = await res.json(); throw new Error(d.detail ?? 'Failed') }
@@ -142,8 +155,11 @@ function RequestModal({
             <p style={{ color: '#fff', fontWeight: 800, fontSize: 18, margin: '0 0 8px' }}>
               Request sent!
             </p>
-            <p style={{ color: '#555', fontSize: 14, margin: '0 0 20px' }}>
+            <p style={{ color: '#555', fontSize: 14, margin: '0 0 4px' }}>
               {profile.name} will see your request.
+            </p>
+            <p style={{ color: '#444', fontSize: 13, margin: '0 0 20px' }}>
+              Your number is shared only if they accept.
             </p>
             <button onClick={onClose} style={{
               background: '#39FF14', color: '#000', fontWeight: 800,
@@ -160,6 +176,7 @@ function RequestModal({
             <p style={{ color: '#555', fontSize: 13, margin: '0 0 20px' }}>
               Send a sparring request to {profile.name}
             </p>
+
             <label style={{ color: '#aaa', fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 6 }}>
               Your name
             </label>
@@ -169,6 +186,7 @@ function RequestModal({
               placeholder="e.g. Alex"
               style={fieldStyle}
             />
+
             <label style={{ color: '#aaa', fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 6 }}>
               Your city
             </label>
@@ -178,6 +196,35 @@ function RequestModal({
               placeholder="e.g. London"
               style={fieldStyle}
             />
+
+            <label style={{ color: '#aaa', fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 6 }}>
+              Your phone number
+            </label>
+            <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
+              <select
+                value={countryCode}
+                onChange={e => setCountryCode(e.target.value)}
+                style={{
+                  background: '#1a1a1a', border: '1px solid #333', borderRadius: 6,
+                  color: '#fff', padding: '10px 6px', fontSize: 13, outline: 'none', flexShrink: 0,
+                }}
+              >
+                {COUNTRY_CODES.map(c => (
+                  <option key={c.code} value={c.code}>{c.flag} {c.code}</option>
+                ))}
+              </select>
+              <input
+                value={phoneNumber}
+                onChange={e => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
+                placeholder="Phone number"
+                inputMode="tel"
+                style={{ ...fieldStyle, flex: 1, marginBottom: 0 }}
+              />
+            </div>
+            <p style={{ color: '#444', fontSize: 11, margin: '0 0 14px' }}>
+              Shared only if {profile.name} accepts
+            </p>
+
             {error && (
               <p style={{ color: '#e87070', fontSize: 12, margin: '0 0 12px' }}>{error}</p>
             )}

@@ -114,16 +114,29 @@ export default function SparringDiscover({ initialProfiles }: { initialProfiles:
                 Find a hitting partner near you
               </p>
             </div>
-            <Link
-              href="/sparring/create"
-              style={{
-                background: '#39FF14', color: '#000', fontWeight: 800,
-                fontSize: 13, padding: '9px 16px', borderRadius: 6,
-                textDecoration: 'none', whiteSpace: 'nowrap',
-              }}
-            >
-              + Add my profile
-            </Link>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <Link
+                href="/sparring/my-requests"
+                style={{
+                  background: 'transparent', color: '#aaa', fontWeight: 700,
+                  fontSize: 12, padding: '8px 12px', borderRadius: 6,
+                  textDecoration: 'none', whiteSpace: 'nowrap',
+                  border: '1px solid #333',
+                }}
+              >
+                My Requests
+              </Link>
+              <Link
+                href="/sparring/create"
+                style={{
+                  background: '#39FF14', color: '#000', fontWeight: 800,
+                  fontSize: 13, padding: '9px 16px', borderRadius: 6,
+                  textDecoration: 'none', whiteSpace: 'nowrap',
+                }}
+              >
+                + Add my profile
+              </Link>
+            </div>
           </div>
 
           <Suspense fallback={null}>
