@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 
 const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
 
@@ -82,7 +82,9 @@ const COUNTRY_CODES = [
 function RequestModal({ profile, onClose }: { profile: Profile; onClose: () => void }) {
   const [requesterName, setRequesterName] = useState('')
   const [requesterCity, setRequesterCity] = useState('')
-  const [fromEmail,     setFromEmail]     = useState('')
+  const [fromEmail,     setFromEmail]     = useState(() =>
+    typeof window !== 'undefined' ? (localStorage.getItem('sparring_email') ?? '') : ''
+  )
   const [countryCode,   setCountryCode]   = useState('+91')
   const [phoneNumber,   setPhoneNumber]   = useState('')
   const [loading, setLoading] = useState(false)
@@ -105,11 +107,12 @@ function RequestModal({ profile, onClose }: { profile: Profile; onClose: () => v
       const res = await fetch(`${BACKEND}/sparring/requests`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          to_profile_id:  profile.id,
-          requester_name: requesterName.trim(),
-          requester_city: requesterCity.trim(),
-          from_email:     fromEmail.trim().toLowerCase(),
-          from_phone:     phoneNumber.trim() ? `${countryCode}${phoneNumber.trim()}` : undefined,
+          to_profile_id:   profile.id,
+          from_profile_id: localStorage.getItem('sparring_profile_id') || undefined,
+          requester_name:  requesterName.trim(),
+          requester_city:  requesterCity.trim(),
+          from_email:      fromEmail.trim().toLowerCase(),
+          from_phone:      phoneNumber.trim() ? `${countryCode}${phoneNumber.trim()}` : undefined,
         }),
       })
       if (!res.ok) { const d = await res.json(); throw new Error(d.detail ?? 'Failed') }
@@ -180,10 +183,19 @@ function RequestModal({ profile, onClose }: { profile: Profile; onClose: () => v
 }
 
 export default function SparringProfilePage() {
-  const { id } = useParams<{ id: string }>()
+  const { id }    = useParams<{ id: string }>()
+  const router    = useRouter()
   const [profile,   setProfile]   = useState<Profile | null>(null)
   const [loading,   setLoading]   = useState(true)
   const [showModal, setShowModal] = useState(false)
+
+  function handleRequestClick() {
+    if (!localStorage.getItem('sparring_profile_id')) {
+      router.push('/sparring/create?from=request')
+      return
+    }
+    setShowModal(true)
+  }
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -333,7 +345,7 @@ export default function SparringProfilePage() {
         </div>
 
         {/* CTA */}
-        <button onClick={() => setShowModal(true)}
+        <button onClick={handleRequestClick}
           style={{ width: '100%', background: isCoach ? '#8080ff' : '#39FF14', border: 'none', borderRadius: 8, color: '#000', fontWeight: 900, fontSize: 16, padding: '16px', cursor: 'pointer', letterSpacing: -0.3 }}>
           {isCoach ? 'Request a Session' : 'Request to Play'}
         </button>

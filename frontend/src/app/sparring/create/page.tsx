@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
@@ -92,6 +92,14 @@ export default function CreateSparringPage() {
   const [creating,  setCreating]  = useState(false)
   const [uploading, setUploading] = useState(false)
   const [error,     setError]     = useState('')
+  const [banner,    setBanner]    = useState('')
+
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search)
+    const from = p.get('from')
+    if (from === 'request')  setBanner('Create your profile first to send a request.')
+    if (from === 'requests') setBanner('Create your profile to access your requests.')
+  }, [])
 
   function handleEmailChange(val: string) {
     setEmail(val)
@@ -194,8 +202,8 @@ export default function CreateSparringPage() {
       })
       if (!res.ok) { const d = await res.json(); throw new Error(d.detail ?? 'Failed to create profile') }
       const profile = await res.json()
-      // Save email to session so My Requests auto-loads
-      localStorage.setItem('sparring_verified_email', email.trim().toLowerCase())
+      localStorage.setItem('sparring_profile_id', profile.id)
+      localStorage.setItem('sparring_email', email.trim().toLowerCase())
       router.push(`/sparring/${profile.id}`)
     } catch (e: any) { setError(e.message); setUploading(false) }
     finally { setCreating(false) }
@@ -216,6 +224,12 @@ export default function CreateSparringPage() {
   return (
     <div style={{ background: '#000', minHeight: '100vh', paddingBottom: 80 }}>
       <div style={{ maxWidth: 540, margin: '0 auto', padding: '20px 16px' }}>
+
+        {banner && (
+          <div style={{ background: '#1a1a0a', border: '1px solid #3a3a1a', borderRadius: 8, padding: '12px 16px', marginBottom: 20 }}>
+            <p style={{ color: '#d4b84a', fontSize: 14, fontWeight: 700, margin: 0 }}>👋 {banner}</p>
+          </div>
+        )}
 
         <div style={{ marginBottom: 28 }}>
           <h1 style={{ color: '#fff', fontSize: 22, fontWeight: 900, margin: '0 0 4px', letterSpacing: -0.5 }}>Add your profile</h1>
