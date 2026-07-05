@@ -99,6 +99,7 @@ function RequestModal({
 }) {
   const [requesterName, setRequesterName] = useState('')
   const [requesterCity, setRequesterCity] = useState('')
+  const [fromEmail,     setFromEmail]     = useState('')
   const [countryCode,   setCountryCode]   = useState('+91')
   const [phoneNumber,   setPhoneNumber]   = useState('')
   const [loading, setLoading] = useState(false)
@@ -115,7 +116,7 @@ function RequestModal({
   const send = async () => {
     if (!requesterName.trim()) { setError('Enter your name'); return }
     if (!requesterCity.trim()) { setError('Enter your city'); return }
-    if (!phoneNumber.trim())   { setError('Enter your phone number'); return }
+    if (!fromEmail.trim() || !fromEmail.includes('@')) { setError('Enter a valid email'); return }
     setLoading(true); setError('')
     try {
       const res = await fetch(`${BACKEND}/sparring/requests`, {
@@ -125,7 +126,8 @@ function RequestModal({
           to_profile_id:  profile.id,
           requester_name: requesterName.trim(),
           requester_city: requesterCity.trim(),
-          from_phone:     `${countryCode}${phoneNumber.trim()}`,
+          from_email:     fromEmail.trim().toLowerCase(),
+          from_phone:     phoneNumber.trim() ? `${countryCode}${phoneNumber.trim()}` : undefined,
         }),
       })
       if (!res.ok) { const d = await res.json(); throw new Error(d.detail ?? 'Failed') }
@@ -159,7 +161,7 @@ function RequestModal({
               {profile.name} will see your request.
             </p>
             <p style={{ color: '#444', fontSize: 13, margin: '0 0 20px' }}>
-              Your number is shared only if they accept.
+              Your contact is shared only if they accept.
             </p>
             <button onClick={onClose} style={{
               background: '#39FF14', color: '#000', fontWeight: 800,
@@ -198,7 +200,18 @@ function RequestModal({
             />
 
             <label style={{ color: '#aaa', fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 6 }}>
-              Your phone number
+              Your email (to track sent requests)
+            </label>
+            <input
+              value={fromEmail}
+              onChange={e => setFromEmail(e.target.value)}
+              placeholder="you@example.com"
+              type="email"
+              style={fieldStyle}
+            />
+
+            <label style={{ color: '#aaa', fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 6 }}>
+              Your phone number (optional — for contact reveal)
             </label>
             <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
               <select
@@ -222,7 +235,7 @@ function RequestModal({
               />
             </div>
             <p style={{ color: '#444', fontSize: 11, margin: '0 0 14px' }}>
-              Shared only if {profile.name} accepts
+              Shared only if {profile.name} accepts. Leave blank to skip.
             </p>
 
             {error && (

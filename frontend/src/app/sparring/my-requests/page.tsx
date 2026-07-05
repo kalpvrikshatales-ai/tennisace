@@ -5,15 +5,6 @@ import Link from 'next/link'
 
 const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
 
-const COUNTRY_CODES = [
-  { code: '+91', flag: '🇮🇳' },
-  { code: '+1',  flag: '🇺🇸' },
-  { code: '+44', flag: '🇬🇧' },
-  { code: '+61', flag: '🇦🇺' },
-  { code: '+971',flag: '🇦🇪' },
-  { code: '+65', flag: '🇸🇬' },
-]
-
 const STATUS_STYLE: Record<string, { bg: string; color: string; label: string }> = {
   pending:  { bg: '#1a1a2a', color: '#6eb8e8', label: 'Pending'  },
   accepted: { bg: '#0a1a0a', color: '#39FF14', label: 'Accepted' },
@@ -152,23 +143,20 @@ function SentCard({ req }: { req: Request }) {
 }
 
 export default function MyRequestsPage() {
-  const [countryCode,  setCountryCode]  = useState('+91')
-  const [phoneInput,   setPhoneInput]   = useState('')
-  const [phone,        setPhone]        = useState('')  // confirmed phone
-  const [received,     setReceived]     = useState<Request[]>([])
-  const [sent,         setSent]         = useState<Request[]>([])
-  const [loading,      setLoading]      = useState(false)
-  const [acting,       setActing]       = useState<string | null>(null)
-  const [fetchError,   setFetchError]   = useState('')
+  const [emailInput,  setEmailInput]  = useState('')
+  const [email,       setEmail]       = useState('')  // confirmed / looked-up email
+  const [received,    setReceived]    = useState<Request[]>([])
+  const [sent,        setSent]        = useState<Request[]>([])
+  const [loading,     setLoading]     = useState(false)
+  const [acting,      setActing]      = useState<string | null>(null)
+  const [fetchError,  setFetchError]  = useState('')
 
-  const fullPhone = phone ? phone : ''
-
-  const loadRequests = useCallback(async (ph: string) => {
+  const loadRequests = useCallback(async (em: string) => {
     setLoading(true); setFetchError('')
     try {
       const [recRes, sentRes] = await Promise.all([
-        fetch(`${BACKEND}/sparring/requests/received?phone=${encodeURIComponent(ph)}`),
-        fetch(`${BACKEND}/sparring/requests/sent?phone=${encodeURIComponent(ph)}`),
+        fetch(`${BACKEND}/sparring/requests/received?email=${encodeURIComponent(em)}`),
+        fetch(`${BACKEND}/sparring/requests/sent?email=${encodeURIComponent(em)}`),
       ])
       const recData  = recRes.ok  ? await recRes.json()  : { requests: [] }
       const sentData = sentRes.ok ? await sentRes.json() : { requests: [] }
@@ -182,10 +170,10 @@ export default function MyRequestsPage() {
   }, [])
 
   function handleLookup() {
-    const ph = `${countryCode}${phoneInput.trim()}`
-    if (phoneInput.trim().length < 6) return
-    setPhone(ph)
-    loadRequests(ph)
+    const em = emailInput.trim().toLowerCase()
+    if (!em.includes('@')) return
+    setEmail(em)
+    loadRequests(em)
   }
 
   async function handleAccept(requestId: string) {
@@ -204,7 +192,7 @@ export default function MyRequestsPage() {
           : r
       ))
     } catch {
-      // silently retry state
+      // silently keep state
     } finally {
       setActing(null)
     }
@@ -246,46 +234,34 @@ export default function MyRequestsPage() {
       </div>
 
       <div style={{ maxWidth: 560, margin: '0 auto', padding: '20px 16px' }}>
-        {/* Phone lookup */}
-        {!phone ? (
+        {/* Email lookup */}
+        {!email ? (
           <div style={{ background: '#111', border: '1px solid #222', borderRadius: 10, padding: 20, marginBottom: 24 }}>
             <p style={{ color: '#fff', fontWeight: 800, fontSize: 16, margin: '0 0 6px' }}>
-              Enter your phone number
+              Enter your email
             </p>
             <p style={{ color: '#555', fontSize: 13, margin: '0 0 16px' }}>
-              We'll show requests linked to your number
+              We'll show requests linked to your account
             </p>
-            <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-              <select
-                value={countryCode}
-                onChange={e => setCountryCode(e.target.value)}
-                style={{
-                  background: '#1a1a1a', border: '1px solid #333', borderRadius: 6,
-                  color: '#fff', padding: '10px 8px', fontSize: 14, outline: 'none', flexShrink: 0,
-                }}
-              >
-                {COUNTRY_CODES.map(c => (
-                  <option key={c.code} value={c.code}>{c.flag} {c.code}</option>
-                ))}
-              </select>
-              <input
-                value={phoneInput}
-                onChange={e => setPhoneInput(e.target.value.replace(/\D/g, ''))}
-                placeholder="Phone number"
-                inputMode="tel"
-                style={{
-                  flex: 1, background: '#1a1a1a', border: '1px solid #333', borderRadius: 6,
-                  color: '#fff', padding: '10px 12px', fontSize: 14, outline: 'none',
-                  boxSizing: 'border-box',
-                }}
-              />
-            </div>
+            <input
+              value={emailInput}
+              onChange={e => setEmailInput(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') handleLookup() }}
+              placeholder="you@example.com"
+              type="email"
+              style={{
+                width: '100%', boxSizing: 'border-box',
+                background: '#1a1a1a', border: '1px solid #333', borderRadius: 6,
+                color: '#fff', padding: '10px 12px', fontSize: 14, outline: 'none',
+                marginBottom: 12,
+              }}
+            />
             <button
               onClick={handleLookup}
-              disabled={phoneInput.trim().length < 6}
+              disabled={!emailInput.includes('@')}
               style={{
-                width: '100%', background: phoneInput.trim().length < 6 ? '#333' : '#39FF14',
-                border: 'none', borderRadius: 7, color: phoneInput.trim().length < 6 ? '#666' : '#000',
+                width: '100%', background: emailInput.includes('@') ? '#39FF14' : '#333',
+                border: 'none', borderRadius: 7, color: emailInput.includes('@') ? '#000' : '#666',
                 fontWeight: 800, fontSize: 15, padding: '13px', cursor: 'pointer',
               }}
             >
@@ -295,10 +271,10 @@ export default function MyRequestsPage() {
         ) : (
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
             <p style={{ color: '#555', fontSize: 13, margin: 0 }}>
-              Showing requests for <span style={{ color: '#fff', fontWeight: 700 }}>{fullPhone}</span>
+              Showing requests for <span style={{ color: '#fff', fontWeight: 700 }}>{email}</span>
             </p>
             <button
-              onClick={() => { setPhone(''); setPhoneInput(''); setReceived([]); setSent([]) }}
+              onClick={() => { setEmail(''); setEmailInput(''); setReceived([]); setSent([]) }}
               style={{ background: 'none', border: 'none', color: '#555', fontSize: 12, cursor: 'pointer' }}
             >
               Change
@@ -316,7 +292,7 @@ export default function MyRequestsPage() {
           <p style={{ color: '#e87070', fontSize: 13, textAlign: 'center' }}>{fetchError}</p>
         )}
 
-        {phone && !loading && (
+        {email && !loading && (
           <>
             {/* Received */}
             <div style={{ marginBottom: 28 }}>

@@ -81,7 +81,7 @@ async def list_profiles(
         if not ids:
             return {"profiles": [], "total": 0}
 
-    # phone intentionally excluded from public listing
+    # email and phone intentionally excluded from public listing
     params: dict = {
         "select": "id,name,photo_url,city,country,level,surface,play_type,bio,created_at",
         "order":  "created_at.desc",
@@ -129,8 +129,9 @@ async def get_profile(profile_id: str):
     if not rows:
         raise HTTPException(404, "Profile not found")
     profile = rows[0]
-    profile.pop("phone", None)          # never expose phone publicly
-    profile.pop("phone_verified", None)
+    profile.pop("phone",          None)  # never expose phone publicly
+    profile.pop("email",          None)  # never expose email publicly
+    profile.pop("email_verified", None)
 
     avail = await _get("sparring_availability", {
         "profile_id": f"eq.{profile_id}",
@@ -155,8 +156,9 @@ async def create_profile(body: dict):
         "surface":        body.get("surface", []),
         "play_type":      body.get("play_type"),
         "bio":            body.get("bio", "").strip() or None,
+        "email":          body.get("email") or None,
+        "email_verified": body.get("email_verified", False),
         "phone":          body.get("phone") or None,
-        "phone_verified": body.get("phone_verified", False),
     }
     if not all([profile_body["name"], profile_body["city"], profile_body["country"],
                 profile_body["level"], profile_body["play_type"]]):
@@ -180,8 +182,9 @@ async def create_profile(body: dict):
                     timeout=10,
                 )
 
-    profile.pop("phone", None)
-    profile.pop("phone_verified", None)
+    profile.pop("phone",          None)
+    profile.pop("email",          None)
+    profile.pop("email_verified", None)
     profile["availability"] = availability
     return profile
 
@@ -194,7 +197,8 @@ async def update_profile(profile_id: str, body: dict):
 
     update_fields = {k: v for k, v in body.items()
                      if k in ("name", "photo_url", "city", "country", "level",
-                              "surface", "play_type", "bio", "phone", "phone_verified")}
+                              "surface", "play_type", "bio",
+                              "email", "email_verified", "phone")}
     if not update_fields and availability is None:
         raise HTTPException(422, "Nothing to update")
 
@@ -225,8 +229,9 @@ async def update_profile(profile_id: str, body: dict):
                     )
         profile["availability"] = availability
 
-    profile.pop("phone", None)
-    profile.pop("phone_verified", None)
+    profile.pop("phone",          None)
+    profile.pop("email",          None)
+    profile.pop("email_verified", None)
     return profile
 
 
@@ -237,6 +242,7 @@ class SparringRequestCreate(BaseModel):
     from_profile_id: Optional[uuid.UUID] = None
     requester_name:  str
     requester_city:  str
+    from_email:      Optional[str] = None
     from_phone:      Optional[str] = None
 
 @router.post("/requests", status_code=201)
@@ -250,6 +256,7 @@ async def create_request(body: SparringRequestCreate):
         "from_profile_id": str(body.from_profile_id) if body.from_profile_id else None,
         "requester_name":  requester_name,
         "requester_city":  requester_city,
+        "from_email":      body.from_email or None,
         "from_phone":      body.from_phone or None,
     })
 
@@ -257,17 +264,16 @@ async def create_request(body: SparringRequestCreate):
 # ── GET /sparring/requests/received ──────────────────────────────────────────
 
 @router.get("/requests/received")
-async def get_received_requests(phone: str = Query(...)):
-    # Find all profiles owned by this phone number
+async def get_received_requests(email: str = Query(...)):
+    # Find all profiles owned by this email address
     profile_rows = await _get("sparring_profiles", {
-        "phone":  f"eq.{phone}",
+        "email":  f"eq.{email}",
         "select": "id,phone",
     })
     if not profile_rows:
         return {"requests": []}
 
     profile_ids = [p["id"] for p in profile_rows]
-    phone_by_id = {p["id"]: p.get("phone") for p in profile_rows}
     ids_csv = ",".join(profile_ids)
 
     requests = await _get("sparring_requests", {
@@ -276,10 +282,10 @@ async def get_received_requests(phone: str = Query(...)):
         "order":         "created_at.desc",
     })
 
-    # On accepted requests, include the profile owner's phone so both sides can see it
+    # Strip from_phone on non-accepted requests
     for req in requests:
-        if req.get("status") == "accepted":
-            req["to_phone"] = phone_by_id.get(req.get("to_profile_id"))
+        if req.get("status") != "accepted":
+            req.pop("from_phone", None)
 
     # Attach profile name/city for context
     profiles_detail = await _get("sparring_profiles", {
@@ -296,9 +302,9 @@ async def get_received_requests(phone: str = Query(...)):
 # ── GET /sparring/requests/sent ───────────────────────────────────────────────
 
 @router.get("/requests/sent")
-async def get_sent_requests(phone: str = Query(...)):
+async def get_sent_requests(email: str = Query(...)):
     requests = await _get("sparring_requests", {
-        "from_phone": f"eq.{phone}",
+        "from_email": f"eq.{email}",
         "select":     "id,to_profile_id,requester_name,requester_city,status,created_at",
         "order":      "created_at.desc",
     })
@@ -306,7 +312,6 @@ async def get_sent_requests(phone: str = Query(...)):
     if requests:
         profile_ids = ",".join(set(r["to_profile_id"] for r in requests if r.get("to_profile_id")))
         if profile_ids:
-            # Fetch profile info; include phone only on accepted requests
             profile_rows = await _get("sparring_profiles", {
                 "id":     f"in.({profile_ids})",
                 "select": "id,name,city,country,phone",
@@ -345,7 +350,7 @@ async def update_request(request_id: str, body: dict):
 
     if status == "accepted" and req_rows:
         req = req_rows[0]
-        # Fetch profile owner phone
+        # Fetch profile owner phone for mutual reveal
         profile_rows = await _get("sparring_profiles", {
             "id":     f"eq.{req['to_profile_id']}",
             "select": "phone",
