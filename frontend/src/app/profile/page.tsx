@@ -15,25 +15,21 @@ const LEVELS   = ['Beginner', 'Intermediate', 'Advanced', 'Competitive']
 const SURFACES = ['Hard', 'Clay', 'Grass', 'Indoor']
 const HANDS    = ['Right', 'Left']
 const BACKS    = ['One-handed', 'Two-handed']
+const STYLES   = ['Baseline', 'Serve & Volley', 'All-Court', 'Defensive']
 
 type Tab = 'overview' | 'edit'
 
-function InfoCard({ icon, label, value, empty }: { icon: string; label: string; value?: string | null; empty?: string }) {
-  return (
-    <div style={{
-      background: '#111', border: '1px solid #1e1e1e', borderRadius: 10,
-      padding: '14px 14px', display: 'flex', flexDirection: 'column', gap: 6,
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <span style={{ fontSize: 16 }}>{icon}</span>
-        <span style={{ color: '#555', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.8 }}>{label}</span>
-      </div>
-      <span style={{ color: value ? '#fff' : '#333', fontSize: 13, fontWeight: value ? 700 : 500 }}>
-        {value || (empty ?? '+ Add')}
-      </span>
-    </div>
-  )
-}
+const TENNIS_FIELDS = [
+  { key: 'country',          icon: '🌍', label: 'Country'        },
+  { key: 'city',             icon: '📍', label: 'City'           },
+  { key: 'tennis_level',     icon: '📶', label: 'Tennis Level'   },
+  { key: 'favorite_surface', icon: '🎾', label: 'Fav Surface'    },
+  { key: 'dominant_hand',    icon: '✋', label: 'Dominant Hand'  },
+  { key: 'backhand',         icon: '🔁', label: 'Backhand'       },
+  { key: 'play_style',       icon: '⚡', label: 'Play Style'     },
+  { key: 'phone',            icon: '📱', label: 'Phone'          },
+  { key: 'years_playing',    icon: '📅', label: 'Years Playing'  },
+] as const
 
 export default function ProfilePage() {
   const router = useRouter()
@@ -42,18 +38,19 @@ export default function ProfilePage() {
 
   const [tab, setTab] = useState<Tab>('overview')
 
-  // Edit form state
-  const [fullName, setFullName]     = useState('')
-  const [phone,    setPhone]        = useState('')
-  const [city,     setCity]         = useState('')
-  const [country,  setCountry]      = useState('')
-  const [level,    setLevel]        = useState('')
-  const [surface,  setSurface]      = useState('')
-  const [hand,     setHand]         = useState('')
-  const [backhand, setBackhand]     = useState('')
-  const [saving,   setSaving]       = useState(false)
-  const [saved,    setSaved]        = useState(false)
-  const [saveErr,  setSaveErr]      = useState('')
+  const [fullName,      setFullName]      = useState('')
+  const [phone,         setPhone]         = useState('')
+  const [city,          setCity]          = useState('')
+  const [country,       setCountry]       = useState('')
+  const [level,         setLevel]         = useState('')
+  const [surface,       setSurface]       = useState('')
+  const [hand,          setHand]          = useState('')
+  const [backhand,      setBackhand]      = useState('')
+  const [playStyle,     setPlayStyle]     = useState('')
+  const [yearsPlaying,  setYearsPlaying]  = useState('')
+  const [saving,        setSaving]        = useState(false)
+  const [saved,         setSaved]         = useState(false)
+  const [saveErr,       setSaveErr]       = useState('')
 
   const [sparringProfile, setSparringProfile] = useState<any>(null)
   const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
@@ -64,14 +61,17 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!profile) return
-    setFullName(profile.full_name ?? '')
-    setPhone(profile.phone ?? '')
-    setCity(profile.city ?? '')
-    setCountry(profile.country ?? '')
-    setLevel((profile as any).tennis_level ?? '')
-    setSurface((profile as any).favorite_surface ?? '')
-    setHand((profile as any).dominant_hand ?? '')
-    setBackhand((profile as any).backhand ?? '')
+    const p = profile as any
+    setFullName(p.full_name ?? '')
+    setPhone(p.phone ?? '')
+    setCity(p.city ?? '')
+    setCountry(p.country ?? '')
+    setLevel(p.tennis_level ?? '')
+    setSurface(p.favorite_surface ?? '')
+    setHand(p.dominant_hand ?? '')
+    setBackhand(p.backhand ?? '')
+    setPlayStyle(p.play_style ?? '')
+    setYearsPlaying(p.years_playing ?? '')
   }, [profile])
 
   useEffect(() => {
@@ -87,8 +87,7 @@ export default function ProfilePage() {
     setSaving(true); setSaveErr(''); setSaved(false)
     try {
       const { error } = await supabase.from('profiles').upsert({
-        id: user.id,
-        email: user.email,
+        id: user.id, email: user.email,
         full_name:        fullName.trim() || null,
         phone:            phone.trim() || null,
         city:             city.trim() || null,
@@ -97,20 +96,14 @@ export default function ProfilePage() {
         favorite_surface: surface || null,
         dominant_hand:    hand || null,
         backhand:         backhand || null,
+        play_style:       playStyle || null,
+        years_playing:    yearsPlaying.trim() || null,
       })
       if (error) throw error
       setSaved(true)
-      setTimeout(() => { setSaved(false); setTab('overview') }, 1200)
-    } catch (e: any) {
-      setSaveErr(e.message ?? 'Failed to save')
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  async function handleSignOut() {
-    await signOut()
-    router.push('/')
+      setTimeout(() => { setSaved(false); setTab('overview') }, 1000)
+    } catch (e: any) { setSaveErr(e.message ?? 'Failed to save') }
+    finally { setSaving(false) }
   }
 
   if (loading || !user) {
@@ -122,13 +115,26 @@ export default function ProfilePage() {
     )
   }
 
-  const displayName = profile?.full_name || user.email?.split('@')[0] || 'You'
+  const p           = profile as any
+  const displayName = p?.full_name || user.email?.split('@')[0] || 'You'
   const handle      = '@' + (user.email?.split('@')[0] ?? 'you')
-  const initials    = displayName.slice(0, 2).toUpperCase()
   const avatarUrl   = user.user_metadata?.avatar_url
+  const initials    = displayName.slice(0, 2).toUpperCase()
 
-  const select = (label: string, value: string, set: (v: string) => void, opts: string[]) => (
-    <div style={{ marginBottom: 14 }}>
+  const profileData: Record<string, string> = {
+    country:          p?.country        ?? '',
+    city:             p?.city           ?? '',
+    tennis_level:     p?.tennis_level   ?? level,
+    favorite_surface: p?.favorite_surface ?? surface,
+    dominant_hand:    p?.dominant_hand  ?? hand,
+    backhand:         p?.backhand       ?? backhand,
+    play_style:       p?.play_style     ?? playStyle,
+    phone:            p?.phone          ?? '',
+    years_playing:    p?.years_playing  ?? '',
+  }
+
+  const sel = (label: string, value: string, set: (v: string) => void, opts: string[]) => (
+    <div style={{ marginBottom: 16 }}>
       <p style={{ color: '#555', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.8, margin: '0 0 6px' }}>{label}</p>
       <select value={value} onChange={e => set(e.target.value)} style={{
         width: '100%', boxSizing: 'border-box', background: '#111', border: '1px solid #222',
@@ -140,8 +146,8 @@ export default function ProfilePage() {
     </div>
   )
 
-  const input = (label: string, value: string, set: (v: string) => void, type = 'text', placeholder = '') => (
-    <div style={{ marginBottom: 14 }}>
+  const inp = (label: string, value: string, set: (v: string) => void, type = 'text', placeholder = '') => (
+    <div style={{ marginBottom: 16 }}>
       <p style={{ color: '#555', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.8, margin: '0 0 6px' }}>{label}</p>
       <input type={type} value={value} placeholder={placeholder} onChange={e => set(e.target.value)} style={{
         width: '100%', boxSizing: 'border-box', background: '#111', border: '1px solid #222',
@@ -151,172 +157,132 @@ export default function ProfilePage() {
   )
 
   return (
-    <div style={{ minHeight: '100vh', background: '#000', paddingBottom: 80 }}>
+    <div style={{ minHeight: '100vh', background: '#0a0a0a', paddingBottom: 100 }}>
 
-      {/* Cover banner */}
-      <div style={{
-        height: 180,
-        background: 'linear-gradient(135deg, #0a1a0a 0%, #001a00 40%, #00140a 70%, #0a0a1a 100%)',
-        position: 'relative', overflow: 'hidden',
-      }}>
-        {/* subtle tennis court lines */}
-        <svg style={{ position: 'absolute', inset: 0, opacity: 0.06 }} width="100%" height="100%" viewBox="0 0 400 180">
-          <rect x="40" y="20" width="320" height="140" fill="none" stroke="#00C875" strokeWidth="1.5" />
-          <line x1="200" y1="20" x2="200" y2="160" stroke="#00C875" strokeWidth="1" />
-          <line x1="40" y1="90" x2="360" y2="90" stroke="#00C875" strokeWidth="1" />
-          <rect x="120" y="20" width="160" height="70" fill="none" stroke="#00C875" strokeWidth="1" />
-          <rect x="120" y="90" width="160" height="70" fill="none" stroke="#00C875" strokeWidth="1" />
+      {/* ── Cover ── */}
+      <div style={{ height: 200, background: 'linear-gradient(135deg,#0d1f0d 0%,#091209 50%,#0a0a14 100%)', position: 'relative', overflow: 'hidden' }}>
+        <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.07 }} viewBox="0 0 600 200" preserveAspectRatio="xMidYMid slice">
+          <rect x="60" y="20" width="480" height="160" fill="none" stroke="#00C875" strokeWidth="2"/>
+          <line x1="300" y1="20" x2="300" y2="180" stroke="#00C875" strokeWidth="1.5"/>
+          <line x1="60" y1="100" x2="540" y2="100" stroke="#00C875" strokeWidth="1"/>
+          <rect x="165" y="20" width="270" height="80" fill="none" stroke="#00C875" strokeWidth="1"/>
+          <rect x="165" y="100" width="270" height="80" fill="none" stroke="#00C875" strokeWidth="1"/>
         </svg>
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 40%, #000 100%)' }} />
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 80, background: 'linear-gradient(transparent,#0a0a0a)' }} />
       </div>
 
-      {/* Avatar + name */}
-      <div style={{ maxWidth: 560, margin: '0 auto', padding: '0 20px' }}>
-        <div style={{ position: 'relative', marginTop: -44, marginBottom: 16 }}>
-          {avatarUrl ? (
-            <img src={avatarUrl} alt="avatar" style={{
-              width: 88, height: 88, borderRadius: '50%', objectFit: 'cover',
-              border: '4px solid #000', display: 'block',
-            }} />
-          ) : (
-            <div style={{
-              width: 88, height: 88, borderRadius: '50%', border: '4px solid #000',
-              background: '#00C875', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 34, fontWeight: 900, color: '#000',
+      <div style={{ maxWidth: 640, margin: '0 auto', padding: '0 16px' }}>
+
+        {/* ── Avatar row ── */}
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: -48, marginBottom: 16 }}>
+          <div style={{ position: 'relative' }}>
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="avatar" style={{ width: 96, height: 96, borderRadius: '50%', objectFit: 'cover', border: '4px solid #0a0a0a', display: 'block' }} />
+            ) : (
+              <div style={{ width: 96, height: 96, borderRadius: '50%', border: '4px solid #0a0a0a', background: '#00C875', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, fontWeight: 900, color: '#000' }}>
+                {initials}
+              </div>
+            )}
+          </div>
+          {/* Action buttons top-right of avatar row */}
+          <div style={{ display: 'flex', gap: 8, paddingBottom: 8 }}>
+            <button onClick={() => setTab(tab === 'edit' ? 'overview' : 'edit')} style={{
+              padding: '9px 18px', borderRadius: 8, fontWeight: 800, fontSize: 13, cursor: 'pointer',
+              background: tab === 'edit' ? '#00C875' : '#00C875',
+              border: 'none', color: '#000',
             }}>
-              {initials}
-            </div>
-          )}
+              {tab === 'edit' ? '← Back' : 'Edit Profile'}
+            </button>
+            <button onClick={async () => { await signOut(); router.push('/') }} style={{
+              padding: '9px 16px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer',
+              background: 'transparent', border: '1px solid #333', color: '#777',
+            }}>
+              Sign out
+            </button>
+          </div>
         </div>
 
+        {/* ── Name / handle ── */}
         <div style={{ marginBottom: 20 }}>
-          <h1 style={{ color: '#fff', fontSize: 24, fontWeight: 900, margin: '0 0 2px', letterSpacing: -0.5 }}>
-            {displayName}
-          </h1>
-          <p style={{ color: '#444', fontSize: 13, fontWeight: 600, margin: '0 0 2px' }}>{handle}</p>
-          {(profile?.city || profile?.country) && (
-            <p style={{ color: '#444', fontSize: 13, margin: 0 }}>
-              📍 {[profile.city, profile.country].filter(Boolean).join(', ')}
-            </p>
+          <h1 style={{ color: '#fff', fontSize: 22, fontWeight: 900, margin: '0 0 2px', letterSpacing: -0.4 }}>{displayName}</h1>
+          <p style={{ color: '#444', fontSize: 13, margin: '0 0 4px', fontWeight: 600 }}>{handle}</p>
+          {(p?.city || p?.country) && (
+            <p style={{ color: '#444', fontSize: 13, margin: 0 }}>📍 {[p.city, p.country].filter(Boolean).join(', ')}</p>
           )}
         </div>
 
-        {/* Action buttons */}
-        <div style={{ display: 'flex', gap: 10, marginBottom: 24 }}>
-          <button onClick={() => setTab(tab === 'edit' ? 'overview' : 'edit')} style={{
-            flex: 1, padding: '10px', borderRadius: 8,
-            border: tab === 'edit' ? 'none' : '1px solid #333',
-            background: tab === 'edit' ? '#00C875' : 'transparent',
-            color: tab === 'edit' ? '#000' : '#aaa',
-            fontWeight: 800, fontSize: 14, cursor: 'pointer',
-          }}>
-            {tab === 'edit' ? '← Overview' : 'Edit Profile'}
-          </button>
-          <button onClick={handleSignOut} style={{
-            padding: '10px 18px', borderRadius: 8, border: '1px solid #2a1a1a',
-            background: 'transparent', color: '#666', fontWeight: 700, fontSize: 14, cursor: 'pointer',
-          }}>
-            Sign out
-          </button>
-        </div>
-
-        {/* Tab: Overview */}
+        {/* ── Tabs ── */}
         {tab === 'overview' && (
           <>
-            {/* Tennis Profile card grid */}
+            {/* ── Tennis Profile cards ── */}
             <div style={{ marginBottom: 28 }}>
-              <p style={{ color: '#555', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, margin: '0 0 14px' }}>
-                Tennis Profile
-              </p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
-                <InfoCard icon="🌍" label="Country"  value={profile?.country} />
-                <InfoCard icon="📍" label="City"     value={profile?.city} />
-                <InfoCard icon="📶" label="Level"    value={(profile as any)?.tennis_level} />
-                <InfoCard icon="🎾" label="Surface"  value={(profile as any)?.favorite_surface} />
-                <InfoCard icon="✋" label="Hand"     value={(profile as any)?.dominant_hand} />
-                <InfoCard icon="🔁" label="Backhand" value={(profile as any)?.backhand} />
+              <p style={{ color: '#fff', fontSize: 15, fontWeight: 800, margin: '0 0 14px', letterSpacing: -0.2 }}>Tennis Profile</p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+                {TENNIS_FIELDS.map(({ key, icon, label }) => {
+                  const val = profileData[key]
+                  return (
+                    <button key={key} onClick={() => setTab('edit')} style={{
+                      background: '#111', border: '1px solid #1e1e1e', borderRadius: 10,
+                      padding: '14px 12px', textAlign: 'left', cursor: 'pointer',
+                      display: 'flex', flexDirection: 'column', gap: 8,
+                    }}>
+                      <span style={{ fontSize: 20 }}>{icon}</span>
+                      <span style={{ color: '#555', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.7 }}>{label}</span>
+                      <span style={{ color: val ? '#fff' : '#333', fontSize: 12, fontWeight: val ? 700 : 500 }}>
+                        {val || '+ Add'}
+                      </span>
+                    </button>
+                  )
+                })}
               </div>
-              {!profile?.country && !(profile as any)?.tennis_level && (
-                <button onClick={() => setTab('edit')} style={{
-                  marginTop: 12, background: 'none', border: '1px dashed #333',
-                  borderRadius: 8, color: '#555', fontSize: 13, fontWeight: 600,
-                  padding: '10px', width: '100%', cursor: 'pointer',
-                }}>
-                  + Complete your tennis profile
-                </button>
-              )}
             </div>
 
-            {/* Sparring profile */}
-            {sparringProfile && (
-              <div style={{ marginBottom: 20 }}>
-                <p style={{ color: '#555', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, margin: '0 0 12px' }}>
-                  Sparring
-                </p>
-                <div style={{
-                  background: '#0a1a0a', border: '1px solid #1a3a1a', borderRadius: 10, padding: '16px',
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                }}>
+            {/* ── Sparring ── */}
+            <div>
+              <p style={{ color: '#fff', fontSize: 15, fontWeight: 800, margin: '0 0 14px', letterSpacing: -0.2 }}>Sparring</p>
+              {sparringProfile ? (
+                <div style={{ background: '#0a1a0a', border: '1px solid #1a3a1a', borderRadius: 10, padding: '16px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div>
                     <p style={{ color: '#fff', fontWeight: 800, fontSize: 15, margin: '0 0 3px' }}>{sparringProfile.name}</p>
-                    <p style={{ color: '#555', fontSize: 12, margin: 0 }}>
-                      {sparringProfile.level} · {sparringProfile.city}
-                    </p>
+                    <p style={{ color: '#555', fontSize: 12, margin: 0 }}>{sparringProfile.level} · {sparringProfile.city}</p>
                   </div>
-                  <Link href={`/sparring/${sparringProfile.id}`} style={{
-                    background: '#39FF14', color: '#000', fontWeight: 800,
-                    fontSize: 12, padding: '8px 14px', borderRadius: 6, textDecoration: 'none',
-                  }}>
+                  <Link href={`/sparring/${sparringProfile.id}`} style={{ background: '#39FF14', color: '#000', fontWeight: 800, fontSize: 12, padding: '8px 14px', borderRadius: 6, textDecoration: 'none' }}>
                     View →
                   </Link>
                 </div>
-              </div>
-            )}
-
-            {!sparringProfile && (
-              <div style={{ marginBottom: 20 }}>
-                <p style={{ color: '#555', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, margin: '0 0 12px' }}>
-                  Sparring
-                </p>
-                <Link href="/sparring/create" style={{
-                  display: 'block', border: '1px dashed #1a3a1a', borderRadius: 10, padding: '16px',
-                  textDecoration: 'none', textAlign: 'center',
-                }}>
-                  <p style={{ color: '#39FF14', fontWeight: 800, fontSize: 14, margin: '0 0 3px' }}>Find a hitting partner</p>
-                  <p style={{ color: '#555', fontSize: 12, margin: 0 }}>Create your sparring profile →</p>
+              ) : (
+                <Link href="/sparring/create" style={{ display: 'block', border: '1px dashed #1a3a1a', borderRadius: 10, padding: '20px', textDecoration: 'none', textAlign: 'center' }}>
+                  <p style={{ color: '#39FF14', fontWeight: 800, fontSize: 14, margin: '0 0 4px' }}>Find a hitting partner</p>
+                  <p style={{ color: '#444', fontSize: 12, margin: 0 }}>Create your sparring profile →</p>
                 </Link>
-              </div>
-            )}
+              )}
+            </div>
           </>
         )}
 
-        {/* Tab: Edit */}
+        {/* ── Edit form ── */}
         {tab === 'edit' && (
           <div>
-            <p style={{ color: '#444', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, margin: '0 0 18px' }}>
-              Personal info
-            </p>
-            {input('Full name', fullName, setFullName, 'text', 'Your full name')}
-            {input('Phone', phone, setPhone, 'tel', '+91 98765 43210')}
-            {input('City', city, setCity, 'text', 'Mumbai')}
-            {select('Country', country, setCountry, COUNTRIES)}
+            <p style={{ color: '#555', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, margin: '0 0 20px' }}>Personal info</p>
+            {inp('Full name',     fullName,    setFullName,    'text', 'Your full name')}
+            {inp('Phone',         phone,       setPhone,       'tel',  '+91 98765 43210')}
+            {inp('City',          city,        setCity,        'text', 'Mumbai')}
+            {sel('Country',       country,     setCountry,     COUNTRIES)}
 
-            <p style={{ color: '#444', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, margin: '24px 0 18px' }}>
-              Tennis profile
-            </p>
-            {select('Your level', level, setLevel, LEVELS)}
-            {select('Favourite surface', surface, setSurface, SURFACES)}
-            {select('Dominant hand', hand, setHand, HANDS)}
-            {select('Backhand', backhand, setBackhand, BACKS)}
+            <p style={{ color: '#555', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, margin: '24px 0 20px' }}>Tennis profile</p>
+            {sel('Tennis level',     level,      setLevel,      LEVELS)}
+            {sel('Favourite surface',surface,    setSurface,    SURFACES)}
+            {sel('Dominant hand',    hand,       setHand,       HANDS)}
+            {sel('Backhand',         backhand,   setBackhand,   BACKS)}
+            {sel('Play style',       playStyle,  setPlayStyle,  STYLES)}
+            {inp('Years playing',    yearsPlaying, setYearsPlaying, 'text', 'e.g. 5')}
 
             {saveErr && <p style={{ color: '#ef4444', fontSize: 13, margin: '0 0 12px' }}>{saveErr}</p>}
-
             <button onClick={save} disabled={saving} style={{
               width: '100%', padding: '14px', borderRadius: 8,
               background: saved ? '#0a1a0a' : '#00C875',
               color: saved ? '#00C875' : '#000',
-              fontWeight: 800, fontSize: 15,
-              cursor: saving ? 'not-allowed' : 'pointer',
+              fontWeight: 800, fontSize: 15, cursor: saving ? 'not-allowed' : 'pointer',
               border: saved ? '1px solid #1a3a1a' : 'none',
               transition: 'all 0.2s',
             }}>

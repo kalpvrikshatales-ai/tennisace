@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { Suspense, useEffect, useState } from 'react'
 import SparringFilters from './SparringFilters'
+import { useAuth } from '@/components/AuthProvider'
 
 const LEVEL_STYLE: Record<string, { bg: string; color: string }> = {
   beginner:     { bg: '#1a3a1a', color: '#6ee86e' },
@@ -110,10 +111,15 @@ function PlayerCard({ p }: { p: any }) {
 }
 
 export default function SparringDiscover({ initialProfiles }: { initialProfiles: any[] }) {
+  const { user, profile } = useAuth()
   const [ownId, setOwnId] = useState<string | null>(null)
   useEffect(() => { setOwnId(localStorage.getItem('sparring_profile_id')) }, [])
 
   const profiles = ownId ? initialProfiles.filter(p => p.id !== ownId) : initialProfiles
+
+  const displayName = profile?.full_name || user?.email?.split('@')[0] || ''
+  const avatarUrl   = user?.user_metadata?.avatar_url
+  const initials    = displayName.slice(0, 2).toUpperCase()
 
   return (
     <div style={{ background: '#000', minHeight: '100vh', paddingBottom: 80 }}>
@@ -130,36 +136,46 @@ export default function SparringDiscover({ initialProfiles }: { initialProfiles:
               </p>
             </div>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <Link
-                href="/sparring/my-requests"
-                style={{
-                  background: 'transparent', color: '#aaa', fontWeight: 700,
-                  fontSize: 12, padding: '8px 12px', borderRadius: 6,
-                  textDecoration: 'none', whiteSpace: 'nowrap',
-                  border: '1px solid #333',
-                }}
-              >
+              <Link href="/sparring/my-requests" style={{
+                background: 'transparent', color: '#aaa', fontWeight: 700,
+                fontSize: 12, padding: '8px 12px', borderRadius: 6,
+                textDecoration: 'none', whiteSpace: 'nowrap', border: '1px solid #333',
+              }}>
                 My Requests
               </Link>
-              <Link
-                href="/sparring/login"
-                style={{
+
+              {user ? (
+                <Link href="/profile" style={{
+                  display: 'flex', alignItems: 'center', gap: 7, textDecoration: 'none',
+                  background: '#111', border: '1px solid #222', borderRadius: 6,
+                  padding: '6px 10px',
+                }}>
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt="" style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover' }} />
+                  ) : (
+                    <div style={{
+                      width: 22, height: 22, borderRadius: '50%', background: '#00C875',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 9, fontWeight: 900, color: '#000',
+                    }}>{initials}</div>
+                  )}
+                  <span style={{ color: '#ccc', fontWeight: 700, fontSize: 12 }}>{displayName}</span>
+                </Link>
+              ) : (
+                <Link href="/auth/login" style={{
                   background: 'transparent', color: '#aaa', fontWeight: 700,
                   fontSize: 12, padding: '8px 12px', borderRadius: 6,
-                  textDecoration: 'none', whiteSpace: 'nowrap',
-                  border: '1px solid #333',
-                }}
-              >
-                Sign in
-              </Link>
-              <Link
-                href="/sparring/create"
-                style={{
-                  background: '#39FF14', color: '#000', fontWeight: 800,
-                  fontSize: 13, padding: '9px 16px', borderRadius: 6,
-                  textDecoration: 'none', whiteSpace: 'nowrap',
-                }}
-              >
+                  textDecoration: 'none', whiteSpace: 'nowrap', border: '1px solid #333',
+                }}>
+                  Sign in
+                </Link>
+              )}
+
+              <Link href="/sparring/create" style={{
+                background: '#39FF14', color: '#000', fontWeight: 800,
+                fontSize: 13, padding: '9px 16px', borderRadius: 6,
+                textDecoration: 'none', whiteSpace: 'nowrap',
+              }}>
                 + Add my profile
               </Link>
             </div>
