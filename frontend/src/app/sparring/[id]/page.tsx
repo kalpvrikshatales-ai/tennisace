@@ -616,6 +616,7 @@ export default function SparringProfilePage() {
 
   async function uploadImage(type: 'cover'|'avatar', file: File) {
     if (!profile) return
+    if (!supabase) return
     setUploading(type)
     try {
       const ext  = file.name.split('.').pop()
