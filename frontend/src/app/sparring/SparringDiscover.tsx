@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Suspense, useEffect, useState } from 'react'
 import SparringFilters from './SparringFilters'
 import { useAuth } from '@/components/AuthProvider'
+import { useTheme } from '@/hooks/useTheme'
 
 const LEVEL_STYLE: Record<string, { bg: string; color: string }> = {
   beginner:     { bg: '#1a3a1a', color: '#6ee86e' },
@@ -96,6 +97,7 @@ function Section({ title, profiles, ownAvailability }: { title: string; profiles
 
 export default function SparringDiscover({ initialProfiles }: { initialProfiles: any[] }) {
   const { user, profile } = useAuth()
+  const { isDark } = useTheme()
   const [ownId,          setOwnId]          = useState<string | null>(null)
   const [ownAvailability, setOwnAvailability] = useState<Set<string>>(new Set())
 
@@ -137,15 +139,15 @@ export default function SparringDiscover({ initialProfiles }: { initialProfiles:
   const noSections = weekend.length === 0 && newPlayers.length === 0 && nearYou.length === 0
 
   return (
-    <div style={{ background: '#000', minHeight: '100vh', paddingBottom: 80 }}>
+    <div style={{ background: isDark ? '#000' : '#f5f5f5', minHeight: '100vh', paddingBottom: 80 }}>
 
       {/* ── Header ── */}
-      <div style={{ borderBottom: '1px solid #1a1a1a', padding: '16px 16px 0' }}>
+      <div style={{ borderBottom: `1px solid ${isDark ? '#1a1a1a' : '#e0e0e0'}`, padding: '16px 16px 0' }}>
         <div style={{ maxWidth: 720, margin: '0 auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
             <div>
-              <h1 style={{ color: '#fff', fontSize: 22, fontWeight: 900, margin: 0, letterSpacing: -0.5 }}>Find a Partner</h1>
-              <p style={{ color: '#555', fontSize: 13, margin: '2px 0 0' }}>Find a hitting partner near you</p>
+              <h1 style={{ color: isDark ? '#fff' : '#111', fontSize: 22, fontWeight: 900, margin: 0, letterSpacing: -0.5 }}>Find a Partner</h1>
+              <p style={{ color: isDark ? '#555' : '#777', fontSize: 13, margin: '2px 0 0' }}>Find a hitting partner near you</p>
             </div>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
               <Link href="/sparring/my-requests" style={{ background: 'transparent', color: '#aaa', fontWeight: 700, fontSize: 12, padding: '8px 12px', borderRadius: 6, textDecoration: 'none', whiteSpace: 'nowrap', border: '1px solid #333' }}>

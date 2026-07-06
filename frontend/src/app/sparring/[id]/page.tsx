@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/components/AuthProvider'
 import { supabase } from '@/lib/supabase'
+import { useTheme } from '@/hooks/useTheme'
 
 const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
 const BUCKET  = 'sparring-photos'
@@ -559,6 +560,8 @@ export default function SparringProfilePage() {
   const { id }   = useParams<{ id: string }>()
   const router   = useRouter()
 
+  const { isDark } = useTheme()
+
   const [profile,       setProfile]       = useState<Profile|null>(null)
   const [loading,       setLoading]       = useState(true)
   const [error,         setError]         = useState('')
@@ -660,7 +663,7 @@ export default function SparringProfilePage() {
   // ── Loading / Error states ──
   if (loading) {
     return (
-      <div style={{ background:'#000', minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center' }}>
+      <div style={{ background: isDark ? '#000' : '#f5f5f5', minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center' }}>
         <div style={{ width:32, height:32, borderRadius:'50%', border:'3px solid #1a1a1a', borderTopColor:'#39FF14', animation:'spin 0.8s linear infinite' }} />
         <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
       </div>
@@ -668,7 +671,7 @@ export default function SparringProfilePage() {
   }
   if (error || !profile) {
     return (
-      <div style={{ background:'#000', minHeight:'100vh', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:16 }}>
+      <div style={{ background: isDark ? '#000' : '#f5f5f5', minHeight:'100vh', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:16 }}>
         <p style={{ color:'#555', fontSize:16 }}>{error || 'Profile not found.'}</p>
         <Link href="/sparring" style={{ color:'#39FF14', fontSize:14 }}>← Back to Find a Partner</Link>
       </div>
@@ -685,7 +688,7 @@ export default function SparringProfilePage() {
   ] as const
 
   return (
-    <div style={{ background:'#000', minHeight:'100vh', paddingBottom:80 }}>
+    <div style={{ background: isDark ? '#000' : '#f5f5f5', minHeight:'100vh', paddingBottom:80 }}>
       <style>{`
         @keyframes spin { to { transform: rotate(360deg) } }
         * { box-sizing: border-box; }
