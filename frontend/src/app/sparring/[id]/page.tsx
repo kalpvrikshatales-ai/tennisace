@@ -568,6 +568,7 @@ export default function SparringProfilePage() {
   const [savingField,   setSavingField]   = useState(false)
   const [showRequest,   setShowRequest]   = useState(false)
   const [uploading,     setUploading]     = useState<'cover'|'avatar'|null>(null)
+  const [uploadError,   setUploadError]   = useState<string|null>(null)
   const [partnersCount, setPartnersCount] = useState(0)
 
   // Load profile
@@ -616,21 +617,32 @@ export default function SparringProfilePage() {
 
   async function uploadImage(type: 'cover'|'avatar', file: File) {
     if (!profile) return
-    if (!supabase) return
+    if (!supabase) { setUploadError('Storage not configured'); return }
     setUploading(type)
+    setUploadError(null)
     try {
-      const ext  = file.name.split('.').pop()
-      const path = type==='cover' ? `covers/${id}.${ext}` : `avatars/${id}.${ext}`
-      const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, file, { upsert:true })
-      if (upErr) throw upErr
+      const ext  = file.name.split('.').pop() ?? 'jpg'
+      // Unique filename per upload so the browser never serves a stale cached copy
+      const filename = `${Date.now()}.${ext}`
+      const path = type === 'cover' ? `covers/${id}/${filename}` : `avatars/${id}/${filename}`
+      const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, file, { upsert: true })
+      if (upErr) throw new Error(upErr.message)
       const { data } = supabase.storage.from(BUCKET).getPublicUrl(path)
-      const url = `${data.publicUrl}?t=${Date.now()}`
+      if (!data?.publicUrl) throw new Error('Could not get public URL')
+      const url = data.publicUrl
       const res = await fetch(`${BACKEND}/sparring/profiles/${id}`, {
-        method:'PUT', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify(type==='cover' ? { cover_url:url } : { photo_url:url }),
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(type === 'cover' ? { cover_url: url } : { photo_url: url }),
       })
-      if (res.ok) setProfile(await res.json())
-    } catch {} finally { setUploading(null) }
+      if (!res.ok) throw new Error('Failed to save photo URL')
+      const updated = await res.json()
+      // Update local state immediately — no page refresh needed
+      setProfile(updated)
+    } catch (e: any) {
+      setUploadError(e?.message ?? 'Upload failed')
+    } finally {
+      setUploading(null)
+    }
   }
 
   function getFieldDisplay(f: FieldDef): string|null {
@@ -715,21 +727,32 @@ export default function SparringProfilePage() {
 
           {/* Avatar */}
           <div style={{ position:'relative', flexShrink:0 }}>
+            {/* Avatar circle */}
             <div style={{
               width:96, height:96, borderRadius:'50%', border:'4px solid #000',
               background: profile.photo_url ? `url(${profile.photo_url}) center/cover no-repeat` : '#39FF14',
               display:'flex', alignItems:'center', justifyContent:'center',
               fontSize:36, fontWeight:900, color:'#000', overflow:'hidden',
+              position:'relative',
             }}>
               {!profile.photo_url && initial}
+              {/* Full-circle spinner overlay while uploading */}
+              {uploading === 'avatar' && (
+                <div style={{
+                  position:'absolute', inset:0, borderRadius:'50%',
+                  background:'rgba(0,0,0,0.6)',
+                  display:'flex', alignItems:'center', justifyContent:'center',
+                }}>
+                  <div style={{ width:24, height:24, borderRadius:'50%', border:'3px solid #1a1a1a', borderTopColor:'#39FF14', animation:'spin 0.7s linear infinite' }} />
+                </div>
+              )}
             </div>
+            {/* Camera button */}
             {isOwn && (
               <UploadBtn onFile={f => uploadImage('avatar', f)}
                 style={{ position:'absolute', bottom:2, right:2 }}>
                 <div style={{ width:26, height:26, borderRadius:'50%', background:'#1a1a1a', border:'2px solid #000', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12 }}>
-                  {uploading==='avatar'
-                    ? <div style={{ width:10, height:10, borderRadius:'50%', border:'2px solid #333', borderTopColor:'#39FF14', animation:'spin 0.7s linear infinite' }} />
-                    : '📷'}
+                  📷
                 </div>
               </UploadBtn>
             )}
@@ -756,6 +779,14 @@ export default function SparringProfilePage() {
             )}
           </div>
         </div>
+
+        {/* Upload error */}
+        {uploadError && (
+          <div style={{ background:'#1a0a0a', border:'1px solid #3a1a1a', borderRadius:8, padding:'8px 14px', marginBottom:12, display:'flex', alignItems:'center', justifyContent:'space-between', gap:10 }}>
+            <span style={{ color:'#e87070', fontSize:13 }}>{uploadError}</span>
+            <button onClick={() => setUploadError(null)} style={{ background:'none', border:'none', color:'#e87070', cursor:'pointer', fontSize:16, lineHeight:1, padding:2 }}>×</button>
+          </div>
+        )}
 
         {/* ── Profile info ── */}
         <div style={{ marginBottom:22 }}>

@@ -4,12 +4,14 @@ import { useState } from 'react'
 import SplashScreen from './SplashScreen'
 import Sidebar from './Sidebar'
 import { SidebarProvider } from './SidebarContext'
+import ThemeInitializer from './ThemeInitializer'
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const [splashComplete, setSplashComplete] = useState(false)
 
   return (
     <SidebarProvider>
+      <ThemeInitializer />
       {!splashComplete && <SplashScreen onComplete={() => setSplashComplete(true)} />}
 
       {/* Permanent sidebar (desktop) / Drawer (mobile) */}

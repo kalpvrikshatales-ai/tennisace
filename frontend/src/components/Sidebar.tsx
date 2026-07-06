@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from './AuthProvider'
 import { useSidebar, HomeTab } from './SidebarContext'
 import { signInWithGoogle } from '@/lib/supabase'
+import ThemeToggle from './ThemeToggle'
 
 // ─── Favourite players (shown when not logged in) ────────────────────────────
 const FAVES = [
@@ -147,6 +148,15 @@ function SidebarPanel({ onClose }: { onClose?: () => void }) {
           <NavRow key={item.label} item={item} active={isActive(item)} onClick={() => handleNav(item)} />
         ))}
       </nav>
+
+      {/* Divider */}
+      <div style={{ height:1, background:'#1a1a1a', margin:'0 8px', flexShrink:0 }} />
+
+      {/* Theme toggle row */}
+      <div style={{ padding:'8px 16px', display:'flex', alignItems:'center', justifyContent:'space-between', flexShrink:0 }}>
+        <span style={{ color:'#555', fontSize:12, fontWeight:600 }}>Theme</span>
+        <ThemeToggle variant="dark" />
+      </div>
 
       {/* Divider */}
       <div style={{ height:1, background:'#1a1a1a', margin:'0 8px', flexShrink:0 }} />
