@@ -48,7 +48,7 @@ function ReceivedCard({ req, onAccept, onDecline, acting }: {
   const s       = STATUS_STYLE[req.status] ?? STATUS_STYLE.pending
   const isActing = acting === req.id
   return (
-    <div style={{ background: '#111', border: '1px solid #222', borderRadius: 10, padding: '14px 16px', marginBottom: 10 }}>
+    <div style={{ background: '#0f1520', border: '1px solid #222', borderRadius: 10, padding: '14px 16px', marginBottom: 10 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
         <div>
           <p style={{ color: '#fff', fontWeight: 800, fontSize: 15, margin: '0 0 2px' }}>{req.requester_name}</p>
@@ -66,7 +66,7 @@ function ReceivedCard({ req, onAccept, onDecline, acting }: {
             Decline
           </button>
           <button onClick={() => onAccept(req.id)} disabled={!!acting}
-            style={{ flex: 2, background: isActing ? '#333' : '#39FF14', border: 'none', borderRadius: 6, color: isActing ? '#666' : '#000', fontWeight: 800, fontSize: 13, padding: '9px', cursor: acting ? 'not-allowed' : 'pointer' }}>
+            style={{ flex: 2, background: isActing ? '#333' : '#39FF14', border: 'none', borderRadius: 6, color: isActing ? '#666' : '#0a0f1a', fontWeight: 800, fontSize: 13, padding: '9px', cursor: acting ? 'not-allowed' : 'pointer' }}>
             {isActing ? 'Accepting…' : 'Accept'}
           </button>
         </div>
@@ -79,7 +79,7 @@ function SentCard({ req }: { req: Request }) {
   const s = STATUS_STYLE[req.status] ?? STATUS_STYLE.pending
   const p = req.to_profile
   return (
-    <div style={{ background: '#111', border: '1px solid #222', borderRadius: 10, padding: '14px 16px', marginBottom: 10 }}>
+    <div style={{ background: '#0f1520', border: '1px solid #222', borderRadius: 10, padding: '14px 16px', marginBottom: 10 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <p style={{ color: '#fff', fontWeight: 800, fontSize: 15, margin: '0 0 2px' }}>{p?.name ?? '—'}</p>
@@ -160,14 +160,14 @@ export default function MyRequestsPage() {
 
   if (loading) {
     return (
-      <div style={{ background: '#000', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ background: '#0a0f1a', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <p style={{ color: '#555', fontSize: 14 }}>Loading…</p>
       </div>
     )
   }
 
   return (
-    <div style={{ background: '#000', minHeight: '100vh', paddingBottom: 80 }}>
+    <div style={{ background: '#0a0f1a', minHeight: '100vh', paddingBottom: 80 }}>
       <div style={{ borderBottom: '1px solid #1a1a1a', padding: '16px 16px 16px' }}>
         <div style={{ maxWidth: 560, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
@@ -193,7 +193,7 @@ export default function MyRequestsPage() {
 
         {showSignOutModal && (
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: 16 }}>
-            <div style={{ background: '#111', border: '1px solid #222', borderRadius: 12, padding: 24, maxWidth: 340, width: '100%' }}>
+            <div style={{ background: '#0f1520', border: '1px solid #222', borderRadius: 12, padding: 24, maxWidth: 340, width: '100%' }}>
               <p style={{ color: '#fff', fontWeight: 900, fontSize: 18, margin: '0 0 8px' }}>Sign out?</p>
               <p style={{ color: '#555', fontSize: 14, margin: '0 0 24px', lineHeight: 1.5 }}>
                 You can sign back in with your email anytime.

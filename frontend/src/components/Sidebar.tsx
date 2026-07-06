@@ -129,7 +129,7 @@ function SidebarPanel({ onClose }: { onClose?: () => void }) {
   return (
     <div style={{
       width:'100%', height:'100%', display:'flex', flexDirection:'column',
-      background:'#0d0d0d', borderRight:'1px solid #1a1a1a', overflowY:'auto',
+      background:'#070c14', borderRight:'1px solid #0f1a2e', overflowY:'auto',
     }}>
       {/* Logo */}
       <div style={{ padding:'18px 16px 14px', borderBottom:'1px solid #1a1a1a', flexShrink:0 }}>

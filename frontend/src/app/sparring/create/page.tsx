@@ -35,14 +35,14 @@ type AvailKey = `${typeof DAYS[number]}-${typeof TIMES[number]}`
 const pill = (active: boolean) => ({
   padding: '7px 14px', borderRadius: 6, fontSize: 13, fontWeight: 700,
   border: active ? 'none' : '1px solid #333',
-  background: active ? '#39FF14' : '#111',
-  color: active ? '#000' : '#aaa',
+  background: active ? '#39FF14' : '#0f1520',
+  color: active ? '#0a0f1a' : '#aaa',
   cursor: 'pointer',
 })
 
 const inputStyle: React.CSSProperties = {
   width: '100%', boxSizing: 'border-box',
-  background: '#111', border: '1px solid #333', borderRadius: 6,
+  background: '#0f1520', border: '1px solid #333', borderRadius: 6,
   color: '#fff', padding: '11px 14px', fontSize: 14, outline: 'none',
 }
 
@@ -97,6 +97,7 @@ export default function CreateSparringPage() {
   const [error,         setError]         = useState('')
   const [banner,        setBanner]        = useState('')
   const [alreadyExists, setAlreadyExists] = useState(false)
+  const [celebrating,   setCelebrating]   = useState<{ name: string; profileId: string } | null>(null)
 
   useEffect(() => {
     const p = new URLSearchParams(window.location.search)
@@ -219,14 +220,45 @@ export default function CreateSparringPage() {
       const profile = await res.json()
       localStorage.setItem('sparring_profile_id', profile.id)
       localStorage.setItem('sparring_email', email.trim().toLowerCase())
-      router.push(`/sparring/${profile.id}`)
+      setCelebrating({ name: name.trim(), profileId: profile.id })
+      setTimeout(() => router.push(`/sparring/${profile.id}`), 2500)
     } catch (e: any) { setError(e.message); setUploading(false) }
     finally { setCreating(false) }
   }
 
+  if (celebrating) {
+    return (
+      <div style={{ background: '#0a0f1a', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+        <style>{`
+          @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50%       { transform: translateY(-18px); }
+          }
+          @keyframes fill-bar {
+            from { width: 0% }
+            to   { width: 100% }
+          }
+        `}</style>
+        <div style={{ textAlign: 'center', padding: '0 24px' }}>
+          <div style={{ fontSize: 64, animation: 'bounce 0.9s ease-in-out infinite', display: 'inline-block', marginBottom: 24 }}>🎾</div>
+          <h1 style={{ color: '#fff', fontSize: 28, fontWeight: 900, margin: '0 0 12px', letterSpacing: -0.5 }}>
+            Welcome to TennisAce, {celebrating.name}! 🎾
+          </h1>
+          <p style={{ color: '#556', fontSize: 15, margin: 0, lineHeight: 1.6 }}>
+            Your profile is live. Start finding hitting partners near you.
+          </p>
+        </div>
+        {/* Bottom progress bar */}
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 4, background: '#1a2535' }}>
+          <div style={{ height: '100%', background: '#39FF14', borderRadius: 2, animation: 'fill-bar 2.5s linear forwards' }} />
+        </div>
+      </div>
+    )
+  }
+
   if (creating) {
     return (
-      <div style={{ background: '#000', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ background: '#0a0f1a', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: 40, marginBottom: 16 }}>⚡</div>
           <p style={{ color: '#fff', fontWeight: 800, fontSize: 20, margin: '0 0 8px' }}>Creating your profile…</p>
@@ -237,7 +269,7 @@ export default function CreateSparringPage() {
   }
 
   return (
-    <div style={{ background: '#000', minHeight: '100vh', paddingBottom: 80 }}>
+    <div style={{ background: '#0a0f1a', minHeight: '100vh', paddingBottom: 80 }}>
       <div style={{ maxWidth: 540, margin: '0 auto', padding: '20px 16px' }}>
 
         {banner && (
@@ -245,10 +277,10 @@ export default function CreateSparringPage() {
             <p style={{ color: '#d4b84a', fontSize: 14, fontWeight: 700, margin: '0 0 14px' }}>👋 {banner}</p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
               <Link href="/sparring/login"
-                style={{ display: 'block', textAlign: 'center', padding: '10px', borderRadius: 6, background: '#111', border: '1px solid #444', color: '#fff', fontWeight: 700, fontSize: 13, textDecoration: 'none' }}>
+                style={{ display: 'block', textAlign: 'center', padding: '10px', borderRadius: 6, background: '#0f1520', border: '1px solid #444', color: '#fff', fontWeight: 700, fontSize: 13, textDecoration: 'none' }}>
                 Sign in to existing profile
               </Link>
-              <span style={{ display: 'block', textAlign: 'center', padding: '10px', borderRadius: 6, background: '#39FF14', color: '#000', fontWeight: 800, fontSize: 13 }}>
+              <span style={{ display: 'block', textAlign: 'center', padding: '10px', borderRadius: 6, background: '#39FF14', color: '#0a0f1a', fontWeight: 800, fontSize: 13 }}>
                 Create new profile ↓
               </span>
             </div>
@@ -269,8 +301,8 @@ export default function CreateSparringPage() {
                 style={{
                   padding: '16px 12px', borderRadius: 10, cursor: 'pointer', textAlign: 'center',
                   border: role === r ? 'none' : '1px solid #333',
-                  background: role === r ? '#39FF14' : '#111',
-                  color: role === r ? '#000' : '#aaa',
+                  background: role === r ? '#39FF14' : '#0f1520',
+                  color: role === r ? '#0a0f1a' : '#aaa',
                   fontWeight: 900, fontSize: 16, letterSpacing: -0.3,
                 }}>
                 {r === 'player' ? '🎾 Player' : '🎓 Coach'}
@@ -282,7 +314,7 @@ export default function CreateSparringPage() {
         {/* Photo */}
         <div style={{ marginBottom: 24, textAlign: 'center' }}>
           <div onClick={() => fileRef.current?.click()}
-            style={{ width: 100, height: 100, borderRadius: '50%', background: '#111', border: '2px dashed #333', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', cursor: 'pointer' }}>
+            style={{ width: 100, height: 100, borderRadius: '50%', background: '#0f1520', border: '2px dashed #333', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', cursor: 'pointer' }}>
             {photoPreview
               ? <img src={photoPreview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               : <span style={{ color: '#444', fontSize: 13 }}>+ Photo</span>}
@@ -331,8 +363,8 @@ export default function CreateSparringPage() {
                 ) : (
                   <button onClick={sendOtp} disabled={sending || !email.includes('@')}
                     style={{ padding: '0 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: 13, whiteSpace: 'nowrap',
-                      background: sending || !email.includes('@') ? '#222' : '#39FF14',
-                      color: sending || !email.includes('@') ? '#555' : '#000' }}>
+                      background: sending || !email.includes('@') ? '#1a2535' : '#39FF14',
+                      color: sending || !email.includes('@') ? '#555' : '#0a0f1a' }}>
                     {sending ? '…' : otpSent ? 'Resend' : 'Send Code'}
                   </button>
                 )}
@@ -346,8 +378,8 @@ export default function CreateSparringPage() {
                       style={{ ...inputStyle, flex: 1, textAlign: 'center', fontSize: 22, fontWeight: 900, letterSpacing: 8 }} />
                     <button onClick={verifyOtp} disabled={verifying || otp.length < 6}
                       style={{ padding: '0 16px', borderRadius: 6, border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: 13,
-                        background: verifying || otp.length < 6 ? '#222' : '#39FF14',
-                        color: verifying || otp.length < 6 ? '#555' : '#000' }}>
+                        background: verifying || otp.length < 6 ? '#1a2535' : '#39FF14',
+                        color: verifying || otp.length < 6 ? '#555' : '#0a0f1a' }}>
                       {verifying ? '…' : 'Verify'}
                     </button>
                   </div>
@@ -364,7 +396,7 @@ export default function CreateSparringPage() {
           <Label text="Phone (shared only when a request is accepted)" />
           <div style={{ display: 'flex', gap: 8 }}>
             <select value={countryCode} onChange={e => setCountryCode(e.target.value)}
-              style={{ background: '#111', border: '1px solid #333', borderRadius: 6, color: '#fff', padding: '11px 10px', fontSize: 14, outline: 'none', flexShrink: 0 }}>
+              style={{ background: '#0f1520', border: '1px solid #333', borderRadius: 6, color: '#fff', padding: '11px 10px', fontSize: 14, outline: 'none', flexShrink: 0 }}>
               {COUNTRY_CODES.map(c => <option key={c.code} value={c.code}>{c.flag} {c.code}</option>)}
             </select>
             <input value={phoneNumber} onChange={e => setPhoneNumber(e.target.value.replace(/\D/g, ''))} placeholder="Optional" inputMode="tel" style={{ ...inputStyle, flex: 1 }} />
@@ -445,7 +477,7 @@ export default function CreateSparringPage() {
         {/* Availability */}
         <div style={{ marginBottom: 28 }}>
           <Label text="Availability" />
-          <div style={{ background: '#111', border: '1px solid #1e1e1e', borderRadius: 8, padding: 14 }}>
+          <div style={{ background: '#0f1520', border: '1px solid #1e1e1e', borderRadius: 8, padding: 14 }}>
             <div style={{ display: 'grid', gridTemplateColumns: '80px repeat(7, 1fr)', gap: 4, marginBottom: 6 }}>
               <div />
               {['mon','tue','wed','thu','fri','sat','sun'].map(d => (
@@ -470,7 +502,7 @@ export default function CreateSparringPage() {
             <p style={{ color: '#39FF14', fontWeight: 800, fontSize: 15, margin: '0 0 6px' }}>You already have a profile</p>
             <p style={{ color: '#aaa', fontSize: 13, margin: '0 0 16px' }}>Sign in to access your requests and profile.</p>
             <button onClick={() => router.push('/sparring/login')}
-              style={{ background: '#39FF14', border: 'none', borderRadius: 6, color: '#000', fontWeight: 900, fontSize: 14, padding: '11px 20px', cursor: 'pointer' }}>
+              style={{ background: '#39FF14', border: 'none', borderRadius: 6, color: '#0a0f1a', fontWeight: 900, fontSize: 14, padding: '11px 20px', cursor: 'pointer' }}>
               Sign in →
             </button>
           </div>
@@ -486,7 +518,7 @@ export default function CreateSparringPage() {
           style={{
             width: '100%', border: 'none', borderRadius: 8, fontWeight: 900, fontSize: 16, padding: '16px', letterSpacing: -0.3,
             background: emailVerified && !creating ? '#39FF14' : '#1a1a1a',
-            color: emailVerified && !creating ? '#000' : '#444',
+            color: emailVerified && !creating ? '#0a0f1a' : '#444',
             cursor: emailVerified && !creating ? 'pointer' : 'not-allowed',
           }}>
           {creating ? 'Creating profile…' : emailVerified ? `Create ${role === 'coach' ? 'Coach' : 'Player'} Profile` : 'Verify your email first'}

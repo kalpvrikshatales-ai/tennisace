@@ -87,7 +87,7 @@ function AvailGrid({ slots, isOwn, onEdit }: { slots: AvailSlot[]; isOwn: boolea
                     <td key={d} style={{ padding:'3px 4px', textAlign:'center' }}>
                       <div style={{
                         width:28, height:28, borderRadius:6, margin:'0 auto',
-                        background: on ? 'rgba(57,255,20,0.15)' : '#111',
+                        background: on ? 'rgba(57,255,20,0.15)' : '#0f1520',
                         border: `1px solid ${on ? '#39FF14' : '#1e1e1e'}`,
                       }} />
                     </td>
@@ -140,7 +140,7 @@ function AvailEditor({ value, onChange }: { value: AvailSlot[]; onChange: (v: Av
                 return (
                   <td key={d} style={{ padding:'2px 3px', textAlign:'center' }}>
                     <button onClick={() => toggle(d,t)}
-                      style={{ width:26, height:26, borderRadius:5, border:`1px solid ${on?'#39FF14':'#2a2a2a'}`, background:on?'rgba(57,255,20,0.18)':'#111', cursor:'pointer' }} />
+                      style={{ width:26, height:26, borderRadius:5, border:`1px solid ${on?'#39FF14':'#2a2a2a'}`, background:on?'rgba(57,255,20,0.18)':'#0f1520', cursor:'pointer' }} />
                   </td>
                 )
               })}
@@ -166,7 +166,7 @@ function EditModal({ field, value, onSave, onClose, saving }: {
   return (
     <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.88)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:200, padding:16 }}
       onClick={e => { if (e.target===e.currentTarget) onClose() }}>
-      <div style={{ background:'#111', border:'1px solid #2a2a2a', borderRadius:14, padding:24, maxWidth:440, width:'100%', maxHeight:'90vh', overflowY:'auto' }}>
+      <div style={{ background:'#0f1520', border:'1px solid #2a2a2a', borderRadius:14, padding:24, maxWidth:440, width:'100%', maxHeight:'90vh', overflowY:'auto' }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
           <p style={{ color:'#fff', fontWeight:800, fontSize:16, margin:0 }}>{field.label}</p>
           <button onClick={onClose} style={{ background:'none', border:'none', color:'#555', fontSize:22, cursor:'pointer', lineHeight:1, padding:4 }}>×</button>
@@ -223,7 +223,7 @@ function EditModal({ field, value, onSave, onClose, saving }: {
             Cancel
           </button>
           <button onClick={() => onSave(val)} disabled={saving}
-            style={{ flex:2, background:saving?'#1a3a1a':'#39FF14', border:'none', borderRadius:8, color:saving?'#39FF14':'#000', fontWeight:800, fontSize:14, padding:'12px', cursor:saving?'not-allowed':'pointer' }}>
+            style={{ flex:2, background:saving?'#1a3a1a':'#39FF14', border:'none', borderRadius:8, color:saving?'#39FF14':'#0a0f1a', fontWeight:800, fontSize:14, padding:'12px', cursor:saving?'not-allowed':'pointer' }}>
             {saving ? 'Saving…' : 'Save'}
           </button>
         </div>
@@ -247,12 +247,12 @@ function FieldCard({ fieldKey, label, value, isOwn, onClick }: {
       onClick={isOwn ? onClick : undefined}
       disabled={!isOwn}
       style={{
-        background:'#111', border:'1px solid #222', borderRadius:10,
+        background:'#0f1520', border:'1px solid #222', borderRadius:10,
         padding:'14px 12px', textAlign:'left', display:'flex', flexDirection:'column',
         gap:5, cursor:isOwn?'pointer':'default', minHeight:90, width:'100%', transition:'border-color 0.15s',
       }}
       onMouseEnter={e => isOwn && (e.currentTarget.style.borderColor='#333')}
-      onMouseLeave={e => (e.currentTarget.style.borderColor='#222')}
+      onMouseLeave={e => (e.currentTarget.style.borderColor='#1a2535')}
     >
       <span style={{ fontSize:16 }}>{FIELD_ICONS[fieldKey] ?? '•'}</span>
       <span style={{ color:'#555', fontSize:10, fontWeight:700, textTransform:'uppercase', letterSpacing:0.7 }}>{label}</span>
@@ -290,11 +290,15 @@ function PartnersTab({ profileId }: { profileId: string }) {
 
   if (partners.length === 0) {
     return (
-      <div style={{ textAlign:'center', padding:'48px 16px' }}>
-        <p style={{ fontSize:32, margin:'0 0 12px' }}>🎾</p>
-        <p style={{ color:'#555', fontSize:14, lineHeight:1.6, margin:0 }}>
-          No partners yet.<br/>Send a request to connect.
+      <div style={{ textAlign:'center', padding:'56px 16px' }}>
+        <p style={{ fontSize:40, margin:'0 0 14px' }}>🎾</p>
+        <p style={{ color:'#fff', fontWeight:800, fontSize:16, margin:'0 0 8px' }}>No partners yet</p>
+        <p style={{ color:'#556', fontSize:14, lineHeight:1.6, margin:'0 0 20px', maxWidth:280, marginLeft:'auto', marginRight:'auto' }}>
+          Your next favourite hitting partner is one request away. Browse players and send your first request.
         </p>
+        <a href="/sparring" style={{ display:'inline-block', background:'#39FF14', color:'#0a0f1a', fontWeight:800, fontSize:13, padding:'10px 20px', borderRadius:8, textDecoration:'none' }}>
+          Find a Partner →
+        </a>
       </div>
     )
   }
@@ -302,8 +306,8 @@ function PartnersTab({ profileId }: { profileId: string }) {
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
       {partners.map((p, i) => (
-        <div key={i} style={{ display:'flex', alignItems:'center', gap:12, background:'#111', border:'1px solid #222', borderRadius:10, padding:'12px 14px' }}>
-          <div style={{ width:44, height:44, borderRadius:'50%', background:'#39FF14', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, fontWeight:900, color:'#000', flexShrink:0 }}>
+        <div key={i} style={{ display:'flex', alignItems:'center', gap:12, background:'#0f1520', border:'1px solid #222', borderRadius:10, padding:'12px 14px' }}>
+          <div style={{ width:44, height:44, borderRadius:'50%', background:'#39FF14', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, fontWeight:900, color:'#0a0f1a', flexShrink:0 }}>
             {(p.name??'?')[0].toUpperCase()}
           </div>
           <div>
@@ -374,11 +378,11 @@ function RequestsTab({ email }: { email?: string }) {
         Received ({received.length})
       </p>
       {received.length === 0
-        ? <p style={{ color:'#444', fontSize:14, marginBottom:28 }}>No requests received yet.</p>
+        ? <p style={{ color:'#556', fontSize:14, marginBottom:28 }}>When someone wants to hit with you, they'll appear here.</p>
         : received.map(req => {
             const s = STATUS[req.status] ?? STATUS.pending
             return (
-              <div key={req.id} style={{ background:'#111', border:'1px solid #222', borderRadius:10, padding:'14px 16px', marginBottom:10 }}>
+              <div key={req.id} style={{ background:'#0f1520', border:'1px solid #222', borderRadius:10, padding:'14px 16px', marginBottom:10 }}>
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:6 }}>
                   <div>
                     <p style={{ color:'#fff', fontWeight:800, fontSize:14, margin:'0 0 2px' }}>{req.requester_name}</p>
@@ -399,7 +403,7 @@ function RequestsTab({ email }: { email?: string }) {
                       Decline
                     </button>
                     <button onClick={()=>accept(req.id)} disabled={!!acting}
-                      style={{ flex:2, background:acting===req.id?'#1a3a1a':'#39FF14', border:'none', borderRadius:6, color:acting===req.id?'#39FF14':'#000', fontWeight:800, fontSize:13, padding:'9px', cursor:acting?'not-allowed':'pointer' }}>
+                      style={{ flex:2, background:acting===req.id?'#1a3a1a':'#39FF14', border:'none', borderRadius:6, color:acting===req.id?'#39FF14':'#0a0f1a', fontWeight:800, fontSize:13, padding:'9px', cursor:acting?'not-allowed':'pointer' }}>
                       {acting===req.id ? 'Accepting…' : 'Accept'}
                     </button>
                   </div>
@@ -418,7 +422,7 @@ function RequestsTab({ email }: { email?: string }) {
             const s = STATUS[req.status] ?? STATUS.pending
             const p = req.to_profile
             return (
-              <div key={req.id} style={{ background:'#111', border:'1px solid #222', borderRadius:10, padding:'14px 16px', marginBottom:10 }}>
+              <div key={req.id} style={{ background:'#0f1520', border:'1px solid #222', borderRadius:10, padding:'14px 16px', marginBottom:10 }}>
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
                   <div>
                     <p style={{ color:'#fff', fontWeight:800, fontSize:14, margin:'0 0 2px' }}>{p?.name ?? '—'}</p>
@@ -480,13 +484,13 @@ function RequestModal({ profile, onClose }: { profile: Profile; onClose: () => v
   return (
     <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.88)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:200, padding:16 }}
       onClick={e => { if (e.target===e.currentTarget) onClose() }}>
-      <div style={{ background:'#111', border:'1px solid #222', borderRadius:14, padding:24, maxWidth:420, width:'100%' }}>
+      <div style={{ background:'#0f1520', border:'1px solid #222', borderRadius:14, padding:24, maxWidth:420, width:'100%' }}>
         {sent ? (
           <div style={{ textAlign:'center', padding:'16px 0' }}>
             <p style={{ fontSize:36, margin:'0 0 12px' }}>✅</p>
             <p style={{ color:'#fff', fontWeight:800, fontSize:18, margin:'0 0 6px' }}>Request sent!</p>
             <p style={{ color:'#555', fontSize:14, margin:'0 0 24px', lineHeight:1.5 }}>{profile.name} will see your request. If they accept, you'll both get each other's number.</p>
-            <button onClick={onClose} style={{ background:'#39FF14', border:'none', borderRadius:8, color:'#000', fontWeight:800, fontSize:14, padding:'12px 28px', cursor:'pointer' }}>Done</button>
+            <button onClick={onClose} style={{ background:'#39FF14', border:'none', borderRadius:8, color:'#0a0f1a', fontWeight:800, fontSize:14, padding:'12px 28px', cursor:'pointer' }}>Done</button>
           </div>
         ) : (
           <>
@@ -518,7 +522,7 @@ function RequestModal({ profile, onClose }: { profile: Profile; onClose: () => v
                 style={{ width:'100%', background:'#1a1a1a', border:'1px solid #2a2a2a', borderRadius:8, color:'#fff', fontSize:14, padding:'10px 12px', outline:'none', resize:'none', boxSizing:'border-box', lineHeight:1.5 }} />
             </div>
             <button onClick={submit} disabled={sending}
-              style={{ width:'100%', background:sending?'#1a3a1a':'#39FF14', border:'none', borderRadius:8, color:sending?'#39FF14':'#000', fontWeight:800, fontSize:15, padding:'13px', cursor:sending?'not-allowed':'pointer' }}>
+              style={{ width:'100%', background:sending?'#1a3a1a':'#39FF14', border:'none', borderRadius:8, color:sending?'#39FF14':'#0a0f1a', fontWeight:800, fontSize:15, padding:'13px', cursor:sending?'not-allowed':'pointer' }}>
               {sending ? 'Sending…' : 'Send Request'}
             </button>
           </>
@@ -663,7 +667,7 @@ export default function SparringProfilePage() {
   // ── Loading / Error states ──
   if (loading) {
     return (
-      <div style={{ background: isDark ? '#000' : '#f5f5f5', minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center' }}>
+      <div style={{ background: isDark ? '#0a0f1a' : '#f5f5f5', minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center' }}>
         <div style={{ width:32, height:32, borderRadius:'50%', border:'3px solid #1a1a1a', borderTopColor:'#39FF14', animation:'spin 0.8s linear infinite' }} />
         <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
       </div>
@@ -671,7 +675,7 @@ export default function SparringProfilePage() {
   }
   if (error || !profile) {
     return (
-      <div style={{ background: isDark ? '#000' : '#f5f5f5', minHeight:'100vh', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:16 }}>
+      <div style={{ background: isDark ? '#0a0f1a' : '#f5f5f5', minHeight:'100vh', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:16 }}>
         <p style={{ color:'#555', fontSize:16 }}>{error || 'Profile not found.'}</p>
         <Link href="/sparring" style={{ color:'#39FF14', fontSize:14 }}>← Back to Find a Partner</Link>
       </div>
@@ -688,7 +692,7 @@ export default function SparringProfilePage() {
   ] as const
 
   return (
-    <div style={{ background: isDark ? '#000' : '#f5f5f5', minHeight:'100vh', paddingBottom:80 }}>
+    <div style={{ background: isDark ? '#0a0f1a' : '#f5f5f5', minHeight:'100vh', paddingBottom:80 }}>
       <style>{`
         @keyframes spin { to { transform: rotate(360deg) } }
         * { box-sizing: border-box; }
@@ -735,7 +739,7 @@ export default function SparringProfilePage() {
               width:96, height:96, borderRadius:'50%', border:'4px solid #000',
               background: profile.photo_url ? `url(${profile.photo_url}) center/cover no-repeat` : '#39FF14',
               display:'flex', alignItems:'center', justifyContent:'center',
-              fontSize:36, fontWeight:900, color:'#000', overflow:'hidden',
+              fontSize:36, fontWeight:900, color:'#0a0f1a', overflow:'hidden',
               position:'relative',
             }}>
               {!profile.photo_url && initial}
@@ -770,13 +774,13 @@ export default function SparringProfilePage() {
                   Settings
                 </Link>
                 <Link href={`/sparring/edit/${id}`}
-                  style={{ background:'#39FF14', border:'none', borderRadius:8, color:'#000', fontWeight:800, fontSize:13, padding:'9px 16px', textDecoration:'none', whiteSpace:'nowrap' }}>
+                  style={{ background:'#39FF14', border:'none', borderRadius:8, color:'#0a0f1a', fontWeight:800, fontSize:13, padding:'9px 16px', textDecoration:'none', whiteSpace:'nowrap' }}>
                   Edit Profile
                 </Link>
               </>
             ) : (
               <button onClick={() => setShowRequest(true)}
-                style={{ background:'#39FF14', border:'none', borderRadius:8, color:'#000', fontWeight:800, fontSize:13, padding:'9px 18px', cursor:'pointer', whiteSpace:'nowrap' }}>
+                style={{ background:'#39FF14', border:'none', borderRadius:8, color:'#0a0f1a', fontWeight:800, fontSize:13, padding:'9px 18px', cursor:'pointer', whiteSpace:'nowrap' }}>
                 Request to Play
               </button>
             )}
@@ -806,13 +810,42 @@ export default function SparringProfilePage() {
               @{[profile.city, profile.country].filter(Boolean).join(', ')}
             </p>
           )}
-          <p style={{ color:'#555', fontSize:13, margin:0 }}>
-            {partnersCount} partner{partnersCount !== 1 ? 's' : ''}
-          </p>
+          {partnersCount === 0 && isOwn ? (
+            <a href="/sparring" style={{ color:'#39FF14', fontSize:13, fontWeight:700, textDecoration:'none' }}>
+              Find your first partner →
+            </a>
+          ) : (
+            <p style={{ color:'#556', fontSize:13, margin:0 }}>
+              {partnersCount} Tennis Partner{partnersCount !== 1 ? 's' : ''}
+            </p>
+          )}
         </div>
 
+        {/* ── Profile completion bar (own profile only) ── */}
+        {isOwn && (() => {
+          const fields = [
+            profile.name, profile.city, profile.country, profile.level,
+            profile.surface?.length, profile.play_style, profile.dominant_hand,
+            profile.backhand, profile.years_playing, profile.bio, profile.photo_url,
+            profile.availability?.length,
+          ]
+          const filled   = fields.filter(Boolean).length
+          const pct      = Math.round((filled / fields.length) * 100)
+          const complete = pct === 100
+          return (
+            <div style={{ marginBottom:18 }}>
+              <div style={{ background:'#1a2535', borderRadius:2, height:4, overflow:'hidden' }}>
+                <div style={{ width:`${pct}%`, height:'100%', background:'#39FF14', borderRadius:2, transition:'width 0.5s ease' }} />
+              </div>
+              <p style={{ color: complete ? '#39FF14' : '#556', fontSize:11, margin:'5px 0 0', fontWeight:600 }}>
+                {complete ? '✓ Profile complete' : `${pct}% profile complete`}
+              </p>
+            </div>
+          )
+        })()}
+
         {/* ── Tabs ── */}
-        <div style={{ display:'flex', borderBottom:'1px solid #222', marginBottom:24 }}>
+        <div style={{ display:'flex', borderBottom:'1px solid #1a2535', marginBottom:24 }}>
           {tabs.map(tab => (
             <button key={tab.key} onClick={() => setActiveTab(tab.key as any)}
               style={{
@@ -846,7 +879,7 @@ export default function SparringProfilePage() {
               ))}
             </div>
 
-            <div style={{ background:'#111', border:'1px solid #222', borderRadius:10, padding:'16px' }}>
+            <div style={{ background:'#0f1520', border:'1px solid #222', borderRadius:10, padding:'16px' }}>
               <p style={{ color:'#555', fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:0.7, margin:'0 0 14px' }}>Availability</p>
               <AvailGrid
                 slots={profile.availability ?? []}

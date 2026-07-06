@@ -30,14 +30,14 @@ type AvailKey = `${typeof DAYS[number]}-${typeof TIMES[number]}`
 const pill = (active: boolean): React.CSSProperties => ({
   padding: '7px 14px', borderRadius: 6, fontSize: 13, fontWeight: 700,
   border: active ? 'none' : '1px solid #333',
-  background: active ? '#39FF14' : '#111',
-  color: active ? '#000' : '#aaa',
+  background: active ? '#39FF14' : '#0f1520',
+  color: active ? '#0a0f1a' : '#aaa',
   cursor: 'pointer',
 })
 
 const inputStyle: React.CSSProperties = {
   width: '100%', boxSizing: 'border-box',
-  background: '#111', border: '1px solid #333', borderRadius: 6,
+  background: '#0f1520', border: '1px solid #333', borderRadius: 6,
   color: '#fff', padding: '11px 14px', fontSize: 14, outline: 'none',
 }
 
@@ -208,7 +208,7 @@ export default function EditSparringPage() {
 
   if (loading) {
     return (
-      <div style={{ background: '#000', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ background: '#0a0f1a', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ width: 32, height: 32, borderRadius: '50%', border: '3px solid #1a1a1a', borderTopColor: '#39FF14', animation: 'spin 0.8s linear infinite' }} />
         <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
       </div>
@@ -217,7 +217,7 @@ export default function EditSparringPage() {
 
   if (saving) {
     return (
-      <div style={{ background: '#000', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ background: '#0a0f1a', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: 40, marginBottom: 16 }}>⚡</div>
           <p style={{ color: '#fff', fontWeight: 800, fontSize: 20, margin: '0 0 8px' }}>Saving your profile…</p>
@@ -228,7 +228,7 @@ export default function EditSparringPage() {
   }
 
   return (
-    <div style={{ background: '#000', minHeight: '100vh', paddingBottom: 80 }}>
+    <div style={{ background: '#0a0f1a', minHeight: '100vh', paddingBottom: 80 }}>
       <div style={{ maxWidth: 540, margin: '0 auto', padding: '20px 16px' }}>
 
         {/* Header */}
@@ -247,8 +247,8 @@ export default function EditSparringPage() {
             <button key={r} onClick={() => setRole(r)} style={{
               padding: '16px 12px', borderRadius: 10, cursor: 'pointer', textAlign: 'center',
               border: role === r ? 'none' : '1px solid #333',
-              background: role === r ? '#39FF14' : '#111',
-              color: role === r ? '#000' : '#aaa',
+              background: role === r ? '#39FF14' : '#0f1520',
+              color: role === r ? '#0a0f1a' : '#aaa',
               fontWeight: 900, fontSize: 16, letterSpacing: -0.3,
             }}>
               {r === 'player' ? '🎾 Player' : '🎓 Coach'}
@@ -260,14 +260,14 @@ export default function EditSparringPage() {
         <Section title="Photo" />
         <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', gap: 16 }}>
           <div onClick={() => fileRef.current?.click()}
-            style={{ width: 80, height: 80, borderRadius: '50%', background: '#111', border: '2px dashed #333', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', cursor: 'pointer', flexShrink: 0 }}>
+            style={{ width: 80, height: 80, borderRadius: '50%', background: '#0f1520', border: '2px dashed #333', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', cursor: 'pointer', flexShrink: 0 }}>
             {photoPreview
               ? <img src={photoPreview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               : <span style={{ color: '#444', fontSize: 24, fontWeight: 900 }}>{(name[0] ?? '?').toUpperCase()}</span>}
           </div>
           <input ref={fileRef} type="file" accept="image/*" onChange={onFileChange} style={{ display: 'none' }} />
           <div>
-            <button onClick={() => fileRef.current?.click()} style={{ background: '#111', border: '1px solid #333', borderRadius: 6, color: '#ccc', fontSize: 13, fontWeight: 700, padding: '8px 14px', cursor: 'pointer', marginRight: 8 }}>
+            <button onClick={() => fileRef.current?.click()} style={{ background: '#0f1520', border: '1px solid #333', borderRadius: 6, color: '#ccc', fontSize: 13, fontWeight: 700, padding: '8px 14px', cursor: 'pointer', marginRight: 8 }}>
               Change photo
             </button>
             {photoPreview && photoPreview !== existingPhoto && (
@@ -411,7 +411,7 @@ export default function EditSparringPage() {
                   return (
                     <button key={d} onClick={() => toggleAvail(d, t)} style={{
                       height: 34, borderRadius: 4, cursor: 'pointer',
-                      background: on ? '#39FF14' : '#111',
+                      background: on ? '#39FF14' : '#0f1520',
                       border: `1px solid ${on ? '#39FF14' : '#2a2a2a'}`,
                     }} />
                   )
@@ -431,7 +431,7 @@ export default function EditSparringPage() {
         {/* Save */}
         <button onClick={save} disabled={saving} style={{
           width: '100%', padding: '16px', borderRadius: 10, border: 'none',
-          background: '#39FF14', color: '#000', fontWeight: 900, fontSize: 16,
+          background: '#39FF14', color: '#0a0f1a', fontWeight: 900, fontSize: 16,
           cursor: saving ? 'not-allowed' : 'pointer', letterSpacing: -0.3,
           opacity: saving ? 0.6 : 1,
         }}>

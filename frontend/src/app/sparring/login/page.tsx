@@ -8,7 +8,7 @@ const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.c
 
 const inputStyle: React.CSSProperties = {
   width: '100%', boxSizing: 'border-box',
-  background: '#111', border: '1px solid #333', borderRadius: 6,
+  background: '#0f1520', border: '1px solid #333', borderRadius: 6,
   color: '#fff', padding: '12px 14px', fontSize: 15, outline: 'none',
 }
 
@@ -70,7 +70,7 @@ export default function SparringLoginPage() {
   }
 
   return (
-    <div style={{ background: '#000', minHeight: '100vh' }}>
+    <div style={{ background: '#0a0f1a', minHeight: '100vh' }}>
       <div style={{ padding: '12px 16px' }}>
         <Link href="/sparring" style={{ color: '#555', fontSize: 13, textDecoration: 'none' }}>← Back</Link>
       </div>
@@ -94,7 +94,7 @@ export default function SparringLoginPage() {
               placeholder="you@example.com"
               type="email"
               disabled={otpSent}
-              style={{ ...inputStyle, flex: 1, color: otpSent ? '#555' : '#fff', borderColor: otpSent ? '#222' : '#333' }}
+              style={{ ...inputStyle, flex: 1, color: otpSent ? '#555' : '#fff', borderColor: otpSent ? '#1a2535' : '#333' }}
             />
             <button
               onClick={sendOtp}
@@ -103,7 +103,7 @@ export default function SparringLoginPage() {
                 padding: '0 16px', borderRadius: 6, border: 'none', cursor: 'pointer',
                 fontWeight: 800, fontSize: 13, whiteSpace: 'nowrap',
                 background: sending || !email.includes('@') ? '#1a1a1a' : '#39FF14',
-                color:      sending || !email.includes('@') ? '#444'    : '#000',
+                color:      sending || !email.includes('@') ? '#444'    : '#0a0f1a',
               }}
             >
               {sending ? '…' : otpSent ? 'Resend' : 'Send Code'}
@@ -134,7 +134,7 @@ export default function SparringLoginPage() {
                   padding: '0 20px', borderRadius: 6, border: 'none', cursor: 'pointer',
                   fontWeight: 800, fontSize: 14,
                   background: verifying || otp.length < 6 ? '#1a1a1a' : '#39FF14',
-                  color:      verifying || otp.length < 6 ? '#444'    : '#000',
+                  color:      verifying || otp.length < 6 ? '#444'    : '#0a0f1a',
                 }}
               >
                 {verifying ? '…' : 'Verify'}
