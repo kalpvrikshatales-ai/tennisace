@@ -144,7 +144,7 @@ export default function SparringDiscover({ initialProfiles }: { initialProfiles:
         <div style={{ maxWidth: 720, margin: '0 auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
             <div>
-              <h1 style={{ color: '#fff', fontSize: 22, fontWeight: 900, margin: 0, letterSpacing: -0.5 }}>Sparring</h1>
+              <h1 style={{ color: '#fff', fontSize: 22, fontWeight: 900, margin: 0, letterSpacing: -0.5 }}>Find a Partner</h1>
               <p style={{ color: '#555', fontSize: 13, margin: '2px 0 0' }}>Find a hitting partner near you</p>
             </div>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -167,9 +167,15 @@ export default function SparringDiscover({ initialProfiles }: { initialProfiles:
                 </Link>
               )}
 
-              <Link href="/sparring/create" style={{ background: '#39FF14', color: '#000', fontWeight: 800, fontSize: 13, padding: '9px 16px', borderRadius: 6, textDecoration: 'none', whiteSpace: 'nowrap' }}>
-                + Add my profile
-              </Link>
+              {ownId ? (
+                <Link href="/sparring/profile" style={{ background: '#39FF14', color: '#000', fontWeight: 800, fontSize: 13, padding: '9px 16px', borderRadius: 6, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+                  My Profile
+                </Link>
+              ) : (
+                <Link href="/sparring/create" style={{ background: '#39FF14', color: '#000', fontWeight: 800, fontSize: 13, padding: '9px 16px', borderRadius: 6, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+                  + Add my profile
+                </Link>
+              )}
             </div>
           </div>
 
