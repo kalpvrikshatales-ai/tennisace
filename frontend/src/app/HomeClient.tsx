@@ -17,9 +17,11 @@ import { monitor } from '@/lib/integrityMonitor'
 import { supabase } from '@/lib/supabase'
 import type { Match } from '@/types'
 import Link from 'next/link'
+import { useSidebar } from '@/components/SidebarContext'
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
 type Tab = 'matches' | 'rankings' | 'news' | 'wimbledon'
+type MatchFilter = 'live' | 'next' | 'completed' | 'all'
 
 const SURFACE_DOT: Record<string, string> = {
   Grass: '#22C55E', Clay: '#F97316', Hard: '#9CA3AF',
@@ -111,8 +113,7 @@ interface HomeClientProps {
 }
 
 export default function HomeClient({ initialLive, initialFixtures, initialResults }: HomeClientProps) {
-  const [tab, setTab] = useState<Tab>('matches')
-  const [matchFilter, setMatchFilter] = useState<'live' | 'next' | 'completed' | 'all'>('live')
+  const { homeTab: tab, setHomeTab: setTab, matchFilter, setMatchFilter, openDrawer } = useSidebar()
   const [profileOpen, setProfileOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [notifOn, setNotifOn] = useState(false)
@@ -207,24 +208,26 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
     { key: 'news',     label: 'News',     icon: '📰' },
     { key: 'wimbledon',label: 'Wimbledon',icon: '🌿' },
   ]
-  const preWimbledonTabs = tabs.slice(0, 3)
-  const postWimbledonTabs = tabs.slice(3)
 
   return (
     <div className="min-h-screen">
       {/* ── HEADER ────────────────────────────────────────── */}
       <header className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-gray-100">
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center">
-          {/* Left: Profile icon */}
+          {/* Left: Hamburger (mobile only) */}
           <button
-            onClick={() => setProfileOpen(true)}
-            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-400"
+            onClick={openDrawer}
+            className="md:hidden w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-500"
+            aria-label="Open menu"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-              <circle cx="12" cy="8" r="4"/>
-              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <line x1="3" y1="12" x2="21" y2="12"/>
+              <line x1="3" y1="18" x2="21" y2="18"/>
             </svg>
           </button>
+          {/* Spacer on desktop where hamburger was */}
+          <div className="hidden md:block w-9" />
 
           {/* Center: Logo + name */}
           <Link href="/" className="flex-1 flex items-center justify-center gap-2 hover:opacity-80 transition-opacity">
@@ -255,54 +258,28 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
           </div>
         </div>
 
-        {/* Tab nav */}
-        {/* Desktop tab row only — mobile uses bottom nav */}
-        <div className="max-w-3xl mx-auto hidden md:flex overflow-x-auto scrollbar-hide border-t border-gray-100">
-          {preWimbledonTabs.map(({ key, label, icon }) => (
+        {/* Mobile-only tab pills — quick tab switch below the main header bar */}
+        <div className="md:hidden flex overflow-x-auto scrollbar-hide gap-2 px-4 pb-2 border-t border-gray-100 pt-2">
+          {tabs.map(({ key, label, icon }) => (
             <button
               key={key}
               onClick={() => setTab(key)}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-3 px-3 text-[13px] font-semibold transition-all border-b-2 whitespace-nowrap ${
-                tab === key
-                  ? 'border-[#00C875] text-gray-900'
-                  : 'border-transparent text-gray-400 hover:text-gray-600'
+              className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-bold transition-all ${
+                tab === key ? 'bg-[#00C875] text-white' : 'bg-gray-100 text-gray-500'
               }`}
             >
               <span>{icon}</span>
               <span>{label}</span>
               {key === 'matches' && liveMatches.length > 0 && (
-                <span className="text-[9px] bg-[#00C875] text-white rounded-full px-1.5 py-0.5 font-black">
-                  {liveMatches.length}
-                </span>
+                <span className="text-[9px] bg-white/30 rounded-full px-1 font-black">{liveMatches.length}</span>
               )}
-            </button>
-          ))}
-          <Link
-            href="/sparring"
-            className="flex-1 flex items-center justify-center gap-1.5 py-3 px-3 text-[13px] font-semibold transition-all border-b-2 border-transparent text-gray-400 hover:text-gray-600 whitespace-nowrap"
-          >
-            <span>🤝</span>
-            <span>Find a Partner</span>
-          </Link>
-          {postWimbledonTabs.map(({ key, label, icon }) => (
-            <button
-              key={key}
-              onClick={() => setTab(key)}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-3 px-3 text-[13px] font-semibold transition-all border-b-2 whitespace-nowrap ${
-                tab === key
-                  ? 'border-[#00C875] text-gray-900'
-                  : 'border-transparent text-gray-400 hover:text-gray-600'
-              }`}
-            >
-              <span>{icon}</span>
-              <span>{label}</span>
             </button>
           ))}
         </div>
       </header>
 
       {/* ── CONTENT ───────────────────────────────────────── */}
-      <main className="max-w-3xl mx-auto px-4 py-5 pb-24 md:pb-8">
+      <main className="max-w-3xl mx-auto px-4 py-5 pb-10">
 
         {/* ═══ MATCHES TAB ═══════════════════════════════════ */}
         {tab === 'matches' && (
@@ -558,34 +535,6 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
         </p>
       </main>
 
-      {/* ── MOBILE BOTTOM NAV ─────────────────────────────── */}
-      <nav className="bottom-nav fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm border-t border-gray-100 safe-bottom md:hidden">
-        <div className="flex items-stretch justify-around px-1 pt-2 pb-2">
-          {tabs.map(({ key, label, icon }) => {
-            const active = tab === key
-            return (
-              <button
-                key={key}
-                onClick={() => setTab(key)}
-                className="flex flex-col items-center justify-center gap-1 flex-1 min-h-[56px] relative transition-all active:scale-95"
-              >
-                {active && (
-                  <span className="absolute inset-x-2 inset-y-0 rounded-2xl bg-[#00C875]/10" />
-                )}
-                <span className="relative z-10 text-[22px] leading-none">{icon}</span>
-                {key === 'matches' && liveMatches.length > 0 && (
-                  <span className="absolute top-1 right-3 text-[8px] bg-[#00C875] text-white font-black rounded-full w-4 h-4 flex items-center justify-center">
-                    {liveMatches.length > 9 ? '9+' : liveMatches.length}
-                  </span>
-                )}
-                <span className={`text-[10px] font-bold z-10 ${active ? 'text-[#00C875]' : 'text-gray-400'}`}>
-                  {label}
-                </span>
-              </button>
-            )
-          })}
-        </div>
-      </nav>
 
       {/* ── PROFILE PANEL ─────────────────────────────────── */}
       <ProfilePanel open={profileOpen} onClose={() => setProfileOpen(false)} />

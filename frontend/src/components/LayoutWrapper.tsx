@@ -2,16 +2,23 @@
 
 import { useState } from 'react'
 import SplashScreen from './SplashScreen'
-import AuthHeader from './AuthHeader'
+import Sidebar from './Sidebar'
+import { SidebarProvider } from './SidebarContext'
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const [splashComplete, setSplashComplete] = useState(false)
 
   return (
-    <>
+    <SidebarProvider>
       {!splashComplete && <SplashScreen onComplete={() => setSplashComplete(true)} />}
-      <AuthHeader />
-      {children}
-    </>
+
+      {/* Permanent sidebar (desktop) / Drawer (mobile) */}
+      <Sidebar />
+
+      {/* Main content — offset on desktop to clear sidebar */}
+      <div className="md:ml-[220px]">
+        {children}
+      </div>
+    </SidebarProvider>
   )
 }
