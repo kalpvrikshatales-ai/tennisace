@@ -670,7 +670,7 @@ export default function SparringProfilePage() {
           {/* Action buttons */}
           <div style={{ paddingBottom:8 }}>
             {isOwn ? (
-              <Link href="/sparring/create" style={{
+              <Link href={`/sparring/edit/${id}`} style={{
                 background:'#39FF14', color:'#000', fontWeight:800, fontSize:13,
                 padding:'9px 18px', borderRadius:8, textDecoration:'none', display:'inline-block',
               }}>
