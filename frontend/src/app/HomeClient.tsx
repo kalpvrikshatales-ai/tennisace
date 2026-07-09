@@ -134,33 +134,39 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
   const [loadingFixtures, setLoadingFixtures] = useState(initialFixtures.length === 0)
   const [loadingResults, setLoadingResults] = useState(initialResults.length === 0)
 
+  // True once the first client-side fetchAllMatches() completes (or SSR gave us data).
+  // Empty state is only shown after hasFetched — prevents flash of "no matches" on mobile pull-to-refresh.
+  const [hasFetched, setHasFetched] = useState(
+    initialLive.length > 0 || initialFixtures.length > 0 || initialResults.length > 0
+  )
+
   // Other tabs
   const [news, setNews] = useState<any[]>([])
   const [loadingNews, setLoadingNews] = useState(false)
 
   // ── Fetch all matches data simultaneously ─────────────────
   const fetchAllMatches = useCallback(async () => {
-    // Live matches
-    getLiveMatches().then(data => {
-      const m = data.matches ?? []
-      const valid = validateMatches(m)
-      setLiveMatches(valid.data ? sortByPriority(valid.data) : [])
-      setLoadingLive(false)
-    }).catch(() => setLoadingLive(false))
+    await Promise.allSettled([
+      getLiveMatches().then(data => {
+        const m = data.matches ?? []
+        const valid = validateMatches(m)
+        setLiveMatches(valid.data ? sortByPriority(valid.data) : [])
+        setLoadingLive(false)
+      }).catch(() => setLoadingLive(false)),
 
-    // Upcoming fixtures
-    getFixtures(7).then(data => {
-      setFixtures(data.fixtures ?? [])
-      setLoadingFixtures(false)
-    }).catch(() => setLoadingFixtures(false))
+      getFixtures(7).then(data => {
+        setFixtures(data.fixtures ?? [])
+        setLoadingFixtures(false)
+      }).catch(() => setLoadingFixtures(false)),
 
-    // Recent results
-    getResults(7).then(data => {
-      const r = data.results ?? []
-      const valid = validateMatches(r)
-      setResults(valid.data ?? [])
-      setLoadingResults(false)
-    }).catch(() => setLoadingResults(false))
+      getResults(7).then(data => {
+        const r = data.results ?? []
+        const valid = validateMatches(r)
+        setResults(valid.data ?? [])
+        setLoadingResults(false)
+      }).catch(() => setLoadingResults(false)),
+    ])
+    setHasFetched(true)
   }, [])
 
   // Handle OAuth redirect landing on root page — Supabase puts #access_token in hash
@@ -313,7 +319,7 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
                 count={liveMatches.length}
                 sub={liveMatches.length > 0 ? 'Updates every 30s' : undefined}
               />
-              {loadingLive ? (
+              {!hasFetched || loadingLive ? (
                 <div className="space-y-3">
                   {[...Array(3)].map((_, i) => <MatchCardSkeleton key={i} />)}
                 </div>
@@ -338,7 +344,7 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
             {/* UPCOMING */}
             {matchFilter === 'next' && <section>
               <SectionHeader title="Upcoming" count={fixtures.length} sub="Next 7 days" />
-              {loadingFixtures ? (
+              {!hasFetched || loadingFixtures ? (
                 <div className="space-y-2">{[...Array(4)].map((_, i) => <MatchCardSkeleton key={i} />)}</div>
               ) : fixtures.length === 0 ? (
                 <div className="card p-5 text-center"><p className="text-gray-400 text-[13px]">No scheduled matches found</p></div>
@@ -357,7 +363,7 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
             {/* COMPLETED */}
             {matchFilter === 'completed' && <section>
               <SectionHeader title="Completed" count={results.length} sub="Last 7 days" />
-              {loadingResults ? (
+              {!hasFetched || loadingResults ? (
                 <div className="space-y-2">{[...Array(4)].map((_, i) => <ResultCardSkeleton key={i} />)}</div>
               ) : results.length === 0 ? (
                 <div className="card p-5 text-center"><p className="text-gray-400 text-[13px]">No recent results</p></div>
@@ -376,10 +382,10 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
             {/* ALL */}
             {matchFilter === 'all' && <section className="space-y-6">
               {/* Live */}
-              {(loadingLive || liveMatches.length > 0) && (
+              {(!hasFetched || loadingLive || liveMatches.length > 0) && (
                 <div>
                   <SectionHeader title="Live Now" count={liveMatches.length} sub={liveMatches.length > 0 ? 'Updates every 30s' : undefined} />
-                  {loadingLive ? (
+                  {!hasFetched || loadingLive ? (
                     <div className="space-y-3">{[...Array(2)].map((_, i) => <MatchCardSkeleton key={i} />)}</div>
                   ) : (
                     <div className="space-y-3">
@@ -397,7 +403,7 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
               {/* Upcoming */}
               <div>
                 <SectionHeader title="Upcoming" count={fixtures.length} sub="Next 7 days" />
-                {loadingFixtures ? (
+                {!hasFetched || loadingFixtures ? (
                   <div className="space-y-2">{[...Array(3)].map((_, i) => <MatchCardSkeleton key={i} />)}</div>
                 ) : fixtures.length === 0 ? (
                   <div className="card p-4 text-center"><p className="text-gray-400 text-[13px]">No scheduled matches</p></div>
@@ -416,7 +422,7 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
               {/* Completed */}
               <div>
                 <SectionHeader title="Completed" count={results.length} sub="Last 7 days" />
-                {loadingResults ? (
+                {!hasFetched || loadingResults ? (
                   <div className="space-y-2">{[...Array(3)].map((_, i) => <ResultCardSkeleton key={i} />)}</div>
                 ) : results.length === 0 ? (
                   <div className="card p-4 text-center"><p className="text-gray-400 text-[13px]">No recent results</p></div>

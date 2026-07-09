@@ -3,7 +3,7 @@ import type { Match } from '@/types'
 
 const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
 
-async function fetchWithTimeout(url: string, ms = 10_000): Promise<Response | null> {
+async function fetchWithTimeout(url: string, ms = 15_000): Promise<Response | null> {
   const controller = new AbortController()
   const id = setTimeout(() => controller.abort(), ms)
   try {
