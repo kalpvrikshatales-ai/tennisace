@@ -253,3 +253,103 @@ a.card { animation: fadeUp 0.2s ease both; }
 /* green fixes for dark mode */
 [data-theme="dark"] .text-green-600 { color: #4ADE80 !important; }
 [data-theme="dark"] .text-green-700 { color: #22C55E !important; }
+
+/* ============================
+   SPARRING — Court Blue Design System
+   DM Sans + warm navy palette
+   ============================ */
+
+.sparring-root {
+  /* Dark default — deep court blue */
+  --sr-bg:       #0d1b2e;
+  --sr-card:     #132236;
+  --sr-card-2:   #0f1928;
+  --sr-border:   #1e3a5f;
+  --sr-accent:   #39FF14;
+  --sr-on-acc:   #000000;
+  --sr-text:     #e8f0fa;
+  --sr-text-2:   #b8cfe8;
+  --sr-muted:    #7a9cc4;
+  --sr-input:    #0a1628;
+  --sr-success:  rgba(57,255,20,0.14);
+  --sr-succ-t:   #39FF14;
+  --sr-pending:  rgba(96,165,250,0.14);
+  --sr-pend-t:   #60a5fa;
+  --sr-danger:   rgba(248,113,113,0.14);
+  --sr-dang-t:   #f87171;
+  --sr-shadow:   0 4px 24px rgba(0,0,0,0.4);
+  --sr-shadow-s: 0 2px 8px rgba(0,0,0,0.3);
+
+  font-family: var(--font-dm-sans, 'DM Sans'), -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--sr-bg);
+  color: var(--sr-text);
+  min-height: 100vh;
+}
+
+/* Light variant */
+.sparring-root.light {
+  --sr-bg:       #f0f4f8;
+  --sr-card:     #ffffff;
+  --sr-card-2:   #f8fafc;
+  --sr-border:   #dce8f5;
+  --sr-accent:   #16a34a;
+  --sr-on-acc:   #ffffff;
+  --sr-text:     #0f172a;
+  --sr-text-2:   #334155;
+  --sr-muted:    #4a6fa5;
+  --sr-input:    #ffffff;
+  --sr-success:  rgba(22,163,74,0.10);
+  --sr-succ-t:   #16a34a;
+  --sr-pending:  rgba(59,130,246,0.10);
+  --sr-pend-t:   #3b82f6;
+  --sr-danger:   rgba(239,68,68,0.10);
+  --sr-dang-t:   #ef4444;
+  --sr-shadow:   0 4px 24px rgba(15,25,50,0.08);
+  --sr-shadow-s: 0 2px 8px rgba(15,25,50,0.05);
+}
+
+/* Horizontal scroll row (filter pills, card carousels) */
+.sr-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 2px;
+}
+.sr-scroll::-webkit-scrollbar { display: none; }
+
+/* Card grid — 1 col mobile, auto on tablet+ */
+.sr-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+@media (min-width: 500px) {
+  .sr-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+}
+
+/* Sticky CTA bar for forms */
+.sr-cta {
+  position: sticky;
+  bottom: 0;
+  padding: 14px 0;
+  padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  background: var(--sr-bg);
+  border-top: 1px solid var(--sr-border);
+  z-index: 10;
+}
+
+/* Pad content so mobile bottom bar doesn't overlap */
+.sr-page { padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
+@media (min-width: 768px) { .sr-page { padding-bottom: 48px; } }
+
+/* Availability bounce + bar fill (celebration) */
+@keyframes sr-bounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-18px); }
+}
+@keyframes sr-bar {
+  from { width: 0%; }
+  to   { width: 100%; }
+}

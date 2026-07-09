@@ -1,12 +1,13 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, DM_Sans } from 'next/font/google'
 import './globals.css'
 import LayoutWrapper from '@/components/LayoutWrapper'
 import ServiceWorkerUpdater from '@/components/ServiceWorkerUpdater'
 import AuthProvider from '@/components/AuthProvider'
 import { Analytics } from '@vercel/analytics/react'
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
+const inter   = Inter({ subsets: ['latin'], variable: '--font-inter' })
+const dmSans  = DM_Sans({ subsets: ['latin'], variable: '--font-dm-sans', weight: ['400','500','600','700','800','900'] })
 
 export const metadata: Metadata = {
   title: 'TennisAce — Live Tennis Scores | ATP, WTA & Grand Slam Results',
@@ -43,7 +44,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={`${inter.variable} ${dmSans.variable}`}>
       <head>
         <link rel="manifest" href="/manifest.json" />
         <link rel="preconnect" href="https://tennisace.onrender.com" />

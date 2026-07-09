@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/components/AuthProvider'
+import SparringShell from '../SparringShell'
 
 const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
 
@@ -32,23 +33,24 @@ const COUNTRY_CODES = [
 
 type AvailKey = `${typeof DAYS[number]}-${typeof TIMES[number]}`
 
-const pill = (active: boolean) => ({
-  padding: '7px 14px', borderRadius: 6, fontSize: 13, fontWeight: 700,
-  border: active ? 'none' : '1px solid #333',
-  background: active ? '#39FF14' : '#0f1520',
-  color: active ? '#0a0f1a' : '#aaa',
+const pill = (active: boolean): React.CSSProperties => ({
+  padding: '7px 14px', borderRadius: 8, fontSize: 13, fontWeight: 700,
+  border: active ? 'none' : '1px solid var(--sr-border)',
+  background: active ? 'var(--sr-accent)' : 'var(--sr-card)',
+  color: active ? 'var(--sr-on-acc)' : 'var(--sr-muted)',
   cursor: 'pointer',
 })
 
 const inputStyle: React.CSSProperties = {
   width: '100%', boxSizing: 'border-box',
-  background: '#0f1520', border: '1px solid #333', borderRadius: 6,
-  color: '#fff', padding: '11px 14px', fontSize: 14, outline: 'none',
+  background: 'var(--sr-input)', border: '1px solid var(--sr-border)', borderRadius: 8,
+  color: 'var(--sr-text)', padding: '0 14px', fontSize: 14, outline: 'none',
+  height: 48,
 }
 
 function Label({ text }: { text: string }) {
   return (
-    <p style={{ color: '#aaa', fontSize: 12, fontWeight: 700, margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+    <p style={{ color: 'var(--sr-muted)', fontSize: 12, fontWeight: 700, margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: 0.5 }}>
       {text}
     </p>
   )
@@ -59,30 +61,26 @@ export default function CreateSparringPage() {
   const fileRef = useRef<HTMLInputElement>(null)
   const { user } = useAuth()
 
-  // Role — first choice
   const [role, setRole] = useState<'player' | 'coach' | ''>('')
 
-  // Profile fields
-  const [name,           setName]           = useState('')
-  const [city,           setCity]           = useState('')
-  const [country,        setCountry]        = useState('')
-  const [bio,            setBio]            = useState('')
-  const [favPlayers,     setFavPlayers]     = useState('')
-  const [level,          setLevel]          = useState('')
-  const [surfaces,       setSurfaces]       = useState<string[]>([])
-  const [playType,       setPlayType]       = useState('')
-  const [coachingLevel,  setCoachingLevel]  = useState('')
-  const [coachingFee,    setCoachingFee]    = useState('')
-  const [avail,          setAvail]          = useState<Set<AvailKey>>(new Set())
-  const [photoFile,      setPhotoFile]      = useState<File | null>(null)
-  const [photoPreview,   setPhotoPreview]   = useState<string | null>(null)
+  const [name,          setName]          = useState('')
+  const [city,          setCity]          = useState('')
+  const [country,       setCountry]       = useState('')
+  const [bio,           setBio]           = useState('')
+  const [favPlayers,    setFavPlayers]    = useState('')
+  const [level,         setLevel]         = useState('')
+  const [surfaces,      setSurfaces]      = useState<string[]>([])
+  const [playType,      setPlayType]      = useState('')
+  const [coachingLevel, setCoachingLevel] = useState('')
+  const [coachingFee,   setCoachingFee]   = useState('')
+  const [avail,         setAvail]         = useState<Set<AvailKey>>(new Set())
+  const [photoFile,     setPhotoFile]     = useState<File | null>(null)
+  const [photoPreview,  setPhotoPreview]  = useState<string | null>(null)
 
-  // Contact
   const [email,       setEmail]       = useState('')
   const [countryCode, setCountryCode] = useState('+91')
   const [phoneNumber, setPhoneNumber] = useState('')
 
-  // Email OTP
   const [emailVerified, setEmailVerified] = useState(false)
   const [otpSent,       setOtpSent]       = useState(false)
   const [otp,           setOtp]           = useState('')
@@ -91,7 +89,6 @@ export default function CreateSparringPage() {
   const [emailError,    setEmailError]    = useState('')
   const [otpError,      setOtpError]      = useState('')
 
-  // Submit
   const [creating,      setCreating]      = useState(false)
   const [uploading,     setUploading]     = useState(false)
   const [error,         setError]         = useState('')
@@ -100,14 +97,13 @@ export default function CreateSparringPage() {
   const [celebrating,   setCelebrating]   = useState<{ name: string; profileId: string } | null>(null)
 
   useEffect(() => {
-    const p = new URLSearchParams(window.location.search)
+    const p    = new URLSearchParams(window.location.search)
     const from = p.get('from')
     if (from === 'request')  setBanner('You need a profile to send a request.')
     if (from === 'requests') setBanner('You need a profile to view your requests.')
     if (from === 'login')    setBanner('No profile found for that email.')
   }, [])
 
-  // Pre-fill from Supabase Auth — skip email OTP if already signed in
   useEffect(() => {
     if (!user) return
     if (user.email) setEmail(user.email)
@@ -228,59 +224,56 @@ export default function CreateSparringPage() {
 
   if (celebrating) {
     return (
-      <div style={{ background: '#0a0f1a', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
-        <style>{`
-          @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50%       { transform: translateY(-18px); }
-          }
-          @keyframes fill-bar {
-            from { width: 0% }
-            to   { width: 100% }
-          }
-        `}</style>
-        <div style={{ textAlign: 'center', padding: '0 24px' }}>
-          <div style={{ fontSize: 64, animation: 'bounce 0.9s ease-in-out infinite', display: 'inline-block', marginBottom: 24 }}>🎾</div>
-          <h1 style={{ color: '#fff', fontSize: 28, fontWeight: 900, margin: '0 0 12px', letterSpacing: -0.5 }}>
-            Welcome to TennisAce, {celebrating.name}! 🎾
-          </h1>
-          <p style={{ color: '#556', fontSize: 15, margin: 0, lineHeight: 1.6 }}>
-            Your profile is live. Start finding hitting partners near you.
-          </p>
+      <SparringShell>
+        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+          <style>{`
+            @keyframes sr-bounce { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-18px) } }
+            @keyframes sr-bar    { from { width: 0% } to { width: 100% } }
+          `}</style>
+          <div style={{ textAlign: 'center', padding: '0 24px' }}>
+            <div style={{ fontSize: 64, animation: 'sr-bounce 0.9s ease-in-out infinite', display: 'inline-block', marginBottom: 24 }}>🎾</div>
+            <h1 style={{ color: 'var(--sr-text)', fontSize: 28, fontWeight: 900, margin: '0 0 12px', letterSpacing: -0.5 }}>
+              Welcome to TennisAce, {celebrating.name}! 🎾
+            </h1>
+            <p style={{ color: 'var(--sr-muted)', fontSize: 15, margin: 0, lineHeight: 1.6 }}>
+              Your profile is live. Start finding hitting partners near you.
+            </p>
+          </div>
+          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 4, background: 'var(--sr-border)' }}>
+            <div style={{ height: '100%', background: 'var(--sr-accent)', borderRadius: 2, animation: 'sr-bar 2.5s linear forwards' }} />
+          </div>
         </div>
-        {/* Bottom progress bar */}
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 4, background: '#1a2535' }}>
-          <div style={{ height: '100%', background: '#39FF14', borderRadius: 2, animation: 'fill-bar 2.5s linear forwards' }} />
-        </div>
-      </div>
+      </SparringShell>
     )
   }
 
   if (creating) {
     return (
-      <div style={{ background: '#0a0f1a', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: 40, marginBottom: 16 }}>⚡</div>
-          <p style={{ color: '#fff', fontWeight: 800, fontSize: 20, margin: '0 0 8px' }}>Creating your profile…</p>
-          <p style={{ color: '#555', fontSize: 14 }}>{uploading ? 'Uploading photo…' : 'Almost done'}</p>
+      <SparringShell>
+        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: 40, marginBottom: 16 }}>⚡</div>
+            <p style={{ color: 'var(--sr-text)', fontWeight: 800, fontSize: 20, margin: '0 0 8px' }}>Creating your profile…</p>
+            <p style={{ color: 'var(--sr-muted)', fontSize: 14 }}>{uploading ? 'Uploading photo…' : 'Almost done'}</p>
+          </div>
         </div>
-      </div>
+      </SparringShell>
     )
   }
 
   return (
-    <div style={{ background: '#0a0f1a', minHeight: '100vh', paddingBottom: 80 }}>
-      <div style={{ maxWidth: 540, margin: '0 auto', padding: '20px 16px' }}>
+    <SparringShell>
+      <div style={{ maxWidth: 540, margin: '0 auto', padding: '20px 16px 0' }}>
 
         {banner && (
-          <div style={{ background: '#1a1a0a', border: '1px solid #3a3a1a', borderRadius: 10, padding: '16px', marginBottom: 24 }}>
+          <div style={{ background: 'rgba(180,150,40,0.1)', border: '1px solid rgba(180,150,40,0.3)', borderRadius: 12, padding: 16, marginBottom: 24 }}>
             <p style={{ color: '#d4b84a', fontSize: 14, fontWeight: 700, margin: '0 0 14px' }}>👋 {banner}</p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
               <Link href="/sparring/login"
-                style={{ display: 'block', textAlign: 'center', padding: '10px', borderRadius: 6, background: '#0f1520', border: '1px solid #444', color: '#fff', fontWeight: 700, fontSize: 13, textDecoration: 'none' }}>
+                style={{ display: 'block', textAlign: 'center', padding: '10px', borderRadius: 8, background: 'var(--sr-card)', border: '1px solid var(--sr-border)', color: 'var(--sr-text)', fontWeight: 700, fontSize: 13, textDecoration: 'none', minHeight: 44, lineHeight: '24px' }}>
                 Sign in to existing profile
               </Link>
-              <span style={{ display: 'block', textAlign: 'center', padding: '10px', borderRadius: 6, background: '#39FF14', color: '#0a0f1a', fontWeight: 800, fontSize: 13 }}>
+              <span style={{ display: 'block', textAlign: 'center', padding: '10px', borderRadius: 8, background: 'var(--sr-accent)', color: 'var(--sr-on-acc)', fontWeight: 800, fontSize: 13, lineHeight: '24px' }}>
                 Create new profile ↓
               </span>
             </div>
@@ -288,22 +281,22 @@ export default function CreateSparringPage() {
         )}
 
         <div style={{ marginBottom: 28 }}>
-          <h1 style={{ color: '#fff', fontSize: 22, fontWeight: 900, margin: '0 0 4px', letterSpacing: -0.5 }}>Add your profile</h1>
-          <p style={{ color: '#555', fontSize: 13, margin: 0 }}>Let other players and coaches find you</p>
+          <h1 style={{ color: 'var(--sr-text)', fontSize: 22, fontWeight: 900, margin: '0 0 4px', letterSpacing: -0.5 }}>Add your profile</h1>
+          <p style={{ color: 'var(--sr-muted)', fontSize: 13, margin: 0 }}>Let other players and coaches find you</p>
         </div>
 
-        {/* Role — Player or Coach */}
+        {/* Role */}
         <div style={{ marginBottom: 24 }}>
           <Label text="I am a *" />
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             {(['player', 'coach'] as const).map(r => (
               <button key={r} onClick={() => setRole(r)}
                 style={{
-                  padding: '16px 12px', borderRadius: 10, cursor: 'pointer', textAlign: 'center',
-                  border: role === r ? 'none' : '1px solid #333',
-                  background: role === r ? '#39FF14' : '#0f1520',
-                  color: role === r ? '#0a0f1a' : '#aaa',
-                  fontWeight: 900, fontSize: 16, letterSpacing: -0.3,
+                  padding: '16px 12px', borderRadius: 12, cursor: 'pointer', textAlign: 'center',
+                  border: role === r ? 'none' : '1px solid var(--sr-border)',
+                  background: role === r ? 'var(--sr-accent)' : 'var(--sr-card)',
+                  color: role === r ? 'var(--sr-on-acc)' : 'var(--sr-muted)',
+                  fontWeight: 900, fontSize: 16, letterSpacing: -0.3, minHeight: 60,
                 }}>
                 {r === 'player' ? '🎾 Player' : '🎓 Coach'}
               </button>
@@ -314,13 +307,13 @@ export default function CreateSparringPage() {
         {/* Photo */}
         <div style={{ marginBottom: 24, textAlign: 'center' }}>
           <div onClick={() => fileRef.current?.click()}
-            style={{ width: 100, height: 100, borderRadius: '50%', background: '#0f1520', border: '2px dashed #333', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', cursor: 'pointer' }}>
+            style={{ width: 100, height: 100, borderRadius: '50%', background: 'var(--sr-card)', border: '2px dashed var(--sr-border)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', cursor: 'pointer' }}>
             {photoPreview
               ? <img src={photoPreview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              : <span style={{ color: '#444', fontSize: 13 }}>+ Photo</span>}
+              : <span style={{ color: 'var(--sr-muted)', fontSize: 13 }}>+ Photo</span>}
           </div>
           <input ref={fileRef} type="file" accept="image/*" onChange={onFileChange} style={{ display: 'none' }} />
-          <p style={{ color: '#555', fontSize: 11, margin: '6px 0 0' }}>Optional</p>
+          <p style={{ color: 'var(--sr-muted)', fontSize: 11, margin: '6px 0 0' }}>Optional</p>
         </div>
 
         {/* Name */}
@@ -345,50 +338,49 @@ export default function CreateSparringPage() {
         <div style={{ marginBottom: 18 }}>
           <Label text="Email * (used to access your requests)" />
           {user ? (
-            // Authenticated via Supabase — skip OTP entirely
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#0a1a0a', border: '1px solid #1a3a1a', borderRadius: 8, padding: '11px 14px' }}>
-              <span style={{ color: '#39FF14', fontSize: 14, fontWeight: 800 }}>✓</span>
-              <span style={{ color: '#aaa', fontSize: 13 }}>{email}</span>
-              <span style={{ marginLeft: 'auto', color: '#39FF14', fontSize: 11, fontWeight: 700 }}>via account</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--sr-success)', border: '1px solid var(--sr-succ-t)', borderRadius: 8, padding: '11px 14px' }}>
+              <span style={{ color: 'var(--sr-succ-t)', fontSize: 14, fontWeight: 800 }}>✓</span>
+              <span style={{ color: 'var(--sr-muted)', fontSize: 13 }}>{email}</span>
+              <span style={{ marginLeft: 'auto', color: 'var(--sr-succ-t)', fontSize: 11, fontWeight: 700 }}>via account</span>
             </div>
           ) : (
             <>
               <div style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
                 <input value={email} onChange={e => handleEmailChange(e.target.value)} placeholder="you@example.com" type="email" disabled={emailVerified}
-                  style={{ ...inputStyle, flex: 1, color: emailVerified ? '#555' : '#fff', borderColor: emailVerified ? '#1a3a1a' : '#333' }} />
+                  style={{ ...inputStyle, flex: 1, color: emailVerified ? 'var(--sr-muted)' : 'var(--sr-text)' }} />
                 {emailVerified ? (
-                  <div style={{ display: 'flex', alignItems: 'center', padding: '0 12px', background: '#0a1a0a', border: '1px solid #1a3a1a', borderRadius: 6, color: '#39FF14', fontSize: 13, fontWeight: 800, whiteSpace: 'nowrap' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', padding: '0 12px', background: 'var(--sr-success)', border: '1px solid var(--sr-succ-t)', borderRadius: 8, color: 'var(--sr-succ-t)', fontSize: 13, fontWeight: 800, whiteSpace: 'nowrap' }}>
                     ✓ Verified
                   </div>
                 ) : (
                   <button onClick={sendOtp} disabled={sending || !email.includes('@')}
-                    style={{ padding: '0 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: 13, whiteSpace: 'nowrap',
-                      background: sending || !email.includes('@') ? '#1a2535' : '#39FF14',
-                      color: sending || !email.includes('@') ? '#555' : '#0a0f1a' }}>
+                    style={{ padding: '0 14px', borderRadius: 8, border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: 13, whiteSpace: 'nowrap', height: 48,
+                      background: sending || !email.includes('@') ? 'var(--sr-card)' : 'var(--sr-accent)',
+                      color: sending || !email.includes('@') ? 'var(--sr-muted)' : 'var(--sr-on-acc)' }}>
                     {sending ? '…' : otpSent ? 'Resend' : 'Send Code'}
                   </button>
                 )}
               </div>
-              {emailError && <p style={{ color: '#e87070', fontSize: 12, margin: '0 0 8px' }}>{emailError}</p>}
+              {emailError && <p style={{ color: 'var(--sr-dang-t)', fontSize: 12, margin: '0 0 8px' }}>{emailError}</p>}
               {otpSent && !emailVerified && (
-                <div style={{ background: '#0d0d0d', border: '1px solid #222', borderRadius: 8, padding: 16 }}>
-                  <p style={{ color: '#aaa', fontSize: 12, margin: '0 0 10px' }}>Check your inbox — 6-digit code sent to {email}</p>
+                <div style={{ background: 'var(--sr-card)', border: '1px solid var(--sr-border)', borderRadius: 10, padding: 16 }}>
+                  <p style={{ color: 'var(--sr-muted)', fontSize: 12, margin: '0 0 10px' }}>Check your inbox — 6-digit code sent to {email}</p>
                   <div style={{ display: 'flex', gap: 8 }}>
                     <input value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="000000" inputMode="numeric" maxLength={6}
                       style={{ ...inputStyle, flex: 1, textAlign: 'center', fontSize: 22, fontWeight: 900, letterSpacing: 8 }} />
                     <button onClick={verifyOtp} disabled={verifying || otp.length < 6}
-                      style={{ padding: '0 16px', borderRadius: 6, border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: 13,
-                        background: verifying || otp.length < 6 ? '#1a2535' : '#39FF14',
-                        color: verifying || otp.length < 6 ? '#555' : '#0a0f1a' }}>
+                      style={{ padding: '0 16px', borderRadius: 8, border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: 13, height: 48,
+                        background: verifying || otp.length < 6 ? 'var(--sr-card)' : 'var(--sr-accent)',
+                        color: verifying || otp.length < 6 ? 'var(--sr-muted)' : 'var(--sr-on-acc)' }}>
                       {verifying ? '…' : 'Verify'}
                     </button>
                   </div>
-                  {otpError && <p style={{ color: '#e87070', fontSize: 12, margin: '8px 0 0' }}>{otpError}</p>}
+                  {otpError && <p style={{ color: 'var(--sr-dang-t)', fontSize: 12, margin: '8px 0 0' }}>{otpError}</p>}
                 </div>
               )}
             </>
           )}
-          <p style={{ color: '#444', fontSize: 11, margin: '6px 0 0' }}>Used to log in to My Requests. Never shown publicly.</p>
+          <p style={{ color: 'var(--sr-muted)', fontSize: 11, margin: '6px 0 0' }}>Used to log in to My Requests. Never shown publicly.</p>
         </div>
 
         {/* Phone */}
@@ -396,12 +388,12 @@ export default function CreateSparringPage() {
           <Label text="Phone (shared only when a request is accepted)" />
           <div style={{ display: 'flex', gap: 8 }}>
             <select value={countryCode} onChange={e => setCountryCode(e.target.value)}
-              style={{ background: '#0f1520', border: '1px solid #333', borderRadius: 6, color: '#fff', padding: '11px 10px', fontSize: 14, outline: 'none', flexShrink: 0 }}>
+              style={{ background: 'var(--sr-input)', border: '1px solid var(--sr-border)', borderRadius: 8, color: 'var(--sr-text)', padding: '0 10px', fontSize: 14, outline: 'none', flexShrink: 0, height: 48 }}>
               {COUNTRY_CODES.map(c => <option key={c.code} value={c.code}>{c.flag} {c.code}</option>)}
             </select>
             <input value={phoneNumber} onChange={e => setPhoneNumber(e.target.value.replace(/\D/g, ''))} placeholder="Optional" inputMode="tel" style={{ ...inputStyle, flex: 1 }} />
           </div>
-          <p style={{ color: '#444', fontSize: 11, margin: '6px 0 0' }}>Hidden from public. Revealed only when both parties accept.</p>
+          <p style={{ color: 'var(--sr-muted)', fontSize: 11, margin: '6px 0 0' }}>Hidden from public. Revealed only when both parties accept.</p>
         </div>
 
         {/* Level */}
@@ -422,7 +414,7 @@ export default function CreateSparringPage() {
           </div>
         </div>
 
-        {/* Play type — players only */}
+        {/* Play type */}
         {role === 'player' && (
           <div style={{ marginBottom: 18 }}>
             <Label text="Play type *" />
@@ -437,7 +429,7 @@ export default function CreateSparringPage() {
           </div>
         )}
 
-        {/* Coach-specific fields */}
+        {/* Coach fields */}
         {role === 'coach' && (
           <>
             <div style={{ marginBottom: 18 }}>
@@ -459,7 +451,7 @@ export default function CreateSparringPage() {
           </>
         )}
 
-        {/* Favorite players */}
+        {/* Fav players */}
         <div style={{ marginBottom: 18 }}>
           <Label text="Favourite players (who do you watch?)" />
           <input value={favPlayers} onChange={e => setFavPlayers(e.target.value)}
@@ -471,59 +463,67 @@ export default function CreateSparringPage() {
           <Label text="Bio" />
           <textarea value={bio} onChange={e => setBio(e.target.value)}
             placeholder={role === 'coach' ? 'Your coaching background, style, what you offer…' : 'Tell others about your game, preferred times, anything useful…'}
-            rows={3} style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.5 }} />
+            rows={3}
+            style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.5, height: 'auto', paddingTop: 12, paddingBottom: 12 }} />
         </div>
 
         {/* Availability */}
         <div style={{ marginBottom: 28 }}>
           <Label text="Availability" />
-          <div style={{ background: '#0f1520', border: '1px solid #1e1e1e', borderRadius: 8, padding: 14 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '80px repeat(7, 1fr)', gap: 4, marginBottom: 6 }}>
-              <div />
-              {['mon','tue','wed','thu','fri','sat','sun'].map(d => (
-                <div key={d} style={{ textAlign: 'center', color: '#555', fontSize: 10, fontWeight: 700, textTransform: 'uppercase' }}>{d}</div>
+          <div style={{ background: 'var(--sr-card)', border: '1px solid var(--sr-border)', borderRadius: 10, padding: 14, overflowX: 'auto' }}>
+            <div style={{ minWidth: 320 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '80px repeat(7, 1fr)', gap: 4, marginBottom: 6 }}>
+                <div />
+                {['mon','tue','wed','thu','fri','sat','sun'].map(d => (
+                  <div key={d} style={{ textAlign: 'center', color: 'var(--sr-muted)', fontSize: 10, fontWeight: 700, textTransform: 'uppercase' }}>{d}</div>
+                ))}
+              </div>
+              {TIMES.map(t => (
+                <div key={t} style={{ display: 'grid', gridTemplateColumns: '80px repeat(7, 1fr)', gap: 4, marginBottom: 4 }}>
+                  <div style={{ color: 'var(--sr-muted)', fontSize: 10, fontWeight: 600, textTransform: 'capitalize', paddingTop: 9 }}>{t}</div>
+                  {DAYS.map(d => {
+                    const key: AvailKey = `${d}-${t}`
+                    return <button key={d} onClick={() => toggleAvail(d, t)}
+                      style={{ height: 32, borderRadius: 4, border: 'none', cursor: 'pointer', background: avail.has(key) ? 'var(--sr-accent)' : 'var(--sr-input)' }} />
+                  })}
+                </div>
               ))}
             </div>
-            {TIMES.map(t => (
-              <div key={t} style={{ display: 'grid', gridTemplateColumns: '80px repeat(7, 1fr)', gap: 4, marginBottom: 4 }}>
-                <div style={{ color: '#555', fontSize: 10, fontWeight: 600, textTransform: 'capitalize', paddingTop: 9 }}>{t}</div>
-                {DAYS.map(d => {
-                  const key: AvailKey = `${d}-${t}`
-                  return <button key={d} onClick={() => toggleAvail(d, t)}
-                    style={{ height: 32, borderRadius: 4, border: 'none', cursor: 'pointer', background: avail.has(key) ? '#39FF14' : '#1a1a1a' }} />
-                })}
-              </div>
-            ))}
           </div>
         </div>
 
         {alreadyExists && (
-          <div style={{ background: '#0d1a0d', border: '1px solid #1a3a1a', borderRadius: 10, padding: '18px 16px', marginBottom: 16 }}>
-            <p style={{ color: '#39FF14', fontWeight: 800, fontSize: 15, margin: '0 0 6px' }}>You already have a profile</p>
-            <p style={{ color: '#aaa', fontSize: 13, margin: '0 0 16px' }}>Sign in to access your requests and profile.</p>
+          <div style={{ background: 'var(--sr-success)', border: '1px solid var(--sr-succ-t)', borderRadius: 12, padding: '18px 16px', marginBottom: 16 }}>
+            <p style={{ color: 'var(--sr-succ-t)', fontWeight: 800, fontSize: 15, margin: '0 0 6px' }}>You already have a profile</p>
+            <p style={{ color: 'var(--sr-muted)', fontSize: 13, margin: '0 0 16px' }}>Sign in to access your requests and profile.</p>
             <button onClick={() => router.push('/sparring/login')}
-              style={{ background: '#39FF14', border: 'none', borderRadius: 6, color: '#0a0f1a', fontWeight: 900, fontSize: 14, padding: '11px 20px', cursor: 'pointer' }}>
+              style={{ background: 'var(--sr-accent)', border: 'none', borderRadius: 8, color: 'var(--sr-on-acc)', fontWeight: 900, fontSize: 14, padding: '11px 20px', cursor: 'pointer' }}>
               Sign in →
             </button>
           </div>
         )}
 
         {error && (
-          <div style={{ background: '#2a1a1a', border: '1px solid #5a2a2a', borderRadius: 6, padding: '10px 14px', marginBottom: 16 }}>
-            <p style={{ color: '#e87070', fontSize: 13, margin: 0 }}>{error}</p>
+          <div style={{ background: 'var(--sr-danger)', border: '1px solid var(--sr-dang-t)', borderRadius: 8, padding: '10px 14px', marginBottom: 16 }}>
+            <p style={{ color: 'var(--sr-dang-t)', fontSize: 13, margin: 0 }}>{error}</p>
           </div>
         )}
-
-        {!alreadyExists && <button onClick={submit} disabled={!emailVerified || creating}
-          style={{
-            width: '100%', border: 'none', borderRadius: 8, fontWeight: 900, fontSize: 16, padding: '16px', letterSpacing: -0.3,
-            background: emailVerified && !creating ? '#39FF14' : '#1a1a1a',
-            color: emailVerified && !creating ? '#0a0f1a' : '#444',
-            cursor: emailVerified && !creating ? 'pointer' : 'not-allowed',
-          }}>
-          {creating ? 'Creating profile…' : emailVerified ? `Create ${role === 'coach' ? 'Coach' : 'Player'} Profile` : 'Verify your email first'}
-        </button>}
       </div>
-    </div>
+
+      {/* Sticky submit */}
+      {!alreadyExists && (
+        <div className="sr-cta" style={{ padding: '14px 16px', paddingBottom: 'calc(14px + env(safe-area-inset-bottom, 0px))', maxWidth: 540, margin: '0 auto' }}>
+          <button onClick={submit} disabled={!emailVerified || creating}
+            style={{
+              width: '100%', border: 'none', borderRadius: 10, fontWeight: 900, fontSize: 16, padding: '16px', letterSpacing: -0.3,
+              background: emailVerified && !creating ? 'var(--sr-accent)' : 'var(--sr-card)',
+              color: emailVerified && !creating ? 'var(--sr-on-acc)' : 'var(--sr-muted)',
+              cursor: emailVerified && !creating ? 'pointer' : 'not-allowed',
+            }}>
+            {creating ? 'Creating profile…' : emailVerified ? `Create ${role === 'coach' ? 'Coach' : 'Player'} Profile` : 'Verify your email first'}
+          </button>
+        </div>
+      )}
+    </SparringShell>
   )
 }

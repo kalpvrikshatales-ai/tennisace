@@ -3,15 +3,33 @@
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { useCallback } from 'react'
 
-const LEVELS = ['beginner', 'intermediate', 'advanced', 'competitive']
+const LEVELS   = ['beginner', 'intermediate', 'advanced', 'competitive']
 const SURFACES = ['Hard', 'Clay', 'Grass', 'Indoor']
-const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
-const TIMES = ['morning', 'afternoon', 'evening']
+const DAYS     = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
+const TIMES    = ['morning', 'afternoon', 'evening']
+
+function Pill({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        padding: '6px 13px', borderRadius: 20, fontSize: 12, fontWeight: 700,
+        border: `1px solid ${active ? 'transparent' : 'var(--sr-border)'}`,
+        background: active ? 'var(--sr-accent)' : 'var(--sr-card)',
+        color: active ? 'var(--sr-on-acc)' : 'var(--sr-muted)',
+        cursor: 'pointer', whiteSpace: 'nowrap', minHeight: 36,
+        transition: 'all 0.15s ease',
+      }}
+    >
+      {label}
+    </button>
+  )
+}
 
 export default function SparringFilters() {
-  const router = useRouter()
+  const router   = useRouter()
   const pathname = usePathname()
-  const params = useSearchParams()
+  const params   = useSearchParams()
 
   const push = useCallback((key: string, value: string | null) => {
     const next = new URLSearchParams(params.toString())
@@ -30,110 +48,55 @@ export default function SparringFilters() {
   const surface = params.get('surface') ?? ''
   const day     = params.get('day') ?? ''
   const time    = params.get('time') ?? ''
+  const hasFilters = city || level || surface || day || time
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       {/* City search */}
       <input
         type="text"
         placeholder="Search by city…"
         defaultValue={city}
-        onChange={e => {
-          const v = e.target.value.trim()
-          push('city', v || null)
-        }}
+        onChange={e => push('city', e.target.value.trim() || null)}
         style={{
-          background: '#111', border: '1px solid #222', borderRadius: 6,
-          color: '#fff', padding: '10px 14px', fontSize: 14, outline: 'none',
-          width: '100%', boxSizing: 'border-box',
+          background: 'var(--sr-input)', border: '1px solid var(--sr-border)',
+          borderRadius: 10, color: 'var(--sr-text)', padding: '0 14px',
+          fontSize: 14, outline: 'none', width: '100%',
+          height: 48, boxSizing: 'border-box',
         }}
       />
 
-      {/* Level pills */}
-      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+      {/* All filter pills in one horizontal scroll row */}
+      <div className="sr-scroll">
         {LEVELS.map(l => (
-          <button
-            key={l}
-            onClick={() => toggle('level', l)}
-            style={{
-              padding: '5px 12px', borderRadius: 6, fontSize: 12, fontWeight: 700,
-              border: level === l ? 'none' : '1px solid #333',
-              background: level === l ? '#39FF14' : '#111',
-              color: level === l ? '#000' : '#aaa',
-              cursor: 'pointer', textTransform: 'capitalize',
-            }}
-          >
-            {l}
-          </button>
+          <Pill key={l} label={l} active={level === l} onClick={() => toggle('level', l)} />
         ))}
-      </div>
-
-      {/* Surface pills */}
-      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+        <div style={{ width: 1, background: 'var(--sr-border)', flexShrink: 0, margin: '6px 4px' }} />
         {SURFACES.map(s => (
-          <button
-            key={s}
-            onClick={() => toggle('surface', s)}
-            style={{
-              padding: '5px 12px', borderRadius: 6, fontSize: 12, fontWeight: 700,
-              border: surface === s ? 'none' : '1px solid #333',
-              background: surface === s ? '#39FF14' : '#111',
-              color: surface === s ? '#000' : '#aaa',
-              cursor: 'pointer',
-            }}
-          >
-            {s}
-          </button>
+          <Pill key={s} label={s} active={surface === s} onClick={() => toggle('surface', s)} />
         ))}
-      </div>
-
-      {/* Day + time row */}
-      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+        <div style={{ width: 1, background: 'var(--sr-border)', flexShrink: 0, margin: '6px 4px' }} />
         {DAYS.map(d => (
-          <button
-            key={d}
-            onClick={() => toggle('day', d)}
-            style={{
-              padding: '5px 10px', borderRadius: 6, fontSize: 12, fontWeight: 700,
-              border: day === d ? 'none' : '1px solid #333',
-              background: day === d ? '#39FF14' : '#111',
-              color: day === d ? '#000' : '#aaa',
-              cursor: 'pointer', textTransform: 'uppercase',
-            }}
-          >
-            {d}
-          </button>
+          <Pill key={d} label={d.toUpperCase()} active={day === d} onClick={() => toggle('day', d)} />
         ))}
-        <div style={{ width: 1, background: '#222', margin: '0 4px' }} />
+        <div style={{ width: 1, background: 'var(--sr-border)', flexShrink: 0, margin: '6px 4px' }} />
         {TIMES.map(t => (
+          <Pill key={t} label={t} active={time === t} onClick={() => toggle('time', t)} />
+        ))}
+        {hasFilters && (
           <button
-            key={t}
-            onClick={() => toggle('time', t)}
+            onClick={() => router.push(pathname)}
             style={{
-              padding: '5px 10px', borderRadius: 6, fontSize: 12, fontWeight: 700,
-              border: time === t ? 'none' : '1px solid #333',
-              background: time === t ? '#39FF14' : '#111',
-              color: time === t ? '#000' : '#aaa',
-              cursor: 'pointer', textTransform: 'capitalize',
+              background: 'transparent', border: '1px solid var(--sr-border)',
+              color: 'var(--sr-muted)', fontSize: 12, cursor: 'pointer',
+              borderRadius: 20, padding: '6px 12px', whiteSpace: 'nowrap',
+              minHeight: 36, flexShrink: 0,
             }}
           >
-            {t}
+            ✕ Clear
           </button>
-        ))}
+        )}
       </div>
-
-      {/* Clear all */}
-      {(city || level || surface || day || time) && (
-        <button
-          onClick={() => router.push(pathname)}
-          style={{
-            alignSelf: 'flex-start', background: 'transparent', border: 'none',
-            color: '#555', fontSize: 12, cursor: 'pointer', padding: 0,
-          }}
-        >
-          ✕ Clear filters
-        </button>
-      )}
     </div>
   )
 }
