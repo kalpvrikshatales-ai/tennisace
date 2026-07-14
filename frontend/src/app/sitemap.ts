@@ -31,9 +31,9 @@ const STATIC_ROUTES: MetadataRoute.Sitemap = [
     priority: 0.8,
   },
   {
-    url: 'https://tennisace.live/wimbledon',
+    url: 'https://tennisace.live/tournament/us-open-2026',
     lastModified: new Date(),
-    changeFrequency: 'hourly',
+    changeFrequency: 'daily',
     priority: 0.9,
   },
 ]

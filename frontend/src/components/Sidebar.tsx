@@ -33,7 +33,7 @@ const NAV: NavItem[] = [
   { icon:'📡', label:'Live',           tab:'matches', filter:'live' },
   { icon:'🏆', label:'Rankings',       href:'/rankings'  },
   { icon:'📰', label:'News',           tab:'news'        },
-  { icon:'🌿', label:'Wimbledon',      href:'/wimbledon' },
+  { icon:'🏆', label:'US Open',         href:'/tournament/us-open-2026' },
   { icon:'🤝', label:'Find a Partner', href:'/sparring'  },
 ]
 
@@ -96,7 +96,7 @@ function SidebarPanel({ onClose }: { onClose?: () => void }) {
   function isActive(item: NavItem): boolean {
     if (item.href === '/sparring') return pathname === '/sparring' || pathname.startsWith('/sparring/')
     if (item.href === '/rankings') return pathname === '/rankings' || pathname.startsWith('/rankings')
-    if (item.href === '/wimbledon') return pathname === '/wimbledon' || pathname.startsWith('/wimbledon')
+    if (item.href === '/tournament/us-open-2026') return pathname.startsWith('/tournament')
     if (item.href === '/') return pathname === '/' && homeTab === 'matches' && !NAV.some(n => n.tab && n.tab === homeTab && n.filter)
     if (item.tab) {
       if (pathname !== '/') return false

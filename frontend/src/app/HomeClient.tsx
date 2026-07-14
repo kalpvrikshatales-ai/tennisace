@@ -20,7 +20,7 @@ import Link from 'next/link'
 import { useSidebar } from '@/components/SidebarContext'
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
-type Tab = 'matches' | 'rankings' | 'news' | 'wimbledon'
+type Tab = 'matches' | 'rankings' | 'news' | 'tournament'
 type MatchFilter = 'live' | 'next' | 'completed' | 'all'
 
 const SURFACE_DOT: Record<string, string> = {
@@ -212,7 +212,7 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
     { key: 'matches',  label: 'Matches',  icon: '🎾' },
     { key: 'rankings', label: 'Rankings', icon: '📊' },
     { key: 'news',     label: 'News',     icon: '📰' },
-    { key: 'wimbledon',label: 'Wimbledon',icon: '🌿' },
+    { key: 'tournament', label: 'US Open', icon: '🏆' },
   ]
 
   return (
@@ -491,17 +491,18 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
           </section>
         )}
 
-        {/* ═══ WIMBLEDON TAB ════════════════════════════════ */}
-        {tab === 'wimbledon' && (
+        {/* ═══ US OPEN TAB ══════════════════════════════════ */}
+        {tab === 'tournament' && (
           <div className="text-center py-8">
-            <Link href="/wimbledon">
-              <div className="card p-8 cursor-pointer hover:border-green-200 transition-all">
-                <img src="/gs-wimbledon.png" alt="Wimbledon" className="h-20 w-auto mx-auto mb-4 object-contain" />
-                <p className="text-[20px] font-black text-gray-900 mb-1">Wimbledon 2026</p>
-                <p className="text-gray-400 text-[14px] mb-4">Jun 30 – Jul 13 · Grass · SW19 London</p>
-                <span className="inline-flex items-center gap-1.5 text-[13px] font-bold text-[#22C55E] bg-green-50 px-4 py-2 rounded-full">
-                  <span className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse inline-block" />
-                  View Draw & Scores →
+            <Link href="/tournament/us-open-2026">
+              <div className="card p-8 cursor-pointer hover:border-yellow-200 transition-all"
+                style={{ background: '#0d1b2e', border: '1px solid #1a3050' }}>
+                <p className="text-[11px] font-black uppercase tracking-widest mb-3" style={{ color: '#39FF14' }}>Grand Slam · Hard Court</p>
+                <p className="text-[22px] font-black text-white mb-1">US Open 2026</p>
+                <p className="text-[14px] mb-4" style={{ color: '#8ba3c0' }}>Aug 25 – Sep 7 · USTA Billie Jean King NTC · NY</p>
+                <span className="inline-flex items-center gap-1.5 text-[13px] font-bold px-4 py-2 rounded-full"
+                  style={{ background: '#39FF14', color: '#000' }}>
+                  View Tournament Hub →
                 </span>
               </div>
             </Link>
@@ -518,10 +519,10 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
                   <p className="text-[12px] text-gray-400 mt-1">ATP · WTA · World rankings</p>
                 </div>
               </Link>
-              <Link href="/lounges">
+              <Link href="/sparring">
                 <div className="card p-4 text-left hover:border-gray-300 transition-all cursor-pointer">
-                  <p className="text-[15px] font-black text-gray-900">💬 Lounges</p>
-                  <p className="text-[12px] text-gray-400 mt-1">Community discussions</p>
+                  <p className="text-[15px] font-black text-gray-900">🤝 Find a Partner</p>
+                  <p className="text-[12px] text-gray-400 mt-1">Find local sparring partners</p>
                 </div>
               </Link>
               <Link href="/calendar">

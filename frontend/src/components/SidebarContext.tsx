@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, ReactNode } from 'react'
 
-export type HomeTab     = 'matches' | 'rankings' | 'news' | 'wimbledon'
+export type HomeTab     = 'matches' | 'rankings' | 'news' | 'tournament'
 export type MatchFilter = 'live' | 'next' | 'completed' | 'all'
 
 type SidebarContextType = {
