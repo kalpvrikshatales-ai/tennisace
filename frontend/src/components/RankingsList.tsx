@@ -6,6 +6,7 @@ import { getRankings } from '@/lib/api-reliable'
 import FavButton from '@/components/FavButton'
 import { getFavourites } from '@/lib/favourites'
 import { getFlag } from '@/lib/flags'
+import { toSlug } from '@/lib/playerSlug'
 
 interface RankingEntry {
   place: string
@@ -72,7 +73,7 @@ export default function RankingsList() {
       ) : (
         <div className="space-y-1.5">
           {rankings.slice(0, 50).map((r) => (
-            <Link key={r.player_key} href={`/players/${r.player_key}`}>
+            <Link key={r.player_key} href={`/players/${toSlug(r.player)}`}>
               <div className="flex items-center gap-3 px-4 py-3 rounded-xl glass hover:bg-gray-100 hover:border-[#00C875]/20 border border-gray-200 transition-all cursor-pointer">
                 {/* Rank */}
                 <div className="w-8 flex-shrink-0 text-center">
