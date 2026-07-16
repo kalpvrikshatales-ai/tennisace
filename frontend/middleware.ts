@@ -1,41 +1,10 @@
-import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-export async function middleware(request: NextRequest) {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-  // If env vars are missing, skip session refresh and continue
-  if (!url || !key) return NextResponse.next({ request })
-
-  try {
-    let supabaseResponse = NextResponse.next({ request })
-
-    const supabase = createServerClient(url, key, {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll()
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          )
-          supabaseResponse = NextResponse.next({ request })
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          )
-        },
-      },
-    })
-
-    // Refreshes the session token silently — no redirect, no protection
-    await supabase.auth.getUser()
-
-    return supabaseResponse
-  } catch {
-    return NextResponse.next({ request })
-  }
+// Session refresh via @supabase/ssr disabled — client-side supabase-js handles auth.
+// Middleware kept as a no-op so we can re-enable it later without removing the file.
+export function middleware(_request: NextRequest) {
+  return NextResponse.next()
 }
 
 export const config = {
