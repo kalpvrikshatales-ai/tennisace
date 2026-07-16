@@ -1,0 +1,27 @@
+name: Production Health Check
+
+# Fires when Vercel reports a deployment finished. If the live site
+# returns non-200 (e.g. MIDDLEWARE_INVOCATION_FAILED), this goes red
+# on the commit so a broken deploy is never silent.
+
+on:
+  deployment_status:
+
+jobs:
+  health:
+    name: Verify tennisace.live
+    if: github.event.deployment_status.state == 'success' && github.event.deployment_status.environment == 'Production'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check homepage
+        run: |
+          sleep 20   # let the new deployment alias propagate
+          for path in "/" "/players" "/tournament/us-open-2026"; do
+            STATUS=$(curl -sL -o /dev/null -w "%{http_code}" "https://tennisace.live${path}")
+            echo "${path} -> ${STATUS}"
+            if [ "$STATUS" != "200" ]; then
+              echo "::error::Health check failed: ${path} returned ${STATUS}"
+              exit 1
+            fi
+          done
+          echo "All routes healthy"
