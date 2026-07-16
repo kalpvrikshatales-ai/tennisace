@@ -9,5 +9,6 @@ node_modules/
 .env.local
 .DS_Store
 *.log
-.vercel
+.vercel/*
+!.vercel/project.json
 .env*
