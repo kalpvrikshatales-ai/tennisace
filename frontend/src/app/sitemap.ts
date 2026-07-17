@@ -36,6 +36,18 @@ const STATIC_ROUTES: MetadataRoute.Sitemap = [
     changeFrequency: 'daily',
     priority: 0.9,
   },
+  {
+    url: 'https://tennisace.live/sparring',
+    lastModified: new Date(),
+    changeFrequency: 'hourly',
+    priority: 0.8,
+  },
+  {
+    url: 'https://tennisace.live/community/Mumbai',
+    lastModified: new Date(),
+    changeFrequency: 'hourly',
+    priority: 0.8,
+  },
 ]
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

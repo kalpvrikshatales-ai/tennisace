@@ -784,9 +784,27 @@ export default function SparringProfilePage() {
                 {profile.level}
               </span>
             )}
-            <h1 style={{ color:'var(--sr-text)', fontSize:22, fontWeight:900, margin:'0 0 4px', letterSpacing:-0.5, lineHeight:1.2 }}>
-              {profile.name}
-            </h1>
+            <div style={{ display:'flex', alignItems:'center', gap:10, flexWrap:'wrap', margin:'0 0 4px' }}>
+              <h1 style={{ color:'var(--sr-text)', fontSize:22, fontWeight:900, margin:0, letterSpacing:-0.5, lineHeight:1.2 }}>
+                {profile.name}
+              </h1>
+              {(profile as any).founding_number && (
+                <span
+                  title={`Founding Member #${(profile as any).founding_number} · ${profile.city}`}
+                  style={{
+                    display:'inline-flex', alignItems:'center', justifyContent:'center', flexDirection:'column',
+                    width:38, height:42, flexShrink:0,
+                    clipPath:'polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)',
+                    background:'rgba(57,255,20,0.08)', border:'1px solid #39FF14',
+                    boxShadow:'0 0 12px rgba(57,255,20,0.3)',
+                    color:'#39FF14', cursor:'default', gap:1,
+                  }}
+                >
+                  <span style={{ fontSize:7, fontWeight:800, letterSpacing:0.5 }}>FM</span>
+                  <span style={{ fontSize:10, fontWeight:900 }}>#{(profile as any).founding_number}</span>
+                </span>
+              )}
+            </div>
             {(profile.city || profile.country) && (
               <p style={{ color:'var(--sr-muted)', fontSize:14, margin:'0 0 4px' }}>
                 @{[profile.city, profile.country].filter(Boolean).join(', ')}

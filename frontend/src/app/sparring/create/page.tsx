@@ -31,6 +31,7 @@ const COUNTRY_CODES = [
   { code: '+65', flag: '🇸🇬' },
 ]
 
+type ProfileType = 'player' | 'coach' | 'organizer'
 type AvailKey = `${typeof DAYS[number]}-${typeof TIMES[number]}`
 
 const pill = (active: boolean): React.CSSProperties => ({
@@ -56,12 +57,108 @@ function Label({ text }: { text: string }) {
   )
 }
 
+// ── Hexagon founding badge (pure CSS) ────────────────────────────────────────
+function FoundingBadgeLarge({ number, city }: { number: number; city: string }) {
+  return (
+    <div style={{ textAlign: 'center', marginBottom: 32 }}>
+      <div style={{
+        display: 'inline-flex', flexDirection: 'column', alignItems: 'center',
+        justifyContent: 'center',
+        width: 140, height: 140,
+        clipPath: 'polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)',
+        background: '#0d1b2e',
+        border: '2px solid #39FF14',
+        boxShadow: '0 0 32px rgba(57,255,20,0.35), 0 0 64px rgba(57,255,20,0.12)',
+        position: 'relative',
+      }}>
+        <style>{`
+          @keyframes badge-pulse { 0%,100% { box-shadow: 0 0 24px rgba(57,255,20,0.3); } 50% { box-shadow: 0 0 40px rgba(57,255,20,0.6); } }
+          @keyframes num-in { from { opacity:0; transform:scale(0.5); } to { opacity:1; transform:scale(1); } }
+          @keyframes bar-fill { from { width:0% } to { width: var(--target-w) } }
+          @keyframes fade-up { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+        `}</style>
+        <span style={{ color: '#39FF14', fontSize: 11, fontWeight: 900, letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 2 }}>Founding</span>
+        <span style={{ color: '#fff', fontSize: 36, fontWeight: 900, lineHeight: 1, animation: 'num-in 0.5s ease 0.3s both' }}>#{number}</span>
+        <span style={{ color: '#39FF14', fontSize: 9, fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase', marginTop: 2 }}>Member</span>
+      </div>
+      <p style={{ color: '#39FF14', fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', margin: '14px 0 0' }}>
+        {city}
+      </p>
+    </div>
+  )
+}
+
+// ── Role type selector card ───────────────────────────────────────────────────
+const PROFILE_TYPES: { type: ProfileType; icon: string; title: string; sub: string }[] = [
+  { type: 'player',    icon: '🎾', title: 'Player',    sub: 'Looking to find hitting partners' },
+  { type: 'coach',     icon: '🎓', title: 'Coach',     sub: 'Offering coaching sessions' },
+  { type: 'organizer', icon: '🏆', title: 'Organizer', sub: 'Running tournaments or academies' },
+]
+
+function TypeSelector({ onSelect }: { onSelect: (t: ProfileType) => void }) {
+  const [hov, setHov] = useState<ProfileType | null>(null)
+  return (
+    <div style={{
+      minHeight: '100vh', background: '#0d1b2e',
+      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+      padding: '40px 20px',
+    }}>
+      <style>{`
+        @keyframes type-in { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+      `}</style>
+
+      <div style={{ textAlign: 'center', marginBottom: 40, animation: 'type-in 0.5s ease' }}>
+        <div style={{ fontSize: 40, marginBottom: 16 }}>🎾</div>
+        <h1 style={{ color: '#fff', fontSize: 26, fontWeight: 900, margin: '0 0 8px', letterSpacing: -0.5 }}>
+          Join TennisAce
+        </h1>
+        <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 15, margin: 0 }}>
+          Who are you on the court?
+        </p>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14, width: '100%', maxWidth: 380 }}>
+        {PROFILE_TYPES.map(({ type, icon, title, sub }, i) => (
+          <button
+            key={type}
+            onClick={() => onSelect(type)}
+            onMouseEnter={() => setHov(type)}
+            onMouseLeave={() => setHov(null)}
+            style={{
+              padding: '22px 24px', borderRadius: 16, cursor: 'pointer', textAlign: 'left',
+              background: hov === type ? 'rgba(57,255,20,0.08)' : 'rgba(255,255,255,0.04)',
+              border: `1.5px solid ${hov === type ? '#39FF14' : 'rgba(255,255,255,0.1)'}`,
+              boxShadow: hov === type ? '0 0 24px rgba(57,255,20,0.15)' : 'none',
+              transition: 'all 0.18s ease',
+              animation: `type-in 0.4s ease ${0.1 + i * 0.08}s both`,
+              display: 'flex', alignItems: 'center', gap: 18,
+            }}
+          >
+            <span style={{ fontSize: 32, flexShrink: 0 }}>{icon}</span>
+            <div style={{ flex: 1 }}>
+              <p style={{ color: '#fff', fontWeight: 900, fontSize: 18, margin: '0 0 3px', letterSpacing: -0.3 }}>{title}</p>
+              <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13, margin: 0 }}>{sub}</p>
+            </div>
+            <span style={{ color: hov === type ? '#39FF14' : 'rgba(255,255,255,0.2)', fontSize: 20, transition: 'color 0.15s' }}>→</span>
+          </button>
+        ))}
+      </div>
+
+      <p style={{ color: 'rgba(255,255,255,0.25)', fontSize: 12, margin: '32px 0 0', textAlign: 'center' }}>
+        Already have a profile?{' '}
+        <Link href="/sparring/login" style={{ color: '#39FF14', textDecoration: 'none', fontWeight: 700 }}>Sign in →</Link>
+      </p>
+    </div>
+  )
+}
+
 export default function CreateSparringPage() {
   const router  = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
   const { user } = useAuth()
 
-  const [role, setRole] = useState<'player' | 'coach' | ''>('')
+  const [step,          setStep]          = useState<0 | 1>(0)
+  const [profileType,   setProfileType]   = useState<ProfileType>('player')
 
   const [name,          setName]          = useState('')
   const [city,          setCity]          = useState('')
@@ -94,7 +191,9 @@ export default function CreateSparringPage() {
   const [error,         setError]         = useState('')
   const [banner,        setBanner]        = useState('')
   const [alreadyExists, setAlreadyExists] = useState(false)
-  const [celebrating,   setCelebrating]   = useState<{ name: string; profileId: string } | null>(null)
+  const [celebrating,   setCelebrating]   = useState<{
+    name: string; profileId: string; foundingNumber: number | null; city: string
+  } | null>(null)
 
   useEffect(() => {
     const p    = new URLSearchParams(window.location.search)
@@ -136,12 +235,11 @@ export default function CreateSparringPage() {
   }
 
   function validate(): string | null {
-    if (!role)                 return 'Select whether you are a Player or Coach'
     if (!name.trim())          return 'Name is required'
     if (!city.trim())          return 'City is required'
     if (!country.trim())       return 'Country is required'
     if (!level)                return 'Select a level'
-    if (role === 'player' && !playType) return 'Select a play type'
+    if (profileType === 'player' && !playType) return 'Select a play type'
     if (surfaces.length === 0) return 'Select at least one surface'
     return null
   }
@@ -200,11 +298,11 @@ export default function CreateSparringPage() {
           name: name.trim(), city: city.trim(), country: country.trim(),
           bio: bio.trim() || undefined,
           favorite_players: favPlayers.trim() || undefined,
-          role,
+          profile_type: profileType,
           level, surface: surfaces,
           play_type: playType || 'both',
-          coaching_level: role === 'coach' ? coachingLevel || undefined : undefined,
-          coaching_fee:   role === 'coach' ? coachingFee   || undefined : undefined,
+          coaching_level: profileType === 'coach' ? coachingLevel || undefined : undefined,
+          coaching_fee:   profileType === 'coach' ? coachingFee   || undefined : undefined,
           photo_url,
           email: email.trim().toLowerCase(), email_verified: true,
           phone: phoneNumber.trim() ? `${countryCode}${phoneNumber.trim()}` : undefined,
@@ -216,34 +314,118 @@ export default function CreateSparringPage() {
       const profile = await res.json()
       localStorage.setItem('sparring_profile_id', profile.id)
       localStorage.setItem('sparring_email', email.trim().toLowerCase())
-      setCelebrating({ name: name.trim(), profileId: profile.id })
-      setTimeout(() => router.push(`/sparring/${profile.id}`), 2500)
+      setCelebrating({
+        name: name.trim(),
+        profileId: profile.id,
+        foundingNumber: profile.founding_number ?? null,
+        city: city.trim(),
+      })
+      setTimeout(() => router.push(`/sparring/${profile.id}`), 5000)
     } catch (e: any) { setError(e.message); setUploading(false) }
     finally { setCreating(false) }
   }
 
-  if (celebrating) {
+  // ── Step 0: Full-screen role selector ────────────────────────────────────────
+  if (step === 0) {
+    if (banner) {
+      // When coming from a redirect, show sign-in option and new profile inline
+    }
     return (
-      <SparringShell>
-        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
-          <style>{`
-            @keyframes sr-bounce { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-18px) } }
-            @keyframes sr-bar    { from { width: 0% } to { width: 100% } }
-          `}</style>
-          <div style={{ textAlign: 'center', padding: '0 24px' }}>
-            <div style={{ fontSize: 64, animation: 'sr-bounce 0.9s ease-in-out infinite', display: 'inline-block', marginBottom: 24 }}>🎾</div>
-            <h1 style={{ color: 'var(--sr-text)', fontSize: 28, fontWeight: 900, margin: '0 0 12px', letterSpacing: -0.5 }}>
-              Welcome to TennisAce, {celebrating.name}! 🎾
-            </h1>
-            <p style={{ color: 'var(--sr-muted)', fontSize: 15, margin: 0, lineHeight: 1.6 }}>
-              Your profile is live. Start finding hitting partners near you.
+      <div className="sparring-root" style={{ minHeight: '100vh' }}>
+        <TypeSelector onSelect={t => { setProfileType(t); setStep(1) }} />
+      </div>
+    )
+  }
+
+  // ── Celebration screen ────────────────────────────────────────────────────────
+  if (celebrating) {
+    const { name: celebName, foundingNumber, city: celebCity } = celebrating
+    const playerTarget = 500
+    const pct = foundingNumber ? Math.min((foundingNumber / playerTarget) * 100, 100) : 0
+    const typeLabel = profileType === 'coach' ? 'Coach' : profileType === 'organizer' ? 'Organizer' : 'Player'
+
+    return (
+      <div style={{
+        minHeight: '100vh', background: '#0d1b2e',
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
+        justifyContent: 'center', padding: '40px 24px', overflow: 'hidden',
+      }}>
+        <style>{`
+          @keyframes num-in    { from { opacity:0; transform:scale(0.5); } to { opacity:1; transform:scale(1); } }
+          @keyframes fade-up   { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+          @keyframes bar-grow  { from { width:0% } to { width:${pct.toFixed(1)}% } }
+          @keyframes glow-ring { 0%,100% { box-shadow: 0 0 24px rgba(57,255,20,0.3); } 50% { box-shadow: 0 0 48px rgba(57,255,20,0.6); } }
+        `}</style>
+
+        {/* Badge */}
+        {foundingNumber && (
+          <div style={{
+            width: 160, height: 160, marginBottom: 32,
+            clipPath: 'polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)',
+            background: 'linear-gradient(160deg, #0f2a10 0%, #0d1b2e 100%)',
+            border: '2px solid #39FF14',
+            animation: 'glow-ring 2s ease-in-out infinite',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <span style={{ color: '#39FF14', fontSize: 10, fontWeight: 900, letterSpacing: 1.5, textTransform: 'uppercase' }}>Founding</span>
+            <span style={{ color: '#fff', fontSize: 42, fontWeight: 900, lineHeight: 1, animation: 'num-in 0.5s ease 0.3s both' }}>
+              #{foundingNumber}
+            </span>
+            <span style={{ color: '#39FF14', fontSize: 9, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', marginTop: 2 }}>Member</span>
+          </div>
+        )}
+
+        {/* Text */}
+        <div style={{ textAlign: 'center', animation: 'fade-up 0.5s ease 0.5s both' }}>
+          {foundingNumber ? (
+            <>
+              <h1 style={{ color: '#fff', fontSize: 26, fontWeight: 900, margin: '0 0 10px', letterSpacing: -0.5, lineHeight: 1.2 }}>
+                You are Founding {typeLabel} #{foundingNumber} of {celebCity}
+              </h1>
+              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 15, margin: '0 0 28px', lineHeight: 1.6, maxWidth: 340 }}>
+                You're helping build {celebCity}'s tennis community from the ground up.
+              </p>
+            </>
+          ) : (
+            <>
+              <h1 style={{ color: '#fff', fontSize: 26, fontWeight: 900, margin: '0 0 10px' }}>
+                Welcome to TennisAce, {celebName}!
+              </h1>
+              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 15, margin: '0 0 28px' }}>
+                Your profile is live. Start finding partners near you.
+              </p>
+            </>
+          )}
+        </div>
+
+        {/* City progress bar */}
+        {foundingNumber && (
+          <div style={{ width: '100%', maxWidth: 360, animation: 'fade-up 0.5s ease 0.7s both' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+              <span style={{ color: '#39FF14', fontSize: 13, fontWeight: 800 }}>{celebCity}</span>
+              <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12 }}>
+                Players {foundingNumber}/{playerTarget}
+              </span>
+            </div>
+            <div style={{ height: 6, background: 'rgba(255,255,255,0.08)', borderRadius: 3, overflow: 'hidden' }}>
+              <div style={{
+                height: '100%', borderRadius: 3,
+                background: 'linear-gradient(90deg, #39FF14, #00C875)',
+                animation: 'bar-grow 1.2s cubic-bezier(0.4,0,0.2,1) 0.9s both',
+                width: `${pct.toFixed(1)}%`,
+              }} />
+            </div>
+            <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11, margin: '8px 0 0', textAlign: 'center' }}>
+              {Math.max(0, 50 - foundingNumber)} more needed to unlock early access
             </p>
           </div>
-          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 4, background: 'var(--sr-border)' }}>
-            <div style={{ height: '100%', background: 'var(--sr-accent)', borderRadius: 2, animation: 'sr-bar 2.5s linear forwards' }} />
-          </div>
+        )}
+
+        {/* Redirect timer bar */}
+        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, height: 3, background: 'rgba(255,255,255,0.06)' }}>
+          <div style={{ height: '100%', background: '#39FF14', borderRadius: 2, animation: 'bar-grow 5s linear forwards', width: '100%' }} />
         </div>
-      </SparringShell>
+      </div>
     )
   }
 
@@ -261,9 +443,17 @@ export default function CreateSparringPage() {
     )
   }
 
+  const roleLabel = profileType === 'coach' ? 'Coach' : profileType === 'organizer' ? 'Organizer' : 'Player'
+
   return (
     <SparringShell>
       <div style={{ maxWidth: 540, margin: '0 auto', padding: '20px 16px 0' }}>
+
+        {/* Back to type selector */}
+        <button onClick={() => setStep(0)}
+          style={{ background: 'none', border: 'none', color: 'var(--sr-muted)', fontSize: 13, fontWeight: 700, cursor: 'pointer', padding: '0 0 16px', display: 'flex', alignItems: 'center', gap: 6 }}>
+          ← Change role
+        </button>
 
         {banner && (
           <div style={{ background: 'rgba(180,150,40,0.1)', border: '1px solid rgba(180,150,40,0.3)', borderRadius: 12, padding: 16, marginBottom: 24 }}>
@@ -281,27 +471,14 @@ export default function CreateSparringPage() {
         )}
 
         <div style={{ marginBottom: 28 }}>
-          <h1 style={{ color: 'var(--sr-text)', fontSize: 22, fontWeight: 900, margin: '0 0 4px', letterSpacing: -0.5 }}>Add your profile</h1>
-          <p style={{ color: 'var(--sr-muted)', fontSize: 13, margin: 0 }}>Let other players and coaches find you</p>
-        </div>
-
-        {/* Role */}
-        <div style={{ marginBottom: 24 }}>
-          <Label text="I am a *" />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            {(['player', 'coach'] as const).map(r => (
-              <button key={r} onClick={() => setRole(r)}
-                style={{
-                  padding: '16px 12px', borderRadius: 12, cursor: 'pointer', textAlign: 'center',
-                  border: role === r ? 'none' : '1px solid var(--sr-border)',
-                  background: role === r ? 'var(--sr-accent)' : 'var(--sr-card)',
-                  color: role === r ? 'var(--sr-on-acc)' : 'var(--sr-muted)',
-                  fontWeight: 900, fontSize: 16, letterSpacing: -0.3, minHeight: 60,
-                }}>
-                {r === 'player' ? '🎾 Player' : '🎓 Coach'}
-              </button>
-            ))}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+            <h1 style={{ color: 'var(--sr-text)', fontSize: 22, fontWeight: 900, margin: 0, letterSpacing: -0.5 }}>
+              {profileType === 'coach' ? '🎓' : profileType === 'organizer' ? '🏆' : '🎾'} {roleLabel} Profile
+            </h1>
           </div>
+          <p style={{ color: 'var(--sr-muted)', fontSize: 13, margin: 0 }}>
+            Let other {profileType === 'coach' ? 'players' : 'players and coaches'} find you
+          </p>
         </div>
 
         {/* Photo */}
@@ -414,8 +591,8 @@ export default function CreateSparringPage() {
           </div>
         </div>
 
-        {/* Play type */}
-        {role === 'player' && (
+        {/* Play type — players and organizers */}
+        {profileType !== 'coach' && (
           <div style={{ marginBottom: 18 }}>
             <Label text="Play type *" />
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -430,7 +607,7 @@ export default function CreateSparringPage() {
         )}
 
         {/* Coach fields */}
-        {role === 'coach' && (
+        {profileType === 'coach' && (
           <>
             <div style={{ marginBottom: 18 }}>
               <Label text="I train" />
@@ -462,7 +639,7 @@ export default function CreateSparringPage() {
         <div style={{ marginBottom: 24 }}>
           <Label text="Bio" />
           <textarea value={bio} onChange={e => setBio(e.target.value)}
-            placeholder={role === 'coach' ? 'Your coaching background, style, what you offer…' : 'Tell others about your game, preferred times, anything useful…'}
+            placeholder={profileType === 'coach' ? 'Your coaching background, style, what you offer…' : profileType === 'organizer' ? 'Tell others about your tournaments, academies, or events…' : 'Tell others about your game, preferred times, anything useful…'}
             rows={3}
             style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.5, height: 'auto', paddingTop: 12, paddingBottom: 12 }} />
         </div>
@@ -520,7 +697,7 @@ export default function CreateSparringPage() {
               color: emailVerified && !creating ? 'var(--sr-on-acc)' : 'var(--sr-muted)',
               cursor: emailVerified && !creating ? 'pointer' : 'not-allowed',
             }}>
-            {creating ? 'Creating profile…' : emailVerified ? `Create ${role === 'coach' ? 'Coach' : 'Player'} Profile` : 'Verify your email first'}
+            {creating ? 'Creating profile…' : emailVerified ? `Create ${roleLabel} Profile` : 'Verify your email first'}
           </button>
         </div>
       )}

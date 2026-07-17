@@ -98,7 +98,23 @@ function PlayerCard({ p, mutualSlots }: { p: any; mutualSlots?: number }) {
 
         {/* Body */}
         <div style={{ padding: '12px 14px 14px' }}>
-          <p style={{ color: 'var(--sr-text)', fontWeight: 800, fontSize: 15, margin: '0 0 2px' }}>{p.name}</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 2 }}>
+            <p style={{ color: 'var(--sr-text)', fontWeight: 800, fontSize: 15, margin: 0 }}>{p.name}</p>
+            {p.founding_number && (
+              <span
+                title={`Founding Member #${p.founding_number} · ${p.city}`}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                  width: 22, height: 24, flexShrink: 0,
+                  clipPath: 'polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)',
+                  background: 'rgba(57,255,20,0.1)',
+                  border: '1px solid #39FF14',
+                  boxShadow: '0 0 6px rgba(57,255,20,0.25)',
+                  color: '#39FF14', fontSize: 7, fontWeight: 900, letterSpacing: 0,
+                }}
+              >#{p.founding_number}</span>
+            )}
+          </div>
           <p style={{ color: 'var(--sr-muted)', fontSize: 12, margin: '0 0 10px' }}>
             {[p.city, p.country].filter(Boolean).join(', ')}
           </p>

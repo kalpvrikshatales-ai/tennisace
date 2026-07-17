@@ -287,157 +287,77 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
       {/* ── CONTENT ───────────────────────────────────────── */}
       <main className="max-w-3xl mx-auto px-4 py-5 pb-10">
 
-        {/* ═══ MATCHES TAB ═══════════════════════════════════ */}
+        {/* ═══ MATCHES TAB — graceful degradation while scores rebuild for US Open ══ */}
         {tab === 'matches' && (
-          <div className="space-y-8">
-            {/* Filter pills */}
-            <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1 -mb-4">
-              {([
-                { key: 'live',      label: liveMatches.length > 0 ? `Live ${liveMatches.length}` : 'Live' },
-                { key: 'next',      label: 'Next' },
-                { key: 'completed', label: 'Completed' },
-                { key: 'all',       label: 'All' },
-              ] as const).map(({ key, label }) => (
-                <button
-                  key={key}
-                  onClick={() => setMatchFilter(key)}
-                  className={`flex-shrink-0 px-4 py-1.5 rounded-full text-[13px] font-bold transition-all ${
-                    matchFilter === key
-                      ? 'bg-[#00C875] text-white'
-                      : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
+          <div className="space-y-4">
+            {/* Scores paused card */}
+            <div className="card overflow-hidden" style={{ background: '#0d1b2e', border: '1px solid #1a3050' }}>
+              <div className="p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: '#39FF14' }}>Live Scores</span>
+                  <div className="w-2 h-2 rounded-full" style={{ background: '#39FF14', opacity: 0.4 }} />
+                </div>
+                <p className="text-white text-[22px] font-black leading-tight mb-2">
+                  Live scores are taking a break.
+                </p>
+                <p className="text-[15px] mb-6" style={{ color: '#8ba3c0' }}>
+                  We're rebuilding the data feed for the US Open. Back August 25.
+                </p>
+                <Link href="/tournament/us-open-2026"
+                  className="inline-flex items-center gap-2 text-[13px] font-bold px-4 py-2.5 rounded-full"
+                  style={{ background: 'rgba(57,255,20,0.15)', border: '1px solid rgba(57,255,20,0.3)', color: '#39FF14' }}>
+                  US Open hub — Aug 25 →
+                </Link>
+              </div>
             </div>
 
-            {/* LIVE NOW */}
-            {matchFilter === 'live' && <section>
-              <SectionHeader
-                title="Live Now"
-                count={liveMatches.length}
-                sub={liveMatches.length > 0 ? 'Updates every 30s' : undefined}
-              />
-              {!hasFetched || loadingLive ? (
-                <div className="space-y-3">
-                  {[...Array(3)].map((_, i) => <MatchCardSkeleton key={i} />)}
-                </div>
-              ) : liveMatches.length === 0 ? (
-                <div className="card p-5 text-center">
-                  <p className="text-2xl mb-2">📡</p>
-                  <p className="font-bold text-gray-900 text-[15px]">No matches live right now</p>
-                  <p className="text-gray-400 text-[13px] mt-1">Matches typically play 10am–10pm local time</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {groupByTournament(liveMatches).map(group => (
-                    <div key={group.tournament} className="space-y-1">
-                      <TournamentHeader tournament={group.tournament} surface={group.surface} round={group.round} />
-                      {group.items.map(m => <MatchCard key={m.match_id} match={m} hideMeta />)}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </section>}
+            {/* Join community card */}
+            <div className="card overflow-hidden" style={{ background: '#080f1a', border: '1px solid #1a2535' }}>
+              <div className="p-6">
+                <p className="text-[10px] font-black uppercase tracking-widest mb-3" style={{ color: '#39FF14' }}>
+                  While we rebuild
+                </p>
+                <p className="text-white text-[18px] font-black mb-1">
+                  Join the tennis community.
+                </p>
+                <p className="text-[13px] mb-5" style={{ color: '#8ba3c0' }}>
+                  Find hitting partners near you. Get your founding member badge before the US Open.
+                </p>
 
-            {/* UPCOMING */}
-            {matchFilter === 'next' && <section>
-              <SectionHeader title="Upcoming" count={fixtures.length} sub="Next 7 days" />
-              {!hasFetched || loadingFixtures ? (
-                <div className="space-y-2">{[...Array(4)].map((_, i) => <MatchCardSkeleton key={i} />)}</div>
-              ) : fixtures.length === 0 ? (
-                <div className="card p-5 text-center"><p className="text-gray-400 text-[13px]">No scheduled matches found</p></div>
-              ) : (
-                <div className="space-y-3">
-                  {groupByTournament(sortByPriority(fixtures)).map(group => (
-                    <div key={group.tournament} className="space-y-1">
-                      <TournamentHeader tournament={group.tournament} surface={group.surface} round={group.round} />
-                      {group.items.map(f => <MatchCard key={f.match_id} match={f} hideMeta forceUpcoming />)}
-                    </div>
-                  ))}
+                <div className="flex flex-col gap-3">
+                  <Link href="/sparring/create"
+                    className="flex items-center justify-between px-4 py-3.5 rounded-xl font-bold text-[14px]"
+                    style={{ background: '#39FF14', color: '#000' }}>
+                    <span>Create your player profile</span>
+                    <span>→</span>
+                  </Link>
+                  <Link href="/sparring"
+                    className="flex items-center justify-between px-4 py-3.5 rounded-xl font-bold text-[13px]"
+                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.7)' }}>
+                    <span>Browse players near you</span>
+                    <span>→</span>
+                  </Link>
                 </div>
-              )}
-            </section>}
-
-            {/* COMPLETED */}
-            {matchFilter === 'completed' && <section>
-              <SectionHeader title="Completed" count={results.length} sub="Last 7 days" />
-              {!hasFetched || loadingResults ? (
-                <div className="space-y-2">{[...Array(4)].map((_, i) => <ResultCardSkeleton key={i} />)}</div>
-              ) : results.length === 0 ? (
-                <div className="card p-5 text-center"><p className="text-gray-400 text-[13px]">No recent results</p></div>
-              ) : (
-                <div className="space-y-3">
-                  {groupByTournament(results).map(group => (
-                    <div key={group.tournament} className="space-y-1">
-                      <TournamentHeader tournament={group.tournament} surface={group.surface} round={group.round} />
-                      {group.items.map(r => <ResultCard key={r.match_id} result={r} hideMeta />)}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </section>}
-
-            {/* ALL */}
-            {matchFilter === 'all' && <section className="space-y-6">
-              {/* Live */}
-              {(!hasFetched || loadingLive || liveMatches.length > 0) && (
-                <div>
-                  <SectionHeader title="Live Now" count={liveMatches.length} sub={liveMatches.length > 0 ? 'Updates every 30s' : undefined} />
-                  {!hasFetched || loadingLive ? (
-                    <div className="space-y-3">{[...Array(2)].map((_, i) => <MatchCardSkeleton key={i} />)}</div>
-                  ) : (
-                    <div className="space-y-3">
-                      {groupByTournament(liveMatches).map(group => (
-                        <div key={group.tournament} className="space-y-1">
-                          <TournamentHeader tournament={group.tournament} surface={group.surface} round={group.round} />
-                          {group.items.map(m => <MatchCard key={m.match_id} match={m} hideMeta />)}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Upcoming */}
-              <div>
-                <SectionHeader title="Upcoming" count={fixtures.length} sub="Next 7 days" />
-                {!hasFetched || loadingFixtures ? (
-                  <div className="space-y-2">{[...Array(3)].map((_, i) => <MatchCardSkeleton key={i} />)}</div>
-                ) : fixtures.length === 0 ? (
-                  <div className="card p-4 text-center"><p className="text-gray-400 text-[13px]">No scheduled matches</p></div>
-                ) : (
-                  <div className="space-y-3">
-                    {groupByTournament(sortByPriority(fixtures)).map(group => (
-                      <div key={group.tournament} className="space-y-1">
-                        <TournamentHeader tournament={group.tournament} surface={group.surface} round={group.round} />
-                        {group.items.map(f => <MatchCard key={f.match_id} match={f} hideMeta forceUpcoming />)}
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
+            </div>
 
-              {/* Completed */}
-              <div>
-                <SectionHeader title="Completed" count={results.length} sub="Last 7 days" />
-                {!hasFetched || loadingResults ? (
-                  <div className="space-y-2">{[...Array(3)].map((_, i) => <ResultCardSkeleton key={i} />)}</div>
-                ) : results.length === 0 ? (
-                  <div className="card p-4 text-center"><p className="text-gray-400 text-[13px]">No recent results</p></div>
-                ) : (
-                  <div className="space-y-3">
-                    {groupByTournament(results).map(group => (
-                      <div key={group.tournament} className="space-y-1">
-                        <TournamentHeader tournament={group.tournament} surface={group.surface} round={group.round} />
-                        {group.items.map(r => <ResultCard key={r.match_id} result={r} hideMeta />)}
-                      </div>
-                    ))}
-                  </div>
-                )}
+            {/* US Open teaser */}
+            <Link href="/tournament/us-open-2026" className="block">
+              <div className="card p-5 cursor-pointer hover:border-yellow-200/20 transition-all"
+                style={{ background: '#0d1b2e', border: '1px solid #1a3050' }}>
+                <p className="text-[10px] font-black text-center uppercase tracking-widest mb-3" style={{ color: '#39FF14' }}>
+                  Grand Slam · Hard Court · New York
+                </p>
+                <p className="text-white text-[20px] font-black text-center mb-1">US Open 2026</p>
+                <p className="text-center text-[13px] mb-4" style={{ color: '#8ba3c0' }}>Aug 25 – Sep 7 · USTA Billie Jean King NTC</p>
+                <div className="flex justify-center">
+                  <span className="inline-flex items-center gap-1.5 text-[12px] font-bold px-4 py-2 rounded-full"
+                    style={{ background: 'rgba(57,255,20,0.15)', border: '1px solid rgba(57,255,20,0.3)', color: '#39FF14' }}>
+                    View Tournament Hub →
+                  </span>
+                </div>
               </div>
-            </section>}
+            </Link>
           </div>
         )}
 

@@ -88,7 +88,7 @@ async def list_profiles(
 
     # email and phone intentionally excluded from public listing
     params: dict = {
-        "select": "id,name,photo_url,city,country,level,surface,play_type,bio,role,favorite_players,coaching_level,coaching_fee,created_at",
+        "select": "id,name,photo_url,city,country,level,surface,play_type,bio,role,profile_type,founding_number,favorite_players,coaching_level,coaching_fee,created_at",
         "order":  "created_at.desc",
         "limit":  limit,
         "offset": offset,
@@ -166,6 +166,10 @@ async def get_profile(profile_id: str):
 async def create_profile(body: dict):
     availability: list = body.pop("availability", [])
 
+    profile_type = body.get("profile_type") or body.get("role") or "player"
+    # role must remain 'player'|'coach' for backward compat; organizer maps to player
+    role = "coach" if profile_type == "coach" else "player"
+
     profile_body = {
         "name":            body.get("name", "").strip(),
         "photo_url":       body.get("photo_url"),
@@ -175,7 +179,8 @@ async def create_profile(body: dict):
         "surface":         body.get("surface", []),
         "play_type":       body.get("play_type") or None,
         "bio":             body.get("bio", "").strip() or None,
-        "role":            body.get("role") or "player",
+        "role":            role,
+        "profile_type":    profile_type,
         "favorite_players":body.get("favorite_players", "").strip() or None,
         "coaching_level":  body.get("coaching_level", "").strip() or None,
         "coaching_fee":    body.get("coaching_fee", "").strip() or None,
@@ -496,3 +501,63 @@ async def update_request(request_id: str, body: dict):
         )
 
     return updated
+
+
+# ── GET /sparring/city-progress/{city} ───────────────────────────────────────
+
+@router.get("/city-progress/{city}")
+async def get_city_progress(city: str):
+    # Get city_progress row
+    cp_rows = await _get("city_progress", {
+        "city": f"ilike.{city.strip()}",
+        "limit": 1,
+    })
+
+    # Aggregate counts directly from profiles (authoritative)
+    profile_rows = await _get("sparring_profiles", {
+        "select": "id,name,photo_url,city,country,profile_type,founding_number,created_at",
+        "order":  "founding_number.asc",
+        "city":   f"ilike.*{city.strip()}*",
+        "limit":  200,
+    })
+
+    player_count = sum(1 for p in profile_rows if p.get("profile_type") in ("player", "organizer", None, ""))
+    coach_count  = sum(1 for p in profile_rows if p.get("profile_type") == "coach")
+    next_number  = len(profile_rows) + 1
+
+    cp = cp_rows[0] if cp_rows else {
+        "city": city, "country": "India", "player_target": 500, "coach_target": 50, "status": "building"
+    }
+
+    # Determine status milestone
+    total = player_count + coach_count
+    if total >= 200:
+        status = "community_launch"
+    elif total >= 50:
+        status = "early_access"
+    else:
+        status = "building"
+
+    # First 20 founding members for avatar grid
+    founding_members = [
+        {
+            "id":              p["id"],
+            "name":            p["name"],
+            "photo_url":       p.get("photo_url"),
+            "founding_number": p.get("founding_number"),
+            "profile_type":    p.get("profile_type") or "player",
+        }
+        for p in profile_rows[:20]
+    ]
+
+    return {
+        "city":             cp.get("city", city),
+        "country":          cp.get("country", "India"),
+        "player_count":     player_count,
+        "coach_count":      coach_count,
+        "player_target":    cp.get("player_target", 500),
+        "coach_target":     cp.get("coach_target", 50),
+        "status":           status,
+        "next_number":      next_number,
+        "founding_members": founding_members,
+    }
