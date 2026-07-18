@@ -30,6 +30,17 @@ async function fetchCity(city: string): Promise<CityProgress | null> {
   } catch { return null }
 }
 
+async function fetchTotalCount(): Promise<number> {
+  try {
+    const res = await fetch(`${BACKEND}/sparring/members/count`, {
+      next: { revalidate: 120 },
+    })
+    if (!res.ok) return 0
+    const d = await res.json()
+    return d.count ?? 0
+  } catch { return 0 }
+}
+
 function CityCard({ data, flag, slug, accentColor, gradient, featured }: {
   data:        CityProgress | null
   flag:        string
@@ -143,6 +154,18 @@ function CityCard({ data, flag, slug, accentColor, gradient, featured }: {
           Join as Founding Member →
         </div>
       </Link>
+
+      {/* Free forever note */}
+      <p style={{
+        color:         'rgba(255,255,255,0.28)',
+        fontSize:      11,
+        fontWeight:    700,
+        textAlign:     'center',
+        margin:        '10px 0 0',
+        letterSpacing: 0.2,
+      }}>
+        Founding Member · Always Free · Limited spots
+      </p>
     </div>
   )
 }
@@ -172,19 +195,16 @@ const VALUE_PROPS = [
 ]
 
 export default async function HomeCommunityHero() {
-  const [barcelona, dubai] = await Promise.all([
+  const [barcelona, dubai, totalMembers] = await Promise.all([
     fetchCity('Barcelona'),
     fetchCity('Dubai'),
+    fetchTotalCount(),
   ])
 
   const allMembers = [
     ...(barcelona?.founding_members?.slice(0, 3) ?? []),
     ...(dubai?.founding_members?.slice(0, 3) ?? []),
   ].slice(0, 6)
-
-  const totalMembers =
-    (barcelona ? barcelona.player_count + barcelona.coach_count : 0) +
-    (dubai     ? dubai.player_count     + dubai.coach_count     : 0)
 
   return (
     <div style={{ fontFamily: 'var(--font-dm-sans, system-ui, sans-serif)' }}>
@@ -287,7 +307,7 @@ export default async function HomeCommunityHero() {
 
           {/* Proof micro-copy */}
           <p style={{ color: 'rgba(255,255,255,0.28)', fontSize: 13, fontWeight: 600, margin: 0, letterSpacing: 0.1 }}>
-            🎾 {totalMembers} founding member{totalMembers !== 1 ? 's' : ''} · Barcelona &amp; Dubai · Free forever
+            🎾 {totalMembers} founding member{totalMembers !== 1 ? 's' : ''} · Barcelona &amp; Dubai · Founding Members Free
           </p>
         </div>
       </section>

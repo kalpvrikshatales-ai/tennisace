@@ -425,6 +425,16 @@ export default function CreateSparringPage() {
           </div>
         )}
 
+        {/* Permanent free message */}
+        <div style={{ width: '100%', maxWidth: 360, marginTop: 24, animation: 'fade-up 0.5s ease 1.0s both', background: 'rgba(57,255,20,0.06)', border: '1px solid rgba(57,255,20,0.18)', borderRadius: 12, padding: '14px 16px' }}>
+          <p style={{ color: '#39FF14', fontSize: 13, fontWeight: 800, margin: '0 0 4px' }}>
+            Your Founding Member profile is permanently free.
+          </p>
+          <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 12, margin: 0, lineHeight: 1.6 }}>
+            Once we launch fully, new members will pay. You won't.
+          </p>
+        </div>
+
         {/* Profile link */}
         {celebHandle && (
           <div style={{ width: '100%', maxWidth: 360, marginTop: 28, animation: 'fade-up 0.5s ease 1.1s both' }}>

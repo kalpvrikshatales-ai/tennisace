@@ -1,20 +1,12 @@
-import { redirect, notFound } from 'next/navigation'
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? 'https://tennisace-api.onrender.com'
-
-export const revalidate = 60
+import { redirect } from 'next/navigation'
 
 export default async function HandleRedirect({ params }: { params: { handle: string } }) {
-  const { handle } = params
-  try {
-    const res = await fetch(`${API}/sparring/profiles/handle/${encodeURIComponent(handle)}`, {
-      next: { revalidate: 60 },
-    })
-    if (res.status === 404) notFound()
-    if (!res.ok) notFound()
-    const profile = await res.json()
-    redirect(`/sparring/${profile.id}`)
-  } catch {
-    notFound()
-  }
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/sparring/profiles/by-handle?handle=${params.handle}`,
+    { next: { revalidate: 60 } },
+  )
+  if (!res.ok) redirect('/sparring')
+  const profile = await res.json()
+  if (!profile?.id) redirect('/sparring')
+  redirect(`/sparring/${profile.id}`)
 }

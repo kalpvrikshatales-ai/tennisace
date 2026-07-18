@@ -137,10 +137,10 @@ async def get_profile_by_email(email: str = Query(...)):
     return rows[0]
 
 
-# ── GET /sparring/profiles/handle/{handle} ───────────────────────────────────
+# ── GET /sparring/profiles/by-handle?handle={handle} ─────────────────────────
 
-@router.get("/profiles/handle/{handle}")
-async def get_profile_by_handle(handle: str):
+@router.get("/profiles/by-handle")
+async def get_profile_by_handle(handle: str = Query(...)):
     rows = await _get("sparring_profiles", {
         "handle": f"eq.{handle.lower().strip()}",
         "select": "*",
@@ -158,6 +158,14 @@ async def get_profile_by_handle(handle: str):
     })
     profile["availability"] = [{"day": a["day_of_week"], "time": a["time_slot"]} for a in avail]
     return profile
+
+
+# ── GET /sparring/members/count ───────────────────────────────────────────────
+
+@router.get("/members/count")
+async def get_members_count():
+    rows = await _get("sparring_profiles", {"select": "id"})
+    return {"count": len(rows)}
 
 
 # ── GET /sparring/profiles/{id} ───────────────────────────────────────────────

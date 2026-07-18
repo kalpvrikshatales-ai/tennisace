@@ -223,6 +223,9 @@ function SidebarPanel({ onClose }: { onClose?: () => void }) {
                 <span style={{ color:'#f59e0b', fontSize:11, fontWeight:700 }}>0 / 300</span>
               </div>
             </div>
+            <p style={{ color:'rgba(255,255,255,0.28)', fontSize:10, fontWeight:700, textAlign:'center', margin:'0 0 10px', letterSpacing:0.2 }}>
+              Founding Members are free. Always.
+            </p>
             <Link href="/community" onClick={closeDrawer}
               style={{ display:'block', textAlign:'center', background:'rgba(57,255,20,0.1)', border:'1px solid rgba(57,255,20,0.25)', color:'#39FF14', fontWeight:800, fontSize:12, padding:'8px', borderRadius:8, textDecoration:'none' }}>
               Join the community →
