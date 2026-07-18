@@ -399,10 +399,10 @@ export default function PlayPage() {
               }}>
                 <p style={{ fontSize: 32, margin: '0 0 12px' }}>🎾</p>
                 <p style={{ color: 'rgba(255,255,255,0.6)', fontWeight: 800, fontSize: 16, margin: '0 0 6px' }}>
-                  No open games yet
+                  No games posted yet.
                 </p>
-                <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 13, margin: '0 0 20px' }}>
-                  Be the first to post a request
+                <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 13, margin: '0 0 20px', lineHeight: 1.6 }}>
+                  Post the first one — someone in your city is looking.
                 </p>
                 <button
                   onClick={() => setShowForm(true)}

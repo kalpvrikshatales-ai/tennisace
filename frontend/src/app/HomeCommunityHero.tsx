@@ -30,11 +30,12 @@ async function fetchCity(city: string): Promise<CityProgress | null> {
   } catch { return null }
 }
 
-function CityCard({ data, flag, slug, accentColor, featured }: {
+function CityCard({ data, flag, slug, accentColor, gradient, featured }: {
   data:        CityProgress | null
   flag:        string
   slug:        string
   accentColor: string
+  gradient:    string
   featured?:   boolean
 }) {
   const total     = data ? data.player_count + data.coach_count : 0
@@ -44,89 +45,113 @@ function CityCard({ data, flag, slug, accentColor, featured }: {
   const spotsLeft = Math.max(0, nextMs - total)
   const msLabel   = nextMs === 50 ? 'Early Access' : nextMs === 200 ? 'Community Launch' : 'Full Launch'
   const city      = data?.city ?? slug
+  const isEmpty   = total === 0
 
   return (
-    <Link href={`/community/${slug}`} style={{ textDecoration: 'none', display: 'flex', flex: 1 }}>
-      <div className="city-hero-card" style={{
-        background:   featured ? 'rgba(57,255,20,0.04)' : '#132236',
-        border:       `1.5px solid ${featured ? 'rgba(57,255,20,0.22)' : 'rgba(255,255,255,0.08)'}`,
-        borderRadius: 18,
-        padding:      '24px 20px',
-        width:        '100%',
-        position:     'relative',
-        overflow:     'hidden',
+    <div className="city-hero-card" style={{
+      background:   gradient,
+      border:       `1.5px solid ${featured ? 'rgba(57,255,20,0.28)' : 'rgba(245,158,11,0.22)'}`,
+      borderRadius: 20,
+      padding:      '28px 24px 24px',
+      minHeight:    200,
+      display:      'flex',
+      flexDirection:'column',
+      position:     'relative',
+      overflow:     'hidden',
+    }}>
+      {/* Radial glow top-right */}
+      <div style={{
+        position:   'absolute', top: -40, right: -40,
+        width:      160, height: 160, borderRadius: '50%',
+        background: `radial-gradient(circle, ${accentColor}18 0%, transparent 70%)`,
+        pointerEvents: 'none',
+      }} />
+
+      {/* Milestone pill */}
+      <div style={{
+        display:       'inline-flex', alignItems: 'center', gap: 5,
+        background:    `${accentColor}18`,
+        border:        `1px solid ${accentColor}40`,
+        borderRadius:  20, padding: '4px 11px',
+        fontSize:      10, fontWeight: 800, color: accentColor,
+        letterSpacing: 0.8, textTransform: 'uppercase', marginBottom: 20,
+        alignSelf:     'flex-start',
       }}>
-        {featured && (
-          <div style={{
-            position: 'absolute', top: -50, right: -50,
-            width: 130, height: 130, borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(57,255,20,0.09) 0%, transparent 70%)',
-            pointerEvents: 'none',
-          }} />
-        )}
+        <span style={{ width: 5, height: 5, borderRadius: '50%', background: accentColor, flexShrink: 0 }} />
+        {msLabel} — {spotsLeft} to go
+      </div>
 
-        {/* Status pill */}
-        <div style={{
-          display:         'inline-flex',
-          alignItems:      'center',
-          gap:             5,
-          background:      `${accentColor}15`,
-          border:          `1px solid ${accentColor}40`,
-          borderRadius:    20,
-          padding:         '3px 10px',
-          fontSize:        10,
-          fontWeight:      800,
-          color:           accentColor,
-          letterSpacing:   0.8,
-          textTransform:   'uppercase',
-          marginBottom:    18,
-        }}>
-          <span style={{ width: 5, height: 5, borderRadius: '50%', background: accentColor, flexShrink: 0 }} />
-          {msLabel} — {spotsLeft} to go
-        </div>
+      {/* Flag + city name */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 10 }}>
+        <span style={{ fontSize: 32, lineHeight: 1, flexShrink: 0 }}>{flag}</span>
+        <p style={{ color: '#fff', fontSize: 32, fontWeight: 900, margin: 0, letterSpacing: -1, lineHeight: 1 }}>{city}</p>
+      </div>
 
-        {/* Flag + city name */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-          <span style={{ fontSize: 34, lineHeight: 1, flexShrink: 0 }}>{flag}</span>
-          <div>
-            <p style={{ color: '#fff', fontSize: 22, fontWeight: 900, margin: '0 0 2px', letterSpacing: -0.5 }}>{city}</p>
-            <p style={{ color: 'rgba(255,255,255,0.38)', fontSize: 12, margin: 0, fontWeight: 600 }}>{data?.country ?? ''}</p>
+      {/* Member count — neon green, big */}
+      <p style={{
+        color:      isEmpty ? 'rgba(255,255,255,0.35)' : accentColor,
+        fontSize:   isEmpty ? 14 : 20,
+        fontWeight: 800,
+        margin:     '0 0 18px',
+        lineHeight: 1.2,
+      }}>
+        {isEmpty
+          ? `Be the first tennis player in ${city} on TennisAce. Start something.`
+          : `${total} founding member${total !== 1 ? 's' : ''}`}
+      </p>
+
+      {/* Progress bar */}
+      {!isEmpty && (
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+            <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, fontWeight: 700 }}>
+              {data?.player_count ?? 0} players
+            </span>
+            <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11 }}>
+              {target} target
+            </span>
           </div>
-        </div>
-
-        {/* Member count */}
-        <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: 13, fontWeight: 700, margin: '0 0 14px' }}>
-          {total} founding member{total !== 1 ? 's' : ''}
-        </p>
-
-        {/* Progress */}
-        <div style={{ marginBottom: 18 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 7 }}>
-            <span style={{ color: 'rgba(255,255,255,0.38)', fontSize: 11, fontWeight: 700 }}>Players</span>
-            <span style={{ color: 'rgba(255,255,255,0.38)', fontSize: 11 }}>{data?.player_count ?? 0} / {target}</span>
-          </div>
-          <div style={{ height: 5, background: 'rgba(255,255,255,0.07)', borderRadius: 3, overflow: 'hidden' }}>
+          <div style={{ height: 6, background: 'rgba(255,255,255,0.08)', borderRadius: 3, overflow: 'hidden' }}>
             <div style={{
               height:     '100%',
-              width:      `${Math.max(pct, pct > 0 ? 1.5 : 0)}%`,
+              width:      `${Math.max(pct, pct > 0 ? 2 : 0)}%`,
               background: `linear-gradient(90deg, ${accentColor}, ${featured ? '#00C875' : '#d97706'})`,
               borderRadius: 3,
-              minWidth:   pct > 0 ? 6 : 0,
+              minWidth:   pct > 0 ? 8 : 0,
+              transition: 'width 1s ease',
             }} />
           </div>
         </div>
+      )}
 
-        {/* Footer */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 12 }}>
-            #{data?.next_number ?? 1} still available
-          </span>
-          <span style={{ color: accentColor, fontWeight: 900, fontSize: 13 }}>Join →</span>
+      <div style={{ flex: 1 }} />
+
+      {/* Full-width CTA */}
+      <Link href={`/community/${slug}`} style={{ textDecoration: 'none' }}>
+        <div style={{
+          display:       'flex', alignItems: 'center', justifyContent: 'center',
+          gap:           8,
+          background:    accentColor,
+          color:         '#000',
+          fontWeight:    900,
+          fontSize:      14,
+          padding:       '14px',
+          borderRadius:  12,
+          textAlign:     'center',
+          letterSpacing: -0.2,
+        }}>
+          Join as Founding Member →
         </div>
-      </div>
-    </Link>
+      </Link>
+    </div>
   )
 }
+
+const HOW_IT_WORKS = [
+  { step: 1, icon: '🎾', title: 'Create your profile',  desc: 'Player or Coach — takes 3 minutes' },
+  { step: 2, icon: '🌍', title: 'Join your city',        desc: 'Become a founding member of Barcelona or Dubai' },
+  { step: 3, icon: '🤝', title: 'Connect & play',        desc: 'Find partners, book coaches, post play requests' },
+]
 
 const VALUE_PROPS = [
   {
@@ -167,21 +192,26 @@ export default async function HomeCommunityHero() {
         @keyframes hero-pulse { 0%,100%{opacity:1} 50%{opacity:0.38} }
         @keyframes hero-fade  { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
         .hero-dot { animation: hero-pulse 2.2s ease-in-out infinite; }
-        .city-hero-card { transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease; }
-        .city-hero-card:hover { transform: translateY(-5px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+        .city-hero-card { transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease; cursor: pointer; }
+        .city-hero-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(57,255,20,0.1); }
         .vp-card { transition: border-color 0.18s ease; }
         .vp-card:hover { border-color: rgba(57,255,20,0.2) !important; }
         .cta-outline:hover { background: rgba(57,255,20,0.08) !important; }
         .proof-link:hover { background: rgba(57,255,20,0.12) !important; }
-        .member-av { transition: transform 0.14s ease, box-shadow 0.14s ease; }
-        .member-av:hover { transform: scale(1.1); box-shadow: 0 0 0 3px rgba(57,255,20,0.35); }
+        .member-av { transition: transform 0.14s ease; }
+        .member-av:hover { transform: scale(1.1); }
+        .hw-card { transition: border-color 0.18s ease, transform 0.18s ease; }
+        .hw-card:hover { border-color: rgba(57,255,20,0.18) !important; transform: translateY(-2px); }
         .hero-content { animation: hero-fade 0.6s ease 0.1s both; }
         .hero-cities  { animation: hero-fade 0.6s ease 0.2s both; }
         @media (max-width: 600px) {
+          .hero-h1     { font-size: 36px !important; letter-spacing: -1px !important; }
           .hero-ctas   { flex-direction: column !important; align-items: stretch !important; }
           .hero-ctas a { width: 100% !important; justify-content: center !important; }
           .city-grid   { grid-template-columns: 1fr !important; }
+          .city-hero-card { min-height: 180px !important; }
           .vp-grid     { grid-template-columns: 1fr !important; }
+          .hw-grid     { grid-template-columns: 1fr !important; }
         }
       `}</style>
 
@@ -201,22 +231,13 @@ export default async function HomeCommunityHero() {
 
           {/* Live badge */}
           <div style={{
-            display:      'inline-flex',
-            alignItems:   'center',
-            gap:          8,
-            background:   'rgba(57,255,20,0.08)',
-            border:       '1px solid rgba(57,255,20,0.22)',
-            borderRadius: 100,
-            padding:      '7px 16px',
-            marginBottom: 32,
+            display:      'inline-flex', alignItems: 'center', gap: 8,
+            background:   'rgba(57,255,20,0.08)', border: '1px solid rgba(57,255,20,0.22)',
+            borderRadius: 100, padding: '7px 16px', marginBottom: 32,
           }}>
             <span className="hero-dot" style={{
-              width:       7,
-              height:      7,
-              borderRadius:'50%',
-              background:  '#39FF14',
-              flexShrink:  0,
-              display:     'inline-block',
+              width: 7, height: 7, borderRadius: '50%',
+              background: '#39FF14', flexShrink: 0, display: 'inline-block',
             }} />
             <span style={{ color: '#39FF14', fontSize: 12, fontWeight: 800, letterSpacing: 0.4 }}>
               Now building in Barcelona &amp; Dubai
@@ -224,11 +245,11 @@ export default async function HomeCommunityHero() {
           </div>
 
           {/* H1 */}
-          <h1 style={{
+          <h1 className="hero-h1" style={{
             color:        '#fff',
             fontSize:     'clamp(42px, 7.5vw, 70px)',
             fontWeight:   900,
-            letterSpacing: -1.8,
+            letterSpacing:-1.8,
             lineHeight:   1.03,
             margin:       '0 0 22px',
           }}>
@@ -237,12 +258,8 @@ export default async function HomeCommunityHero() {
 
           {/* Subheadline */}
           <p style={{
-            color:      'rgba(255,255,255,0.5)',
-            fontSize:   18,
-            fontWeight: 500,
-            lineHeight: 1.65,
-            margin:     '0 auto 40px',
-            maxWidth:   450,
+            color: 'rgba(255,255,255,0.5)', fontSize: 18, fontWeight: 500,
+            lineHeight: 1.65, margin: '0 auto 40px', maxWidth: 450,
           }}>
             Find players. Find coaches. Build your tennis community — in your city.
           </p>
@@ -250,36 +267,19 @@ export default async function HomeCommunityHero() {
           {/* CTAs */}
           <div className="hero-ctas" style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 28 }}>
             <Link href="/community/Barcelona" style={{
-              display:       'inline-flex',
-              alignItems:    'center',
-              gap:           8,
-              background:    '#39FF14',
-              color:         '#000',
-              fontWeight:    900,
-              fontSize:      15,
-              padding:       '15px 30px',
-              borderRadius:  12,
-              textDecoration:'none',
-              boxShadow:     '0 0 32px rgba(57,255,20,0.3), 0 4px 20px rgba(0,0,0,0.25)',
-              letterSpacing: -0.2,
-              whiteSpace:    'nowrap',
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              background: '#39FF14', color: '#000', fontWeight: 900, fontSize: 15,
+              padding: '15px 30px', borderRadius: 12, textDecoration: 'none',
+              boxShadow: '0 0 32px rgba(57,255,20,0.3), 0 4px 20px rgba(0,0,0,0.25)',
+              letterSpacing: -0.2, whiteSpace: 'nowrap',
             }}>
               🇪🇸 Join Barcelona
             </Link>
             <Link href="/community/Dubai" className="cta-outline" style={{
-              display:       'inline-flex',
-              alignItems:    'center',
-              gap:           8,
-              background:    'rgba(255,255,255,0.04)',
-              color:         '#fff',
-              fontWeight:    800,
-              fontSize:      15,
-              padding:       '15px 30px',
-              borderRadius:  12,
-              textDecoration:'none',
-              border:        '1.5px solid rgba(57,255,20,0.38)',
-              letterSpacing: -0.2,
-              whiteSpace:    'nowrap',
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              background: 'rgba(255,255,255,0.04)', color: '#fff', fontWeight: 800, fontSize: 15,
+              padding: '15px 30px', borderRadius: 12, textDecoration: 'none',
+              border: '1.5px solid rgba(57,255,20,0.38)', letterSpacing: -0.2, whiteSpace: 'nowrap',
             }}>
               🇦🇪 Join Dubai
             </Link>
@@ -293,45 +293,82 @@ export default async function HomeCommunityHero() {
       </section>
 
       {/* ━━━ CITY CARDS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      <section style={{ background: '#080f1a', padding: '0 20px 44px' }}>
-        <div style={{ maxWidth: 720, margin: '0 auto' }}>
+      <section style={{ background: '#080f1a', padding: '0 20px 48px' }}>
+        <div style={{ maxWidth: 760, margin: '0 auto' }}>
           <div className="city-grid" style={{
             display:             'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap:                 16,
-            transform:           'translateY(-32px)',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap:                 20,
+            transform:           'translateY(-36px)',
           }}>
-            <CityCard data={barcelona} flag="🇪🇸" slug="Barcelona" accentColor="#39FF14" featured />
-            <CityCard data={dubai}     flag="🇦🇪" slug="Dubai"     accentColor="#f59e0b" />
+            <CityCard
+              data={barcelona} flag="🇪🇸" slug="Barcelona"
+              accentColor="#39FF14"
+              gradient="linear-gradient(135deg, #1a0f0a 0%, #0d1b2e 100%)"
+              featured
+            />
+            <CityCard
+              data={dubai} flag="🇦🇪" slug="Dubai"
+              accentColor="#f59e0b"
+              gradient="linear-gradient(135deg, #1a1408 0%, #0d1b2e 100%)"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ━━━ HOW IT WORKS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      <section style={{ background: '#080f1a', padding: '0 20px 52px' }}>
+        <div style={{ maxWidth: 760, margin: '0 auto' }}>
+          <p style={{
+            color: 'rgba(255,255,255,0.22)', fontSize: 11, fontWeight: 800,
+            letterSpacing: 2, textTransform: 'uppercase', textAlign: 'center', margin: '0 0 24px',
+          }}>
+            How it works
+          </p>
+          <div className="hw-grid" style={{
+            display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14,
+          }}>
+            {HOW_IT_WORKS.map(s => (
+              <div key={s.step} className="hw-card" style={{
+                background:   '#0d1b2e',
+                border:       '1px solid rgba(255,255,255,0.07)',
+                borderRadius: 16,
+                padding:      '24px 18px',
+                position:     'relative',
+              }}>
+                <span style={{
+                  position:   'absolute', top: 16, right: 16,
+                  color:      'rgba(57,255,20,0.18)', fontSize: 28, fontWeight: 900, lineHeight: 1,
+                }}>
+                  {s.step}
+                </span>
+                <div style={{ fontSize: 30, marginBottom: 14, lineHeight: 1 }}>{s.icon}</div>
+                <p style={{ color: '#fff', fontSize: 14, fontWeight: 800, margin: '0 0 7px', letterSpacing: -0.2 }}>
+                  {s.title}
+                </p>
+                <p style={{ color: 'rgba(255,255,255,0.38)', fontSize: 12, margin: 0, lineHeight: 1.6 }}>
+                  {s.desc}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* ━━━ VALUE PROPS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       <section style={{ background: '#080f1a', padding: '0 20px 52px' }}>
-        <div style={{ maxWidth: 720, margin: '0 auto' }}>
+        <div style={{ maxWidth: 760, margin: '0 auto' }}>
           <p style={{
-            color:          'rgba(255,255,255,0.22)',
-            fontSize:       11,
-            fontWeight:     800,
-            letterSpacing:  2,
-            textTransform:  'uppercase',
-            textAlign:      'center',
-            margin:         '0 0 24px',
+            color: 'rgba(255,255,255,0.22)', fontSize: 11, fontWeight: 800,
+            letterSpacing: 2, textTransform: 'uppercase', textAlign: 'center', margin: '0 0 24px',
           }}>
             What you get
           </p>
-          <div className="vp-grid" style={{
-            display:             'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap:                 14,
-          }}>
+          <div className="vp-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
             {VALUE_PROPS.map(vp => (
               <div key={vp.title} className="vp-card" style={{
-                background:   '#0d1b2e',
-                border:       '1px solid rgba(255,255,255,0.07)',
-                borderRadius: 14,
-                padding:      '22px 18px',
+                background: '#0d1b2e', border: '1px solid rgba(255,255,255,0.07)',
+                borderRadius: 14, padding: '22px 18px',
               }}>
                 <div style={{ fontSize: 28, marginBottom: 14, lineHeight: 1 }}>{vp.icon}</div>
                 <p style={{ color: '#fff', fontSize: 14, fontWeight: 800, margin: '0 0 7px', letterSpacing: -0.2 }}>{vp.title}</p>
@@ -344,31 +381,20 @@ export default async function HomeCommunityHero() {
 
       {/* ━━━ SOCIAL PROOF ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       <section style={{ background: '#080f1a', padding: '0 20px 60px' }}>
-        <div style={{ maxWidth: 720, margin: '0 auto' }}>
+        <div style={{ maxWidth: 760, margin: '0 auto' }}>
           <div style={{
-            background:   '#0d1b2e',
-            border:       '1px solid rgba(255,255,255,0.07)',
-            borderRadius: 18,
-            padding:      '32px 24px',
-            textAlign:    'center',
+            background:   '#0d1b2e', border: '1px solid rgba(255,255,255,0.07)',
+            borderRadius: 18, padding: '32px 24px', textAlign: 'center',
           }}>
             <p style={{
-              color:         'rgba(255,255,255,0.32)',
-              fontSize:      11,
-              fontWeight:    800,
-              letterSpacing: 1.5,
-              textTransform: 'uppercase',
-              margin:        '0 0 22px',
+              color: 'rgba(255,255,255,0.32)', fontSize: 11, fontWeight: 800,
+              letterSpacing: 1.5, textTransform: 'uppercase', margin: '0 0 22px',
             }}>
               🇪🇸 Barcelona vs 🇦🇪 Dubai — which city builds first?
             </p>
 
             {allMembers.length > 0 && (
-              <div style={{
-                display:        'flex',
-                justifyContent: 'center',
-                marginBottom:   24,
-              }}>
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
                 {allMembers.map((m, i) => {
                   const init = (m.name ?? '?')[0].toUpperCase()
                   return (
@@ -377,25 +403,18 @@ export default async function HomeCommunityHero() {
                         className="member-av"
                         title={m.name}
                         style={{
-                          width:          50,
-                          height:         50,
-                          borderRadius:   '50%',
-                          backgroundImage:m.photo_url ? `url(${m.photo_url})` : undefined,
-                          backgroundSize: 'cover',
-                          backgroundPosition: 'center',
-                          background:     m.photo_url ? undefined : 'rgba(57,255,20,0.12)',
-                          border:         '2px solid #0d1b2e',
-                          outline:        '1.5px solid rgba(57,255,20,0.22)',
-                          display:        'flex',
-                          alignItems:     'center',
-                          justifyContent: 'center',
-                          fontSize:       17,
-                          fontWeight:     900,
-                          color:          '#39FF14',
-                          overflow:       'hidden',
-                          marginLeft:     i > 0 ? -12 : 0,
-                          position:       'relative',
-                          zIndex:         allMembers.length - i,
+                          width: 50, height: 50, borderRadius: '50%',
+                          backgroundImage: m.photo_url ? `url(${m.photo_url})` : undefined,
+                          backgroundSize:  'cover', backgroundPosition: 'center',
+                          background:      m.photo_url ? undefined : 'rgba(57,255,20,0.12)',
+                          border:          '2px solid #0d1b2e',
+                          outline:         '1.5px solid rgba(57,255,20,0.22)',
+                          display:         'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize:        17, fontWeight: 900, color: '#39FF14',
+                          overflow:        'hidden',
+                          marginLeft:      i > 0 ? -12 : 0,
+                          position:        'relative',
+                          zIndex:          allMembers.length - i,
                         }}
                       >
                         {!m.photo_url && init}
@@ -403,41 +422,22 @@ export default async function HomeCommunityHero() {
                     </Link>
                   )
                 })}
-                {/* +more ghost */}
                 <div style={{
-                  width:          50,
-                  height:         50,
-                  borderRadius:   '50%',
-                  background:     'rgba(255,255,255,0.04)',
-                  border:         '2px solid #0d1b2e',
-                  outline:        '1.5px solid rgba(255,255,255,0.1)',
-                  display:        'flex',
-                  alignItems:     'center',
-                  justifyContent: 'center',
-                  fontSize:       10,
-                  fontWeight:     800,
-                  color:          'rgba(255,255,255,0.35)',
-                  marginLeft:     -12,
-                  zIndex:         0,
-                  position:       'relative',
-                }}>
-                  +more
-                </div>
+                  width: 50, height: 50, borderRadius: '50%',
+                  background: 'rgba(255,255,255,0.04)', border: '2px solid #0d1b2e',
+                  outline: '1.5px solid rgba(255,255,255,0.1)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.35)',
+                  marginLeft: -12, zIndex: 0, position: 'relative',
+                }}>+more</div>
               </div>
             )}
 
             <Link href="/sparring/create" className="proof-link" style={{
-              display:       'inline-flex',
-              alignItems:    'center',
-              gap:           8,
-              background:    'rgba(57,255,20,0.09)',
-              border:        '1px solid rgba(57,255,20,0.25)',
-              color:         '#39FF14',
-              fontWeight:    800,
-              fontSize:      14,
-              padding:       '12px 26px',
-              borderRadius:  10,
-              textDecoration:'none',
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              background:     'rgba(57,255,20,0.09)', border: '1px solid rgba(57,255,20,0.25)',
+              color:          '#39FF14', fontWeight: 800, fontSize: 14,
+              padding:        '12px 26px', borderRadius: 10, textDecoration: 'none',
             }}>
               Be next →
             </Link>

@@ -57,7 +57,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="TennisAce" />
       </head>
-      <body className="font-sans min-h-screen bg-white text-gray-900">
+      <body className={`${dmSans.className} min-h-screen bg-white text-gray-900`}>
         <AuthProvider>
           <LayoutWrapper>{children}</LayoutWrapper>
         </AuthProvider>

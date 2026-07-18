@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Query
 from typing import Optional
 from pydantic import BaseModel
 import uuid
+import re
 import os
 import httpx
 import resend
@@ -136,6 +137,29 @@ async def get_profile_by_email(email: str = Query(...)):
     return rows[0]
 
 
+# ── GET /sparring/profiles/handle/{handle} ───────────────────────────────────
+
+@router.get("/profiles/handle/{handle}")
+async def get_profile_by_handle(handle: str):
+    rows = await _get("sparring_profiles", {
+        "handle": f"eq.{handle.lower().strip()}",
+        "select": "*",
+        "limit":  1,
+    })
+    if not rows:
+        raise HTTPException(404, "Profile not found")
+    profile = rows[0]
+    profile.pop("phone",          None)
+    profile.pop("email",          None)
+    profile.pop("email_verified", None)
+    avail = await _get("sparring_availability", {
+        "profile_id": f"eq.{profile['id']}",
+        "select":     "day_of_week,time_slot",
+    })
+    profile["availability"] = [{"day": a["day_of_week"], "time": a["time_slot"]} for a in avail]
+    return profile
+
+
 # ── GET /sparring/profiles/{id} ───────────────────────────────────────────────
 
 @router.get("/profiles/{profile_id}")
@@ -170,8 +194,20 @@ async def create_profile(body: dict):
     # role must remain 'player'|'coach' for backward compat; organizer maps to player
     role = "coach" if profile_type == "coach" else "player"
 
+    # Generate a unique handle from the name
+    raw_name = body.get("name", "").strip()
+    base_handle = re.sub(r"[^a-z0-9]", "", raw_name.lower()) or "player"
+    handle = base_handle
+    suffix = 2
+    while True:
+        taken = await _get("sparring_profiles", {"handle": f"eq.{handle}", "select": "id", "limit": 1})
+        if not taken:
+            break
+        handle = f"{base_handle}{suffix}"
+        suffix += 1
+
     profile_body = {
-        "name":            body.get("name", "").strip(),
+        "name":            raw_name,
         "photo_url":       body.get("photo_url"),
         "city":            body.get("city", "").strip(),
         "country":         body.get("country", "").strip(),
@@ -187,6 +223,7 @@ async def create_profile(body: dict):
         "email":           body.get("email") or None,
         "email_verified":  body.get("email_verified", False),
         "phone":           body.get("phone") or None,
+        "handle":          handle,
     }
     if not all([profile_body["name"], profile_body["city"], profile_body["country"], profile_body["level"]]):
         raise HTTPException(422, "name, city, country, level are required")

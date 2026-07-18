@@ -233,11 +233,10 @@ function PlayerCard({ p, mutualSlots }: { p: any; mutualSlots?: number }) {
                 title={`Founding Member #${p.founding_number} · ${p.city}`}
                 style={{
                   display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                  width: 22, height: 24, flexShrink: 0,
+                  width: 28, height: 30, flexShrink: 0,
                   clipPath: 'polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)',
-                  background: 'rgba(57,255,20,0.1)',
-                  border: '1px solid #39FF14',
-                  boxShadow: '0 0 6px rgba(57,255,20,0.25)',
+                  background: 'rgba(57,255,20,0.12)',
+                  filter: 'drop-shadow(0 0 4px rgba(57,255,20,0.5))',
                   color: '#39FF14', fontSize: 7, fontWeight: 900, letterSpacing: 0,
                 }}
               >#{p.founding_number}</span>
@@ -558,10 +557,10 @@ export default function SparringDiscover({ initialProfiles }: { initialProfiles:
               <div style={{ textAlign: 'center', padding: '64px 16px' }}>
                 <div style={{ fontSize: 48, marginBottom: 16 }}>🎾</div>
                 <p style={{ color: 'var(--sr-text)', fontWeight: 800, fontSize: 18, margin: '0 0 8px' }}>
-                  No players in this area yet
+                  Your tennis circle starts here.
                 </p>
-                <p style={{ color: 'var(--sr-muted)', fontSize: 14, margin: '0 0 24px' }}>
-                  Be the first to add your profile
+                <p style={{ color: 'var(--sr-muted)', fontSize: 14, margin: '0 0 24px', lineHeight: 1.6 }}>
+                  No players listed yet. Add your profile and be the first hit request someone else sees.
                 </p>
                 <Link href="/sparring/create"
                   style={{ display: 'inline-block', background: 'var(--sr-accent)', color: 'var(--sr-on-acc)',

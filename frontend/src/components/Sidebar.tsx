@@ -7,17 +7,6 @@ import { useSidebar, HomeTab } from './SidebarContext'
 import { signInWithGoogle } from '@/lib/supabase'
 import ThemeToggle from './ThemeToggle'
 
-// ─── Favourite players (shown when not logged in) ────────────────────────────
-const FAVES = [
-  { rank:1, name:'J. Sinner',           flag:'🇮🇹' },
-  { rank:2, name:'C. Alcaraz',          flag:'🇪🇸' },
-  { rank:3, name:'A. Zverev',           flag:'🇩🇪' },
-  { rank:4, name:'F. Auger-Aliassime',  flag:'🇨🇦' },
-  { rank:5, name:'B. Shelton',          flag:'🇺🇸' },
-  { rank:6, name:'A. De Minaur',        flag:'🇦🇺' },
-  { rank:7, name:'T. Fritz',            flag:'🇺🇸' },
-  { rank:8, name:'N. Djokovic',         flag:'🇷🇸' },
-]
 
 type NavItem = {
   icon:    string
@@ -135,6 +124,21 @@ function SidebarPanel({ onClose }: { onClose?: () => void }) {
       width:'100%', height:'100%', display:'flex', flexDirection:'column',
       background:'#070c14', borderRight:'1px solid #0f1a2e', overflowY:'auto',
     }}>
+      {/* Mobile-only founding member banner */}
+      {onClose && (
+        <div style={{
+          background:'rgba(57,255,20,0.07)', borderBottom:'1px solid rgba(57,255,20,0.12)',
+          padding:'8px 16px', display:'flex', alignItems:'center', justifyContent:'space-between', flexShrink:0,
+        }}>
+          <span style={{ color:'#39FF14', fontSize:11, fontWeight:800, letterSpacing:0.4 }}>
+            🎾 Founding members worldwide
+          </span>
+          <Link href="/community" onClick={closeDrawer}
+            style={{ color:'#39FF14', fontSize:11, fontWeight:700, textDecoration:'none' }}>
+            Join →
+          </Link>
+        </div>
+      )}
       {/* Logo */}
       <div style={{ padding:'18px 16px 14px', borderBottom:'1px solid #1a1a1a', flexShrink:0 }}>
         <Link href="/" onClick={() => { setHomeTab('matches'); closeDrawer() }}
@@ -189,10 +193,10 @@ function SidebarPanel({ onClose }: { onClose?: () => void }) {
         </div>
       ) : (
         <div style={{ padding:'14px 12px', flexShrink:0 }}>
-          {/* Sign in to unlock panel */}
+          {/* Sign in panel */}
           <div style={{ background:'#111', border:'1px solid #1e1e1e', borderRadius:10, padding:'14px 14px 12px', marginBottom:8 }}>
             <p style={{ color:'#fff', fontSize:13, fontWeight:800, margin:'0 0 3px', letterSpacing:-0.2 }}>Sign in to unlock</p>
-            <p style={{ color:'#555', fontSize:11, margin:'0 0 12px', lineHeight:1.4 }}>Vote history · Favourite players · Match alerts</p>
+            <p style={{ color:'#555', fontSize:11, margin:'0 0 12px', lineHeight:1.4 }}>Vote history · Match alerts · Community</p>
             <button
               onClick={() => signInWithGoogle(typeof window !== 'undefined' ? window.location.pathname : '/')}
               style={{ width:'100%', display:'flex', alignItems:'center', justifyContent:'center', gap:8, background:'#fff', border:'none', borderRadius:8, color:'#000', fontSize:13, fontWeight:700, padding:'9px 12px', cursor:'pointer', marginBottom:14 }}>
@@ -205,19 +209,24 @@ function SidebarPanel({ onClose }: { onClose?: () => void }) {
               Continue with Google
             </button>
 
-            {/* Favourite players */}
-            <p style={{ color:'#444', fontSize:10, fontWeight:700, textTransform:'uppercase', letterSpacing:0.7, margin:'0 0 8px' }}>
-              Favourite players
+            {/* Community section */}
+            <p style={{ color:'#444', fontSize:10, fontWeight:700, textTransform:'uppercase', letterSpacing:0.7, margin:'0 0 10px' }}>
+              🌍 Building tennis communities
             </p>
-            <div style={{ display:'flex', flexDirection:'column', gap:5 }}>
-              {FAVES.map(p => (
-                <div key={p.rank} style={{ display:'flex', alignItems:'center', gap:8 }}>
-                  <span style={{ color:'#444', fontSize:10, fontWeight:700, width:16, textAlign:'right', flexShrink:0 }}>#{p.rank}</span>
-                  <span style={{ fontSize:13 }}>{p.flag}</span>
-                  <span style={{ color:'#888', fontSize:12, fontWeight:600 }}>{p.name}</span>
-                </div>
-              ))}
+            <div style={{ display:'flex', flexDirection:'column', gap:6, marginBottom:12 }}>
+              <div style={{ background:'#0d1b2e', border:'1px solid rgba(57,255,20,0.15)', borderRadius:8, padding:'8px 10px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                <span style={{ color:'#fff', fontSize:12, fontWeight:700 }}>🇪🇸 Barcelona</span>
+                <span style={{ color:'#39FF14', fontSize:11, fontWeight:700 }}>0 / 500</span>
+              </div>
+              <div style={{ background:'#0d1b2e', border:'1px solid rgba(245,158,11,0.2)', borderRadius:8, padding:'8px 10px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                <span style={{ color:'#fff', fontSize:12, fontWeight:700 }}>🇦🇪 Dubai</span>
+                <span style={{ color:'#f59e0b', fontSize:11, fontWeight:700 }}>0 / 300</span>
+              </div>
             </div>
+            <Link href="/community" onClick={closeDrawer}
+              style={{ display:'block', textAlign:'center', background:'rgba(57,255,20,0.1)', border:'1px solid rgba(57,255,20,0.25)', color:'#39FF14', fontWeight:800, fontSize:12, padding:'8px', borderRadius:8, textDecoration:'none' }}>
+              Join the community →
+            </Link>
           </div>
 
           <Link href="/auth/login" onClick={closeDrawer}

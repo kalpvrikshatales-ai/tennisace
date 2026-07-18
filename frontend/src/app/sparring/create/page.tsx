@@ -191,7 +191,7 @@ export default function CreateSparringPage() {
   const [banner,        setBanner]        = useState('')
   const [alreadyExists, setAlreadyExists] = useState(false)
   const [celebrating,   setCelebrating]   = useState<{
-    name: string; profileId: string; foundingNumber: number | null; city: string
+    name: string; profileId: string; foundingNumber: number | null; city: string; handle?: string
   } | null>(null)
 
   useEffect(() => {
@@ -322,6 +322,7 @@ export default function CreateSparringPage() {
         profileId: profile.id,
         foundingNumber: profile.founding_number ?? null,
         city: city.trim(),
+        handle: profile.handle ?? undefined,
       })
       setTimeout(() => router.push(`/sparring/${profile.id}`), 5000)
     } catch (e: any) { setError(e.message); setUploading(false) }
@@ -342,7 +343,7 @@ export default function CreateSparringPage() {
 
   // ── Celebration screen ────────────────────────────────────────────────────────
   if (celebrating) {
-    const { name: celebName, foundingNumber, city: celebCity } = celebrating
+    const { name: celebName, foundingNumber, city: celebCity, handle: celebHandle } = celebrating
     const playerTarget = 500
     const pct = foundingNumber ? Math.min((foundingNumber / playerTarget) * 100, 100) : 0
     const typeLabel = profileType === 'coach' ? 'Coach' : profileType === 'organizer' ? 'Organizer' : 'Player'
@@ -421,6 +422,30 @@ export default function CreateSparringPage() {
             <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11, margin: '8px 0 0', textAlign: 'center' }}>
               {Math.max(0, 50 - foundingNumber)} more needed to unlock early access
             </p>
+          </div>
+        )}
+
+        {/* Profile link */}
+        {celebHandle && (
+          <div style={{ width: '100%', maxWidth: 360, marginTop: 28, animation: 'fade-up 0.5s ease 1.1s both' }}>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.8, margin: '0 0 8px', textAlign: 'center' }}>
+              Your profile link
+            </p>
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              background: 'rgba(57,255,20,0.07)', border: '1px solid rgba(57,255,20,0.25)',
+              borderRadius: 10, padding: '12px 16px',
+            }}>
+              <span style={{ color: '#39FF14', fontSize: 14, fontWeight: 800, fontFamily: 'monospace' }}>
+                tennisace.live/p/{celebHandle}
+              </span>
+              <button
+                onClick={() => navigator.clipboard?.writeText(`https://tennisace.live/p/${celebHandle}`)}
+                style={{ background: 'none', border: '1px solid rgba(57,255,20,0.3)', borderRadius: 6, color: '#39FF14', fontSize: 11, fontWeight: 700, padding: '5px 10px', cursor: 'pointer' }}
+              >
+                Copy
+              </button>
+            </div>
           </div>
         )}
 
