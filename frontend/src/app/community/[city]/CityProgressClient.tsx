@@ -14,6 +14,7 @@ type PlayRequest = {
   surface?:       string
   format?:        string
   location_name?: string
+  status:         string
   spots_left:     number
   creator: { name?: string; photo_url?: string; founding_number?: number }
 }
