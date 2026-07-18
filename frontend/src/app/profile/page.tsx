@@ -109,7 +109,7 @@ export default function ProfilePage() {
 
   if (loading || !user) {
     return (
-      <div style={{ minHeight: '100vh', background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ width: 32, height: 32, borderRadius: '50%', border: '3px solid #1a1a1a', borderTopColor: '#00C875', animation: 'spin 0.8s linear infinite' }} />
         <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
       </div>
@@ -136,10 +136,10 @@ export default function ProfilePage() {
 
   const sel = (label: string, value: string, set: (v: string) => void, opts: string[]) => (
     <div style={{ marginBottom: 16 }}>
-      <p style={{ color: '#555', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.8, margin: '0 0 6px' }}>{label}</p>
+      <p style={{ color: 'var(--text-2)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.8, margin: '0 0 6px' }}>{label}</p>
       <select value={value} onChange={e => set(e.target.value)} style={{
-        width: '100%', boxSizing: 'border-box', background: '#111', border: '1px solid #222',
-        borderRadius: 8, color: value ? '#fff' : '#444', padding: '12px 14px', fontSize: 14, outline: 'none',
+        width: '100%', boxSizing: 'border-box', background: 'var(--surface)', border: '1px solid var(--border)',
+        borderRadius: 8, color: value ? 'var(--text)' : 'var(--text-2)', padding: '12px 14px', fontSize: 14, outline: 'none',
       }}>
         <option value="">Select…</option>
         {opts.map(o => <option key={o} value={o}>{o}</option>)}
@@ -149,16 +149,16 @@ export default function ProfilePage() {
 
   const inp = (label: string, value: string, set: (v: string) => void, type = 'text', placeholder = '') => (
     <div style={{ marginBottom: 16 }}>
-      <p style={{ color: '#555', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.8, margin: '0 0 6px' }}>{label}</p>
+      <p style={{ color: 'var(--text-2)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.8, margin: '0 0 6px' }}>{label}</p>
       <input type={type} value={value} placeholder={placeholder} onChange={e => set(e.target.value)} style={{
-        width: '100%', boxSizing: 'border-box', background: '#111', border: '1px solid #222',
-        borderRadius: 8, color: '#fff', padding: '12px 14px', fontSize: 14, outline: 'none',
+        width: '100%', boxSizing: 'border-box', background: 'var(--surface)', border: '1px solid var(--border)',
+        borderRadius: 8, color: 'var(--text)', padding: '12px 14px', fontSize: 14, outline: 'none',
       }} />
     </div>
   )
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0a0a0a', paddingBottom: 100 }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', paddingBottom: 100 }}>
       <div style={{ maxWidth: 640, margin: '0 auto', padding: '8px 16px 0' }}>
         <BackButton />
       </div>
@@ -172,7 +172,7 @@ export default function ProfilePage() {
           <rect x="165" y="20" width="270" height="80" fill="none" stroke="#00C875" strokeWidth="1"/>
           <rect x="165" y="100" width="270" height="80" fill="none" stroke="#00C875" strokeWidth="1"/>
         </svg>
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 80, background: 'linear-gradient(transparent,#0a0a0a)' }} />
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 80, background: 'linear-gradient(transparent, var(--bg))' }} />
       </div>
 
       <div style={{ maxWidth: 640, margin: '0 auto', padding: '0 16px' }}>
@@ -181,9 +181,9 @@ export default function ProfilePage() {
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: -48, marginBottom: 16 }}>
           <div style={{ position: 'relative' }}>
             {avatarUrl ? (
-              <img src={avatarUrl} alt="avatar" style={{ width: 96, height: 96, borderRadius: '50%', objectFit: 'cover', border: '4px solid #0a0a0a', display: 'block' }} />
+              <img src={avatarUrl} alt="avatar" style={{ width: 96, height: 96, borderRadius: '50%', objectFit: 'cover', border: '4px solid var(--bg)', display: 'block' }} />
             ) : (
-              <div style={{ width: 96, height: 96, borderRadius: '50%', border: '4px solid #0a0a0a', background: '#00C875', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, fontWeight: 900, color: '#000' }}>
+              <div style={{ width: 96, height: 96, borderRadius: '50%', border: '4px solid var(--bg)', background: '#00C875', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, fontWeight: 900, color: '#000' }}>
                 {initials}
               </div>
             )}
@@ -199,7 +199,7 @@ export default function ProfilePage() {
             </button>
             <button onClick={async () => { await signOut(); router.push('/') }} style={{
               padding: '9px 16px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer',
-              background: 'transparent', border: '1px solid #333', color: '#777',
+              background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-2)',
             }}>
               Sign out
             </button>
@@ -208,10 +208,10 @@ export default function ProfilePage() {
 
         {/* ── Name / handle ── */}
         <div style={{ marginBottom: 20 }}>
-          <h1 style={{ color: '#fff', fontSize: 22, fontWeight: 900, margin: '0 0 2px', letterSpacing: -0.4 }}>{displayName}</h1>
-          <p style={{ color: '#444', fontSize: 13, margin: '0 0 4px', fontWeight: 600 }}>{handle}</p>
+          <h1 style={{ color: 'var(--text)', fontSize: 22, fontWeight: 900, margin: '0 0 2px', letterSpacing: -0.4 }}>{displayName}</h1>
+          <p style={{ color: 'var(--text-2)', fontSize: 13, margin: '0 0 4px', fontWeight: 600 }}>{handle}</p>
           {(p?.city || p?.country) && (
-            <p style={{ color: '#444', fontSize: 13, margin: 0 }}>📍 {[p.city, p.country].filter(Boolean).join(', ')}</p>
+            <p style={{ color: 'var(--text-2)', fontSize: 13, margin: 0 }}>📍 {[p.city, p.country].filter(Boolean).join(', ')}</p>
           )}
         </div>
 
@@ -220,19 +220,19 @@ export default function ProfilePage() {
           <>
             {/* ── Tennis Profile cards ── */}
             <div style={{ marginBottom: 28 }}>
-              <p style={{ color: '#fff', fontSize: 15, fontWeight: 800, margin: '0 0 14px', letterSpacing: -0.2 }}>Tennis Profile</p>
+              <p style={{ color: 'var(--text)', fontSize: 15, fontWeight: 800, margin: '0 0 14px', letterSpacing: -0.2 }}>Tennis Profile</p>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
                 {TENNIS_FIELDS.map(({ key, icon, label }) => {
                   const val = profileData[key]
                   return (
                     <button key={key} onClick={() => setTab('edit')} style={{
-                      background: '#111', border: '1px solid #1e1e1e', borderRadius: 10,
+                      background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10,
                       padding: '14px 12px', textAlign: 'left', cursor: 'pointer',
                       display: 'flex', flexDirection: 'column', gap: 8,
                     }}>
                       <span style={{ fontSize: 20 }}>{icon}</span>
-                      <span style={{ color: '#555', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.7 }}>{label}</span>
-                      <span style={{ color: val ? '#fff' : '#333', fontSize: 12, fontWeight: val ? 700 : 500 }}>
+                      <span style={{ color: 'var(--text-2)', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.7 }}>{label}</span>
+                      <span style={{ color: val ? 'var(--text)' : 'var(--text-2)', fontSize: 12, fontWeight: val ? 700 : 500 }}>
                         {val || '+ Add'}
                       </span>
                     </button>
@@ -243,12 +243,12 @@ export default function ProfilePage() {
 
             {/* ── Sparring ── */}
             <div>
-              <p style={{ color: '#fff', fontSize: 15, fontWeight: 800, margin: '0 0 14px', letterSpacing: -0.2 }}>Sparring</p>
+              <p style={{ color: 'var(--text)', fontSize: 15, fontWeight: 800, margin: '0 0 14px', letterSpacing: -0.2 }}>Sparring</p>
               {sparringProfile ? (
                 <div style={{ background: '#0a1a0a', border: '1px solid #1a3a1a', borderRadius: 10, padding: '16px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div>
-                    <p style={{ color: '#fff', fontWeight: 800, fontSize: 15, margin: '0 0 3px' }}>{sparringProfile.name}</p>
-                    <p style={{ color: '#555', fontSize: 12, margin: 0 }}>{sparringProfile.level} · {sparringProfile.city}</p>
+                    <p style={{ color: 'var(--text)', fontWeight: 800, fontSize: 15, margin: '0 0 3px' }}>{sparringProfile.name}</p>
+                    <p style={{ color: 'var(--text-2)', fontSize: 12, margin: 0 }}>{sparringProfile.level} · {sparringProfile.city}</p>
                   </div>
                   <Link href={`/sparring/${sparringProfile.id}`} style={{ background: '#39FF14', color: '#000', fontWeight: 800, fontSize: 12, padding: '8px 14px', borderRadius: 6, textDecoration: 'none' }}>
                     View →
@@ -267,13 +267,13 @@ export default function ProfilePage() {
         {/* ── Edit form ── */}
         {tab === 'edit' && (
           <div>
-            <p style={{ color: '#555', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, margin: '0 0 20px' }}>Personal info</p>
+            <p style={{ color: 'var(--text-2)', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, margin: '0 0 20px' }}>Personal info</p>
             {inp('Full name',     fullName,    setFullName,    'text', 'Your full name')}
             {inp('Phone',         phone,       setPhone,       'tel',  '+91 98765 43210')}
             {inp('City',          city,        setCity,        'text', 'Dubai')}
             {sel('Country',       country,     setCountry,     COUNTRIES)}
 
-            <p style={{ color: '#555', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, margin: '24px 0 20px' }}>Tennis profile</p>
+            <p style={{ color: 'var(--text-2)', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, margin: '24px 0 20px' }}>Tennis profile</p>
             {sel('Tennis level',     level,      setLevel,      LEVELS)}
             {sel('Favourite surface',surface,    setSurface,    SURFACES)}
             {sel('Dominant hand',    hand,       setHand,       HANDS)}

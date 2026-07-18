@@ -333,7 +333,7 @@ export default function PlayPage() {
 
   return (
     <SparringShell>
-      <div className="sr-page" style={{ minHeight: '100vh', background: '#0d1b2e' }}>
+      <div className="sr-page" style={{ minHeight: '100vh', background: 'var(--bg)' }}>
         <style>{`
           @keyframes fade-up { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
           .play-input { width:100%; padding:10px 12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:9px; color:#fff; font-size:14px; outline:none; box-sizing:border-box; }

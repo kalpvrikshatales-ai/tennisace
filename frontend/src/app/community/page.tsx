@@ -39,7 +39,7 @@ const CITIES = [
 
 export default function CommunityPage() {
   return (
-    <div style={{ minHeight: '100vh', background: '#0d1b2e', color: '#fff' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)' }}>
       <style>{`
         @keyframes fade-up { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
         .city-card:hover { border-color: rgba(57,255,20,0.4) !important; transform: translateY(-4px); }
@@ -59,7 +59,7 @@ export default function CommunityPage() {
         <h1 style={{ fontSize: 42, fontWeight: 900, margin: '0 0 14px', letterSpacing: -1, lineHeight: 1.1 }}>
           Building tennis<br />communities
         </h1>
-        <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 16, margin: '0 auto', maxWidth: 400, lineHeight: 1.6 }}>
+        <p style={{ color: 'var(--text-2)', fontSize: 16, margin: '0 auto', maxWidth: 400, lineHeight: 1.6 }}>
           We're launching city by city. Founding members get a permanent badge
           and help shape the community from day one.
         </p>
@@ -114,10 +114,10 @@ export default function CommunityPage() {
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 16 }}>
                 <span style={{ fontSize: 40, lineHeight: 1, flexShrink: 0 }}>{c.flag}</span>
                 <div>
-                  <p style={{ color: '#fff', fontSize: 26, fontWeight: 900, margin: '0 0 2px', letterSpacing: -0.5, lineHeight: 1 }}>
+                  <p style={{ color: 'var(--text)', fontSize: 26, fontWeight: 900, margin: '0 0 2px', letterSpacing: -0.5, lineHeight: 1 }}>
                     {c.city}
                   </p>
-                  <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, margin: 0, fontWeight: 600 }}>
+                  <p style={{ color: 'var(--text-2)', fontSize: 13, margin: 0, fontWeight: 600 }}>
                     {c.country}
                   </p>
                 </div>
@@ -129,7 +129,7 @@ export default function CommunityPage() {
               </p>
 
               {/* Description */}
-              <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14, margin: '0 0 24px', lineHeight: 1.6 }}>
+              <p style={{ color: 'var(--text-2)', fontSize: 14, margin: '0 0 24px', lineHeight: 1.6 }}>
                 {c.description}
               </p>
 
@@ -139,7 +139,7 @@ export default function CommunityPage() {
               }}>
                 <span style={{
                   fontSize: 13, fontWeight: 800,
-                  color: c.featured ? '#39FF14' : 'rgba(255,255,255,0.5)',
+                  color: c.featured ? '#39FF14' : 'var(--text-2)',
                 }}>
                   View community →
                 </span>
@@ -163,7 +163,7 @@ export default function CommunityPage() {
 
       {/* Bottom CTA */}
       <div style={{ textAlign: 'center', padding: '0 24px 60px', animation: 'fade-up 0.5s ease 0.4s both' }}>
-        <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 13, margin: '0 0 16px' }}>
+        <p style={{ color: 'var(--text-2)', fontSize: 13, margin: '0 0 16px' }}>
           Want your city? Let us know.
         </p>
         <Link href="/sparring/create"

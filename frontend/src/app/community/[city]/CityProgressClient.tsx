@@ -33,10 +33,10 @@ function fmtDateShort(iso: string): string {
 function WeekendRequestCard({ req }: { req: PlayRequest }) {
   return (
     <div style={{
-      background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)',
+      background: 'var(--surface)', border: '1px solid var(--border)',
       borderRadius: 12, padding: '14px 14px',
     }}>
-      <p style={{ color: '#fff', fontSize: 15, fontWeight: 900, margin: '0 0 3px', letterSpacing: -0.3 }}>
+      <p style={{ color: 'var(--text)', fontSize: 15, fontWeight: 900, margin: '0 0 3px', letterSpacing: -0.3 }}>
         {fmtDateShort(req.date)}
       </p>
       <p style={{ color: 'rgba(57,255,20,0.8)', fontSize: 11, fontWeight: 700, margin: '0 0 10px' }}>
@@ -53,12 +53,12 @@ function WeekendRequestCard({ req }: { req: PlayRequest }) {
         }}>
           {!req.creator.photo_url && (req.creator.name ?? '?')[0].toUpperCase()}
         </div>
-        <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, fontWeight: 600 }}>{req.creator.name}</span>
+        <span style={{ color: 'var(--text-2)', fontSize: 12, fontWeight: 600 }}>{req.creator.name}</span>
       </div>
       <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 12 }}>
         {req.format  && <span style={{ padding: '2px 8px', borderRadius: 5, background: 'rgba(57,255,20,0.08)', border: '1px solid rgba(57,255,20,0.2)', color: '#39FF14', fontSize: 9, fontWeight: 800 }}>{FORMAT_LABEL[req.format] ?? req.format}</span>}
-        {req.level   && <span style={{ padding: '2px 8px', borderRadius: 5, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)', color: 'rgba(255,255,255,0.4)', fontSize: 9, fontWeight: 700 }}>{req.level}</span>}
-        {req.surface && <span style={{ padding: '2px 8px', borderRadius: 5, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)', color: 'rgba(255,255,255,0.4)', fontSize: 9, fontWeight: 700 }}>{req.surface}</span>}
+        {req.level   && <span style={{ padding: '2px 8px', borderRadius: 5, background: 'var(--surface-2)', border: '1px solid var(--border)', color: 'var(--text-2)', fontSize: 9, fontWeight: 700 }}>{req.level}</span>}
+        {req.surface && <span style={{ padding: '2px 8px', borderRadius: 5, background: 'var(--surface-2)', border: '1px solid var(--border)', color: 'var(--text-2)', fontSize: 9, fontWeight: 700 }}>{req.surface}</span>}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <span style={{ color: '#39FF14', fontSize: 11, fontWeight: 800 }}>
@@ -131,7 +131,7 @@ function AnimatedBar({ pct, delay = 0 }: { pct: number; delay?: number }) {
   }, [pct, delay])
 
   return (
-    <div ref={ref} style={{ height: 8, background: 'rgba(255,255,255,0.06)', borderRadius: 4, overflow: 'hidden' }}>
+    <div ref={ref} style={{ height: 8, background: 'var(--surface-2)', borderRadius: 4, overflow: 'hidden' }}>
       <div style={{
         height: '100%', borderRadius: 4,
         background: 'linear-gradient(90deg, #39FF14, #00C875)',
@@ -162,13 +162,13 @@ function MemberAvatar({ member, blur }: { member: Member; blur: boolean }) {
         {member.founding_number && (
           <span style={{
             position: 'absolute', bottom: 22, right: -2,
-            background: '#0d1b2e', border: '1px solid #39FF14',
+            background: 'var(--bg)', border: '1px solid #39FF14',
             borderRadius: 6, color: '#39FF14', fontSize: 8, fontWeight: 900,
             padding: '1px 4px', lineHeight: 1.4,
           }}>#{member.founding_number}</span>
         )}
         {!blur && (
-          <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 10, fontWeight: 600, textAlign: 'center', maxWidth: 60, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <span style={{ color: 'var(--text-2)', fontSize: 10, fontWeight: 600, textAlign: 'center', maxWidth: 60, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {member.name.split(' ')[0]}
           </span>
         )}
@@ -192,9 +192,8 @@ export default function CityProgressClient({ city, initialData }: { city: string
     fetch(`${BACKEND}/play-requests?city=${encodeURIComponent(city)}`)
       .then(r => r.ok ? r.json() : { requests: [] })
       .then(d => {
-        // Show only this weekend's open requests (up to 3)
         const now  = new Date()
-        const day  = now.getDay() // 0=Sun, 6=Sat
+        const day  = now.getDay()
         const diff = (day === 0) ? 0 : (6 - day)
         const sat  = new Date(now); sat.setDate(now.getDate() + diff)
         const sun  = new Date(sat); sun.setDate(sat.getDate() + 1)
@@ -219,7 +218,7 @@ export default function CityProgressClient({ city, initialData }: { city: string
   const blurFrom  = 12
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0d1b2e', color: '#fff' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)' }}>
       <style>{`
         @keyframes fade-up { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
         @keyframes pulse   { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
@@ -227,7 +226,7 @@ export default function CityProgressClient({ city, initialData }: { city: string
 
       {/* ── Back nav ── */}
       <div style={{ padding: '16px 20px 0' }}>
-        <Link href="/sparring" style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+        <Link href="/sparring" style={{ color: 'var(--text-2)', fontSize: 13, fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
           ← Find a Partner
         </Link>
       </div>
@@ -244,7 +243,7 @@ export default function CityProgressClient({ city, initialData }: { city: string
         <h1 style={{ fontSize: 40, fontWeight: 900, margin: '0 0 10px', letterSpacing: -1, lineHeight: 1.1 }}>
           {city}
         </h1>
-        <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 16, margin: '0 0 6px' }}>
+        <p style={{ color: 'var(--text-2)', fontSize: 16, margin: '0 0 6px' }}>
           Building the tennis community
         </p>
         <p style={{ color: '#39FF14', fontSize: 14, fontWeight: 700, margin: 0 }}>
@@ -256,18 +255,18 @@ export default function CityProgressClient({ city, initialData }: { city: string
 
         {/* ── Progress bars ── */}
         <div style={{
-          background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+          background: 'var(--surface)', border: '1px solid var(--border)',
           borderRadius: 16, padding: 24, marginBottom: 24,
           animation: 'fade-up 0.5s ease 0.1s both',
         }}>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', margin: '0 0 20px' }}>
+          <p style={{ color: 'var(--text-2)', fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', margin: '0 0 20px' }}>
             Community Progress
           </p>
 
           <div style={{ marginBottom: 20 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-              <span style={{ color: '#fff', fontSize: 14, fontWeight: 700 }}>🎾 Players</span>
-              <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13 }}>
+              <span style={{ color: 'var(--text)', fontSize: 14, fontWeight: 700 }}>🎾 Players</span>
+              <span style={{ color: 'var(--text-2)', fontSize: 13 }}>
                 {data.player_count} / {data.player_target}
               </span>
             </div>
@@ -276,8 +275,8 @@ export default function CityProgressClient({ city, initialData }: { city: string
 
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-              <span style={{ color: '#fff', fontSize: 14, fontWeight: 700 }}>🎓 Coaches</span>
-              <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13 }}>
+              <span style={{ color: 'var(--text)', fontSize: 14, fontWeight: 700 }}>🎓 Coaches</span>
+              <span style={{ color: 'var(--text-2)', fontSize: 13 }}>
                 {data.coach_count} / {data.coach_target}
               </span>
             </div>
@@ -287,11 +286,11 @@ export default function CityProgressClient({ city, initialData }: { city: string
 
         {/* ── Milestones ── */}
         <div style={{
-          background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+          background: 'var(--surface)', border: '1px solid var(--border)',
           borderRadius: 16, padding: 24, marginBottom: 24,
           animation: 'fade-up 0.5s ease 0.2s both',
         }}>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', margin: '0 0 20px' }}>
+          <p style={{ color: 'var(--text-2)', fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', margin: '0 0 20px' }}>
             Milestones
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -303,23 +302,23 @@ export default function CityProgressClient({ city, initialData }: { city: string
                   display: 'flex', alignItems: 'center', gap: 14,
                   padding: '12px 14px', borderRadius: 10,
                   background: isCurrent ? 'rgba(57,255,20,0.08)' : 'transparent',
-                  border: `1px solid ${isCurrent ? 'rgba(57,255,20,0.3)' : 'rgba(255,255,255,0.06)'}`,
+                  border: `1px solid ${isCurrent ? 'rgba(57,255,20,0.3)' : 'var(--border)'}`,
                 }}>
                   <div style={{
                     width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: reached ? 'rgba(57,255,20,0.2)' : isCurrent ? 'rgba(57,255,20,0.1)' : 'rgba(255,255,255,0.05)',
-                    border: `1px solid ${reached || isCurrent ? '#39FF14' : 'rgba(255,255,255,0.1)'}`,
-                    color: reached ? '#39FF14' : isCurrent ? '#39FF14' : 'rgba(255,255,255,0.3)',
+                    background: reached ? 'rgba(57,255,20,0.2)' : isCurrent ? 'rgba(57,255,20,0.1)' : 'var(--surface-2)',
+                    border: `1px solid ${reached || isCurrent ? '#39FF14' : 'var(--border)'}`,
+                    color: reached ? '#39FF14' : isCurrent ? '#39FF14' : 'var(--text-2)',
                     fontSize: 14,
                   }}>
                     {reached ? '✓' : isCurrent ? '→' : `${i + 1}`}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <p style={{ color: reached || isCurrent ? '#fff' : 'rgba(255,255,255,0.4)', fontWeight: 800, fontSize: 14, margin: '0 0 2px' }}>
+                    <p style={{ color: reached || isCurrent ? 'var(--text)' : 'var(--text-2)', fontWeight: 800, fontSize: 14, margin: '0 0 2px' }}>
                       {m.label}
                     </p>
-                    <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: 11, margin: 0 }}>
+                    <p style={{ color: 'var(--text-2)', fontSize: 11, margin: 0 }}>
                       {m.count} members
                     </p>
                   </div>
@@ -340,11 +339,11 @@ export default function CityProgressClient({ city, initialData }: { city: string
         {/* ── Founding members grid ── */}
         {first20.length > 0 && (
           <div style={{
-            background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+            background: 'var(--surface)', border: '1px solid var(--border)',
             borderRadius: 16, padding: 24, marginBottom: 24,
             animation: 'fade-up 0.5s ease 0.3s both',
           }}>
-            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', margin: '0 0 20px' }}>
+            <p style={{ color: 'var(--text-2)', fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', margin: '0 0 20px' }}>
               Founding Members
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
@@ -353,7 +352,7 @@ export default function CityProgressClient({ city, initialData }: { city: string
               ))}
             </div>
             {first20.length >= blurFrom && (
-              <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: 12, margin: '16px 0 0', textAlign: 'center' }}>
+              <p style={{ color: 'var(--text-2)', fontSize: 12, margin: '16px 0 0', textAlign: 'center' }}>
                 Sign in to see all founding members
               </p>
             )}
@@ -362,12 +361,12 @@ export default function CityProgressClient({ city, initialData }: { city: string
 
         {/* ── This Weekend ── */}
         <div style={{
-          background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+          background: 'var(--surface)', border: '1px solid var(--border)',
           borderRadius: 16, padding: 24, marginBottom: 24,
           animation: 'fade-up 0.5s ease 0.35s both',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', margin: 0 }}>
+            <p style={{ color: 'var(--text-2)', fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', margin: 0 }}>
               This Weekend
             </p>
             <Link href="/play"
@@ -378,7 +377,7 @@ export default function CityProgressClient({ city, initialData }: { city: string
 
           {weekendRequests.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '20px 0' }}>
-              <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: 13, margin: '0 0 14px' }}>
+              <p style={{ color: 'var(--text-2)', fontSize: 13, margin: '0 0 14px' }}>
                 No games this weekend yet — be the first to post one
               </p>
               <Link href="/play"
@@ -416,10 +415,10 @@ export default function CityProgressClient({ city, initialData }: { city: string
             <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: 0.5 }}>FM</span>
             <span style={{ fontSize: 14, fontWeight: 900 }}>#{data.next_number}</span>
           </div>
-          <p style={{ color: '#fff', fontSize: 20, fontWeight: 900, margin: '0 0 8px', letterSpacing: -0.3 }}>
+          <p style={{ color: 'var(--text)', fontSize: 20, fontWeight: 900, margin: '0 0 8px', letterSpacing: -0.3 }}>
             Be Founding Player #{data.next_number}
           </p>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14, margin: '0 0 24px', lineHeight: 1.5 }}>
+          <p style={{ color: 'var(--text-2)', fontSize: 14, margin: '0 0 24px', lineHeight: 1.5 }}>
             Help build {city}'s tennis community from the ground up.
             Your founding badge stays forever.
           </p>
