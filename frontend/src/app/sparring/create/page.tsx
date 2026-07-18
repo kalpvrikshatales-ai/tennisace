@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/components/AuthProvider'
 import SparringShell from '../SparringShell'
+import CityPicker from '@/components/CityPicker'
 
 const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
 
@@ -21,15 +22,9 @@ const DAYS  = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const
 const TIMES = ['morning', 'afternoon', 'evening'] as const
 const COACHING_LEVELS = ['Beginners', 'Intermediate', 'Advanced', 'All levels']
 const COACHING_FEES   = ['Free', 'Paid']
-
-const COUNTRY_CODES = [
-  { code: '+91', flag: '🇮🇳' },
-  { code: '+1',  flag: '🇺🇸' },
-  { code: '+44', flag: '🇬🇧' },
-  { code: '+61', flag: '🇦🇺' },
-  { code: '+971',flag: '🇦🇪' },
-  { code: '+65', flag: '🇸🇬' },
-]
+const HAND_OPTS       = ['Right', 'Left']
+const BACK_OPTS       = ['One-handed', 'Two-handed']
+const STYLE_OPTS      = ['Baseline', 'Serve & Volley', 'All-Court', 'Defensive']
 
 type ProfileType = 'player' | 'coach' | 'organizer'
 type AvailKey = `${typeof DAYS[number]}-${typeof TIMES[number]}`
@@ -173,9 +168,13 @@ export default function CreateSparringPage() {
   const [avail,         setAvail]         = useState<Set<AvailKey>>(new Set())
   const [photoFile,     setPhotoFile]     = useState<File | null>(null)
   const [photoPreview,  setPhotoPreview]  = useState<string | null>(null)
+  const [dominantHand,  setDominantHand]  = useState('')
+  const [backhand,      setBackhand]      = useState('')
+  const [playStyle,     setPlayStyle]     = useState('')
+  const [yearsPlaying,  setYearsPlaying]  = useState('')
 
   const [email,       setEmail]       = useState('')
-  const [countryCode, setCountryCode] = useState('+91')
+  const [countryCode, setCountryCode] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
 
   const [emailVerified, setEmailVerified] = useState(false)
@@ -300,7 +299,11 @@ export default function CreateSparringPage() {
           favorite_players: favPlayers.trim() || undefined,
           profile_type: profileType,
           level, surface: surfaces,
-          play_type: playType || 'both',
+          play_type:      playType      || 'both',
+          play_style:     playStyle     || undefined,
+          dominant_hand:  dominantHand  || undefined,
+          backhand:       backhand      || undefined,
+          years_playing:  yearsPlaying  ? parseInt(yearsPlaying) : undefined,
           coaching_level: profileType === 'coach' ? coachingLevel || undefined : undefined,
           coaching_fee:   profileType === 'coach' ? coachingFee   || undefined : undefined,
           photo_url,
@@ -499,16 +502,20 @@ export default function CreateSparringPage() {
           <input value={name} onChange={e => setName(e.target.value)} placeholder="Your name" style={inputStyle} />
         </div>
 
-        {/* City + Country */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 18 }}>
-          <div>
-            <Label text="City *" />
-            <input value={city} onChange={e => setCity(e.target.value)} placeholder="e.g. Dubai" style={inputStyle} />
-          </div>
-          <div>
-            <Label text="Country *" />
-            <input value={country} onChange={e => setCountry(e.target.value)} placeholder="e.g. India" style={inputStyle} />
-          </div>
+        {/* City picker */}
+        <div style={{ marginBottom: 18 }}>
+          <CityPicker
+            label="City *"
+            required
+            onChange={({ city: c, country: co, callingCode }) => {
+              setCity(c)
+              setCountry(co)
+              if (callingCode) setCountryCode(callingCode)
+            }}
+          />
+          {country && (
+            <p style={{ color: 'rgba(255,255,255,0.28)', fontSize: 11, margin: '5px 0 0' }}>{country}</p>
+          )}
         </div>
 
         {/* Email + OTP */}
@@ -564,13 +571,21 @@ export default function CreateSparringPage() {
         <div style={{ marginBottom: 18 }}>
           <Label text="Phone (shared only when a request is accepted)" />
           <div style={{ display: 'flex', gap: 8 }}>
-            <select value={countryCode} onChange={e => setCountryCode(e.target.value)}
-              style={{ background: 'var(--sr-input)', border: '1px solid var(--sr-border)', borderRadius: 8, color: 'var(--sr-text)', padding: '0 10px', fontSize: 14, outline: 'none', flexShrink: 0, height: 48 }}>
-              {COUNTRY_CODES.map(c => <option key={c.code} value={c.code}>{c.flag} {c.code}</option>)}
-            </select>
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'var(--sr-input)', border: '1px solid var(--sr-border)', borderRadius: 8,
+              color: countryCode ? 'var(--sr-text)' : 'var(--sr-muted)',
+              padding: '0 12px', fontSize: 14, flexShrink: 0, height: 48, whiteSpace: 'nowrap',
+              minWidth: 60,
+            }}>
+              {countryCode || '＋—'}
+            </div>
             <input value={phoneNumber} onChange={e => setPhoneNumber(e.target.value.replace(/\D/g, ''))} placeholder="Optional" inputMode="tel" style={{ ...inputStyle, flex: 1 }} />
           </div>
-          <p style={{ color: 'var(--sr-muted)', fontSize: 11, margin: '6px 0 0' }}>Hidden from public. Revealed only when both parties accept.</p>
+          <p style={{ color: 'var(--sr-muted)', fontSize: 11, margin: '6px 0 0' }}>
+            {countryCode ? `Country code auto-set from your city. ` : 'Select a city first to auto-set country code. '}
+            Hidden from public. Revealed only when both parties accept.
+          </p>
         </div>
 
         {/* Level */}
@@ -605,6 +620,45 @@ export default function CreateSparringPage() {
             </div>
           </div>
         )}
+
+        {/* Tennis details */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 18 }}>
+          <div>
+            <Label text="Dominant hand" />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {HAND_OPTS.map(h => (
+                <button key={h} onClick={() => setDominantHand(h)} style={pill(dominantHand === h)}>{h}</button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <Label text="Backhand" />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {BACK_OPTS.map(b => (
+                <button key={b} onClick={() => setBackhand(b)} style={{ ...pill(backhand === b), fontSize: 12 }}>{b}</button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 18 }}>
+          <div>
+            <Label text="Play style" />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {STYLE_OPTS.map(s => (
+                <button key={s} onClick={() => setPlayStyle(s)} style={{ ...pill(playStyle === s), fontSize: 12 }}>{s}</button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <Label text="Years playing" />
+            <input
+              type="number" min={0} max={50} value={yearsPlaying}
+              onChange={e => setYearsPlaying(e.target.value)}
+              placeholder="e.g. 5" style={inputStyle}
+            />
+          </div>
+        </div>
 
         {/* Coach fields */}
         {profileType === 'coach' && (

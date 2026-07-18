@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react'
 import Link from 'next/link'
 import SparringShell from '@/app/sparring/SparringShell'
+import CityPicker from '@/components/CityPicker'
 
 const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
 
@@ -224,6 +225,8 @@ export default function PlayPage() {
   const [fDate,     setFDate]     = useState(TODAY)
   const [fSlot,     setFSlot]     = useState('Morning')
   const [fNeeded,   setFNeeded]   = useState(1)
+  const [fCity,     setFCity]     = useState('')
+  const [fCountry,  setFCountry]  = useState('')
   const [fLevel,    setFLevel]    = useState('')
   const [fSurface,  setFSurface]  = useState('')
   const [fFormat,   setFFormat]   = useState<string>('singles')
@@ -236,7 +239,7 @@ export default function PlayPage() {
     if (id) {
       fetch(`${BACKEND}/sparring/profiles/${id}`)
         .then(r => r.ok ? r.json() : null)
-        .then(p => { if (p) { setOwnCity(p.city || ''); setOwnCountry(p.country || '') } })
+        .then(p => { if (p) { setOwnCity(p.city || ''); setOwnCountry(p.country || ''); setFCity(p.city || ''); setFCountry(p.country || '') } })
         .catch(() => {})
     }
   }, [])
@@ -299,8 +302,8 @@ export default function PlayPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           profile_id:     ownProfileId,
-          city:           ownCity,
-          country:        ownCountry,
+          city:           fCity || ownCity,
+          country:        fCountry || ownCountry,
           date:           fDate,
           time_slot:      fSlot,
           players_needed: fNeeded,
@@ -466,6 +469,19 @@ export default function PlayPage() {
                       </Link>
                     </div>
                   )}
+
+                  {/* City picker */}
+                  <div style={{ marginBottom: 16 }}>
+                    <CityPicker
+                      label="City"
+                      value={fCity && fCountry ? `${fCity}, ${fCountry}` : undefined}
+                      onChange={({ city: c, country: co }) => { setFCity(c); setFCountry(co) }}
+                      inputStyle={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 9, color: '#fff', height: 42 }}
+                    />
+                    {fCountry && (
+                      <p style={{ color: 'rgba(255,255,255,0.28)', fontSize: 11, margin: '4px 0 0' }}>{fCountry}</p>
+                    )}
+                  </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
                     <div>

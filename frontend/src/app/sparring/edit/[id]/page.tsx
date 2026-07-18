@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import SparringShell from '../../SparringShell'
+import CityPicker from '@/components/CityPicker'
 
 const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
 const BUCKET  = 'sparring-photos'
@@ -291,15 +292,16 @@ export default function EditSparringPage() {
           <Label text="Name *" />
           <input value={name} onChange={e => setName(e.target.value)} placeholder="Your name" style={inputStyle} />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 18 }}>
-          <div>
-            <Label text="City *" />
-            <input value={city} onChange={e => setCity(e.target.value)} placeholder="e.g. Dubai" style={inputStyle} />
-          </div>
-          <div>
-            <Label text="Country *" />
-            <input value={country} onChange={e => setCountry(e.target.value)} placeholder="e.g. India" style={inputStyle} />
-          </div>
+        <div style={{ marginBottom: 18 }}>
+          <CityPicker
+            label="City *"
+            required
+            value={city && country ? `${city}, ${country}` : undefined}
+            onChange={({ city: c, country: co }) => { setCity(c); setCountry(co) }}
+          />
+          {country && (
+            <p style={{ color: 'rgba(255,255,255,0.28)', fontSize: 11, margin: '5px 0 0' }}>{country}</p>
+          )}
         </div>
         <div style={{ marginBottom: 18 }}>
           <Label text="Bio" />
@@ -368,7 +370,7 @@ export default function EditSparringPage() {
           </div>
           <div>
             <Label text="Years playing" />
-            <input type="number" min="0" max="60" value={yearsPlaying} onChange={e => setYearsPlaying(e.target.value)}
+            <input type="number" min="0" max="50" value={yearsPlaying} onChange={e => setYearsPlaying(e.target.value)}
               placeholder="e.g. 5" style={inputStyle} />
           </div>
         </div>
