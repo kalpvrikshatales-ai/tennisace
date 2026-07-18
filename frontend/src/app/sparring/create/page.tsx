@@ -197,7 +197,7 @@ export default function CreateSparringPage() {
   useEffect(() => {
     const p    = new URLSearchParams(window.location.search)
     const from = p.get('from')
-    if (from === 'request')  setBanner('You need a profile to send a request.')
+    if (from === 'request')  setBanner('Create your profile first to send a play request. It takes 3 minutes.')
     if (from === 'requests') setBanner('You need a profile to view your requests.')
     if (from === 'login')    setBanner('No profile found for that email.')
   }, [])
@@ -324,7 +324,8 @@ export default function CreateSparringPage() {
         city: city.trim(),
         handle: profile.handle ?? undefined,
       })
-      setTimeout(() => router.push(`/sparring/${profile.id}`), 5000)
+      const redirectTo = new URLSearchParams(window.location.search).get('redirect')
+      setTimeout(() => router.push(redirectTo || `/sparring/${profile.id}`), 5000)
     } catch (e: any) { setError(e.message); setUploading(false) }
     finally { setCreating(false) }
   }

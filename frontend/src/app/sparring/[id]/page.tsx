@@ -6,6 +6,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { useAuth } from '@/components/AuthProvider'
 import { supabase } from '@/lib/supabase'
 import SparringShell from '../SparringShell'
+import CityPicker from '@/components/CityPicker'
 
 const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
 const BUCKET  = 'sparring-photos'
@@ -455,6 +456,7 @@ function RequestModal({ profile, onClose }: { profile: Profile; onClose: () => v
   const [sending, setSending] = useState(false)
   const [sent,    setSentOk]  = useState(false)
   const [error,   setError]   = useState('')
+  const [closeHover, setCloseHover] = useState(false)
 
   async function submit() {
     if (!phone.trim()) { setError('Phone number is required'); return }
@@ -482,51 +484,107 @@ function RequestModal({ profile, onClose }: { profile: Profile; onClose: () => v
   }
 
   const inputBase: React.CSSProperties = {
-    width:'100%', background:'var(--sr-input)', border:'1px solid var(--sr-border)',
-    borderRadius:8, color:'var(--sr-text)', fontSize:14, padding:'10px 12px',
-    outline:'none', boxSizing:'border-box',
+    width:'100%', background:'#132236', border:'1px solid #1e3a5f',
+    borderRadius:8, color:'#fff', fontSize:14, padding:'11px 13px',
+    outline:'none', boxSizing:'border-box', fontFamily:'inherit',
+  }
+  const labelBase: React.CSSProperties = {
+    color:'#7a9cc4', fontSize:11, fontWeight:700,
+    textTransform:'uppercase', letterSpacing:0.6, display:'block', marginBottom:6,
   }
 
   return (
-    <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.88)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:200, padding:16 }}
-      onClick={e => { if (e.target===e.currentTarget) onClose() }}>
-      <div style={{ background:'var(--sr-card)', border:'1px solid var(--sr-border)', borderRadius:14, padding:24, maxWidth:420, width:'100%' }}>
+    <div
+      style={{
+        position:'fixed', inset:0, zIndex:200, padding:16,
+        display:'flex', alignItems:'center', justifyContent:'center',
+        background:'rgba(0,0,0,0.8)', backdropFilter:'blur(6px)',
+      }}
+      onClick={e => { if (e.target===e.currentTarget) onClose() }}
+    >
+      <div style={{
+        background:'#0f1520', border:'1px solid #1e3a5f', borderRadius:16,
+        padding:28, maxWidth:420, width:'100%',
+        boxShadow:'0 24px 80px rgba(0,0,0,0.6)',
+      }}>
         {sent ? (
           <div style={{ textAlign:'center', padding:'16px 0' }}>
-            <p style={{ fontSize:36, margin:'0 0 12px' }}>✅</p>
-            <p style={{ color:'var(--sr-text)', fontWeight:800, fontSize:18, margin:'0 0 6px' }}>Request sent!</p>
-            <p style={{ color:'var(--sr-muted)', fontSize:14, margin:'0 0 24px', lineHeight:1.5 }}>{profile.name} will see your request. If they accept, you'll both get each other's number.</p>
-            <button onClick={onClose} style={{ background:'var(--sr-accent)', border:'none', borderRadius:10, color:'var(--sr-on-acc)', fontWeight:800, fontSize:14, padding:'12px 28px', cursor:'pointer' }}>Done</button>
+            <p style={{ fontSize:40, margin:'0 0 14px' }}>🎾</p>
+            <p style={{ color:'#fff', fontWeight:900, fontSize:20, margin:'0 0 8px', letterSpacing:-0.3 }}>Request sent!</p>
+            <p style={{ color:'#7a9cc4', fontSize:14, margin:'0 0 28px', lineHeight:1.6 }}>
+              {profile.name} will see your request. If they accept, you'll both get each other's number.
+            </p>
+            <button onClick={onClose}
+              style={{ background:'#39FF14', border:'none', borderRadius:10, color:'#000', fontWeight:800, fontSize:14, padding:'13px 32px', cursor:'pointer' }}>
+              Done
+            </button>
           </div>
         ) : (
           <>
-            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:18 }}>
-              <p style={{ color:'var(--sr-text)', fontWeight:800, fontSize:16, margin:0 }}>Request to Play</p>
-              <button onClick={onClose} style={{ background:'none', border:'none', color:'var(--sr-muted)', fontSize:22, cursor:'pointer', lineHeight:1, padding:4 }}>×</button>
+            {/* Header */}
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:6 }}>
+              <p style={{ color:'#fff', fontWeight:900, fontSize:17, margin:0, letterSpacing:-0.3 }}>Request to Play</p>
+              <button
+                onClick={onClose}
+                onMouseEnter={() => setCloseHover(true)}
+                onMouseLeave={() => setCloseHover(false)}
+                style={{ background:'none', border:'none', color: closeHover ? '#fff' : '#4a6a8a', fontSize:24, cursor:'pointer', lineHeight:1, padding:'0 2px', transition:'color 0.12s' }}
+              >×</button>
             </div>
-            <p style={{ color:'var(--sr-muted)', fontSize:13, margin:'0 0 16px', lineHeight:1.5 }}>
-              Send a request to <strong style={{ color:'var(--sr-text)' }}>{profile.name}</strong>. If they accept, you'll both receive each other's contact.
+            <p style={{ color:'#7a9cc4', fontSize:13, margin:'0 0 20px', lineHeight:1.55 }}>
+              Send a request to <strong style={{ color:'#fff' }}>{profile.name}</strong>. If they accept, you'll both receive each other's contact.
             </p>
-            {error && <p style={{ color:'var(--sr-dang-t)', fontSize:13, margin:'0 0 12px' }}>{error}</p>}
-            {[['Your name', name, setName], ['Your city', city, setCity]].map(([lbl, val, setter]: any) => (
-              <div key={lbl} style={{ marginBottom:12 }}>
-                <label style={{ color:'var(--sr-muted)', fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:0.5, display:'block', marginBottom:5 }}>{lbl}</label>
-                <input value={val} onChange={e => setter(e.target.value)} style={inputBase} />
-              </div>
-            ))}
-            <div style={{ marginBottom:12 }}>
-              <label style={{ color:'var(--sr-muted)', fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:0.5, display:'block', marginBottom:5 }}>
-                Phone number <span style={{ color:'var(--sr-dang-t)' }}>*</span>
+
+            {error && (
+              <p style={{ color:'#f87171', fontSize:13, margin:'0 0 14px', background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.25)', borderRadius:8, padding:'8px 12px' }}>
+                {error}
+              </p>
+            )}
+
+            {/* Name */}
+            <div style={{ marginBottom:14 }}>
+              <label style={labelBase}>Your name</label>
+              <input value={name} onChange={e => setName(e.target.value)} style={inputBase} placeholder="Your name" />
+            </div>
+
+            {/* City — CityPicker */}
+            <div style={{ marginBottom:14 }}>
+              <label style={labelBase}>Your city</label>
+              <CityPicker
+                value={city || undefined}
+                onChange={({ city: c }) => setCity(c)}
+                inputStyle={{ background:'#132236', border:'1px solid #1e3a5f', color:'#fff', fontSize:14, borderRadius:8, padding:'11px 13px', fontFamily:'inherit', outline:'none', boxSizing:'border-box' as const }}
+              />
+            </div>
+
+            {/* Phone */}
+            <div style={{ marginBottom:14 }}>
+              <label style={labelBase}>
+                Phone number <span style={{ color:'#f87171' }}>*</span>
               </label>
-              <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="+1 555 000 0000" type="tel" style={inputBase} />
+              <input
+                value={phone} onChange={e => setPhone(e.target.value)}
+                placeholder="+1 555 000 0000" type="tel" style={inputBase}
+              />
             </div>
-            <div style={{ marginBottom:20 }}>
-              <label style={{ color:'var(--sr-muted)', fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:0.5, display:'block', marginBottom:5 }}>Message (optional)</label>
-              <textarea value={message} onChange={e => setMessage(e.target.value)} rows={2} placeholder="Hey! Let's hit some balls…"
-                style={{ ...inputBase, resize:'none', lineHeight:1.5 }} />
+
+            {/* Message */}
+            <div style={{ marginBottom:24 }}>
+              <label style={labelBase}>Message (optional)</label>
+              <textarea
+                value={message} onChange={e => setMessage(e.target.value)}
+                rows={3} placeholder="Hey! I'd love to hit with you sometime 🎾"
+                style={{ ...inputBase, resize:'none', lineHeight:1.55 }}
+              />
             </div>
+
             <button onClick={submit} disabled={sending}
-              style={{ width:'100%', background:sending ? 'var(--sr-success)' : 'var(--sr-accent)', border:'none', borderRadius:10, color:sending ? 'var(--sr-succ-t)' : 'var(--sr-on-acc)', fontWeight:800, fontSize:15, padding:'13px', cursor:sending?'not-allowed':'pointer', minHeight:48 }}>
+              style={{
+                width:'100%', background: sending ? 'rgba(57,255,20,0.3)' : '#39FF14',
+                border:'none', borderRadius:10, color: sending ? '#39FF14' : '#000',
+                fontWeight:800, fontSize:15, padding:'14px', cursor: sending ? 'not-allowed' : 'pointer',
+                minHeight:48, letterSpacing:-0.2, transition:'opacity 0.15s',
+              }}>
               {sending ? 'Sending…' : 'Send Request'}
             </button>
           </>
@@ -690,17 +748,29 @@ export default function SparringProfilePage() {
     ...(isOwn ? [{ key:'requests', label:'Requests' }] : []),
   ] as const
 
+  function handleRequestToPlay() {
+    const hasProfile = typeof window !== 'undefined' && !!localStorage.getItem('sparring_profile_id')
+    if (!hasProfile) {
+      router.push(`/sparring/create?from=request&redirect=/sparring/${id}`)
+      return
+    }
+    setShowRequest(true)
+  }
+
   return (
     <SparringShell>
-      <div className="sr-page">
-        <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+      <div className="sr-page" style={{ background:'#0d1b2e', minHeight:'100vh' }}>
+        <style>{`
+          @keyframes spin{to{transform:rotate(360deg)}}
+          @media(max-width:600px){.rtp-btn{width:100% !important;justify-content:center !important;}}
+        `}</style>
 
         {/* ── Cover banner ── */}
         <div style={{
           height:200, width:'100%', position:'relative', overflow:'hidden',
           background: profile.cover_url
             ? `url(${profile.cover_url}) center/cover no-repeat`
-            : 'var(--sr-card-2)',
+            : 'linear-gradient(135deg, #050d1a 0%, #0a1a0a 100%)',
         }}>
           {!profile.cover_url && <CourtLines />}
 
@@ -761,8 +831,11 @@ export default function SparringProfilePage() {
                   </Link>
                 </>
               ) : (
-                <button onClick={() => setShowRequest(true)}
-                  style={{ background:'var(--sr-accent)', border:'none', borderRadius:10, color:'var(--sr-on-acc)', fontWeight:800, fontSize:13, padding:'9px 18px', cursor:'pointer', whiteSpace:'nowrap', minHeight:44 }}>
+                <button
+                  className="rtp-btn"
+                  onClick={handleRequestToPlay}
+                  style={{ background:'var(--sr-accent)', border:'none', borderRadius:10, color:'var(--sr-on-acc)', fontWeight:800, fontSize:13, padding:'9px 22px', cursor:'pointer', whiteSpace:'nowrap', minHeight:44, display:'flex', alignItems:'center' }}
+                >
                   Request to Play
                 </button>
               )}
