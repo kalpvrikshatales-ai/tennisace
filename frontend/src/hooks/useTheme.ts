@@ -2,21 +2,14 @@
 
 import { useState, useEffect } from 'react'
 
-// Reads data-theme from <html> and re-renders whenever ThemeToggle changes it.
 export function useTheme() {
-  const [isDark, setIsDark] = useState(true)   // sparring is dark by default
+  const [isDark, setIsDark] = useState(true) // dark by default
 
   useEffect(() => {
     const apply = () => {
       const attr = document.documentElement.getAttribute('data-theme')
-      // If no attribute yet, fall back to localStorage
-      if (!attr) {
-        const saved = localStorage.getItem('theme')
-        const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-        setIsDark(saved ? saved === 'dark' : sysDark)
-      } else {
-        setIsDark(attr !== 'light')
-      }
+      const hasLight = document.documentElement.classList.contains('light')
+      setIsDark(attr !== 'light' && !hasLight)
     }
 
     apply()
@@ -24,7 +17,7 @@ export function useTheme() {
     const obs = new MutationObserver(apply)
     obs.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ['data-theme'],
+      attributeFilter: ['data-theme', 'class'],
     })
     return () => obs.disconnect()
   }, [])

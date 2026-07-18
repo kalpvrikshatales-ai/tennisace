@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react'
 import Link from 'next/link'
 import SparringShell from '@/app/sparring/SparringShell'
 import CityPicker from '@/components/CityPicker'
+import BackButton from '@/components/BackButton'
 
 const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
 
@@ -345,6 +346,7 @@ export default function PlayPage() {
         {/* ── Header ── */}
         <div style={{ borderBottom: '1px solid rgba(255,255,255,0.07)', padding: '20px 20px 0' }}>
           <div style={{ maxWidth: 680, margin: '0 auto' }}>
+            <BackButton />
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, paddingBottom: 18 }}>
               <div>
                 <h1 style={{ color: '#fff', fontSize: 24, fontWeight: 900, margin: '0 0 4px', letterSpacing: -0.5 }}>

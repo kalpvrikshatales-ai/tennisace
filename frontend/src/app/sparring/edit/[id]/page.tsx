@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import SparringShell from '../../SparringShell'
 import CityPicker from '@/components/CityPicker'
+import BackButton from '@/components/BackButton'
 
 const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
 const BUCKET  = 'sparring-photos'
@@ -236,6 +237,7 @@ export default function EditSparringPage() {
   return (
     <SparringShell>
       <div style={{ maxWidth: 540, margin: '0 auto', padding: '20px 16px 0' }}>
+        <BackButton />
 
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>

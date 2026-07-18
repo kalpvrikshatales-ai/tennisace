@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/components/AuthProvider'
 import { createSupabaseBrowserClient } from '@/lib/supabase-browser'
+import BackButton from '@/components/BackButton'
 
 const COUNTRIES = [
   'India', 'USA', 'UK', 'Australia', 'UAE', 'Singapore',
@@ -158,6 +159,9 @@ export default function ProfilePage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#0a0a0a', paddingBottom: 100 }}>
+      <div style={{ maxWidth: 640, margin: '0 auto', padding: '8px 16px 0' }}>
+        <BackButton />
+      </div>
 
       {/* ── Cover ── */}
       <div style={{ height: 200, background: 'linear-gradient(135deg,#0d1f0d 0%,#091209 50%,#0a0a14 100%)', position: 'relative', overflow: 'hidden' }}>

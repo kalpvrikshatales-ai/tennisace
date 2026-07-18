@@ -6,23 +6,55 @@
    TENNISACE — Premium Design
    ============================ */
 
-:root {
-  --bg:           #FFFFFF;
-  --bg-subtle:    #F7F7F7;
-  --bg-muted:     #EFEFEF;
-  --surface:      #FFFFFF;
+/* Dark-first theme: dark is the default, light opt-in */
+:root, [data-theme="dark"] {
+  --bg:           #0a0f1a;
+  --bg-subtle:    #0f1520;
+  --bg-muted:     #132236;
+  --surface:      #0f1520;
+  --surface-2:    #132236;
 
-  --border:       #E5E5E5;
-  --border-light: #F0F0F0;
+  --border:       #1e3a5f;
+  --border-light: #1e3a5f;
 
-  --text-primary:   #000000;
-  --text-secondary: #444444;
+  --text-primary:   #ffffff;
+  --text-secondary: #7a9cc4;
+  --text-muted:     #4a6fa5;
+  --text:           #ffffff;
+  --text-2:         #7a9cc4;
+
+  --accent:      #39FF14;
+  --green:       #00C875;
+  --green-dark:  #009A58;
+  --green-light: rgba(0,200,117,0.08);
+  --wimbledon:   #00C875;
+
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.2);
+  --shadow-lg: 0 10px 24px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,0.3);
+}
+
+html.light, [data-theme="light"] {
+  --bg:           #f0f4f8;
+  --bg-subtle:    #f7f9fc;
+  --bg-muted:     #efefef;
+  --surface:      #ffffff;
+  --surface-2:    #e8f0f9;
+
+  --border:       #dce8f5;
+  --border-light: #f0f0f0;
+
+  --text-primary:   #0d1b2e;
+  --text-secondary: #4a6fa5;
   --text-muted:     #999999;
+  --text:           #0d1b2e;
+  --text-2:         #4a6fa5;
 
+  --accent:      #16a34a;
   --green:       #00C875;
   --green-dark:  #009A58;
   --green-light: #E6FAF2;
-  --wimbledon:   #00C875;
 
   --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
@@ -172,41 +204,42 @@ a.card { animation: fadeUp 0.2s ease both; }
 .pb-nav { padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
 
 /* ============================
-   DARK MODE — full coverage
+   DARK MODE — full Tailwind coverage
+   Applies when dark (default) — i.e. not light mode
    ============================ */
-[data-theme="dark"] {
-  --bg:           #000000;
-  --bg-subtle:    #0A0A0A;
-  --bg-muted:     #141414;
-  --surface:      #111111;
-  --border:       #1E1E1E;
-  --border-light: #1E1E1E;
-  --text-primary:   #FFFFFF;
-  --text-secondary: #AAAAAA;
-  --text-muted:     #666666;
-  color-scheme: dark;
-}
-
+html:not([data-theme="light"]):not(.light) body,
 [data-theme="dark"] body {
   background: var(--bg);
   color: var(--text-primary);
+  color-scheme: dark;
 }
 
-/* Force ALL text to light in dark mode */
-[data-theme="dark"] * {
-  --tw-text-opacity: 1;
-}
+html:not([data-theme="light"]):not(.light) .text-gray-900,
+html:not([data-theme="light"]):not(.light) .text-gray-800,
+html:not([data-theme="light"]):not(.light) .text-gray-700,
 [data-theme="dark"] .text-gray-900,
 [data-theme="dark"] .text-gray-800,
 [data-theme="dark"] .text-gray-700 { color: #F1F5F9 !important; }
+
+html:not([data-theme="light"]):not(.light) .text-gray-600,
+html:not([data-theme="light"]):not(.light) .text-gray-500,
 [data-theme="dark"] .text-gray-600,
 [data-theme="dark"] .text-gray-500 { color: #9CA3AF !important; }
+
+html:not([data-theme="light"]):not(.light) .text-gray-400,
 [data-theme="dark"] .text-gray-400 { color: #6B7280 !important; }
+
+html:not([data-theme="light"]):not(.light) .text-gray-300,
 [data-theme="dark"] .text-gray-300 { color: #9CA3AF !important; }
+
+html:not([data-theme="light"]):not(.light) .text-gray-200,
 [data-theme="dark"] .text-gray-200 { color: #6B7280 !important; }
 
-/* Card and surface backgrounds */
+html:not([data-theme="light"]):not(.light) .bg-white,
 [data-theme="dark"] .bg-white { background: var(--surface) !important; }
+
+html:not([data-theme="light"]):not(.light) .glass,
+html:not([data-theme="light"]):not(.light) .card,
 [data-theme="dark"] .glass,
 [data-theme="dark"] .card {
   background: var(--surface) !important;
@@ -214,44 +247,58 @@ a.card { animation: fadeUp 0.2s ease both; }
   box-shadow: 0 1px 3px rgba(0,0,0,0.4) !important;
 }
 
-/* Header + nav */
+html:not([data-theme="light"]):not(.light) header,
 [data-theme="dark"] header {
-  background: rgba(0, 0, 0, 0.96) !important;
-  border-bottom-color: #1E1E1E !important;
-}
-[data-theme="dark"] .bottom-nav {
-  background: rgba(0, 0, 0, 0.98) !important;
-  border-top-color: #1E1E1E !important;
+  background: rgba(7, 12, 20, 0.96) !important;
+  border-bottom-color: var(--border) !important;
 }
 
-/* Background overrides */
+html:not([data-theme="light"]):not(.light) .bottom-nav,
+[data-theme="dark"] .bottom-nav {
+  background: rgba(7, 12, 20, 0.98) !important;
+  border-top-color: var(--border) !important;
+}
+
+html:not([data-theme="light"]):not(.light) .bg-gray-50,
+html:not([data-theme="light"]):not(.light) .bg-gray-100,
 [data-theme="dark"] .bg-gray-50,
 [data-theme="dark"] .bg-gray-100 { background: var(--bg-subtle) !important; }
+
+html:not([data-theme="light"]):not(.light) .bg-green-50,
 [data-theme="dark"] .bg-green-50 { background: rgba(0,200,117,0.08) !important; }
 
-/* Border overrides */
+html:not([data-theme="light"]):not(.light) .border-gray-100,
+html:not([data-theme="light"]):not(.light) .border-gray-200,
 [data-theme="dark"] .border-gray-100,
 [data-theme="dark"] .border-gray-200 { border-color: var(--border) !important; }
 
-/* Hover states in dark mode */
+html:not([data-theme="light"]):not(.light) .hover\:bg-gray-100:hover,
+html:not([data-theme="light"]):not(.light) .hover\:bg-gray-50:hover,
 [data-theme="dark"] .hover\:bg-gray-100:hover,
 [data-theme="dark"] .hover\:bg-gray-50:hover { background: var(--bg-muted) !important; }
+
+html:not([data-theme="light"]):not(.light) .hover\:border-gray-200:hover,
 [data-theme="dark"] .hover\:border-gray-200:hover { border-color: #2E2E2E !important; }
 
-/* Score column overrides — keep winner scores bright */
+html:not([data-theme="light"]):not(.light) .text-gray-900.font-black,
 [data-theme="dark"] .text-gray-900.font-black { color: #FFFFFF !important; }
 
+html:not([data-theme="light"]):not(.light) .animate-pulse,
 [data-theme="dark"] .animate-pulse {
-  background: linear-gradient(90deg, #111111 25%, #1E1E1E 50%, #111111 75%) !important;
+  background: linear-gradient(90deg, var(--bg-subtle) 25%, var(--bg-muted) 50%, var(--bg-subtle) 75%) !important;
   background-size: 200% 100% !important;
   animation: shimmer 1.4s ease-in-out infinite !important;
 }
 
+html:not([data-theme="light"]):not(.light) input,
+html:not([data-theme="light"]):not(.light) select,
 [data-theme="dark"] input,
 [data-theme="dark"] select { background: var(--surface); color: var(--text-primary); }
 
-/* green fixes for dark mode */
+html:not([data-theme="light"]):not(.light) .text-green-600,
 [data-theme="dark"] .text-green-600 { color: #4ADE80 !important; }
+
+html:not([data-theme="light"]):not(.light) .text-green-700,
 [data-theme="dark"] .text-green-700 { color: #22C55E !important; }
 
 /* ============================

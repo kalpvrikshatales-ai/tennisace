@@ -3,25 +3,28 @@
 import { useState, useEffect } from 'react'
 
 interface Props {
-  variant?: 'light' | 'dark'  // 'dark' = button on dark background (sidebar)
+  variant?: 'light' | 'dark'
 }
 
 export default function ThemeToggle({ variant = 'light' }: Props) {
-  const [dark, setDark] = useState(false)
+  const [dark, setDark] = useState(true) // dark by default
 
   useEffect(() => {
-    const saved = localStorage.getItem('theme')
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    const isDark = saved ? saved === 'dark' : prefersDark
+    const saved = localStorage.getItem('tennisace-theme') ?? localStorage.getItem('theme')
+    const isDark = saved ? saved !== 'light' : true
     setDark(isDark)
     document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light')
+    if (!isDark) document.documentElement.classList.add('light')
+    else document.documentElement.classList.remove('light')
   }, [])
 
   const toggle = () => {
     const next = !dark
     setDark(next)
     document.documentElement.setAttribute('data-theme', next ? 'dark' : 'light')
-    localStorage.setItem('theme', next ? 'dark' : 'light')
+    if (!next) document.documentElement.classList.add('light')
+    else document.documentElement.classList.remove('light')
+    localStorage.setItem('tennisace-theme', next ? 'dark' : 'light')
   }
 
   const onDarkBg = variant === 'dark'
