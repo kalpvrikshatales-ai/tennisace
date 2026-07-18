@@ -43,6 +43,12 @@ const STATIC_ROUTES: MetadataRoute.Sitemap = [
     priority: 0.8,
   },
   {
+    url: 'https://tennisace.live/play',
+    lastModified: new Date(),
+    changeFrequency: 'hourly',
+    priority: 0.9,
+  },
+  {
     url: 'https://tennisace.live/community',
     lastModified: new Date(),
     changeFrequency: 'daily',

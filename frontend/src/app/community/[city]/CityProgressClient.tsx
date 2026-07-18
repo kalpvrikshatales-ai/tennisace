@@ -3,6 +3,75 @@
 import { useEffect, useState, useRef } from 'react'
 import Link from 'next/link'
 
+const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
+
+type PlayRequest = {
+  id:             string
+  date:           string
+  time_slot:      string
+  players_needed: number
+  level?:         string
+  surface?:       string
+  format?:        string
+  location_name?: string
+  spots_left:     number
+  creator: { name?: string; photo_url?: string; founding_number?: number }
+}
+
+const FORMAT_LABEL: Record<string, string> = {
+  singles: 'Singles', doubles: 'Doubles', hitting: 'Hitting', coaching: 'Coaching',
+}
+
+function fmtDateShort(iso: string): string {
+  try {
+    const d = new Date(iso + 'T12:00:00Z')
+    return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' })
+  } catch { return iso }
+}
+
+function WeekendRequestCard({ req }: { req: PlayRequest }) {
+  return (
+    <div style={{
+      background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)',
+      borderRadius: 12, padding: '14px 14px',
+    }}>
+      <p style={{ color: '#fff', fontSize: 15, fontWeight: 900, margin: '0 0 3px', letterSpacing: -0.3 }}>
+        {fmtDateShort(req.date)}
+      </p>
+      <p style={{ color: 'rgba(57,255,20,0.8)', fontSize: 11, fontWeight: 700, margin: '0 0 10px' }}>
+        {req.time_slot}{req.location_name ? ` · ${req.location_name}` : ''}
+      </p>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 10 }}>
+        <div style={{
+          width: 26, height: 26, borderRadius: '50%', flexShrink: 0,
+          background: req.creator.photo_url
+            ? `url(${req.creator.photo_url}) center/cover no-repeat`
+            : 'rgba(57,255,20,0.15)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 10, fontWeight: 900, color: '#39FF14', overflow: 'hidden',
+        }}>
+          {!req.creator.photo_url && (req.creator.name ?? '?')[0].toUpperCase()}
+        </div>
+        <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12, fontWeight: 600 }}>{req.creator.name}</span>
+      </div>
+      <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 12 }}>
+        {req.format  && <span style={{ padding: '2px 8px', borderRadius: 5, background: 'rgba(57,255,20,0.08)', border: '1px solid rgba(57,255,20,0.2)', color: '#39FF14', fontSize: 9, fontWeight: 800 }}>{FORMAT_LABEL[req.format] ?? req.format}</span>}
+        {req.level   && <span style={{ padding: '2px 8px', borderRadius: 5, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)', color: 'rgba(255,255,255,0.4)', fontSize: 9, fontWeight: 700 }}>{req.level}</span>}
+        {req.surface && <span style={{ padding: '2px 8px', borderRadius: 5, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)', color: 'rgba(255,255,255,0.4)', fontSize: 9, fontWeight: 700 }}>{req.surface}</span>}
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ color: '#39FF14', fontSize: 11, fontWeight: 800 }}>
+          {req.spots_left} spot{req.spots_left !== 1 ? 's' : ''} left
+        </span>
+        <Link href="/play"
+          style={{ background: '#39FF14', color: '#000', fontWeight: 900, fontSize: 11, padding: '6px 12px', borderRadius: 7, textDecoration: 'none' }}>
+          Join →
+        </Link>
+      </div>
+    </div>
+  )
+}
+
 type Member = {
   id: string
   name: string
@@ -115,6 +184,29 @@ export default function CityProgressClient({ city, initialData }: { city: string
     status: 'building', next_number: 1,
     founding_members: [],
   }
+
+  const [weekendRequests, setWeekendRequests] = useState<PlayRequest[]>([])
+
+  useEffect(() => {
+    fetch(`${BACKEND}/play-requests?city=${encodeURIComponent(city)}`)
+      .then(r => r.ok ? r.json() : { requests: [] })
+      .then(d => {
+        // Show only this weekend's open requests (up to 3)
+        const now  = new Date()
+        const day  = now.getDay() // 0=Sun, 6=Sat
+        const diff = (day === 0) ? 0 : (6 - day)
+        const sat  = new Date(now); sat.setDate(now.getDate() + diff)
+        const sun  = new Date(sat); sun.setDate(sat.getDate() + 1)
+        const satStr = sat.toISOString().split('T')[0]
+        const sunStr = sun.toISOString().split('T')[0]
+        const weekend = (d.requests ?? []).filter((r: PlayRequest) =>
+          r.status === 'open' && r.spots_left > 0 &&
+          (r.date === satStr || r.date === sunStr)
+        ).slice(0, 3)
+        setWeekendRequests(weekend)
+      })
+      .catch(() => {})
+  }, [city])
 
   const total         = data.player_count + data.coach_count
   const playerPct     = Math.min((data.player_count / data.player_target) * 100, 100)
@@ -266,6 +358,44 @@ export default function CityProgressClient({ city, initialData }: { city: string
             )}
           </div>
         )}
+
+        {/* ── This Weekend ── */}
+        <div style={{
+          background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: 16, padding: 24, marginBottom: 24,
+          animation: 'fade-up 0.5s ease 0.35s both',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', margin: 0 }}>
+              This Weekend
+            </p>
+            <Link href="/play"
+              style={{ color: 'rgba(57,255,20,0.7)', fontSize: 11, fontWeight: 800, textDecoration: 'none' }}>
+              See all →
+            </Link>
+          </div>
+
+          {weekendRequests.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '20px 0' }}>
+              <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: 13, margin: '0 0 14px' }}>
+                No games this weekend yet — be the first to post one
+              </p>
+              <Link href="/play"
+                style={{
+                  display: 'inline-block', background: '#39FF14', color: '#000',
+                  fontWeight: 900, fontSize: 13, padding: '10px 20px', borderRadius: 9, textDecoration: 'none',
+                }}>
+                Post a request →
+              </Link>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {weekendRequests.map(req => (
+                <WeekendRequestCard key={req.id} req={req} />
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* ── Join CTA ── */}
         <div style={{

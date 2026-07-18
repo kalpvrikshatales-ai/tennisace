@@ -8,6 +8,134 @@ import { useAuth } from '@/components/AuthProvider'
 
 const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
 
+type PlayRequest = {
+  id:             string
+  city:           string
+  date:           string
+  time_slot:      string
+  players_needed: number
+  level?:         string
+  surface?:       string
+  format?:        string
+  location_name?: string
+  status:         string
+  join_count:     number
+  spots_left:     number
+  creator: { id?: string; name?: string; photo_url?: string; founding_number?: number }
+}
+
+const FORMAT_LABEL: Record<string, string> = {
+  singles: 'Singles', doubles: 'Doubles', hitting: 'Hitting', coaching: 'Coaching',
+}
+
+function fmtDateShort(iso: string): string {
+  try {
+    const d = new Date(iso + 'T12:00:00Z')
+    return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' })
+  } catch { return iso }
+}
+
+function PlayRequestMiniCard({
+  req, ownId, onJoin, onCancel,
+}: {
+  req: PlayRequest
+  ownId: string | null
+  onJoin: (id: string) => Promise<{ creator_phone?: string } | null>
+  onCancel: (id: string) => Promise<void>
+}) {
+  const [joining,  setJoining]  = useState(false)
+  const [joined,   setJoined]   = useState(false)
+  const [phone,    setPhone]    = useState<string | null>(null)
+  const [error,    setError]    = useState('')
+
+  const isOwn  = ownId && req.creator?.id === ownId
+  const isFull = req.spots_left <= 0
+
+  async function handleJoin() {
+    if (!ownId) { window.location.href = '/sparring/create'; return }
+    setJoining(true); setError('')
+    const res = await onJoin(req.id)
+    setJoining(false)
+    if (res) { setJoined(true); if (res.creator_phone) setPhone(res.creator_phone) }
+    else setError('Could not join')
+  }
+
+  return (
+    <div style={{
+      background: 'var(--sr-card)', border: `1px solid ${joined ? 'rgba(57,255,20,0.35)' : 'var(--sr-border)'}`,
+      borderRadius: 12, padding: '14px 14px', display: 'flex', flexDirection: 'column', gap: 10,
+    }}>
+      <div>
+        <p style={{ color: 'var(--sr-text)', fontSize: 16, fontWeight: 900, margin: '0 0 2px', letterSpacing: -0.3 }}>
+          {fmtDateShort(req.date)}
+        </p>
+        <p style={{ color: 'rgba(57,255,20,0.8)', fontSize: 11, fontWeight: 700, margin: 0 }}>
+          {req.time_slot}{req.location_name ? ` · ${req.location_name}` : ''}
+        </p>
+      </div>
+
+      {/* Creator */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+        <div style={{
+          width: 26, height: 26, borderRadius: '50%', flexShrink: 0,
+          background: req.creator.photo_url
+            ? `url(${req.creator.photo_url}) center/cover no-repeat`
+            : 'rgba(57,255,20,0.15)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 10, fontWeight: 900, color: '#39FF14', overflow: 'hidden',
+        }}>
+          {!req.creator.photo_url && (req.creator.name ?? '?')[0].toUpperCase()}
+        </div>
+        <span style={{ color: 'var(--sr-text-2)', fontSize: 12, fontWeight: 600 }}>{req.creator.name}</span>
+        {req.creator.founding_number && (
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            width: 18, height: 20, flexShrink: 0,
+            clipPath: 'polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)',
+            background: 'rgba(57,255,20,0.1)', border: '1px solid #39FF14',
+            color: '#39FF14', fontSize: 5, fontWeight: 900,
+          }}>#{req.creator.founding_number}</span>
+        )}
+      </div>
+
+      {/* Chips */}
+      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+        {req.format  && <span style={{ padding: '2px 8px', borderRadius: 5, background: 'rgba(57,255,20,0.08)', border: '1px solid rgba(57,255,20,0.2)', color: '#39FF14', fontSize: 9, fontWeight: 800, textTransform: 'capitalize' }}>{FORMAT_LABEL[req.format] ?? req.format}</span>}
+        {req.level   && <span style={{ padding: '2px 8px', borderRadius: 5, background: 'var(--sr-card-2)', border: '1px solid var(--sr-border)', color: 'var(--sr-muted)', fontSize: 9, fontWeight: 700 }}>{req.level}</span>}
+        {req.surface && <span style={{ padding: '2px 8px', borderRadius: 5, background: 'var(--sr-card-2)', border: '1px solid var(--sr-border)', color: 'var(--sr-muted)', fontSize: 9, fontWeight: 700 }}>{req.surface}</span>}
+      </div>
+
+      {/* Footer */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ color: isFull ? 'rgba(255,80,80,0.7)' : 'var(--sr-accent)', fontSize: 11, fontWeight: 800 }}>
+          {isFull ? 'Full' : `${req.spots_left} spot${req.spots_left !== 1 ? 's' : ''} left`}
+        </span>
+        {joined ? (
+          <span style={{ color: '#39FF14', fontSize: 11, fontWeight: 800 }}>
+            Joined ✓{phone ? ` · ${phone}` : ''}
+          </span>
+        ) : isOwn ? (
+          <button onClick={() => onCancel(req.id)}
+            style={{ background: 'none', border: '1px solid rgba(255,80,80,0.3)', color: 'rgba(255,80,80,0.7)', fontSize: 11, fontWeight: 700, padding: '5px 10px', borderRadius: 6, cursor: 'pointer' }}>
+            Cancel
+          </button>
+        ) : (
+          <button onClick={handleJoin} disabled={joining || isFull}
+            style={{
+              background: '#39FF14', color: '#000', fontWeight: 900, fontSize: 12,
+              padding: '7px 14px', borderRadius: 7, border: 'none',
+              cursor: (joining || isFull) ? 'default' : 'pointer',
+              opacity: isFull ? 0.4 : 1,
+            }}>
+            {joining ? '…' : 'Join →'}
+          </button>
+        )}
+      </div>
+      {error && <p style={{ color: 'rgba(255,80,80,0.7)', fontSize: 10, margin: 0 }}>{error}</p>}
+    </div>
+  )
+}
+
 const LEVEL_BADGE: Record<string, { bg: string; color: string }> = {
   beginner:     { bg: 'rgba(110,232,110,0.12)', color: '#6ee86e' },
   intermediate: { bg: 'rgba(110,184,232,0.12)', color: '#6eb8e8' },
@@ -179,11 +307,17 @@ function Section({ title, profiles, ownAvailability }: {
   )
 }
 
+type Tab = 'players' | 'coaches' | 'play'
+
 export default function SparringDiscover({ initialProfiles }: { initialProfiles: any[] }) {
   const { user, profile } = useAuth()
   const [ownId,           setOwnId]           = useState<string | null>(null)
   const [ownAvailability, setOwnAvailability] = useState<Set<string>>(new Set())
   const [cityLine,        setCityLine]        = useState<{ count: number; city: string } | null>(null)
+  const [activeTab,       setActiveTab]       = useState<Tab>('players')
+  const [playRequests,    setPlayRequests]    = useState<PlayRequest[]>([])
+  const [playLoading,     setPlayLoading]     = useState(false)
+  const [ownCity,         setOwnCity]         = useState('')
 
   useEffect(() => { setOwnId(localStorage.getItem('sparring_profile_id')) }, [])
 
@@ -192,7 +326,10 @@ export default function SparringDiscover({ initialProfiles }: { initialProfiles:
     if (!id) return
     fetch(`${BACKEND}/sparring/profiles/${id}`)
       .then(r => r.ok ? r.json() : null)
-      .then(p => { if (p?.availability) setOwnAvailability(new Set(p.availability.map((a: any) => `${a.day}-${a.time}`))) })
+      .then(p => {
+        if (p?.availability) setOwnAvailability(new Set(p.availability.map((a: any) => `${a.day}-${a.time}`)))
+        if (p?.city) setOwnCity(p.city)
+      })
       .catch(() => {})
   }, [])
 
@@ -204,6 +341,45 @@ export default function SparringDiscover({ initialProfiles }: { initialProfiles:
     }
     if (initialProfiles.length > 0) setCityLine({ count: initialProfiles.length, city: '' })
   }, [profile, initialProfiles])
+
+  // Fetch play requests when tab is opened
+  useEffect(() => {
+    if (activeTab !== 'play') return
+    setPlayLoading(true)
+    const city = ownCity || profile?.city || ''
+    const qs   = city ? `?city=${encodeURIComponent(city)}` : ''
+    fetch(`${BACKEND}/play-requests${qs}`)
+      .then(r => r.ok ? r.json() : { requests: [] })
+      .then(d => setPlayRequests(d.requests ?? []))
+      .catch(() => setPlayRequests([]))
+      .finally(() => setPlayLoading(false))
+  }, [activeTab, ownCity, profile?.city])
+
+  async function handleJoin(id: string) {
+    if (!ownId) return null
+    try {
+      const r = await fetch(`${BACKEND}/play-requests/${id}/join`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profile_id: ownId }),
+      })
+      if (!r.ok) return null
+      const data = await r.json()
+      setPlayRequests(prev => prev.map(req => req.id === id
+        ? { ...req, join_count: req.join_count + 1, spots_left: Math.max(0, req.spots_left - 1) }
+        : req
+      ))
+      return data
+    } catch { return null }
+  }
+
+  async function handleCancel(id: string) {
+    if (!ownId) return
+    try {
+      await fetch(`${BACKEND}/play-requests/${id}?profile_id=${ownId}`, { method: 'DELETE' })
+      setPlayRequests(prev => prev.filter(r => r.id !== id))
+    } catch {}
+  }
 
   const displayName = profile?.full_name || user?.email?.split('@')[0] || ''
   const avatarUrl   = user?.user_metadata?.avatar_url
@@ -292,16 +468,90 @@ export default function SparringDiscover({ initialProfiles }: { initialProfiles:
               </div>
             </div>
 
-            {/* Filter bar */}
-            <Suspense fallback={null}>
-              <div style={{ paddingBottom: 14 }}>
-                <SparringFilters />
-              </div>
-            </Suspense>
+            {/* Tab bar */}
+            <div style={{ display: 'flex', gap: 4, paddingBottom: 0, marginTop: 4 }}>
+              {([
+                { key: 'players',  label: 'Players'  },
+                { key: 'coaches',  label: 'Coaches'  },
+                { key: 'play',     label: 'Play Requests' },
+              ] as { key: Tab; label: string }[]).map(t => (
+                <button key={t.key} onClick={() => setActiveTab(t.key)}
+                  style={{
+                    padding: '9px 16px', border: 'none', cursor: 'pointer',
+                    background: 'none', fontWeight: 700, fontSize: 13,
+                    color: activeTab === t.key ? 'var(--sr-accent)' : 'var(--sr-muted)',
+                    borderBottom: activeTab === t.key ? '2px solid var(--sr-accent)' : '2px solid transparent',
+                    transition: 'color 0.15s, border-color 0.15s',
+                    whiteSpace: 'nowrap',
+                  }}>
+                  {t.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Filter bar — only on players/coaches */}
+            {activeTab !== 'play' && (
+              <Suspense fallback={null}>
+                <div style={{ paddingBottom: 14, paddingTop: 4 }}>
+                  <SparringFilters />
+                </div>
+              </Suspense>
+            )}
+            {activeTab === 'play' && <div style={{ paddingBottom: 14 }} />}
           </div>
         </div>
 
-        {/* ── Sections ── */}
+        {/* ── Play Requests tab ── */}
+        {activeTab === 'play' && (
+          <div style={{ maxWidth: 760, margin: '0 auto', padding: '20px 16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+              <p style={{ color: 'var(--sr-muted)', fontSize: 12, margin: 0 }}>
+                {ownCity ? `Open games in ${ownCity}` : 'Open games near you'}
+              </p>
+              <Link href="/play"
+                style={{
+                  background: 'var(--sr-accent)', color: 'var(--sr-on-acc)',
+                  fontWeight: 800, fontSize: 12, padding: '8px 16px',
+                  borderRadius: 8, textDecoration: 'none',
+                }}>
+                + Post request
+              </Link>
+            </div>
+
+            {playLoading ? (
+              <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--sr-muted)', fontSize: 13 }}>
+                Loading…
+              </div>
+            ) : playRequests.filter(r => r.status === 'open' && r.spots_left > 0).length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '48px 20px', background: 'var(--sr-card)', border: '1px solid var(--sr-border)', borderRadius: 14 }}>
+                <p style={{ fontSize: 32, margin: '0 0 12px' }}>🎾</p>
+                <p style={{ color: 'var(--sr-text)', fontWeight: 800, fontSize: 16, margin: '0 0 6px' }}>No open games yet</p>
+                <p style={{ color: 'var(--sr-muted)', fontSize: 13, margin: '0 0 20px' }}>Be the first to post one</p>
+                <Link href="/play"
+                  style={{ display: 'inline-block', background: 'var(--sr-accent)', color: 'var(--sr-on-acc)', fontWeight: 800, fontSize: 13, padding: '11px 22px', borderRadius: 9, textDecoration: 'none' }}>
+                  Post a request →
+                </Link>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 14 }}>
+                {playRequests
+                  .filter(r => r.status === 'open' && r.spots_left > 0)
+                  .map(req => (
+                    <PlayRequestMiniCard
+                      key={req.id}
+                      req={req}
+                      ownId={ownId}
+                      onJoin={handleJoin}
+                      onCancel={handleCancel}
+                    />
+                  ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Players / Coaches sections ── */}
+        {activeTab !== 'play' && (
         <div style={{ maxWidth: 760, margin: '0 auto', padding: '24px 16px' }}>
           {noSections ? (
             profiles.length === 0 ? (
@@ -342,6 +592,7 @@ export default function SparringDiscover({ initialProfiles }: { initialProfiles:
             </>
           )}
         </div>
+        )}
       </div>
     </SparringShell>
   )
