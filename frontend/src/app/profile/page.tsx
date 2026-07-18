@@ -266,7 +266,7 @@ export default function ProfilePage() {
             <p style={{ color: '#555', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, margin: '0 0 20px' }}>Personal info</p>
             {inp('Full name',     fullName,    setFullName,    'text', 'Your full name')}
             {inp('Phone',         phone,       setPhone,       'tel',  '+91 98765 43210')}
-            {inp('City',          city,        setCity,        'text', 'Mumbai')}
+            {inp('City',          city,        setCity,        'text', 'Dubai')}
             {sel('Country',       country,     setCountry,     COUNTRIES)}
 
             <p style={{ color: '#555', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, margin: '24px 0 20px' }}>Tennis profile</p>

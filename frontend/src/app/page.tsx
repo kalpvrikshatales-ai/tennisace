@@ -5,16 +5,16 @@ import type { Match } from '@/types'
 
 export const metadata: Metadata = {
   title: 'TennisAce — Find Tennis Players & Coaches Near You',
-  description: 'TennisAce — Find tennis players and coaches near you. Join the founding community in Barcelona and Mumbai.',
+  description: 'TennisAce — Find tennis players and coaches near you. Join the founding community in Barcelona and Dubai.',
   openGraph: {
     title: 'TennisAce — Find Tennis Players & Coaches Near You',
-    description: 'Find tennis players and coaches near you. Join the founding community in Barcelona and Mumbai.',
+    description: 'Find tennis players and coaches near you. Join the founding community in Barcelona and Dubai.',
     url: 'https://tennisace.live',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'TennisAce — Find Tennis Players & Coaches Near You',
-    description: 'Find tennis players and coaches near you. Join the founding community in Barcelona and Mumbai.',
+    description: 'Find tennis players and coaches near you. Join the founding community in Barcelona and Dubai.',
   },
 }
 

@@ -61,7 +61,7 @@ const STATIC_ROUTES: MetadataRoute.Sitemap = [
     priority: 0.9,
   },
   {
-    url: 'https://tennisace.live/community/Mumbai',
+    url: 'https://tennisace.live/community/Dubai',
     lastModified: new Date(),
     changeFrequency: 'hourly',
     priority: 0.8,

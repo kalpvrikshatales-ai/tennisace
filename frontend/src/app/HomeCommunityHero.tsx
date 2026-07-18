@@ -147,19 +147,19 @@ const VALUE_PROPS = [
 ]
 
 export default async function HomeCommunityHero() {
-  const [barcelona, mumbai] = await Promise.all([
+  const [barcelona, dubai] = await Promise.all([
     fetchCity('Barcelona'),
-    fetchCity('Mumbai'),
+    fetchCity('Dubai'),
   ])
 
   const allMembers = [
     ...(barcelona?.founding_members?.slice(0, 3) ?? []),
-    ...(mumbai?.founding_members?.slice(0, 3) ?? []),
+    ...(dubai?.founding_members?.slice(0, 3) ?? []),
   ].slice(0, 6)
 
   const totalMembers =
     (barcelona ? barcelona.player_count + barcelona.coach_count : 0) +
-    (mumbai    ? mumbai.player_count    + mumbai.coach_count    : 0)
+    (dubai     ? dubai.player_count     + dubai.coach_count     : 0)
 
   return (
     <div style={{ fontFamily: 'var(--font-dm-sans, system-ui, sans-serif)' }}>
@@ -219,7 +219,7 @@ export default async function HomeCommunityHero() {
               display:     'inline-block',
             }} />
             <span style={{ color: '#39FF14', fontSize: 12, fontWeight: 800, letterSpacing: 0.4 }}>
-              Now building in Barcelona &amp; Mumbai
+              Now building in Barcelona &amp; Dubai
             </span>
           </div>
 
@@ -266,7 +266,7 @@ export default async function HomeCommunityHero() {
             }}>
               🇪🇸 Join Barcelona
             </Link>
-            <Link href="/community/Mumbai" className="cta-outline" style={{
+            <Link href="/community/Dubai" className="cta-outline" style={{
               display:       'inline-flex',
               alignItems:    'center',
               gap:           8,
@@ -281,13 +281,13 @@ export default async function HomeCommunityHero() {
               letterSpacing: -0.2,
               whiteSpace:    'nowrap',
             }}>
-              🇮🇳 Join Mumbai
+              🇦🇪 Join Dubai
             </Link>
           </div>
 
           {/* Proof micro-copy */}
           <p style={{ color: 'rgba(255,255,255,0.28)', fontSize: 13, fontWeight: 600, margin: 0, letterSpacing: 0.1 }}>
-            🎾 {totalMembers} founding member{totalMembers !== 1 ? 's' : ''} · Barcelona &amp; Mumbai · Free forever
+            🎾 {totalMembers} founding member{totalMembers !== 1 ? 's' : ''} · Barcelona &amp; Dubai · Free forever
           </p>
         </div>
       </section>
@@ -302,7 +302,7 @@ export default async function HomeCommunityHero() {
             transform:           'translateY(-32px)',
           }}>
             <CityCard data={barcelona} flag="🇪🇸" slug="Barcelona" accentColor="#39FF14" featured />
-            <CityCard data={mumbai}    flag="🇮🇳" slug="Mumbai"    accentColor="#f59e0b" />
+            <CityCard data={dubai}     flag="🇦🇪" slug="Dubai"     accentColor="#f59e0b" />
           </div>
         </div>
       </section>
@@ -360,7 +360,7 @@ export default async function HomeCommunityHero() {
               textTransform: 'uppercase',
               margin:        '0 0 22px',
             }}>
-              Founding members from Mumbai · Barcelona · London · Delhi
+              🇪🇸 Barcelona vs 🇦🇪 Dubai — which city builds first?
             </p>
 
             {allMembers.length > 0 && (

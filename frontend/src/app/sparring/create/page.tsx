@@ -503,7 +503,7 @@ export default function CreateSparringPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 18 }}>
           <div>
             <Label text="City *" />
-            <input value={city} onChange={e => setCity(e.target.value)} placeholder="e.g. Mumbai" style={inputStyle} />
+            <input value={city} onChange={e => setCity(e.target.value)} placeholder="e.g. Dubai" style={inputStyle} />
           </div>
           <div>
             <Label text="Country *" />
