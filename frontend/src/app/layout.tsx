@@ -5,6 +5,7 @@ import LayoutWrapper from '@/components/LayoutWrapper'
 import ServiceWorkerUpdater from '@/components/ServiceWorkerUpdater'
 import AuthProvider from '@/components/AuthProvider'
 import { Analytics } from '@vercel/analytics/react'
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 const inter   = Inter({ subsets: ['latin'], variable: '--font-inter' })
 const dmSans  = DM_Sans({ subsets: ['latin'], variable: '--font-dm-sans', weight: ['400','500','600','700','800','900'] })
@@ -63,6 +64,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </AuthProvider>
         <ServiceWorkerUpdater />
         <Analytics />
+        <GoogleAnalytics gaId="G-B6VCQM3478" />
       </body>
     </html>
   )
