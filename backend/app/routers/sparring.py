@@ -89,7 +89,7 @@ async def list_profiles(
 
     # email and phone intentionally excluded from public listing
     params: dict = {
-        "select": "id,name,photo_url,city,country,level,surface,play_type,bio,role,profile_type,founding_number,favorite_players,coaching_level,coaching_fee,created_at",
+        "select": "id,name,photo_url,city,country,level,surface,play_type,bio,role,profile_type,founding_number,favorite_players,coaching_level,coaching_fee,coaching_format,years_coaching,certifications,languages,academy,rate_from,rate_to,created_at",
         "order":  "created_at.desc",
         "limit":  limit,
         "offset": offset,
@@ -232,6 +232,14 @@ async def create_profile(body: dict):
         "email_verified":  body.get("email_verified", False),
         "phone":           body.get("phone") or None,
         "handle":          handle,
+        # Coach-specific fields
+        "coaching_format": body.get("coaching_format") or [],
+        "years_coaching":  body.get("years_coaching") or None,
+        "certifications":  body.get("certifications", "").strip() or None,
+        "languages":       body.get("languages") or [],
+        "academy":         body.get("academy", "").strip() or None,
+        "rate_from":       body.get("rate_from") or None,
+        "rate_to":         body.get("rate_to") or None,
     }
     if not all([profile_body["name"], profile_body["city"], profile_body["country"], profile_body["level"]]):
         raise HTTPException(422, "name, city, country, level are required")
@@ -281,7 +289,9 @@ async def update_profile(profile_id: str, body: dict):
                               "surface", "play_type", "bio", "role",
                               "favorite_players", "coaching_level", "coaching_fee",
                               "email", "email_verified", "phone",
-                              "dominant_hand", "backhand", "play_style", "years_playing")}
+                              "dominant_hand", "backhand", "play_style", "years_playing",
+                              "coaching_format", "years_coaching", "certifications",
+                              "languages", "academy", "rate_from", "rate_to")}
     if not update_fields and availability is None:
         raise HTTPException(422, "Nothing to update")
 

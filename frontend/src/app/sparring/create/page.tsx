@@ -26,6 +26,24 @@ const HAND_OPTS       = ['Right', 'Left']
 const BACK_OPTS       = ['One-handed', 'Two-handed']
 const STYLE_OPTS      = ['Baseline', 'Serve & Volley', 'All-Court', 'Defensive']
 
+const COACH_LEVELS  = ['Beginner friendly', 'Intermediate', 'Advanced', 'Professional', 'All levels']
+const COACH_FORMATS = [
+  { value: 'private', label: '👤 Private 1-on-1'  },
+  { value: 'group',   label: '👥 Group sessions'  },
+  { value: 'cardio',  label: '🏃 Cardio tennis'   },
+  { value: 'match',   label: '🏆 Match play'       },
+  { value: 'video',   label: '🎬 Video analysis'   },
+]
+const LANGUAGES = ['English', 'Spanish', 'French', 'German', 'Arabic', 'Hindi', 'Other']
+const CURRENCY_MAP: Record<string, string> = {
+  'Spain': '€', 'France': '€', 'Germany': '€', 'Italy': '€', 'Netherlands': '€',
+  'Portugal': '€', 'Belgium': '€', 'Austria': '€', 'Switzerland': 'CHF',
+  'United States': '$', 'Canada': 'CA$', 'United Kingdom': '£', 'Australia': 'A$',
+  'New Zealand': 'NZ$', 'India': '₹', 'United Arab Emirates': 'AED', 'Saudi Arabia': 'SAR',
+  'Singapore': 'S$', 'Japan': '¥', 'Brazil': 'R$', 'Mexico': 'MX$',
+  'South Africa': 'R', 'Argentina': 'AR$', 'Turkey': '₺', 'South Korea': '₩',
+}
+
 type ProfileType = 'player' | 'coach' | 'organizer'
 type AvailKey = `${typeof DAYS[number]}-${typeof TIMES[number]}`
 
@@ -79,6 +97,19 @@ function FoundingBadgeLarge({ number, city }: { number: number; city: string }) 
       <p style={{ color: '#39FF14', fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', margin: '14px 0 0' }}>
         {city}
       </p>
+    </div>
+  )
+}
+
+// ── Section divider ───────────────────────────────────────────────────────────
+function SectionDivider({ label }: { label: string }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '28px 0 22px' }}>
+      <div style={{ flex: 1, height: 1, background: 'var(--sr-border)' }} />
+      <span style={{ color: 'var(--sr-muted)', fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1.4, whiteSpace: 'nowrap' }}>
+        {label}
+      </span>
+      <div style={{ flex: 1, height: 1, background: 'var(--sr-border)' }} />
     </div>
   )
 }
@@ -172,6 +203,14 @@ export default function CreateSparringPage() {
   const [backhand,      setBackhand]      = useState('')
   const [playStyle,     setPlayStyle]     = useState('')
   const [yearsPlaying,  setYearsPlaying]  = useState('')
+  // Coach-specific
+  const [coachFormat,    setCoachFormat]    = useState<string[]>([])
+  const [yearsCoaching,  setYearsCoaching]  = useState('')
+  const [certifications, setCertifications] = useState('')
+  const [languages,      setLanguages]      = useState<string[]>([])
+  const [academy,        setAcademy]        = useState('')
+  const [rateFrom,       setRateFrom]       = useState('')
+  const [rateTo,         setRateTo]         = useState('')
 
   const [email,       setEmail]       = useState('')
   const [countryCode, setCountryCode] = useState('')
@@ -236,12 +275,17 @@ export default function CreateSparringPage() {
   }
 
   function validate(): string | null {
-    if (!name.trim())          return 'Name is required'
-    if (!city.trim())          return 'City is required'
-    if (!country.trim())       return 'Country is required'
-    if (!level)                return 'Select a level'
-    if (profileType === 'player' && !playType) return 'Select a play type'
-    if (surfaces.length === 0) return 'Select at least one surface'
+    if (!name.trim())    return 'Name is required'
+    if (!city.trim())    return 'City is required'
+    if (!country.trim()) return 'Country is required'
+    if (profileType === 'coach') {
+      if (!coachingLevel)        return 'Select your coaching level'
+      if (surfaces.length === 0) return 'Select at least one surface'
+    } else {
+      if (!level)                return 'Select a level'
+      if (profileType === 'player' && !playType) return 'Select a play type'
+      if (surfaces.length === 0) return 'Select at least one surface'
+    }
     return null
   }
 
@@ -293,21 +337,33 @@ export default function CreateSparringPage() {
         const [day, time] = key.split('-'); return { day, time }
       })
 
+      const isCoach = profileType === 'coach'
       const res = await fetch(`${BACKEND}/sparring/profiles`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: name.trim(), city: city.trim(), country: country.trim(),
           bio: bio.trim() || undefined,
-          favorite_players: favPlayers.trim() || undefined,
+          favorite_players: isCoach ? undefined : favPlayers.trim() || undefined,
           profile_type: profileType,
-          level, surface: surfaces,
-          play_type:      playType      || 'both',
-          play_style:     playStyle     || undefined,
-          dominant_hand:  dominantHand  || undefined,
-          backhand:       backhand      || undefined,
-          years_playing:  yearsPlaying  ? parseInt(yearsPlaying) : undefined,
-          coaching_level: profileType === 'coach' ? coachingLevel || undefined : undefined,
-          coaching_fee:   profileType === 'coach' ? coachingFee   || undefined : undefined,
+          level:         isCoach ? (coachingLevel || 'All levels') : level,
+          surface:       surfaces,
+          play_type:     isCoach ? undefined : (playType || 'both'),
+          play_style:    isCoach ? undefined : (playStyle || undefined),
+          dominant_hand: isCoach ? undefined : (dominantHand || undefined),
+          backhand:      isCoach ? undefined : (backhand || undefined),
+          years_playing: isCoach ? undefined : (yearsPlaying ? parseInt(yearsPlaying) : undefined),
+          coaching_level: coachingLevel || undefined,
+          coaching_fee:   isCoach ? undefined : (coachingFee || undefined),
+          // Coach-specific
+          ...(isCoach ? {
+            coaching_format: coachFormat.length ? coachFormat : undefined,
+            years_coaching:  yearsCoaching ? parseInt(yearsCoaching) : undefined,
+            certifications:  certifications.trim() || undefined,
+            languages:       languages.length ? languages : undefined,
+            academy:         academy.trim() || undefined,
+            rate_from:       rateFrom ? parseInt(rateFrom) : undefined,
+            rate_to:         rateTo   ? parseInt(rateTo)   : undefined,
+          } : {}),
           photo_url,
           email: email.trim().toLowerCase(), email_verified: true,
           phone: phoneNumber.trim() ? `${countryCode}${phoneNumber.trim()}` : undefined,
@@ -522,28 +578,54 @@ export default function CreateSparringPage() {
           </div>
         )}
 
-        <div style={{ marginBottom: 28 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-            <h1 style={{ color: 'var(--sr-text)', fontSize: 22, fontWeight: 900, margin: 0, letterSpacing: -0.5 }}>
-              {profileType === 'coach' ? '🎓' : profileType === 'organizer' ? '🏆' : '🎾'} {roleLabel} Profile
+        {profileType === 'coach' ? (
+          <div style={{ marginBottom: 28 }}>
+            <h1 style={{ color: 'var(--sr-text)', fontSize: 22, fontWeight: 900, margin: '0 0 4px', letterSpacing: -0.5 }}>
+              🎓 Set up your coaching profile
             </h1>
+            <p style={{ color: 'var(--sr-muted)', fontSize: 13, margin: 0 }}>
+              Get discovered by players in {city || 'your city'}
+            </p>
           </div>
-          <p style={{ color: 'var(--sr-muted)', fontSize: 13, margin: 0 }}>
-            Let other {profileType === 'coach' ? 'players' : 'players and coaches'} find you
+        ) : (
+          <div style={{ marginBottom: 28 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+              <h1 style={{ color: 'var(--sr-text)', fontSize: 22, fontWeight: 900, margin: 0, letterSpacing: -0.5 }}>
+                {profileType === 'organizer' ? '🏆' : '🎾'} {roleLabel} Profile
+              </h1>
+            </div>
+            <p style={{ color: 'var(--sr-muted)', fontSize: 13, margin: 0 }}>
+              Let other players and coaches find you
+            </p>
+          </div>
+        )}
+
+        {/* Photo — single hidden input, avatar size differs by role */}
+        <input ref={fileRef} type="file" accept="image/*" onChange={onFileChange} style={{ display: 'none' }} />
+        <div style={{ marginBottom: profileType === 'coach' ? 28 : 24, textAlign: 'center' }}>
+          <div onClick={() => fileRef.current?.click()}
+            style={{
+              width: profileType === 'coach' ? 120 : 100,
+              height: profileType === 'coach' ? 120 : 100,
+              borderRadius: '50%', background: 'var(--sr-card)',
+              border: `2px dashed ${photoPreview && profileType === 'coach' ? 'var(--sr-accent)' : 'var(--sr-border)'}`,
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              overflow: 'hidden', cursor: 'pointer',
+              boxShadow: photoPreview && profileType === 'coach' ? '0 0 0 4px rgba(57,255,20,0.12)' : 'none',
+              transition: 'all 0.2s',
+            }}>
+            {photoPreview
+              ? <img src={photoPreview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              : profileType === 'coach'
+                ? <div style={{ textAlign: 'center' }}><div style={{ fontSize: 28, marginBottom: 4 }}>📷</div><span style={{ color: 'var(--sr-muted)', fontSize: 12 }}>Add photo</span></div>
+                : <span style={{ color: 'var(--sr-muted)', fontSize: 13 }}>+ Photo</span>}
+          </div>
+          <p style={{ color: 'var(--sr-muted)', fontSize: 11, margin: '6px 0 0' }}>
+            {profileType === 'coach' ? 'Professional photo helps players trust you' : 'Optional'}
           </p>
         </div>
 
-        {/* Photo */}
-        <div style={{ marginBottom: 24, textAlign: 'center' }}>
-          <div onClick={() => fileRef.current?.click()}
-            style={{ width: 100, height: 100, borderRadius: '50%', background: 'var(--sr-card)', border: '2px dashed var(--sr-border)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', cursor: 'pointer' }}>
-            {photoPreview
-              ? <img src={photoPreview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              : <span style={{ color: 'var(--sr-muted)', fontSize: 13 }}>+ Photo</span>}
-          </div>
-          <input ref={fileRef} type="file" accept="image/*" onChange={onFileChange} style={{ display: 'none' }} />
-          <p style={{ color: 'var(--sr-muted)', fontSize: 11, margin: '6px 0 0' }}>Optional</p>
-        </div>
+        {profileType === 'coach' && <SectionDivider label="Your Details" />}
 
         {/* Name */}
         <div style={{ marginBottom: 18 }}>
@@ -637,115 +719,192 @@ export default function CreateSparringPage() {
           </p>
         </div>
 
-        {/* Level */}
-        <div style={{ marginBottom: 18 }}>
-          <Label text="Level *" />
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {LEVELS.map(l => (
-              <button key={l} onClick={() => setLevel(l)} style={{ ...pill(level === l), textTransform: 'capitalize' }}>{l}</button>
-            ))}
-          </div>
-        </div>
+        {/* ── COACH FORM ─────────────────────────────────────────────────────── */}
+        {profileType === 'coach' && (() => {
+          const currency = CURRENCY_MAP[country] ?? '$'
+          return (
+            <>
+              <SectionDivider label="Coaching Info" />
 
-        {/* Surface */}
-        <div style={{ marginBottom: 18 }}>
-          <Label text="Surfaces *" />
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {SURFACES.map(s => <button key={s} onClick={() => toggleSurface(s)} style={pill(surfaces.includes(s))}>{s}</button>)}
-          </div>
-        </div>
+              {/* Coaching level */}
+              <div style={{ marginBottom: 18 }}>
+                <Label text="Your coaching level *" />
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  {COACH_LEVELS.map(l => (
+                    <button key={l} onClick={() => setCoachingLevel(l)} style={pill(coachingLevel === l)}>{l}</button>
+                  ))}
+                </div>
+              </div>
 
-        {/* Play type — players and organizers */}
+              {/* Surfaces */}
+              <div style={{ marginBottom: 18 }}>
+                <Label text="Surfaces you coach on *" />
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  {SURFACES.map(s => <button key={s} onClick={() => toggleSurface(s)} style={pill(surfaces.includes(s))}>{s}</button>)}
+                </div>
+              </div>
+
+              {/* Coaching format */}
+              <div style={{ marginBottom: 18 }}>
+                <Label text="Coaching format" />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {COACH_FORMATS.map(f => (
+                    <button key={f.value}
+                      onClick={() => setCoachFormat(prev => prev.includes(f.value) ? prev.filter(x => x !== f.value) : [...prev, f.value])}
+                      style={{ ...pill(coachFormat.includes(f.value)), textAlign: 'left', padding: '10px 14px' }}>
+                      {f.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Years coaching + Certifications */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 18 }}>
+                <div>
+                  <Label text="Years coaching" />
+                  <input type="number" min={0} max={50} value={yearsCoaching} onChange={e => setYearsCoaching(e.target.value)} placeholder="e.g. 8" style={inputStyle} />
+                </div>
+                <div>
+                  <Label text="Certifications" />
+                  <input value={certifications} onChange={e => setCertifications(e.target.value)} placeholder="ITF Level 2, PTR…" style={inputStyle} />
+                </div>
+              </div>
+
+              {/* Languages */}
+              <div style={{ marginBottom: 18 }}>
+                <Label text="Languages spoken" />
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  {LANGUAGES.map(l => (
+                    <button key={l}
+                      onClick={() => setLanguages(prev => prev.includes(l) ? prev.filter(x => x !== l) : [...prev, l])}
+                      style={pill(languages.includes(l))}>
+                      {l}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Academy */}
+              <div style={{ marginBottom: 18 }}>
+                <Label text="Academy or club (optional)" />
+                <input value={academy} onChange={e => setAcademy(e.target.value)} placeholder="e.g. Club de Tenis Barcelona" style={inputStyle} />
+              </div>
+
+              {/* Rate range */}
+              <div style={{ marginBottom: 18 }}>
+                <Label text={`Hourly rate — ${currency} (optional, shown on profile)`} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ position: 'relative', flex: 1 }}>
+                    <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--sr-muted)', fontSize: 13, pointerEvents: 'none', fontWeight: 700 }}>{currency}</span>
+                    <input type="number" min={0} value={rateFrom} onChange={e => setRateFrom(e.target.value)} placeholder="40" style={{ ...inputStyle, paddingLeft: currency.length > 1 ? 46 : 34 }} />
+                  </div>
+                  <span style={{ color: 'var(--sr-muted)', fontSize: 14, fontWeight: 700, flexShrink: 0 }}>–</span>
+                  <div style={{ position: 'relative', flex: 1 }}>
+                    <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--sr-muted)', fontSize: 13, pointerEvents: 'none', fontWeight: 700 }}>{currency}</span>
+                    <input type="number" min={0} value={rateTo} onChange={e => setRateTo(e.target.value)} placeholder="80" style={{ ...inputStyle, paddingLeft: currency.length > 1 ? 46 : 34 }} />
+                  </div>
+                  <span style={{ color: 'var(--sr-muted)', fontSize: 13, flexShrink: 0 }}>/ hr</span>
+                </div>
+              </div>
+
+              {/* Bio */}
+              <div style={{ marginBottom: 24 }}>
+                <Label text="About your coaching" />
+                <textarea value={bio} onChange={e => setBio(e.target.value)}
+                  placeholder="Tell players about your coaching style, experience, and what you specialise in"
+                  rows={4} style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.5, height: 'auto', paddingTop: 12, paddingBottom: 12 }} />
+              </div>
+            </>
+          )
+        })()}
+
+        {/* ── PLAYER / ORGANIZER FORM ─────────────────────────────────────────── */}
         {profileType !== 'coach' && (
-          <div style={{ marginBottom: 18 }}>
-            <Label text="Play type *" />
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {PLAY_TYPES.map(pt => (
-                <button key={pt.value} onClick={() => setPlayType(pt.value)}
-                  style={{ ...pill(playType === pt.value), textAlign: 'left', padding: '10px 14px' }}>
-                  {pt.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Tennis details */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 18 }}>
-          <div>
-            <Label text="Dominant hand" />
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {HAND_OPTS.map(h => (
-                <button key={h} onClick={() => setDominantHand(h)} style={pill(dominantHand === h)}>{h}</button>
-              ))}
-            </div>
-          </div>
-          <div>
-            <Label text="Backhand" />
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {BACK_OPTS.map(b => (
-                <button key={b} onClick={() => setBackhand(b)} style={{ ...pill(backhand === b), fontSize: 12 }}>{b}</button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 18 }}>
-          <div>
-            <Label text="Play style" />
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {STYLE_OPTS.map(s => (
-                <button key={s} onClick={() => setPlayStyle(s)} style={{ ...pill(playStyle === s), fontSize: 12 }}>{s}</button>
-              ))}
-            </div>
-          </div>
-          <div>
-            <Label text="Years playing" />
-            <input
-              type="number" min={0} max={50} value={yearsPlaying}
-              onChange={e => setYearsPlaying(e.target.value)}
-              placeholder="e.g. 5" style={inputStyle}
-            />
-          </div>
-        </div>
-
-        {/* Coach fields */}
-        {profileType === 'coach' && (
           <>
+            {/* Level */}
             <div style={{ marginBottom: 18 }}>
-              <Label text="I train" />
+              <Label text="Level *" />
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                {COACHING_LEVELS.map(l => (
-                  <button key={l} onClick={() => setCoachingLevel(l)} style={pill(coachingLevel === l)}>{l}</button>
+                {LEVELS.map(l => (
+                  <button key={l} onClick={() => setLevel(l)} style={{ ...pill(level === l), textTransform: 'capitalize' }}>{l}</button>
                 ))}
               </div>
             </div>
+
+            {/* Surface */}
             <div style={{ marginBottom: 18 }}>
-              <Label text="Sessions" />
-              <div style={{ display: 'flex', gap: 8 }}>
-                {COACHING_FEES.map(f => (
-                  <button key={f} onClick={() => setCoachingFee(f)} style={pill(coachingFee === f)}>{f}</button>
+              <Label text="Surfaces *" />
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {SURFACES.map(s => <button key={s} onClick={() => toggleSurface(s)} style={pill(surfaces.includes(s))}>{s}</button>)}
+              </div>
+            </div>
+
+            {/* Play type */}
+            <div style={{ marginBottom: 18 }}>
+              <Label text="Play type *" />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {PLAY_TYPES.map(pt => (
+                  <button key={pt.value} onClick={() => setPlayType(pt.value)}
+                    style={{ ...pill(playType === pt.value), textAlign: 'left', padding: '10px 14px' }}>
+                    {pt.label}
+                  </button>
                 ))}
               </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 18 }}>
+              <div>
+                <Label text="Dominant hand" />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {HAND_OPTS.map(h => (
+                    <button key={h} onClick={() => setDominantHand(h)} style={pill(dominantHand === h)}>{h}</button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <Label text="Backhand" />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {BACK_OPTS.map(b => (
+                    <button key={b} onClick={() => setBackhand(b)} style={{ ...pill(backhand === b), fontSize: 12 }}>{b}</button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 18 }}>
+              <div>
+                <Label text="Play style" />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {STYLE_OPTS.map(s => (
+                    <button key={s} onClick={() => setPlayStyle(s)} style={{ ...pill(playStyle === s), fontSize: 12 }}>{s}</button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <Label text="Years playing" />
+                <input type="number" min={0} max={50} value={yearsPlaying}
+                  onChange={e => setYearsPlaying(e.target.value)} placeholder="e.g. 5" style={inputStyle} />
+              </div>
+            </div>
+
+            {/* Fav players */}
+            <div style={{ marginBottom: 18 }}>
+              <Label text="Favourite players (who do you watch?)" />
+              <input value={favPlayers} onChange={e => setFavPlayers(e.target.value)}
+                placeholder="e.g. Federer, Nadal, Djokovic" style={inputStyle} />
+            </div>
+
+            {/* Bio */}
+            <div style={{ marginBottom: 24 }}>
+              <Label text="Bio" />
+              <textarea value={bio} onChange={e => setBio(e.target.value)}
+                placeholder={profileType === 'organizer' ? 'Tell others about your tournaments, academies, or events…' : 'Tell others about your game, preferred times, anything useful…'}
+                rows={3} style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.5, height: 'auto', paddingTop: 12, paddingBottom: 12 }} />
             </div>
           </>
         )}
 
-        {/* Fav players */}
-        <div style={{ marginBottom: 18 }}>
-          <Label text="Favourite players (who do you watch?)" />
-          <input value={favPlayers} onChange={e => setFavPlayers(e.target.value)}
-            placeholder="e.g. Federer, Nadal, Djokovic" style={inputStyle} />
-        </div>
-
-        {/* Bio */}
-        <div style={{ marginBottom: 24 }}>
-          <Label text="Bio" />
-          <textarea value={bio} onChange={e => setBio(e.target.value)}
-            placeholder={profileType === 'coach' ? 'Your coaching background, style, what you offer…' : profileType === 'organizer' ? 'Tell others about your tournaments, academies, or events…' : 'Tell others about your game, preferred times, anything useful…'}
-            rows={3}
-            style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.5, height: 'auto', paddingTop: 12, paddingBottom: 12 }} />
-        </div>
+        {profileType === 'coach' && <SectionDivider label="Availability" />}
 
         {/* Availability */}
         <div style={{ marginBottom: 28 }}>

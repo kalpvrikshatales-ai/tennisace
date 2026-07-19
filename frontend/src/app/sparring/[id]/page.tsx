@@ -186,7 +186,7 @@ function EditModal({ field, value, onSave, onClose, saving }: {
 
         {field.type === 'surface-multi' && (
           <div style={{ display:'flex', flexWrap:'wrap', gap:8 }}>
-            {SURFACE_OPTS.map(s => {
+            {(field.options ?? SURFACE_OPTS).map(s => {
               const arr: string[] = Array.isArray(val) ? val : []
               const on = arr.includes(s)
               return (
@@ -866,6 +866,27 @@ const FIELD_DEFS: FieldDef[] = [
   { key:'bio',           label:'Bio',           type:'textarea'                          },
 ]
 
+const COACH_LEVEL_OPTS    = ['Beginner friendly', 'Intermediate', 'Advanced', 'Professional', 'All levels']
+const COACH_FORMAT_LABELS: Record<string, string> = {
+  private: 'Private 1-on-1', group: 'Group sessions',
+  cardio: 'Cardio tennis', match: 'Match play', video: 'Video analysis',
+}
+const LANGUAGE_OPTS = ['English', 'Spanish', 'French', 'German', 'Arabic', 'Hindi', 'Other']
+
+const COACH_FORMAT_OPTS = Object.keys(COACH_FORMAT_LABELS)
+
+const COACH_FIELD_DEFS: FieldDef[] = [
+  { key:'coaching_level',  label:'Coaching Level', type:'select',       options:COACH_LEVEL_OPTS  },
+  { key:'coaching_format', label:'Format',          type:'surface-multi', options:COACH_FORMAT_OPTS },
+  { key:'years_coaching',  label:'Years Coaching', type:'number'                                   },
+  { key:'certifications',  label:'Certifications', type:'text'                                     },
+  { key:'languages',       label:'Languages',       type:'surface-multi', options:LANGUAGE_OPTS     },
+  { key:'academy',         label:'Academy / Club', type:'text'                                     },
+  { key:'surface',         label:'Surfaces',        type:'surface-multi'                            },
+  { key:'city',            label:'City',            type:'text'                                     },
+  { key:'bio',             label:'About Coaching', type:'textarea'                                 },
+]
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function SparringProfilePage() {
   const { id } = useParams<{ id: string }>()
@@ -964,7 +985,9 @@ export default function SparringProfilePage() {
   function getFieldDisplay(f: FieldDef): string|null {
     if (!profile) return null
     const raw = (profile as any)[f.key]
-    if (f.key==='surface') return Array.isArray(raw) && raw.length ? raw.join(', ') : null
+    if (f.key === 'surface')         return Array.isArray(raw) && raw.length ? raw.join(', ') : null
+    if (f.key === 'coaching_format') return Array.isArray(raw) && raw.length ? raw.map((v: string) => COACH_FORMAT_LABELS[v] ?? v).join(', ') : null
+    if (f.key === 'languages')       return Array.isArray(raw) && raw.length ? raw.join(', ') : null
     return (raw==null || raw==='') ? null : String(raw)
   }
 
@@ -1119,10 +1142,18 @@ export default function SparringProfilePage() {
 
           {/* Profile info */}
           <div style={{ marginBottom:22 }}>
-            {profile.level && (
-              <span style={{ display:'inline-block', border:'1px solid var(--sr-accent)', borderRadius:20, color:'var(--sr-accent)', fontSize:11, fontWeight:800, padding:'3px 10px', marginBottom:8, textTransform:'capitalize', letterSpacing:0.3 }}>
-                {profile.level}
-              </span>
+            {(profile as any).profile_type === 'coach' ? (
+              (profile as any).coaching_level && (
+                <span style={{ display:'inline-block', border:'1px solid #60a5fa', borderRadius:20, color:'#60a5fa', fontSize:11, fontWeight:800, padding:'3px 10px', marginBottom:8, letterSpacing:0.3 }}>
+                  🎓 {(profile as any).coaching_level}
+                </span>
+              )
+            ) : (
+              profile.level && (
+                <span style={{ display:'inline-block', border:'1px solid var(--sr-accent)', borderRadius:20, color:'var(--sr-accent)', fontSize:11, fontWeight:800, padding:'3px 10px', marginBottom:8, textTransform:'capitalize', letterSpacing:0.3 }}>
+                  {profile.level}
+                </span>
+              )
             )}
             <div style={{ display:'flex', alignItems:'center', gap:10, flexWrap:'wrap', margin:'0 0 4px' }}>
               <h1 style={{ color:'var(--sr-text)', fontSize:22, fontWeight:900, margin:0, letterSpacing:-0.5, lineHeight:1.2 }}>
@@ -1150,6 +1181,45 @@ export default function SparringProfilePage() {
                 @{[profile.city, profile.country].filter(Boolean).join(', ')}
               </p>
             )}
+
+            {/* Coach extras: rate range + academy */}
+            {(profile as any).profile_type === 'coach' && (() => {
+              const p = profile as any
+              const rateFrom = p.rate_from, rateTo = p.rate_to
+              const hasRate = rateFrom || rateTo
+              return (
+                <>
+                  {hasRate && (
+                    <p style={{ color:'#39FF14', fontSize:15, fontWeight:800, margin:'0 0 4px', letterSpacing:-0.3 }}>
+                      {rateFrom && rateTo ? `${rateFrom} – ${rateTo}` : rateFrom ?? rateTo} / hr
+                    </p>
+                  )}
+                  {p.academy && (
+                    <p style={{ color:'var(--sr-muted)', fontSize:13, margin:'0 0 4px' }}>🏟 {p.academy}</p>
+                  )}
+                  {Array.isArray(p.certifications_arr) && false /* placeholder */ }
+                  {p.certifications && (
+                    <div style={{ display:'flex', flexWrap:'wrap', gap:5, margin:'4px 0' }}>
+                      {p.certifications.split(',').map((c: string) => c.trim()).filter(Boolean).map((cert: string) => (
+                        <span key={cert} style={{ background:'rgba(96,165,250,0.1)', border:'1px solid rgba(96,165,250,0.3)', borderRadius:20, color:'#60a5fa', fontSize:11, fontWeight:700, padding:'2px 9px' }}>
+                          {cert}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {Array.isArray(p.languages) && p.languages.length > 0 && (
+                    <div style={{ display:'flex', flexWrap:'wrap', gap:5, margin:'4px 0' }}>
+                      {p.languages.map((l: string) => (
+                        <span key={l} style={{ background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:20, color:'var(--sr-muted)', fontSize:11, fontWeight:600, padding:'2px 8px' }}>
+                          {l}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )
+            })()}
+
             {partnersCount === 0 && isOwn ? (
               <a href="/sparring" style={{ color:'var(--sr-accent)', fontSize:13, fontWeight:700, textDecoration:'none' }}>
                 Find your first partner →
@@ -1163,12 +1233,10 @@ export default function SparringProfilePage() {
 
           {/* Profile completion bar */}
           {isOwn && (() => {
-            const fields = [
-              profile.name, profile.city, profile.country, profile.level,
-              profile.surface?.length, profile.play_style, profile.dominant_hand,
-              profile.backhand, profile.years_playing, profile.bio, profile.photo_url,
-              profile.availability?.length,
-            ]
+            const p = profile as any
+            const fields = p.profile_type === 'coach'
+              ? [p.name, p.city, p.country, p.coaching_level, p.surface?.length, p.bio, p.photo_url, p.availability?.length]
+              : [profile.name, profile.city, profile.country, profile.level, profile.surface?.length, profile.play_style, profile.dominant_hand, profile.backhand, profile.years_playing, profile.bio, profile.photo_url, profile.availability?.length]
             const filled   = fields.filter(Boolean).length
             const pct      = Math.round((filled / fields.length) * 100)
             const complete = pct === 100
@@ -1242,18 +1310,25 @@ export default function SparringProfilePage() {
                 </div>
               )}
 
-              <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:10, marginBottom:24 }}>
-                {FIELD_DEFS.map(f => (
-                  <FieldCard
-                    key={f.key}
-                    fieldKey={f.key}
-                    label={f.label}
-                    value={getFieldDisplay(f)}
-                    isOwn={isOwn}
-                    onClick={() => setEditField(f)}
-                  />
-                ))}
-              </div>
+              {/* Field grid — different for coaches vs players */}
+              {(() => {
+                const isCoach = (profile as any).profile_type === 'coach'
+                const defs    = isCoach ? COACH_FIELD_DEFS : FIELD_DEFS
+                return (
+                  <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:10, marginBottom:24 }}>
+                    {defs.map(f => (
+                      <FieldCard
+                        key={f.key}
+                        fieldKey={f.key}
+                        label={f.label}
+                        value={getFieldDisplay(f)}
+                        isOwn={isOwn}
+                        onClick={() => setEditField(f)}
+                      />
+                    ))}
+                  </div>
+                )
+              })()}
 
               <div style={{ background:'var(--sr-card)', border:'1px solid var(--sr-border)', borderRadius:12, padding:'16px' }}>
                 <p style={{ color:'var(--sr-muted)', fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:0.7, margin:'0 0 14px' }}>Availability</p>
