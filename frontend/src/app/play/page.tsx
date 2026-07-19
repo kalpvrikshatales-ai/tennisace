@@ -57,6 +57,132 @@ function Chip({ label, color = 'rgba(255,255,255,0.4)' }: { label: string; color
   )
 }
 
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
+
+// ── Log Match modal ───────────────────────────────────────────────────────────
+function LogMatchModal({
+  myProfileId,
+  opponentId,
+  opponentName,
+  playRequestId,
+  onClose,
+}: {
+  myProfileId:   string
+  opponentId:    string | null
+  opponentName:  string | null
+  playRequestId: string
+  onClose:       () => void
+}) {
+  const [oppId,   setOppId]   = useState(opponentId ?? '')
+  const [winner,  setWinner]  = useState<'me'|'them'|'draw'>('me')
+  const [score,   setScore]   = useState('')
+  const [notes,   setNotes]   = useState('')
+  const [saving,  setSaving]  = useState(false)
+  const [saved,   setSaved]   = useState(false)
+  const [error,   setError]   = useState('')
+
+  const inp: React.CSSProperties = {
+    width:'100%', boxSizing:'border-box', background:'rgba(255,255,255,0.06)',
+    border:'1px solid rgba(255,255,255,0.12)', borderRadius:8,
+    color:'#fff', fontSize:14, padding:'11px 13px', outline:'none', fontFamily:'inherit',
+  }
+
+  async function submit() {
+    const oid = oppId.trim()
+    if (!oid) { setError('Enter your opponent\'s profile ID'); return }
+    if (oid === myProfileId) { setError('Opponent must be different from you'); return }
+    setSaving(true); setError('')
+    try {
+      const winnerVal = winner === 'me' ? myProfileId : winner === 'them' ? oid : 'draw'
+      const res = await fetch(`${BACKEND_URL}/match-history`, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          player1_profile_id: myProfileId,
+          player2_profile_id: oid,
+          winner_profile_id:  winnerVal,
+          score:              score.trim() || undefined,
+          notes:              notes.trim() || undefined,
+          play_request_id:    playRequestId,
+          format:             'singles',
+          played_at:          new Date().toISOString().split('T')[0],
+        }),
+      })
+      if (!res.ok) { const d = await res.json().catch(()=>({})); throw new Error(d.detail || 'Failed to log') }
+      setSaved(true)
+    } catch (e: any) { setError(e.message ?? 'Something went wrong') }
+    finally { setSaving(false) }
+  }
+
+  return (
+    <div style={{ position:'fixed', inset:0, zIndex:300, padding:16, display:'flex', alignItems:'center', justifyContent:'center', background:'rgba(0,0,0,0.85)', backdropFilter:'blur(6px)' }}
+      onClick={e => { if (e.target===e.currentTarget) onClose() }}>
+      <div style={{ background:'#0f1520', border:'1px solid rgba(255,255,255,0.1)', borderRadius:16, padding:28, maxWidth:400, width:'100%', boxShadow:'0 24px 80px rgba(0,0,0,0.6)' }}>
+        {saved ? (
+          <div style={{ textAlign:'center', padding:'8px 0' }}>
+            <p style={{ fontSize:36, margin:'0 0 12px' }}>✅</p>
+            <p style={{ color:'#fff', fontWeight:900, fontSize:18, margin:'0 0 8px' }}>Match logged!</p>
+            <p style={{ color:'rgba(255,255,255,0.5)', fontSize:13, margin:'0 0 24px' }}>Result saved to your match history.</p>
+            <button onClick={onClose} style={{ background:'#39FF14', border:'none', borderRadius:10, color:'#000', fontWeight:800, fontSize:14, padding:'12px 28px', cursor:'pointer' }}>Done</button>
+          </div>
+        ) : (
+          <>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
+              <p style={{ color:'#fff', fontWeight:900, fontSize:16, margin:0 }}>Log the result</p>
+              <button onClick={onClose} style={{ background:'none', border:'none', color:'rgba(255,255,255,0.4)', fontSize:22, cursor:'pointer', lineHeight:1, padding:'0 2px' }}>×</button>
+            </div>
+
+            {error && <p style={{ color:'#f87171', fontSize:13, margin:'0 0 14px', background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.25)', borderRadius:8, padding:'8px 12px' }}>{error}</p>}
+
+            {!opponentId && (
+              <div style={{ marginBottom:16 }}>
+                <p style={{ color:'rgba(255,255,255,0.5)', fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:0.6, margin:'0 0 6px' }}>Opponent profile ID</p>
+                <input value={oppId} onChange={e => setOppId(e.target.value)} style={inp} placeholder="Paste opponent's profile ID or URL" />
+                <p style={{ color:'rgba(255,255,255,0.3)', fontSize:11, margin:'5px 0 0' }}>Find it in their profile URL: tennisace.live/sparring/[id]</p>
+              </div>
+            )}
+
+            {opponentId && opponentName && (
+              <div style={{ background:'rgba(57,255,20,0.06)', border:'1px solid rgba(57,255,20,0.2)', borderRadius:8, padding:'10px 14px', marginBottom:16, display:'flex', alignItems:'center', gap:10 }}>
+                <div style={{ width:32, height:32, borderRadius:'50%', background:'rgba(57,255,20,0.15)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:14, fontWeight:900, color:'#39FF14', flexShrink:0 }}>
+                  {opponentName[0].toUpperCase()}
+                </div>
+                <p style={{ color:'#fff', fontWeight:800, fontSize:14, margin:0 }}>vs {opponentName}</p>
+              </div>
+            )}
+
+            <div style={{ marginBottom:16 }}>
+              <p style={{ color:'rgba(255,255,255,0.5)', fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:0.6, margin:'0 0 8px' }}>Who won?</p>
+              <div style={{ display:'flex', gap:8 }}>
+                {(['me','them','draw'] as const).map(opt => (
+                  <button key={opt} onClick={() => setWinner(opt)}
+                    style={{ flex:1, background:winner===opt ? '#39FF14' : 'rgba(255,255,255,0.06)', border:`1px solid ${winner===opt ? '#39FF14' : 'rgba(255,255,255,0.12)'}`, borderRadius:8, color:winner===opt ? '#000' : 'rgba(255,255,255,0.6)', fontWeight:700, fontSize:13, padding:'10px 8px', cursor:'pointer', textTransform:'capitalize' }}>
+                    {opt === 'me' ? 'You' : opt === 'them' ? (opponentName ?? 'Them') : 'Draw'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ marginBottom:16 }}>
+              <p style={{ color:'rgba(255,255,255,0.5)', fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:0.6, margin:'0 0 6px' }}>Score (optional)</p>
+              <input value={score} onChange={e => setScore(e.target.value)} style={inp} placeholder="e.g. 6-3, 6-4" />
+            </div>
+
+            <div style={{ marginBottom:24 }}>
+              <p style={{ color:'rgba(255,255,255,0.5)', fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:0.6, margin:'0 0 6px' }}>Notes (optional)</p>
+              <input value={notes} onChange={e => setNotes(e.target.value)} style={inp} placeholder="Surface, highlights…" />
+            </div>
+
+            <button onClick={submit} disabled={saving}
+              style={{ width:'100%', background:saving ? 'rgba(57,255,20,0.4)' : '#39FF14', border:'none', borderRadius:10, color:saving ? '#39FF14' : '#000', fontWeight:800, fontSize:15, padding:'14px', cursor:saving ? 'not-allowed' : 'pointer', minHeight:48, transition:'background 0.15s' }}>
+              {saving ? 'Saving…' : 'Log Result'}
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
 function RequestCard({
   req,
   ownProfileId,
@@ -72,6 +198,7 @@ function RequestCard({
   const [joined,    setJoined]    = useState(false)
   const [creatorPh, setCreatorPh] = useState<string | null>(null)
   const [error,     setError]     = useState('')
+  const [showLog,   setShowLog]   = useState(false)
 
   const { day, date: dLabel } = fmtDate(req.date)
   const isOwn   = ownProfileId && req.creator?.id === ownProfileId
@@ -205,6 +332,24 @@ function RequestCard({
         )}
       </div>
       {error && <p style={{ color: 'rgba(255,80,80,0.8)', fontSize: 11, margin: '8px 0 0' }}>{error}</p>}
+
+      {/* Log result — visible on own card or after joining */}
+      {ownProfileId && (isOwn || joined) && (
+        <button onClick={() => setShowLog(true)}
+          style={{ marginTop:10, background:'none', border:'1px solid rgba(255,255,255,0.12)', borderRadius:8, color:'rgba(255,255,255,0.45)', fontSize:12, fontWeight:700, padding:'7px 14px', cursor:'pointer', width:'100%' }}>
+          Log the result →
+        </button>
+      )}
+
+      {showLog && ownProfileId && (
+        <LogMatchModal
+          myProfileId={ownProfileId}
+          opponentId={joined && req.creator?.id ? req.creator.id : null}
+          opponentName={joined && req.creator?.name ? req.creator.name : null}
+          playRequestId={req.id}
+          onClose={() => setShowLog(false)}
+        />
+      )}
     </div>
   )
 }

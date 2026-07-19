@@ -356,6 +356,12 @@ export default function CityProgressClient({ city, initialData }: { city: string
                 Sign in to see all founding members
               </p>
             )}
+            <div style={{ marginTop: 16, textAlign: 'center' }}>
+              <Link href={`/community/${encodeURIComponent(city)}/founding-wall`}
+                style={{ color: '#39FF14', fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+                View all {total} founding members →
+              </Link>
+            </div>
           </div>
         )}
 

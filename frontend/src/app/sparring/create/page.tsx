@@ -197,9 +197,11 @@ export default function CreateSparringPage() {
   useEffect(() => {
     const p    = new URLSearchParams(window.location.search)
     const from = p.get('from')
+    const ref  = p.get('ref')
     if (from === 'request')  setBanner('Create your profile first to send a play request. It takes 3 minutes.')
     if (from === 'requests') setBanner('You need a profile to view your requests.')
     if (from === 'login')    setBanner('No profile found for that email.')
+    if (ref) localStorage.setItem('sparring_referral_code', ref)
   }, [])
 
   useEffect(() => {
@@ -317,6 +319,17 @@ export default function CreateSparringPage() {
       const profile = await res.json()
       localStorage.setItem('sparring_profile_id', profile.id)
       localStorage.setItem('sparring_email', email.trim().toLowerCase())
+
+      // Convert referral if one was tracked
+      const refCode = localStorage.getItem('sparring_referral_code')
+      if (refCode) {
+        fetch(`${BACKEND}/referrals/convert`, {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ referral_code: refCode, referred_profile_id: profile.id }),
+        }).catch(() => {})
+        localStorage.removeItem('sparring_referral_code')
+      }
+
       setCelebrating({
         name: name.trim(),
         profileId: profile.id,

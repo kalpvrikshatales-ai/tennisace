@@ -2,7 +2,8 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.gzip import GZipMiddleware
 from contextlib import asynccontextmanager
-from app.routers import matches, players, tournaments, results, push, news, votes, admin, sparring, play_requests
+from app.routers import matches, players, tournaments, results, push, news, votes, admin, sparring, play_requests, match_history, coach_inquiries
+from app.routers.referrals import router as referrals_router, redirect_router as referral_redirect_router
 from app.services.notifier import start_notifier
 import asyncio
 import os
@@ -57,6 +58,10 @@ app.include_router(votes.router, prefix="/votes", tags=["votes"])
 app.include_router(admin.router, prefix="/admin", tags=["admin"])
 app.include_router(sparring.router, prefix="/sparring", tags=["sparring"])
 app.include_router(play_requests.router, prefix="/play-requests", tags=["play-requests"])
+app.include_router(match_history.router, prefix="/match-history", tags=["match-history"])
+app.include_router(coach_inquiries.router, prefix="/coach-inquiries", tags=["coach-inquiries"])
+app.include_router(referrals_router, prefix="/referrals", tags=["referrals"])
+app.include_router(referral_redirect_router, prefix="/r", tags=["referrals"])
 
 @app.get("/")
 def root(): return {"app":"TennisAce","domain":"tennisace.live","status":"live"}

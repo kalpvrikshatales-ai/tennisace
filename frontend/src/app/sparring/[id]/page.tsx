@@ -608,6 +608,251 @@ function UploadBtn({ onFile, children, style }: { onFile: (f: File) => void; chi
   )
 }
 
+// ─── Match History tab ────────────────────────────────────────────────────────
+function MatchHistoryTab({ profileId }: { profileId: string }) {
+  const [data, setData] = useState<{ matches: any[]; wins: number; losses: number; draws: number } | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch(`${BACKEND}/match-history?profile_id=${profileId}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => setData(d))
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [profileId])
+
+  if (loading) return <p style={{ color:'var(--sr-muted)', textAlign:'center', padding:'40px 0', fontSize:14 }}>Loading…</p>
+
+  const matches = data?.matches ?? []
+
+  return (
+    <div>
+      <div style={{ display:'flex', gap:10, marginBottom:24 }}>
+        {[
+          { label:'Wins',   val: data?.wins   ?? 0, color:'#39FF14' },
+          { label:'Losses', val: data?.losses ?? 0, color:'#f87171' },
+          { label:'Draws',  val: data?.draws  ?? 0, color:'var(--sr-muted)' },
+        ].map(s => (
+          <div key={s.label} style={{ flex:1, background:'var(--sr-card)', border:'1px solid var(--sr-border)', borderRadius:10, padding:'14px 12px', textAlign:'center' }}>
+            <p style={{ color:s.color, fontSize:28, fontWeight:900, margin:'0 0 2px', letterSpacing:-1 }}>{s.val}</p>
+            <p style={{ color:'var(--sr-muted)', fontSize:11, fontWeight:700, margin:0, textTransform:'uppercase', letterSpacing:0.5 }}>{s.label}</p>
+          </div>
+        ))}
+      </div>
+
+      {matches.length === 0 ? (
+        <div style={{ textAlign:'center', padding:'40px 0' }}>
+          <p style={{ fontSize:36, margin:'0 0 10px' }}>🎾</p>
+          <p style={{ color:'var(--sr-text)', fontWeight:800, fontSize:15, margin:'0 0 6px' }}>No matches logged yet</p>
+          <p style={{ color:'var(--sr-muted)', fontSize:13, margin:0 }}>Log a match result after playing to track your record.</p>
+        </div>
+      ) : (
+        <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+          {matches.map((m: any) => {
+            const opp = m.opponent ?? {}
+            const resultColor = m.result === 'win' ? '#39FF14' : m.result === 'loss' ? '#f87171' : 'var(--sr-muted)'
+            const resultLabel = m.result === 'win' ? 'W' : m.result === 'loss' ? 'L' : 'D'
+            return (
+              <div key={m.id} style={{ background:'var(--sr-card)', border:'1px solid var(--sr-border)', borderRadius:12, padding:'12px 14px', display:'flex', alignItems:'center', gap:12 }}>
+                <div style={{ width:36, height:36, borderRadius:8, background:`${resultColor}18`, border:`1px solid ${resultColor}44`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                  <span style={{ color:resultColor, fontSize:16, fontWeight:900 }}>{resultLabel}</span>
+                </div>
+                <div style={{ width:36, height:36, borderRadius:'50%', flexShrink:0, background: opp.photo_url ? `url(${opp.photo_url}) center/cover no-repeat` : 'var(--sr-accent)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:14, fontWeight:900, color:'var(--sr-on-acc)', overflow:'hidden' }}>
+                  {!opp.photo_url && (opp.name ?? '?')[0]?.toUpperCase()}
+                </div>
+                <div style={{ flex:1, minWidth:0 }}>
+                  <p style={{ color:'var(--sr-text)', fontWeight:800, fontSize:14, margin:'0 0 1px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
+                    {opp.name
+                      ? <Link href={`/sparring/${opp.id}`} style={{ color:'var(--sr-text)', textDecoration:'none' }}>{opp.name}</Link>
+                      : 'Unknown opponent'}
+                  </p>
+                  <p style={{ color:'var(--sr-muted)', fontSize:11, margin:0 }}>
+                    {m.score ? `${m.score} · ` : ''}
+                    {m.played_at ? new Date(m.played_at).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : ''}
+                    {m.format ? ` · ${m.format}` : ''}
+                  </p>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Coach Inquiry modal ──────────────────────────────────────────────────────
+function CoachInquiryModal({ profile, onClose }: { profile: Profile; onClose: () => void }) {
+  const [cName,   setCName]   = useState('')
+  const [cEmail,  setCEmail]  = useState('')
+  const [cPhone,  setCPhone]  = useState('')
+  const [cLevel,  setCLevel]  = useState('')
+  const [cGoals,  setCGoals]  = useState('')
+  const [cAvail,  setCAvail]  = useState('')
+  const [cMsg,    setCMsg]    = useState('')
+  const [sending, setSending] = useState(false)
+  const [sent,    setSent]    = useState(false)
+  const [error,   setError]   = useState('')
+
+  useEffect(() => {
+    const saved = localStorage.getItem('sparring_email')
+    if (saved) setCEmail(saved)
+  }, [])
+
+  async function submit() {
+    if (!cName.trim() || !cEmail.trim()) { setError('Name and email are required'); return }
+    setSending(true); setError('')
+    try {
+      const res = await fetch(`${BACKEND}/coach-inquiries`, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          coach_profile_id: profile.id,
+          inquirer_name:    cName.trim(),
+          inquirer_email:   cEmail.trim(),
+          inquirer_phone:   cPhone.trim() || undefined,
+          level:            cLevel || undefined,
+          goals:            cGoals.trim() || undefined,
+          availability:     cAvail.trim() || undefined,
+          message:          cMsg.trim() || undefined,
+        }),
+      })
+      if (!res.ok) { const d = await res.json().catch(()=>({})); throw new Error(d.detail || 'Failed to send') }
+      setSent(true)
+    } catch (e: any) { setError(e.message ?? 'Something went wrong') }
+    finally { setSending(false) }
+  }
+
+  const inp: React.CSSProperties = {
+    width:'100%', background:'#132236', border:'1px solid #1e3a5f',
+    borderRadius:8, color:'#fff', fontSize:14, padding:'11px 13px',
+    outline:'none', boxSizing:'border-box', fontFamily:'inherit',
+  }
+  const lbl: React.CSSProperties = {
+    color:'#7a9cc4', fontSize:11, fontWeight:700,
+    textTransform:'uppercase', letterSpacing:0.6, display:'block', marginBottom:6,
+  }
+
+  return (
+    <div style={{ position:'fixed', inset:0, zIndex:200, padding:16, display:'flex', alignItems:'center', justifyContent:'center', background:'rgba(0,0,0,0.8)', backdropFilter:'blur(6px)' }}
+      onClick={e => { if (e.target===e.currentTarget) onClose() }}>
+      <div style={{ background:'#0f1520', border:'1px solid #1e3a5f', borderRadius:16, padding:28, maxWidth:440, width:'100%', maxHeight:'90vh', overflowY:'auto', boxShadow:'0 24px 80px rgba(0,0,0,0.6)' }}>
+        {sent ? (
+          <div style={{ textAlign:'center', padding:'16px 0' }}>
+            <p style={{ fontSize:40, margin:'0 0 14px' }}>✅</p>
+            <p style={{ color:'#fff', fontWeight:900, fontSize:20, margin:'0 0 8px', letterSpacing:-0.3 }}>Inquiry sent!</p>
+            <p style={{ color:'#7a9cc4', fontSize:14, margin:'0 0 28px', lineHeight:1.6 }}>
+              {profile.name} will get your details by email and reach out.
+            </p>
+            <button onClick={onClose} style={{ background:'#39FF14', border:'none', borderRadius:10, color:'#000', fontWeight:800, fontSize:14, padding:'13px 32px', cursor:'pointer' }}>Done</button>
+          </div>
+        ) : (
+          <>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:6 }}>
+              <p style={{ color:'#fff', fontWeight:900, fontSize:17, margin:0, letterSpacing:-0.3 }}>Contact Coach</p>
+              <button onClick={onClose} style={{ background:'none', border:'none', color:'#4a6a8a', fontSize:24, cursor:'pointer', lineHeight:1, padding:'0 2px' }}>×</button>
+            </div>
+            <p style={{ color:'#7a9cc4', fontSize:13, margin:'0 0 20px', lineHeight:1.55 }}>
+              Send a coaching inquiry to <strong style={{ color:'#fff' }}>{profile.name}</strong>. They'll receive your details by email.
+            </p>
+            {error && (
+              <p style={{ color:'#f87171', fontSize:13, margin:'0 0 14px', background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.25)', borderRadius:8, padding:'8px 12px' }}>{error}</p>
+            )}
+            <div style={{ marginBottom:14 }}>
+              <label style={lbl}>Your name <span style={{ color:'#f87171' }}>*</span></label>
+              <input value={cName} onChange={e => setCName(e.target.value)} style={inp} placeholder="Your name" />
+            </div>
+            <div style={{ marginBottom:14 }}>
+              <label style={lbl}>Your email <span style={{ color:'#f87171' }}>*</span></label>
+              <input value={cEmail} onChange={e => setCEmail(e.target.value)} type="email" style={inp} placeholder="you@example.com" />
+            </div>
+            <div style={{ marginBottom:14 }}>
+              <label style={lbl}>Phone (optional)</label>
+              <input value={cPhone} onChange={e => setCPhone(e.target.value)} type="tel" style={inp} placeholder="+1 555 000 0000" />
+            </div>
+            <div style={{ marginBottom:14 }}>
+              <label style={lbl}>Your level</label>
+              <select value={cLevel} onChange={e => setCLevel(e.target.value)} style={{ ...inp, cursor:'pointer' }}>
+                <option value="">Select level</option>
+                {['Beginner','Intermediate','Advanced','Competitive'].map(l => <option key={l} value={l}>{l}</option>)}
+              </select>
+            </div>
+            <div style={{ marginBottom:14 }}>
+              <label style={lbl}>Training goals</label>
+              <textarea value={cGoals} onChange={e => setCGoals(e.target.value)} rows={2} placeholder="What do you want to improve?" style={{ ...inp, resize:'none', lineHeight:1.55 }} />
+            </div>
+            <div style={{ marginBottom:14 }}>
+              <label style={lbl}>Availability</label>
+              <input value={cAvail} onChange={e => setCAvail(e.target.value)} style={inp} placeholder="e.g. Weekday mornings, weekends" />
+            </div>
+            <div style={{ marginBottom:24 }}>
+              <label style={lbl}>Message (optional)</label>
+              <textarea value={cMsg} onChange={e => setCMsg(e.target.value)} rows={2} placeholder="Anything else you'd like to share" style={{ ...inp, resize:'none', lineHeight:1.55 }} />
+            </div>
+            <button onClick={submit} disabled={sending}
+              style={{ width:'100%', background:sending ? 'rgba(57,255,20,0.3)' : '#39FF14', border:'none', borderRadius:10, color:sending ? '#39FF14' : '#000', fontWeight:800, fontSize:15, padding:'14px', cursor:sending ? 'not-allowed' : 'pointer', minHeight:48, letterSpacing:-0.2, transition:'opacity 0.15s' }}>
+              {sending ? 'Sending…' : 'Send Inquiry'}
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ─── Referral card ────────────────────────────────────────────────────────────
+function ReferralCard({ profileId }: { profileId: string }) {
+  const [data, setData]     = useState<any>(null)
+  const [copied, setCopied] = useState(false)
+
+  useEffect(() => {
+    fetch(`${BACKEND}/referrals/my-link?profile_id=${profileId}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => setData(d))
+      .catch(() => {})
+  }, [profileId])
+
+  if (!data) return null
+
+  const link    = `https://tennisace.live/r/${data.referral_code}`
+  const waText  = encodeURIComponent(`Join me on TennisAce — find tennis partners in your city! ${link}`)
+
+  function copy() {
+    navigator.clipboard.writeText(link)
+      .then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000) })
+      .catch(() => {})
+  }
+
+  return (
+    <div style={{ background:'var(--sr-card)', border:'1px solid var(--sr-border)', borderRadius:12, padding:'16px', marginBottom:18 }}>
+      <p style={{ color:'var(--sr-muted)', fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:0.7, margin:'0 0 10px' }}>
+        Invite Friends
+      </p>
+      <div style={{ display:'flex', gap:8, alignItems:'center', marginBottom:12, flexWrap:'wrap' }}>
+        <span style={{ flex:1, background:'var(--sr-input)', border:'1px solid var(--sr-border)', borderRadius:8, color:'var(--sr-text-2)', fontSize:12, padding:'8px 10px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', minWidth:0 }}>
+          tennisace.live/r/{data.referral_code}
+        </span>
+        <button onClick={copy} style={{ flexShrink:0, background:copied ? 'var(--sr-success)' : 'var(--sr-accent)', border:'none', borderRadius:8, color:copied ? 'var(--sr-succ-t)' : 'var(--sr-on-acc)', fontWeight:800, fontSize:12, padding:'8px 14px', cursor:'pointer', whiteSpace:'nowrap' }}>
+          {copied ? '✓ Copied' : 'Copy'}
+        </button>
+        <a href={`https://wa.me/?text=${waText}`} target="_blank" rel="noopener noreferrer"
+          style={{ flexShrink:0, background:'#25D366', borderRadius:8, color:'#fff', fontWeight:800, fontSize:12, padding:'8px 12px', textDecoration:'none', display:'inline-flex', alignItems:'center', gap:5, whiteSpace:'nowrap' }}>
+          📲 WhatsApp
+        </a>
+      </div>
+      <div style={{ display:'flex', gap:20 }}>
+        <div>
+          <p style={{ color:'var(--sr-text)', fontWeight:900, fontSize:20, margin:'0 0 1px', letterSpacing:-0.5 }}>{data.clicked ?? 0}</p>
+          <p style={{ color:'var(--sr-muted)', fontSize:10, fontWeight:700, margin:0, textTransform:'uppercase', letterSpacing:0.5 }}>Clicks</p>
+        </div>
+        <div>
+          <p style={{ color:'#39FF14', fontWeight:900, fontSize:20, margin:'0 0 1px', letterSpacing:-0.5 }}>{data.converted ?? 0}</p>
+          <p style={{ color:'var(--sr-muted)', fontSize:10, fontWeight:700, margin:0, textTransform:'uppercase', letterSpacing:0.5 }}>Joined</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Field definitions ────────────────────────────────────────────────────────
 const FIELD_DEFS: FieldDef[] = [
   { key:'level',         label:'Tennis Level',  type:'select',       options:LEVEL_OPTS  },
@@ -630,13 +875,15 @@ export default function SparringProfilePage() {
   const [loading,       setLoading]       = useState(true)
   const [error,         setError]         = useState('')
   const [isOwn,         setIsOwn]         = useState(false)
-  const [activeTab,     setActiveTab]     = useState<'overview'|'partners'|'requests'>('overview')
+  const [activeTab,     setActiveTab]     = useState<'overview'|'history'|'partners'|'requests'>('overview')
   const [editField,     setEditField]     = useState<FieldDef|null>(null)
   const [savingField,   setSavingField]   = useState(false)
   const [showRequest,   setShowRequest]   = useState(false)
   const [uploading,     setUploading]     = useState<'cover'|'avatar'|null>(null)
   const [uploadError,   setUploadError]   = useState<string|null>(null)
-  const [partnersCount, setPartnersCount] = useState(0)
+  const [partnersCount,    setPartnersCount]    = useState(0)
+  const [showCoachInquiry, setShowCoachInquiry] = useState(false)
+  const [h2h,              setH2h]              = useState<any>(null)
 
   useEffect(() => {
     fetch(`${BACKEND}/sparring/profiles/${id}`)
@@ -662,6 +909,15 @@ export default function SparringProfilePage() {
         (sent.requests??[]).filter((r:any)=>r.status==='accepted').length
       setPartnersCount(n)
     }).catch(()=>{})
+  }, [id])
+
+  useEffect(() => {
+    const ownId = typeof window !== 'undefined' ? localStorage.getItem('sparring_profile_id') : null
+    if (!ownId || ownId === id) return
+    fetch(`${BACKEND}/match-history/h2h?player1=${ownId}&player2=${id}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data && data.total > 0) setH2h({ ...data, ownId }) })
+      .catch(() => {})
   }, [id])
 
   async function saveField(field: FieldDef, value: any) {
@@ -744,6 +1000,7 @@ export default function SparringProfilePage() {
 
   const tabs = [
     { key:'overview',  label:'Overview'  },
+    { key:'history',   label:'History'   },
     { key:'partners',  label:'Partners'  },
     ...(isOwn ? [{ key:'requests', label:'Requests' }] : []),
   ] as const
@@ -831,13 +1088,23 @@ export default function SparringProfilePage() {
                   </Link>
                 </>
               ) : (
-                <button
-                  className="rtp-btn"
-                  onClick={handleRequestToPlay}
-                  style={{ background:'var(--sr-accent)', border:'none', borderRadius:10, color:'var(--sr-on-acc)', fontWeight:800, fontSize:13, padding:'9px 22px', cursor:'pointer', whiteSpace:'nowrap', minHeight:44, display:'flex', alignItems:'center' }}
-                >
-                  Request to Play
-                </button>
+                (profile as any).profile_type === 'coach' ? (
+                  <button
+                    className="rtp-btn"
+                    onClick={() => setShowCoachInquiry(true)}
+                    style={{ background:'var(--sr-accent)', border:'none', borderRadius:10, color:'var(--sr-on-acc)', fontWeight:800, fontSize:13, padding:'9px 22px', cursor:'pointer', whiteSpace:'nowrap', minHeight:44, display:'flex', alignItems:'center' }}
+                  >
+                    Contact Coach
+                  </button>
+                ) : (
+                  <button
+                    className="rtp-btn"
+                    onClick={handleRequestToPlay}
+                    style={{ background:'var(--sr-accent)', border:'none', borderRadius:10, color:'var(--sr-on-acc)', fontWeight:800, fontSize:13, padding:'9px 22px', cursor:'pointer', whiteSpace:'nowrap', minHeight:44, display:'flex', alignItems:'center' }}
+                  >
+                    Request to Play
+                  </button>
+                )
               )}
             </div>
           </div>
@@ -917,6 +1184,9 @@ export default function SparringProfilePage() {
             )
           })()}
 
+          {/* Referral card — own profile only */}
+          {isOwn && <ReferralCard profileId={id} />}
+
           {/* Tabs */}
           <div style={{ display:'flex', borderBottom:'1px solid var(--sr-border)', marginBottom:24 }}>
             {tabs.map(tab => (
@@ -940,6 +1210,38 @@ export default function SparringProfilePage() {
           {/* Overview */}
           {activeTab==='overview' && (
             <div>
+              {/* H2H panel — only when viewing someone you've played */}
+              {!isOwn && h2h && h2h.total > 0 && (
+                <div style={{ background:'rgba(57,255,20,0.05)', border:'1px solid rgba(57,255,20,0.2)', borderRadius:12, padding:'14px 16px', marginBottom:20 }}>
+                  <p style={{ color:'var(--sr-muted)', fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:0.7, margin:'0 0 12px' }}>
+                    Head to Head
+                  </p>
+                  <div style={{ display:'flex', alignItems:'center', gap:16, justifyContent:'center' }}>
+                    <div style={{ textAlign:'center' }}>
+                      <p style={{ color:'#39FF14', fontSize:32, fontWeight:900, margin:'0 0 2px', letterSpacing:-1 }}>{h2h.player1_wins}</p>
+                      <p style={{ color:'var(--sr-muted)', fontSize:11, fontWeight:700, margin:0 }}>You</p>
+                    </div>
+                    <p style={{ color:'var(--sr-muted)', fontSize:15, fontWeight:700, margin:0 }}>vs</p>
+                    <div style={{ textAlign:'center' }}>
+                      <p style={{ color:'#f87171', fontSize:32, fontWeight:900, margin:'0 0 2px', letterSpacing:-1 }}>{h2h.player2_wins}</p>
+                      <p style={{ color:'var(--sr-muted)', fontSize:11, fontWeight:700, margin:0 }}>{profile.name.split(' ')[0]}</p>
+                    </div>
+                    {h2h.draws > 0 && (
+                      <>
+                        <p style={{ color:'var(--sr-muted)', fontSize:15, fontWeight:700, margin:0 }}>·</p>
+                        <div style={{ textAlign:'center' }}>
+                          <p style={{ color:'var(--sr-muted)', fontSize:32, fontWeight:900, margin:'0 0 2px', letterSpacing:-1 }}>{h2h.draws}</p>
+                          <p style={{ color:'var(--sr-muted)', fontSize:11, fontWeight:700, margin:0 }}>Draws</p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  <p style={{ color:'var(--sr-muted)', fontSize:12, textAlign:'center', margin:'8px 0 0' }}>
+                    {h2h.total} match{h2h.total !== 1 ? 'es' : ''} played together
+                  </p>
+                </div>
+              )}
+
               <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:10, marginBottom:24 }}>
                 {FIELD_DEFS.map(f => (
                   <FieldCard
@@ -964,6 +1266,9 @@ export default function SparringProfilePage() {
             </div>
           )}
 
+          {/* History */}
+          {activeTab==='history' && <MatchHistoryTab profileId={id} />}
+
           {/* Partners */}
           {activeTab==='partners' && <PartnersTab profileId={id} />}
 
@@ -987,6 +1292,9 @@ export default function SparringProfilePage() {
 
       {/* Request modal */}
       {showRequest && <RequestModal profile={profile} onClose={() => setShowRequest(false)} />}
+
+      {/* Coach inquiry modal */}
+      {showCoachInquiry && <CoachInquiryModal profile={profile} onClose={() => setShowCoachInquiry(false)} />}
     </SparringShell>
   )
 }
