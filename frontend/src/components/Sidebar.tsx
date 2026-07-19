@@ -160,6 +160,19 @@ function SidebarPanel({ onClose }: { onClose?: () => void }) {
       {/* Divider */}
       <div style={{ height:1, background:'#1a1a1a', margin:'0 8px', flexShrink:0 }} />
 
+      {/* Legal footer */}
+      <div style={{ padding:'10px 16px', flexShrink:0, display:'flex', flexWrap:'wrap', gap:'4px 10px' }}>
+        <Link href="/privacy" onClick={closeDrawer} style={{ color:'#444', fontSize:11, textDecoration:'none' }} onMouseEnter={e => (e.currentTarget.style.color='#39FF14')} onMouseLeave={e => (e.currentTarget.style.color='#444')}>Privacy</Link>
+        <span style={{ color:'#333', fontSize:11 }}>·</span>
+        <Link href="/terms" onClick={closeDrawer} style={{ color:'#444', fontSize:11, textDecoration:'none' }} onMouseEnter={e => (e.currentTarget.style.color='#39FF14')} onMouseLeave={e => (e.currentTarget.style.color='#444')}>Terms</Link>
+        <span style={{ color:'#333', fontSize:11 }}>·</span>
+        <Link href="/cookies" onClick={closeDrawer} style={{ color:'#444', fontSize:11, textDecoration:'none' }} onMouseEnter={e => (e.currentTarget.style.color='#39FF14')} onMouseLeave={e => (e.currentTarget.style.color='#444')}>Cookies</Link>
+        <span style={{ color:'#2a2a2a', fontSize:11, width:'100%', marginTop:2 }}>© 2026 TennisAce</span>
+      </div>
+
+      {/* Divider */}
+      <div style={{ height:1, background:'#1a1a1a', margin:'0 8px', flexShrink:0 }} />
+
       {/* Theme toggle row */}
       <div style={{ padding:'8px 16px', display:'flex', alignItems:'center', justifyContent:'space-between', flexShrink:0 }}>
         <span style={{ color:'#555', fontSize:12, fontWeight:600 }}>Theme</span>

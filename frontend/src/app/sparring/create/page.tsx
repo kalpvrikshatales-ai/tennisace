@@ -961,6 +961,12 @@ export default function CreateSparringPage() {
             }}>
             {creating ? 'Creating profile…' : emailVerified ? `Create ${roleLabel} Profile` : 'Verify your email first'}
           </button>
+          <p style={{ color: 'var(--sr-muted)', fontSize: 12, textAlign: 'center', margin: '12px 0 0', lineHeight: 1.5 }}>
+            By creating a profile you agree to our{' '}
+            <a href="/terms" style={{ color: 'var(--sr-accent)', textDecoration: 'none' }}>Terms of Service</a>
+            {' '}and{' '}
+            <a href="/privacy" style={{ color: 'var(--sr-accent)', textDecoration: 'none' }}>Privacy Policy</a>
+          </p>
         </div>
       )}
     </SparringShell>
