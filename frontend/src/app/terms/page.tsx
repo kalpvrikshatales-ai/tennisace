@@ -44,7 +44,7 @@ export default function TermsPage() {
       </p>
 
       <P>
-        Welcome to TennisAce (<strong style={{ color: 'var(--text)' }}>tennisace.live</strong>), operated by Parteek Balhara, Delhi, India. By accessing or using TennisAce you agree to these Terms of Service. If you do not agree, please do not use the platform.
+        Welcome to TennisAce (<strong style={{ color: 'var(--text)' }}>tennisace.live</strong>), a global platform for tennis players and coaches. By accessing or using TennisAce you agree to these Terms of Service. If you do not agree, please do not use the platform.
       </P>
 
       <H2>1. What TennisAce Is</H2>
@@ -121,7 +121,7 @@ export default function TermsPage() {
 
       <H2>14. Governing Law</H2>
       <P>
-        These Terms are governed by the laws of <strong style={{ color: 'var(--text)' }}>India</strong>. Any disputes arising from your use of TennisAce shall be subject to the exclusive jurisdiction of the courts of Delhi, India.
+        These Terms are governed by applicable law. Disputes arising from your use of TennisAce will be resolved through good-faith negotiation wherever possible. For formal legal matters, you agree to submit to the jurisdiction of the courts where TennisAce is registered.
       </P>
 
       <H2>15. Contact</H2>

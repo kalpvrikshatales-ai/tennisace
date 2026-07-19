@@ -49,7 +49,7 @@ export default function CookiesPage() {
       </p>
 
       <P>
-        This Cookie Policy explains how TennisAce (<strong style={{ color: 'var(--text)' }}>tennisace.live</strong>) uses cookies and similar browser storage technologies. We keep it simple: we use exactly two categories of cookies, described below.
+        This Cookie Policy explains how TennisAce (<strong style={{ color: 'var(--text)' }}>tennisace.live</strong>), a global tennis platform, uses cookies and similar browser storage technologies. We keep it simple: we use exactly two categories of cookies, described below.
       </P>
 
       <H2>1. What Are Cookies?</H2>

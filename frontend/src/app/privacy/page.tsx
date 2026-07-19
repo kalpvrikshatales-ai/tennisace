@@ -44,7 +44,7 @@ export default function PrivacyPage() {
       </p>
 
       <P>
-        TennisAce (<strong style={{ color: 'var(--text)' }}>tennisace.live</strong>) is operated by Parteek Balhara, based in Delhi, India. This Privacy Policy explains what personal data we collect, why we collect it, and how we protect it. By using TennisAce you agree to the practices described here.
+        TennisAce (<strong style={{ color: 'var(--text)' }}>tennisace.live</strong>) is a global platform for tennis players and coaches. This Privacy Policy explains what personal data we collect, why we collect it, and how we protect it. By using TennisAce you agree to the practices described here.
       </P>
 
       <H2>1. Data We Collect</H2>
