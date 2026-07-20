@@ -11,7 +11,7 @@
     "format": "prettier --write ."
   },
   "dependencies": {
-    "@next/third-parties": "^16.2.10",
+    "@next/third-parties": "^14.2.35",
     "@sentry/nextjs": "^7.120.4",
     "@sentry/react": "^10.62.0",
     "@supabase/ssr": "^0.12.0",

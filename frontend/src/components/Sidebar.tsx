@@ -85,22 +85,25 @@ function SidebarPanel({ onClose }: { onClose?: () => void }) {
   const initials   = ((profile?.full_name ?? user?.email) || 'U').slice(0,2).toUpperCase()
 
   function isActive(item: NavItem): boolean {
+    if (item.href === '/')           return pathname === '/' && homeTab === 'home'
     if (item.href === '/community') return pathname === '/community' || pathname.startsWith('/community/')
     if (item.href === '/play')      return pathname === '/play'
     if (item.href === '/sparring') return pathname === '/sparring' || pathname.startsWith('/sparring/')
     if (item.href === '/rankings') return pathname === '/rankings' || pathname.startsWith('/rankings')
     if (item.href === '/tournament/us-open-2026') return pathname.startsWith('/tournament')
-    if (item.href === '/') return pathname === '/' && homeTab === 'matches' && !NAV.some(n => n.tab && n.tab === homeTab && n.filter)
     if (item.tab) {
       if (pathname !== '/') return false
-      if (item.filter === 'live') return false // "Live" never active (sub-filter only)
+      if (item.filter === 'live') return false
       return homeTab === item.tab
     }
     return false
   }
 
   function handleNav(item: NavItem) {
-    if (item.tab) {
+    if (item.href === '/') {
+      setHomeTab('home')
+      router.push('/')
+    } else if (item.tab) {
       setHomeTab(item.tab)
       if (item.filter === 'live') setMatchFilter('live')
       if (pathname !== '/') router.push('/')
@@ -141,7 +144,7 @@ function SidebarPanel({ onClose }: { onClose?: () => void }) {
       )}
       {/* Logo */}
       <div style={{ padding:'18px 16px 14px', borderBottom:'1px solid #1a1a1a', flexShrink:0 }}>
-        <Link href="/" onClick={() => { setHomeTab('matches'); closeDrawer() }}
+        <Link href="/" onClick={() => { setHomeTab('home'); closeDrawer() }}
           style={{ textDecoration:'none', display:'flex', alignItems:'center', gap:8 }}>
           <img src="/logo.png" alt="" style={{ width:28, height:28, borderRadius:8, objectFit:'cover', flexShrink:0 }} />
           <span style={{ fontSize:16, fontWeight:900, color:'#fff', letterSpacing:-0.5 }}>

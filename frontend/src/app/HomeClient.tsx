@@ -20,7 +20,7 @@ import Link from 'next/link'
 import { useSidebar } from '@/components/SidebarContext'
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
-type Tab = 'matches' | 'rankings' | 'news' | 'tournament'
+type Tab = 'home' | 'matches' | 'rankings' | 'news' | 'tournament'
 type MatchFilter = 'live' | 'next' | 'completed' | 'all'
 
 const SURFACE_DOT: Record<string, string> = {
@@ -114,6 +114,7 @@ interface HomeClientProps {
 
 export default function HomeClient({ initialLive, initialFixtures, initialResults }: HomeClientProps) {
   const { homeTab: tab, setHomeTab: setTab, matchFilter, setMatchFilter, openDrawer } = useSidebar()
+  const activeTab = tab === 'home' ? 'matches' : tab
   const [profileOpen, setProfileOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [notifOn, setNotifOn] = useState(false)
@@ -197,7 +198,7 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
   }, [fetchAllMatches])
 
   useEffect(() => {
-    if (tab === 'news' && news.length === 0) {
+    if (activeTab === 'news' && news.length === 0) {
       setLoadingNews(true)
       fetch(`${API}/feed/news`)
         .then(r => r.json())
@@ -218,7 +219,7 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
   return (
     <div className="min-h-screen">
       {/* ── HEADER ────────────────────────────────────────── */}
-      <header className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-gray-100">
+      <header className="md:hidden sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-gray-100">
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center">
           {/* Left: Hamburger (mobile only) */}
           <button
@@ -271,7 +272,7 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
               key={key}
               onClick={() => setTab(key)}
               className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-bold transition-all ${
-                tab === key ? 'bg-[#00C875] text-white' : 'bg-gray-100 text-gray-500'
+                activeTab === key ? 'bg-[#00C875] text-white' : 'bg-gray-100 text-gray-500'
               }`}
             >
               <span>{icon}</span>
@@ -288,7 +289,7 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
       <main className="max-w-3xl mx-auto px-4 py-5 pb-10">
 
         {/* ═══ MATCHES TAB — graceful degradation while scores rebuild for US Open ══ */}
-        {tab === 'matches' && (
+        {activeTab === 'matches' && (
           <div className="space-y-4">
             {/* Scores paused card */}
             <div className="card overflow-hidden" style={{ background: '#0d1b2e', border: '1px solid #1a3050' }}>
@@ -362,7 +363,7 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
         )}
 
         {/* ═══ RANKINGS TAB ══════════════════════════════════ */}
-        {tab === 'rankings' && (
+        {activeTab === 'rankings' && (
           <div>
             <div className="mb-4 card p-4 flex items-center justify-between">
               <div>
@@ -376,7 +377,7 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
         )}
 
         {/* ═══ NEWS TAB ══════════════════════════════════════ */}
-        {tab === 'news' && (
+        {activeTab === 'news' && (
           <section>
             <div className="flex items-center justify-between mb-4">
               <p className="text-[11px] text-gray-400 uppercase tracking-widest">Latest Tennis News</p>
@@ -412,7 +413,7 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
         )}
 
         {/* ═══ US OPEN TAB ══════════════════════════════════ */}
-        {tab === 'tournament' && (
+        {activeTab === 'tournament' && (
           <div className="text-center py-8">
             <Link href="/tournament/us-open-2026">
               <div className="card p-8 cursor-pointer hover:border-yellow-200 transition-all"

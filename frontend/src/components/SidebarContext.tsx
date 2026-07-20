@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, ReactNode } from 'react'
 
-export type HomeTab     = 'matches' | 'rankings' | 'news' | 'tournament'
+export type HomeTab     = 'home' | 'matches' | 'rankings' | 'news' | 'tournament'
 export type MatchFilter = 'live' | 'next' | 'completed' | 'all'
 
 type SidebarContextType = {
@@ -16,7 +16,7 @@ type SidebarContextType = {
 }
 
 const SidebarCtx = createContext<SidebarContextType>({
-  homeTab:       'matches',
+  homeTab:       'home',
   setHomeTab:    () => {},
   matchFilter:   'live',
   setMatchFilter:() => {},
@@ -26,7 +26,7 @@ const SidebarCtx = createContext<SidebarContextType>({
 })
 
 export function SidebarProvider({ children }: { children: ReactNode }) {
-  const [homeTab,     setHomeTab]     = useState<HomeTab>('matches')
+  const [homeTab,     setHomeTab]     = useState<HomeTab>('home')
   const [matchFilter, setMatchFilter] = useState<MatchFilter>('live')
   const [drawerOpen,  setDrawerOpen]  = useState(false)
 
