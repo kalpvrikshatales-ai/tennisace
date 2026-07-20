@@ -13,6 +13,10 @@ type SidebarContextType = {
   drawerOpen:    boolean
   openDrawer:    () => void
   closeDrawer:   () => void
+  searchOpen:    boolean
+  setSearchOpen: (v: boolean) => void
+  notifOn:       boolean
+  setNotifOn:    (v: boolean) => void
 }
 
 const SidebarCtx = createContext<SidebarContextType>({
@@ -23,12 +27,18 @@ const SidebarCtx = createContext<SidebarContextType>({
   drawerOpen:    false,
   openDrawer:    () => {},
   closeDrawer:   () => {},
+  searchOpen:    false,
+  setSearchOpen: () => {},
+  notifOn:       false,
+  setNotifOn:    () => {},
 })
 
 export function SidebarProvider({ children }: { children: ReactNode }) {
   const [homeTab,     setHomeTab]     = useState<HomeTab>('home')
   const [matchFilter, setMatchFilter] = useState<MatchFilter>('live')
   const [drawerOpen,  setDrawerOpen]  = useState(false)
+  const [searchOpen,  setSearchOpen]  = useState(false)
+  const [notifOn,     setNotifOn]     = useState(false)
 
   return (
     <SidebarCtx.Provider value={{
@@ -37,6 +47,8 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
       drawerOpen,
       openDrawer:  () => setDrawerOpen(true),
       closeDrawer: () => setDrawerOpen(false),
+      searchOpen, setSearchOpen,
+      notifOn, setNotifOn,
     }}>
       {children}
     </SidebarCtx.Provider>

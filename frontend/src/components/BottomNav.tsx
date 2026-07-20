@@ -42,11 +42,12 @@ const NewsIcon = (active: boolean) => (
   </svg>
 )
 const SparringIcon = (active: boolean) => (
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="8" stroke={active ? '#39FF14' : 'currentColor'} opacity={active ? 1 : 0.35} />
-    <path d="M6.5 6.5 C9 9 15 9 17.5 6.5" stroke={active ? '#39FF14' : 'currentColor'} opacity={active ? 0.8 : 0.25} />
-    <path d="M6.5 17.5 C9 15 15 15 17.5 17.5" stroke={active ? '#39FF14' : 'currentColor'} opacity={active ? 0.8 : 0.25} />
-    <path d="M4 12 h16" stroke={active ? '#39FF14' : 'currentColor'} opacity={active ? 0.8 : 0.25} />
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
+    style={{ stroke: active ? 'var(--accent)' : 'currentColor' }}>
+    <circle cx="12" cy="12" r="8" opacity={active ? 1 : 0.35} />
+    <path d="M6.5 6.5 C9 9 15 9 17.5 6.5" opacity={active ? 0.8 : 0.25} />
+    <path d="M6.5 17.5 C9 15 15 15 17.5 17.5" opacity={active ? 0.8 : 0.25} />
+    <path d="M4 12 h16" opacity={active ? 0.8 : 0.25} />
   </svg>
 )
 
@@ -98,10 +99,12 @@ export default function BottomNav({ tab, setTab, liveCount }: Props) {
         <Link href="/sparring"
           className="flex flex-col items-center justify-center gap-1 flex-1 min-h-[56px] relative transition-all active:scale-95">
           {isSparring && (
-            <span className="absolute inset-x-2 inset-y-0 rounded-2xl bg-[#39FF14]/10" />
+            <span className="absolute inset-x-2 inset-y-0 rounded-2xl" style={{ background: 'color-mix(in srgb, var(--accent) 12%, transparent)' }} />
           )}
           <div className="relative z-10">{SparringIcon(isSparring)}</div>
-          <span className={`text-[11px] font-bold z-10 ${isSparring ? 'text-[#39FF14]' : 'text-gray-400'}`}>
+          <span
+            className={`text-[11px] font-bold z-10 ${isSparring ? '' : 'text-gray-400'}`}
+            style={isSparring ? { color: 'var(--accent)' } : {}}>
             Sparring
           </span>
         </Link>

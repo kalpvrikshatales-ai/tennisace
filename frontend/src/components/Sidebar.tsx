@@ -40,7 +40,7 @@ function NavRow({
     cursor:'pointer', width:'100%',
     background: active ? '#1a1a1a' : 'transparent',
     border:'none', textAlign:'left',
-    borderLeft: active ? '3px solid #39FF14' : '3px solid transparent',
+    borderLeft: active ? '3px solid var(--accent)' : '3px solid transparent',
     color: active ? '#fff' : '#888',
     fontSize:14, fontWeight:600,
     transition:'color 0.12s, background 0.12s',
