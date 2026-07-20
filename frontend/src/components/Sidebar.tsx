@@ -130,14 +130,14 @@ function SidebarPanel({ onClose }: { onClose?: () => void }) {
       {/* Mobile-only founding member banner */}
       {onClose && (
         <div style={{
-          background:'rgba(57,255,20,0.07)', borderBottom:'1px solid rgba(57,255,20,0.12)',
+          background:'color-mix(in srgb, var(--accent) 7%, transparent)', borderBottom:'1px solid color-mix(in srgb, var(--accent) 12%, transparent)',
           padding:'8px 16px', display:'flex', alignItems:'center', justifyContent:'space-between', flexShrink:0,
         }}>
-          <span style={{ color:'#39FF14', fontSize:11, fontWeight:800, letterSpacing:0.4 }}>
+          <span style={{ color:'var(--accent)', fontSize:11, fontWeight:800, letterSpacing:0.4 }}>
             🎾 Founding members worldwide
           </span>
           <Link href="/community" onClick={closeDrawer}
-            style={{ color:'#39FF14', fontSize:11, fontWeight:700, textDecoration:'none' }}>
+            style={{ color:'var(--accent)', fontSize:11, fontWeight:700, textDecoration:'none' }}>
             Join →
           </Link>
         </div>
@@ -165,11 +165,11 @@ function SidebarPanel({ onClose }: { onClose?: () => void }) {
 
       {/* Legal footer */}
       <div style={{ padding:'10px 16px', flexShrink:0, display:'flex', flexWrap:'wrap', gap:'4px 10px' }}>
-        <Link href="/privacy" onClick={closeDrawer} style={{ color:'#444', fontSize:11, textDecoration:'none' }} onMouseEnter={e => (e.currentTarget.style.color='#39FF14')} onMouseLeave={e => (e.currentTarget.style.color='#444')}>Privacy</Link>
+        <Link href="/privacy" onClick={closeDrawer} style={{ color:'#444', fontSize:11, textDecoration:'none' }} onMouseEnter={e => (e.currentTarget.style.color='var(--accent)')} onMouseLeave={e => (e.currentTarget.style.color='#444')}>Privacy</Link>
         <span style={{ color:'#333', fontSize:11 }}>·</span>
-        <Link href="/terms" onClick={closeDrawer} style={{ color:'#444', fontSize:11, textDecoration:'none' }} onMouseEnter={e => (e.currentTarget.style.color='#39FF14')} onMouseLeave={e => (e.currentTarget.style.color='#444')}>Terms</Link>
+        <Link href="/terms" onClick={closeDrawer} style={{ color:'#444', fontSize:11, textDecoration:'none' }} onMouseEnter={e => (e.currentTarget.style.color='var(--accent)')} onMouseLeave={e => (e.currentTarget.style.color='#444')}>Terms</Link>
         <span style={{ color:'#333', fontSize:11 }}>·</span>
-        <Link href="/cookies" onClick={closeDrawer} style={{ color:'#444', fontSize:11, textDecoration:'none' }} onMouseEnter={e => (e.currentTarget.style.color='#39FF14')} onMouseLeave={e => (e.currentTarget.style.color='#444')}>Cookies</Link>
+        <Link href="/cookies" onClick={closeDrawer} style={{ color:'#444', fontSize:11, textDecoration:'none' }} onMouseEnter={e => (e.currentTarget.style.color='var(--accent)')} onMouseLeave={e => (e.currentTarget.style.color='#444')}>Cookies</Link>
         <span style={{ color:'#2a2a2a', fontSize:11, width:'100%', marginTop:2 }}>© 2026 TennisAce</span>
       </div>
 
@@ -230,9 +230,9 @@ function SidebarPanel({ onClose }: { onClose?: () => void }) {
               🌍 Building tennis communities
             </p>
             <div style={{ display:'flex', flexDirection:'column', gap:6, marginBottom:12 }}>
-              <div style={{ background:'#0d1b2e', border:'1px solid rgba(57,255,20,0.15)', borderRadius:8, padding:'8px 10px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+              <div style={{ background:'#0d1b2e', border:'1px solid color-mix(in srgb, var(--accent) 15%, transparent)', borderRadius:8, padding:'8px 10px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                 <span style={{ color:'#fff', fontSize:12, fontWeight:700 }}>🇪🇸 Barcelona</span>
-                <span style={{ color:'#39FF14', fontSize:11, fontWeight:700 }}>0 / 500</span>
+                <span style={{ color:'var(--accent)', fontSize:11, fontWeight:700 }}>0 / 500</span>
               </div>
               <div style={{ background:'#0d1b2e', border:'1px solid rgba(245,158,11,0.2)', borderRadius:8, padding:'8px 10px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                 <span style={{ color:'#fff', fontSize:12, fontWeight:700 }}>🇦🇪 Dubai</span>
@@ -243,13 +243,13 @@ function SidebarPanel({ onClose }: { onClose?: () => void }) {
               Founding Members are free. Always.
             </p>
             <Link href="/community" onClick={closeDrawer}
-              style={{ display:'block', textAlign:'center', background:'rgba(57,255,20,0.1)', border:'1px solid rgba(57,255,20,0.25)', color:'#39FF14', fontWeight:800, fontSize:12, padding:'8px', borderRadius:8, textDecoration:'none' }}>
+              style={{ display:'block', textAlign:'center', background:'color-mix(in srgb, var(--accent) 10%, transparent)', border:'1px solid color-mix(in srgb, var(--accent) 25%, transparent)', color:'var(--accent)', fontWeight:800, fontSize:12, padding:'8px', borderRadius:8, textDecoration:'none' }}>
               Join the community →
             </Link>
           </div>
 
           <Link href="/auth/login" onClick={closeDrawer}
-            style={{ display:'block', textAlign:'center', background:'#39FF14', color:'#000', fontWeight:800, fontSize:13, padding:'10px', borderRadius:8, textDecoration:'none' }}>
+            style={{ display:'block', textAlign:'center', background:'var(--accent)', color:'#000', fontWeight:800, fontSize:13, padding:'10px', borderRadius:8, textDecoration:'none' }}>
             Sign in
           </Link>
         </div>

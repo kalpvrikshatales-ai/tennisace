@@ -39,7 +39,7 @@ function WeekendRequestCard({ req }: { req: PlayRequest }) {
       <p style={{ color: 'var(--text)', fontSize: 15, fontWeight: 900, margin: '0 0 3px', letterSpacing: -0.3 }}>
         {fmtDateShort(req.date)}
       </p>
-      <p style={{ color: 'rgba(57,255,20,0.8)', fontSize: 11, fontWeight: 700, margin: '0 0 10px' }}>
+      <p style={{ color: 'color-mix(in srgb, var(--accent) 80%, transparent)', fontSize: 11, fontWeight: 700, margin: '0 0 10px' }}>
         {req.time_slot}{req.location_name ? ` · ${req.location_name}` : ''}
       </p>
       <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 10 }}>
@@ -47,25 +47,25 @@ function WeekendRequestCard({ req }: { req: PlayRequest }) {
           width: 26, height: 26, borderRadius: '50%', flexShrink: 0,
           background: req.creator.photo_url
             ? `url(${req.creator.photo_url}) center/cover no-repeat`
-            : 'rgba(57,255,20,0.15)',
+            : 'color-mix(in srgb, var(--accent) 15%, transparent)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 10, fontWeight: 900, color: '#39FF14', overflow: 'hidden',
+          fontSize: 10, fontWeight: 900, color: 'var(--accent)', overflow: 'hidden',
         }}>
           {!req.creator.photo_url && (req.creator.name ?? '?')[0].toUpperCase()}
         </div>
         <span style={{ color: 'var(--text-2)', fontSize: 12, fontWeight: 600 }}>{req.creator.name}</span>
       </div>
       <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 12 }}>
-        {req.format  && <span style={{ padding: '2px 8px', borderRadius: 5, background: 'rgba(57,255,20,0.08)', border: '1px solid rgba(57,255,20,0.2)', color: '#39FF14', fontSize: 9, fontWeight: 800 }}>{FORMAT_LABEL[req.format] ?? req.format}</span>}
+        {req.format  && <span style={{ padding: '2px 8px', borderRadius: 5, background: 'color-mix(in srgb, var(--accent) 8%, transparent)', border: '1px solid color-mix(in srgb, var(--accent) 20%, transparent)', color: 'var(--accent)', fontSize: 9, fontWeight: 800 }}>{FORMAT_LABEL[req.format] ?? req.format}</span>}
         {req.level   && <span style={{ padding: '2px 8px', borderRadius: 5, background: 'var(--surface-2)', border: '1px solid var(--border)', color: 'var(--text-2)', fontSize: 9, fontWeight: 700 }}>{req.level}</span>}
         {req.surface && <span style={{ padding: '2px 8px', borderRadius: 5, background: 'var(--surface-2)', border: '1px solid var(--border)', color: 'var(--text-2)', fontSize: 9, fontWeight: 700 }}>{req.surface}</span>}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ color: '#39FF14', fontSize: 11, fontWeight: 800 }}>
+        <span style={{ color: 'var(--accent)', fontSize: 11, fontWeight: 800 }}>
           {req.spots_left} spot{req.spots_left !== 1 ? 's' : ''} left
         </span>
         <Link href="/play"
-          style={{ background: '#39FF14', color: '#000', fontWeight: 900, fontSize: 11, padding: '6px 12px', borderRadius: 7, textDecoration: 'none' }}>
+          style={{ background: 'var(--accent)', color: '#000', fontWeight: 900, fontSize: 11, padding: '6px 12px', borderRadius: 7, textDecoration: 'none' }}>
           Join →
         </Link>
       </div>
@@ -105,9 +105,9 @@ function HexBadge({ number }: { number: number }) {
       display: 'inline-flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
       width: 44, height: 50,
       clipPath: 'polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)',
-      background: 'rgba(57,255,20,0.08)', border: '1px solid #39FF14',
-      boxShadow: '0 0 8px rgba(57,255,20,0.2)',
-      color: '#39FF14', flexShrink: 0, gap: 1,
+      background: 'color-mix(in srgb, var(--accent) 8%, transparent)', border: '1px solid var(--accent)',
+      boxShadow: '0 0 8px color-mix(in srgb, var(--accent) 20%, transparent)',
+      color: 'var(--accent)', flexShrink: 0, gap: 1,
     }}>
       <span style={{ fontSize: 8, fontWeight: 800, letterSpacing: 0.8 }}>FM</span>
       <span style={{ fontSize: 12, fontWeight: 900 }}>#{number}</span>
@@ -134,7 +134,7 @@ function AnimatedBar({ pct, delay = 0 }: { pct: number; delay?: number }) {
     <div ref={ref} style={{ height: 8, background: 'var(--surface-2)', borderRadius: 4, overflow: 'hidden' }}>
       <div style={{
         height: '100%', borderRadius: 4,
-        background: 'linear-gradient(90deg, #39FF14, #00C875)',
+        background: 'linear-gradient(90deg, var(--accent), #00C875)',
         width: `${width}%`,
         transition: 'width 1.2s cubic-bezier(0.4, 0, 0.2, 1)',
       }} />
@@ -149,10 +149,10 @@ function MemberAvatar({ member, blur }: { member: Member; blur: boolean }) {
       <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
         <div style={{
           width: 56, height: 56, borderRadius: '50%',
-          background: member.photo_url ? `url(${member.photo_url}) center/cover no-repeat` : 'rgba(57,255,20,0.15)',
-          border: '2px solid rgba(57,255,20,0.25)',
+          background: member.photo_url ? `url(${member.photo_url}) center/cover no-repeat` : 'color-mix(in srgb, var(--accent) 15%, transparent)',
+          border: '2px solid color-mix(in srgb, var(--accent) 25%, transparent)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 20, fontWeight: 900, color: '#39FF14',
+          fontSize: 20, fontWeight: 900, color: 'var(--accent)',
           filter: blur ? 'blur(4px)' : 'none',
           transition: 'filter 0.2s',
           overflow: 'hidden',
@@ -162,8 +162,8 @@ function MemberAvatar({ member, blur }: { member: Member; blur: boolean }) {
         {member.founding_number && (
           <span style={{
             position: 'absolute', bottom: 22, right: -2,
-            background: 'var(--bg)', border: '1px solid #39FF14',
-            borderRadius: 6, color: '#39FF14', fontSize: 8, fontWeight: 900,
+            background: 'var(--bg)', border: '1px solid var(--accent)',
+            borderRadius: 6, color: 'var(--accent)', fontSize: 8, fontWeight: 900,
             padding: '1px 4px', lineHeight: 1.4,
           }}>#{member.founding_number}</span>
         )}
@@ -234,9 +234,9 @@ export default function CityProgressClient({ city, initialData }: { city: string
       {/* ── Hero ── */}
       <div style={{ padding: '40px 20px 32px', textAlign: 'center', animation: 'fade-up 0.5s ease' }}>
         <div style={{
-          display: 'inline-block', background: 'rgba(57,255,20,0.08)', border: '1px solid rgba(57,255,20,0.2)',
+          display: 'inline-block', background: 'color-mix(in srgb, var(--accent) 8%, transparent)', border: '1px solid color-mix(in srgb, var(--accent) 20%, transparent)',
           borderRadius: 20, padding: '4px 14px', fontSize: 11, fontWeight: 800,
-          color: '#39FF14', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 16,
+          color: 'var(--accent)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 16,
         }}>
           {data.country} · Tennis Community
         </div>
@@ -246,7 +246,7 @@ export default function CityProgressClient({ city, initialData }: { city: string
         <p style={{ color: 'var(--text-2)', fontSize: 16, margin: '0 0 6px' }}>
           Building the tennis community
         </p>
-        <p style={{ color: '#39FF14', fontSize: 14, fontWeight: 700, margin: 0 }}>
+        <p style={{ color: 'var(--accent)', fontSize: 14, fontWeight: 700, margin: 0 }}>
           {total} founding member{total !== 1 ? 's' : ''} and counting
         </p>
       </div>
@@ -301,15 +301,15 @@ export default function CityProgressClient({ city, initialData }: { city: string
                 <div key={m.key} style={{
                   display: 'flex', alignItems: 'center', gap: 14,
                   padding: '12px 14px', borderRadius: 10,
-                  background: isCurrent ? 'rgba(57,255,20,0.08)' : 'transparent',
-                  border: `1px solid ${isCurrent ? 'rgba(57,255,20,0.3)' : 'var(--border)'}`,
+                  background: isCurrent ? 'color-mix(in srgb, var(--accent) 8%, transparent)' : 'transparent',
+                  border: `1px solid ${isCurrent ? 'color-mix(in srgb, var(--accent) 30%, transparent)' : 'var(--border)'}`,
                 }}>
                   <div style={{
                     width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: reached ? 'rgba(57,255,20,0.2)' : isCurrent ? 'rgba(57,255,20,0.1)' : 'var(--surface-2)',
-                    border: `1px solid ${reached || isCurrent ? '#39FF14' : 'var(--border)'}`,
-                    color: reached ? '#39FF14' : isCurrent ? '#39FF14' : 'var(--text-2)',
+                    background: reached ? 'color-mix(in srgb, var(--accent) 20%, transparent)' : isCurrent ? 'color-mix(in srgb, var(--accent) 10%, transparent)' : 'var(--surface-2)',
+                    border: `1px solid ${reached || isCurrent ? 'var(--accent)' : 'var(--border)'}`,
+                    color: reached ? 'var(--accent)' : isCurrent ? 'var(--accent)' : 'var(--text-2)',
                     fontSize: 14,
                   }}>
                     {reached ? '✓' : isCurrent ? '→' : `${i + 1}`}
@@ -323,12 +323,12 @@ export default function CityProgressClient({ city, initialData }: { city: string
                     </p>
                   </div>
                   {isCurrent && (
-                    <span style={{ color: '#39FF14', fontSize: 11, fontWeight: 800, animation: 'pulse 2s ease-in-out infinite' }}>
+                    <span style={{ color: 'var(--accent)', fontSize: 11, fontWeight: 800, animation: 'pulse 2s ease-in-out infinite' }}>
                       {milestoneLeft} to go
                     </span>
                   )}
                   {reached && (
-                    <span style={{ color: '#39FF14', fontSize: 11, fontWeight: 800 }}>Done</span>
+                    <span style={{ color: 'var(--accent)', fontSize: 11, fontWeight: 800 }}>Done</span>
                   )}
                 </div>
               )
@@ -358,7 +358,7 @@ export default function CityProgressClient({ city, initialData }: { city: string
             )}
             <div style={{ marginTop: 16, textAlign: 'center' }}>
               <Link href={`/community/${encodeURIComponent(city)}/founding-wall`}
-                style={{ color: '#39FF14', fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+                style={{ color: 'var(--accent)', fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
                 View all {total} founding members →
               </Link>
             </div>
@@ -376,7 +376,7 @@ export default function CityProgressClient({ city, initialData }: { city: string
               This Weekend
             </p>
             <Link href="/play"
-              style={{ color: 'rgba(57,255,20,0.7)', fontSize: 11, fontWeight: 800, textDecoration: 'none' }}>
+              style={{ color: 'color-mix(in srgb, var(--accent) 70%, transparent)', fontSize: 11, fontWeight: 800, textDecoration: 'none' }}>
               See all →
             </Link>
           </div>
@@ -388,7 +388,7 @@ export default function CityProgressClient({ city, initialData }: { city: string
               </p>
               <Link href="/play"
                 style={{
-                  display: 'inline-block', background: '#39FF14', color: '#000',
+                  display: 'inline-block', background: 'var(--accent)', color: '#000',
                   fontWeight: 900, fontSize: 13, padding: '10px 20px', borderRadius: 9, textDecoration: 'none',
                 }}>
                 Post a request →
@@ -405,8 +405,8 @@ export default function CityProgressClient({ city, initialData }: { city: string
 
         {/* ── Join CTA ── */}
         <div style={{
-          background: 'linear-gradient(135deg, rgba(57,255,20,0.1) 0%, rgba(0,200,117,0.05) 100%)',
-          border: '1.5px solid rgba(57,255,20,0.3)',
+          background: 'linear-gradient(135deg, color-mix(in srgb, var(--accent) 10%, transparent) 0%, rgba(0,200,117,0.05) 100%)',
+          border: '1.5px solid color-mix(in srgb, var(--accent) 30%, transparent)',
           borderRadius: 16, padding: '28px 24px', textAlign: 'center',
           animation: 'fade-up 0.5s ease 0.4s both',
         }}>
@@ -414,9 +414,9 @@ export default function CityProgressClient({ city, initialData }: { city: string
             display: 'inline-flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
             width: 56, height: 64, marginBottom: 16,
             clipPath: 'polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)',
-            background: 'rgba(57,255,20,0.12)', border: '1px solid #39FF14',
-            boxShadow: '0 0 20px rgba(57,255,20,0.3)',
-            color: '#39FF14',
+            background: 'color-mix(in srgb, var(--accent) 12%, transparent)', border: '1px solid var(--accent)',
+            boxShadow: '0 0 20px color-mix(in srgb, var(--accent) 30%, transparent)',
+            color: 'var(--accent)',
           }}>
             <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: 0.5 }}>FM</span>
             <span style={{ fontSize: 14, fontWeight: 900 }}>#{data.next_number}</span>
@@ -431,9 +431,9 @@ export default function CityProgressClient({ city, initialData }: { city: string
           <Link href="/sparring/create"
             style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
-              background: '#39FF14', color: '#000', fontWeight: 900, fontSize: 15,
+              background: 'var(--accent)', color: '#000', fontWeight: 900, fontSize: 15,
               padding: '14px 28px', borderRadius: 10, textDecoration: 'none',
-              boxShadow: '0 0 20px rgba(57,255,20,0.3)',
+              boxShadow: '0 0 20px color-mix(in srgb, var(--accent) 30%, transparent)',
             }}>
             Join the founding members →
           </Link>

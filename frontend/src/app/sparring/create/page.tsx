@@ -80,21 +80,21 @@ function FoundingBadgeLarge({ number, city }: { number: number; city: string }) 
         width: 140, height: 140,
         clipPath: 'polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)',
         background: '#0d1b2e',
-        border: '2px solid #39FF14',
-        boxShadow: '0 0 32px rgba(57,255,20,0.35), 0 0 64px rgba(57,255,20,0.12)',
+        border: '2px solid var(--accent)',
+        boxShadow: '0 0 32px color-mix(in srgb, var(--accent) 35%, transparent), 0 0 64px color-mix(in srgb, var(--accent) 12%, transparent)',
         position: 'relative',
       }}>
         <style>{`
-          @keyframes badge-pulse { 0%,100% { box-shadow: 0 0 24px rgba(57,255,20,0.3); } 50% { box-shadow: 0 0 40px rgba(57,255,20,0.6); } }
+          @keyframes badge-pulse { 0%,100% { box-shadow: 0 0 24px color-mix(in srgb, var(--accent) 30%, transparent); } 50% { box-shadow: 0 0 40px color-mix(in srgb, var(--accent) 60%, transparent); } }
           @keyframes num-in { from { opacity:0; transform:scale(0.5); } to { opacity:1; transform:scale(1); } }
           @keyframes bar-fill { from { width:0% } to { width: var(--target-w) } }
           @keyframes fade-up { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
         `}</style>
-        <span style={{ color: '#39FF14', fontSize: 11, fontWeight: 900, letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 2 }}>Founding</span>
+        <span style={{ color: 'var(--accent)', fontSize: 11, fontWeight: 900, letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 2 }}>Founding</span>
         <span style={{ color: '#fff', fontSize: 36, fontWeight: 900, lineHeight: 1, animation: 'num-in 0.5s ease 0.3s both' }}>#{number}</span>
-        <span style={{ color: '#39FF14', fontSize: 9, fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase', marginTop: 2 }}>Member</span>
+        <span style={{ color: 'var(--accent)', fontSize: 9, fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase', marginTop: 2 }}>Member</span>
       </div>
-      <p style={{ color: '#39FF14', fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', margin: '14px 0 0' }}>
+      <p style={{ color: 'var(--accent)', fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', margin: '14px 0 0' }}>
         {city}
       </p>
     </div>
@@ -152,9 +152,9 @@ function TypeSelector({ onSelect }: { onSelect: (t: ProfileType) => void }) {
             onMouseLeave={() => setHov(null)}
             style={{
               padding: '22px 24px', borderRadius: 16, cursor: 'pointer', textAlign: 'left',
-              background: hov === type ? 'rgba(57,255,20,0.08)' : 'rgba(255,255,255,0.04)',
-              border: `1.5px solid ${hov === type ? '#39FF14' : 'rgba(255,255,255,0.1)'}`,
-              boxShadow: hov === type ? '0 0 24px rgba(57,255,20,0.15)' : 'none',
+              background: hov === type ? 'color-mix(in srgb, var(--accent) 8%, transparent)' : 'rgba(255,255,255,0.04)',
+              border: `1.5px solid ${hov === type ? 'var(--accent)' : 'rgba(255,255,255,0.1)'}`,
+              boxShadow: hov === type ? '0 0 24px color-mix(in srgb, var(--accent) 15%, transparent)' : 'none',
               transition: 'all 0.18s ease',
               animation: `type-in 0.4s ease ${0.1 + i * 0.08}s both`,
               display: 'flex', alignItems: 'center', gap: 18,
@@ -165,14 +165,14 @@ function TypeSelector({ onSelect }: { onSelect: (t: ProfileType) => void }) {
               <p style={{ color: '#fff', fontWeight: 900, fontSize: 18, margin: '0 0 3px', letterSpacing: -0.3 }}>{title}</p>
               <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13, margin: 0 }}>{sub}</p>
             </div>
-            <span style={{ color: hov === type ? '#39FF14' : 'rgba(255,255,255,0.2)', fontSize: 20, transition: 'color 0.15s' }}>→</span>
+            <span style={{ color: hov === type ? 'var(--accent)' : 'rgba(255,255,255,0.2)', fontSize: 20, transition: 'color 0.15s' }}>→</span>
           </button>
         ))}
       </div>
 
       <p style={{ color: 'rgba(255,255,255,0.25)', fontSize: 12, margin: '32px 0 0', textAlign: 'center' }}>
         Already have a profile?{' '}
-        <Link href="/sparring/login" style={{ color: '#39FF14', textDecoration: 'none', fontWeight: 700 }}>Sign in →</Link>
+        <Link href="/sparring/login" style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: 700 }}>Sign in →</Link>
       </p>
     </div>
   )
@@ -428,7 +428,7 @@ export default function CreateSparringPage() {
           @keyframes num-in    { from { opacity:0; transform:scale(0.5); } to { opacity:1; transform:scale(1); } }
           @keyframes fade-up   { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
           @keyframes bar-grow  { from { width:0% } to { width:${pct.toFixed(1)}% } }
-          @keyframes glow-ring { 0%,100% { box-shadow: 0 0 24px rgba(57,255,20,0.3); } 50% { box-shadow: 0 0 48px rgba(57,255,20,0.6); } }
+          @keyframes glow-ring { 0%,100% { box-shadow: 0 0 24px color-mix(in srgb, var(--accent) 30%, transparent); } 50% { box-shadow: 0 0 48px color-mix(in srgb, var(--accent) 60%, transparent); } }
         `}</style>
 
         {/* Badge */}
@@ -437,15 +437,15 @@ export default function CreateSparringPage() {
             width: 160, height: 160, marginBottom: 32,
             clipPath: 'polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)',
             background: 'linear-gradient(160deg, #0f2a10 0%, #0d1b2e 100%)',
-            border: '2px solid #39FF14',
+            border: '2px solid var(--accent)',
             animation: 'glow-ring 2s ease-in-out infinite',
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
           }}>
-            <span style={{ color: '#39FF14', fontSize: 10, fontWeight: 900, letterSpacing: 1.5, textTransform: 'uppercase' }}>Founding</span>
+            <span style={{ color: 'var(--accent)', fontSize: 10, fontWeight: 900, letterSpacing: 1.5, textTransform: 'uppercase' }}>Founding</span>
             <span style={{ color: '#fff', fontSize: 42, fontWeight: 900, lineHeight: 1, animation: 'num-in 0.5s ease 0.3s both' }}>
               #{foundingNumber}
             </span>
-            <span style={{ color: '#39FF14', fontSize: 9, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', marginTop: 2 }}>Member</span>
+            <span style={{ color: 'var(--accent)', fontSize: 9, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', marginTop: 2 }}>Member</span>
           </div>
         )}
 
@@ -476,7 +476,7 @@ export default function CreateSparringPage() {
         {foundingNumber && (
           <div style={{ width: '100%', maxWidth: 360, animation: 'fade-up 0.5s ease 0.7s both' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-              <span style={{ color: '#39FF14', fontSize: 13, fontWeight: 800 }}>{celebCity}</span>
+              <span style={{ color: 'var(--accent)', fontSize: 13, fontWeight: 800 }}>{celebCity}</span>
               <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12 }}>
                 Players {foundingNumber}/{playerTarget}
               </span>
@@ -484,7 +484,7 @@ export default function CreateSparringPage() {
             <div style={{ height: 6, background: 'rgba(255,255,255,0.08)', borderRadius: 3, overflow: 'hidden' }}>
               <div style={{
                 height: '100%', borderRadius: 3,
-                background: 'linear-gradient(90deg, #39FF14, #00C875)',
+                background: 'linear-gradient(90deg, var(--accent), #00C875)',
                 animation: 'bar-grow 1.2s cubic-bezier(0.4,0,0.2,1) 0.9s both',
                 width: `${pct.toFixed(1)}%`,
               }} />
@@ -496,8 +496,8 @@ export default function CreateSparringPage() {
         )}
 
         {/* Permanent free message */}
-        <div style={{ width: '100%', maxWidth: 360, marginTop: 24, animation: 'fade-up 0.5s ease 1.0s both', background: 'rgba(57,255,20,0.06)', border: '1px solid rgba(57,255,20,0.18)', borderRadius: 12, padding: '14px 16px' }}>
-          <p style={{ color: '#39FF14', fontSize: 13, fontWeight: 800, margin: '0 0 4px' }}>
+        <div style={{ width: '100%', maxWidth: 360, marginTop: 24, animation: 'fade-up 0.5s ease 1.0s both', background: 'color-mix(in srgb, var(--accent) 6%, transparent)', border: '1px solid color-mix(in srgb, var(--accent) 18%, transparent)', borderRadius: 12, padding: '14px 16px' }}>
+          <p style={{ color: 'var(--accent)', fontSize: 13, fontWeight: 800, margin: '0 0 4px' }}>
             Your Founding Member profile is permanently free.
           </p>
           <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 12, margin: 0, lineHeight: 1.6 }}>
@@ -513,15 +513,15 @@ export default function CreateSparringPage() {
             </p>
             <div style={{
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              background: 'rgba(57,255,20,0.07)', border: '1px solid rgba(57,255,20,0.25)',
+              background: 'color-mix(in srgb, var(--accent) 7%, transparent)', border: '1px solid color-mix(in srgb, var(--accent) 25%, transparent)',
               borderRadius: 10, padding: '12px 16px',
             }}>
-              <span style={{ color: '#39FF14', fontSize: 14, fontWeight: 800, fontFamily: 'monospace' }}>
+              <span style={{ color: 'var(--accent)', fontSize: 14, fontWeight: 800, fontFamily: 'monospace' }}>
                 tennisace.live/p/{celebHandle}
               </span>
               <button
                 onClick={() => navigator.clipboard?.writeText(`https://tennisace.live/p/${celebHandle}`)}
-                style={{ background: 'none', border: '1px solid rgba(57,255,20,0.3)', borderRadius: 6, color: '#39FF14', fontSize: 11, fontWeight: 700, padding: '5px 10px', cursor: 'pointer' }}
+                style={{ background: 'none', border: '1px solid color-mix(in srgb, var(--accent) 30%, transparent)', borderRadius: 6, color: 'var(--accent)', fontSize: 11, fontWeight: 700, padding: '5px 10px', cursor: 'pointer' }}
               >
                 Copy
               </button>
@@ -531,7 +531,7 @@ export default function CreateSparringPage() {
 
         {/* Redirect timer bar */}
         <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, height: 3, background: 'rgba(255,255,255,0.06)' }}>
-          <div style={{ height: '100%', background: '#39FF14', borderRadius: 2, animation: 'bar-grow 5s linear forwards', width: '100%' }} />
+          <div style={{ height: '100%', background: 'var(--accent)', borderRadius: 2, animation: 'bar-grow 5s linear forwards', width: '100%' }} />
         </div>
       </div>
     )
@@ -611,7 +611,7 @@ export default function CreateSparringPage() {
               border: `2px dashed ${photoPreview && profileType === 'coach' ? 'var(--sr-accent)' : 'var(--sr-border)'}`,
               display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
               overflow: 'hidden', cursor: 'pointer',
-              boxShadow: photoPreview && profileType === 'coach' ? '0 0 0 4px rgba(57,255,20,0.12)' : 'none',
+              boxShadow: photoPreview && profileType === 'coach' ? '0 0 0 4px color-mix(in srgb, var(--accent) 12%, transparent)' : 'none',
               transition: 'all 0.2s',
             }}>
             {photoPreview

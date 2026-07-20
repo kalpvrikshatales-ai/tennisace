@@ -104,7 +104,7 @@ export default function USOpenPage() {
           <div style={{ maxWidth: 720, margin: '0 auto' }}>
             {/* Badge row */}
             <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-              <span style={{ background: '#39FF14', color: '#000', fontSize: 10, fontWeight: 900, padding: '3px 10px', borderRadius: 100, textTransform: 'uppercase', letterSpacing: 1 }}>
+              <span style={{ background: 'var(--accent)', color: '#000', fontSize: 10, fontWeight: 900, padding: '3px 10px', borderRadius: 100, textTransform: 'uppercase', letterSpacing: 1 }}>
                 Grand Slam
               </span>
               <span style={{ background: '#132236', color: '#8ba3c0', fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 100 }}>
@@ -116,7 +116,7 @@ export default function USOpenPage() {
             </div>
 
             <h1 style={{ fontSize: 'clamp(32px, 6vw, 52px)', fontWeight: 900, lineHeight: 1.05, margin: '0 0 8px', letterSpacing: -1 }}>
-              US Open <span style={{ color: '#39FF14' }}>2026</span>
+              US Open <span style={{ color: 'var(--accent)' }}>2026</span>
             </h1>
             <p style={{ color: '#8ba3c0', fontSize: 16, margin: '0 0 28px', fontWeight: 500 }}>
               Aug 25 – Sep 7, 2026 &nbsp;·&nbsp; USTA Billie Jean King National Tennis Center
@@ -132,7 +132,7 @@ export default function USOpenPage() {
 
             {/* Prize pill */}
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: '#132236', border: '1px solid #1a3050', borderRadius: 12, padding: '12px 20px' }}>
-              <span style={{ color: '#39FF14', fontSize: 20 }}>🏆</span>
+              <span style={{ color: 'var(--accent)', fontSize: 20 }}>🏆</span>
               <div>
                 <p style={{ margin: 0, fontSize: 17, fontWeight: 900, color: '#fff' }}>$75,000,000+</p>
                 <p style={{ margin: 0, fontSize: 11, color: '#5a7a9a', fontWeight: 600 }}>Total prize money</p>
@@ -158,7 +158,7 @@ export default function USOpenPage() {
 
           {/* ── PLAYERS TO WATCH ─────────────────────────────────── */}
           <section style={{ padding: '32px 0', borderBottom: '1px solid #0f1a2e' }}>
-            <h2 style={{ fontSize: 13, fontWeight: 900, color: '#39FF14', textTransform: 'uppercase', letterSpacing: 2, margin: '0 0 20px' }}>
+            <h2 style={{ fontSize: 13, fontWeight: 900, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: 2, margin: '0 0 20px' }}>
               Players to Watch
             </h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
@@ -168,7 +168,7 @@ export default function USOpenPage() {
                     <span style={{ fontSize: 24 }}>{p.flag}</span>
                     <div>
                       <p style={{ margin: 0, fontSize: 14, fontWeight: 800, color: '#fff' }}>{p.name}</p>
-                      <p style={{ margin: 0, fontSize: 11, color: '#39FF14', fontWeight: 700 }}>
+                      <p style={{ margin: 0, fontSize: 11, color: 'var(--accent)', fontWeight: 700 }}>
                         {p.women ? 'WTA' : 'ATP'} #{p.rank}
                       </p>
                     </div>
@@ -181,7 +181,7 @@ export default function USOpenPage() {
 
           {/* ── KEY DATES ────────────────────────────────────────── */}
           <section style={{ padding: '32px 0', borderBottom: '1px solid #0f1a2e' }}>
-            <h2 style={{ fontSize: 13, fontWeight: 900, color: '#39FF14', textTransform: 'uppercase', letterSpacing: 2, margin: '0 0 20px' }}>
+            <h2 style={{ fontSize: 13, fontWeight: 900, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: 2, margin: '0 0 20px' }}>
               Key Dates
             </h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
@@ -189,7 +189,7 @@ export default function USOpenPage() {
                 <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 0 }}>
                   {/* Timeline line + dot */}
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 24, flexShrink: 0, paddingTop: 4 }}>
-                    <div style={{ width: 10, height: 10, borderRadius: '50%', background: d.highlight ? '#39FF14' : '#1a3050', border: d.highlight ? '2px solid #39FF14' : '2px solid #2a4060', flexShrink: 0 }} />
+                    <div style={{ width: 10, height: 10, borderRadius: '50%', background: d.highlight ? 'var(--accent)' : '#1a3050', border: d.highlight ? '2px solid var(--accent)' : '2px solid #2a4060', flexShrink: 0 }} />
                     {i < KEY_DATES.length - 1 && (
                       <div style={{ width: 2, flex: 1, background: '#0f1a2e', minHeight: 24 }} />
                     )}
@@ -206,18 +206,18 @@ export default function USOpenPage() {
 
           {/* ── ROAD TO US OPEN ──────────────────────────────────── */}
           <section style={{ padding: '32px 0', borderBottom: '1px solid #0f1a2e' }}>
-            <h2 style={{ fontSize: 13, fontWeight: 900, color: '#39FF14', textTransform: 'uppercase', letterSpacing: 2, margin: '0 0 20px' }}>
+            <h2 style={{ fontSize: 13, fontWeight: 900, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: 2, margin: '0 0 20px' }}>
               Road to US Open
             </h2>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 12 }}>
               {WARMUP.map(t => (
                 <div key={t.name} style={{ background: '#132236', border: '1px solid #1a3050', borderRadius: 12, padding: '18px' }}>
                   <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
-                    <span style={{ background: '#0d1b2e', color: '#39FF14', fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 100 }}>{t.tier}</span>
+                    <span style={{ background: '#0d1b2e', color: 'var(--accent)', fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 100 }}>{t.tier}</span>
                     <span style={{ background: '#0d1b2e', color: '#5a7a9a', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 100 }}>{t.surface}</span>
                   </div>
                   <p style={{ margin: '0 0 4px', fontSize: 14, fontWeight: 800, color: '#fff' }}>{t.name}</p>
-                  <p style={{ margin: '0 0 10px', fontSize: 12, color: '#39FF14', fontWeight: 700 }}>{t.dates}</p>
+                  <p style={{ margin: '0 0 10px', fontSize: 12, color: 'var(--accent)', fontWeight: 700 }}>{t.dates}</p>
                   <p style={{ margin: 0, fontSize: 12, color: '#5a7a9a', lineHeight: 1.5 }}>{t.note}</p>
                 </div>
               ))}
@@ -226,7 +226,7 @@ export default function USOpenPage() {
 
           {/* ── STATS GRID ───────────────────────────────────────── */}
           <section style={{ padding: '32px 0', borderBottom: '1px solid #0f1a2e' }}>
-            <h2 style={{ fontSize: 13, fontWeight: 900, color: '#39FF14', textTransform: 'uppercase', letterSpacing: 2, margin: '0 0 20px' }}>
+            <h2 style={{ fontSize: 13, fontWeight: 900, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: 2, margin: '0 0 20px' }}>
               Tournament Facts
             </h2>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -243,7 +243,7 @@ export default function USOpenPage() {
           {/* ── BOTTOM CTA ───────────────────────────────────────── */}
           <section style={{ padding: '36px 0 48px', display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <Link href="/"
-              style={{ flex: 1, minWidth: 160, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: '#39FF14', color: '#000', fontWeight: 900, fontSize: 14, padding: '14px 20px', borderRadius: 10, textDecoration: 'none' }}>
+              style={{ flex: 1, minWidth: 160, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: 'var(--accent)', color: '#000', fontWeight: 900, fontSize: 14, padding: '14px 20px', borderRadius: 10, textDecoration: 'none' }}>
               🎾 Live Scores
             </Link>
             <Link href="/sparring"

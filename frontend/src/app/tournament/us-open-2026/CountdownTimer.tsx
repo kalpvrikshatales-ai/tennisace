@@ -18,7 +18,7 @@ export default function CountdownTimer() {
 
   if (diff === null) return null
   if (diff === 0) return (
-    <span style={{ color: '#39FF14', fontWeight: 900, fontSize: 13 }}>🎾 Tournament is live!</span>
+    <span style={{ color: 'var(--accent)', fontWeight: 900, fontSize: 13 }}>🎾 Tournament is live!</span>
   )
 
   const days    = Math.floor(diff / 86_400_000)
@@ -28,7 +28,7 @@ export default function CountdownTimer() {
 
   const unit = (v: number, label: string) => (
     <div style={{ textAlign: 'center', minWidth: 48 }}>
-      <div style={{ fontSize: 26, fontWeight: 900, color: '#39FF14', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
+      <div style={{ fontSize: 26, fontWeight: 900, color: 'var(--accent)', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
         {String(v).padStart(2, '0')}
       </div>
       <div style={{ fontSize: 10, fontWeight: 700, color: '#5a7a9a', textTransform: 'uppercase', letterSpacing: 1, marginTop: 2 }}>
@@ -40,11 +40,11 @@ export default function CountdownTimer() {
   return (
     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
       {unit(days, 'days')}
-      <div style={{ color: '#39FF14', fontWeight: 900, fontSize: 20, paddingTop: 2 }}>:</div>
+      <div style={{ color: 'var(--accent)', fontWeight: 900, fontSize: 20, paddingTop: 2 }}>:</div>
       {unit(hours, 'hrs')}
-      <div style={{ color: '#39FF14', fontWeight: 900, fontSize: 20, paddingTop: 2 }}>:</div>
+      <div style={{ color: 'var(--accent)', fontWeight: 900, fontSize: 20, paddingTop: 2 }}>:</div>
       {unit(minutes, 'min')}
-      <div style={{ color: '#39FF14', fontWeight: 900, fontSize: 20, paddingTop: 2 }}>:</div>
+      <div style={{ color: 'var(--accent)', fontWeight: 900, fontSize: 20, paddingTop: 2 }}>:</div>
       {unit(seconds, 'sec')}
     </div>
   )

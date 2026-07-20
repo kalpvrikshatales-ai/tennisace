@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 }
 
 const H2 = ({ children }: { children: React.ReactNode }) => (
-  <h2 style={{ color: '#39FF14', fontSize: 16, fontWeight: 800, margin: '36px 0 10px', letterSpacing: -0.2 }}>
+  <h2 style={{ color: 'var(--accent)', fontSize: 16, fontWeight: 800, margin: '36px 0 10px', letterSpacing: -0.2 }}>
     {children}
   </h2>
 )
@@ -32,7 +32,7 @@ export default function PrivacyPage() {
       padding: '32px 24px 80px',
       fontFamily: 'var(--font-dm-sans, DM Sans, sans-serif)',
     }}>
-      <Link href="/" style={{ color: '#39FF14', fontSize: 13, fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 32 }}>
+      <Link href="/" style={{ color: 'var(--accent)', fontSize: 13, fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 32 }}>
         ← Back
       </Link>
 
@@ -96,7 +96,7 @@ export default function PrivacyPage() {
         <Li><strong style={{ color: 'var(--text)' }}>Authentication cookies</strong> — set by Supabase to keep you logged in. These are strictly necessary and cannot be disabled without breaking login functionality.</Li>
         <Li><strong style={{ color: 'var(--text)' }}>Analytics cookies</strong> — set by Google Analytics to help us understand how users navigate TennisAce (pages visited, session duration, device type). No personally identifiable information is sent to Google Analytics.</Li>
       </ul>
-      <P>We do not use advertising or tracking cookies. See our <Link href="/cookies" style={{ color: '#39FF14', textDecoration: 'none' }}>Cookie Policy</Link> for full details.</P>
+      <P>We do not use advertising or tracking cookies. See our <Link href="/cookies" style={{ color: 'var(--accent)', textDecoration: 'none' }}>Cookie Policy</Link> for full details.</P>
 
       <H2>8. Your Rights (GDPR)</H2>
       <P>
@@ -110,7 +110,7 @@ export default function PrivacyPage() {
         <Li>Receive your data in a portable format</Li>
       </ul>
       <P>
-        To exercise any of these rights, email us at <a href="mailto:privacy@tennisace.live" style={{ color: '#39FF14', textDecoration: 'none' }}>privacy@tennisace.live</a>. We will respond within 30 days.
+        To exercise any of these rights, email us at <a href="mailto:privacy@tennisace.live" style={{ color: 'var(--accent)', textDecoration: 'none' }}>privacy@tennisace.live</a>. We will respond within 30 days.
       </P>
 
       <H2>9. Third-Party Services</H2>
@@ -134,7 +134,7 @@ export default function PrivacyPage() {
 
       <H2>12. Contact</H2>
       <P>
-        For privacy-related questions or requests, contact us at <a href="mailto:privacy@tennisace.live" style={{ color: '#39FF14', textDecoration: 'none' }}>privacy@tennisace.live</a>.
+        For privacy-related questions or requests, contact us at <a href="mailto:privacy@tennisace.live" style={{ color: 'var(--accent)', textDecoration: 'none' }}>privacy@tennisace.live</a>.
       </P>
     </div>
   )

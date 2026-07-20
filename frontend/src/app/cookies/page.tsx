@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 }
 
 const H2 = ({ children }: { children: React.ReactNode }) => (
-  <h2 style={{ color: '#39FF14', fontSize: 16, fontWeight: 800, margin: '36px 0 10px', letterSpacing: -0.2 }}>
+  <h2 style={{ color: 'var(--accent)', fontSize: 16, fontWeight: 800, margin: '36px 0 10px', letterSpacing: -0.2 }}>
     {children}
   </h2>
 )
@@ -37,7 +37,7 @@ export default function CookiesPage() {
       padding: '32px 24px 80px',
       fontFamily: 'var(--font-dm-sans, DM Sans, sans-serif)',
     }}>
-      <Link href="/" style={{ color: '#39FF14', fontSize: 13, fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 32 }}>
+      <Link href="/" style={{ color: 'var(--accent)', fontSize: 13, fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 32 }}>
         ← Back
       </Link>
 
@@ -87,7 +87,7 @@ export default function CookiesPage() {
         We use <strong style={{ color: 'var(--text)' }}>Google Analytics</strong> to understand how visitors use TennisAce — which pages are most popular, how long sessions last, and what devices people use. This helps us prioritise improvements to the platform.
       </P>
       <P>
-        Google Analytics cookies collect anonymised, aggregated data. They do not contain your name, email, or any other directly identifying information. Google may process this data on servers outside your country. See <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" style={{ color: '#39FF14', textDecoration: 'none' }}>Google's Privacy Policy</a> for details.
+        Google Analytics cookies collect anonymised, aggregated data. They do not contain your name, email, or any other directly identifying information. Google may process this data on servers outside your country. See <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)', textDecoration: 'none' }}>Google's Privacy Policy</a> for details.
       </P>
 
       <div style={{ overflowX: 'auto', marginBottom: 24 }}>
@@ -124,7 +124,7 @@ export default function CookiesPage() {
           ['Edge', 'https://support.microsoft.com/en-us/microsoft-edge/delete-cookies-in-microsoft-edge-63947406-40ac-c3b8-57b9-2a946a29ae09'],
         ].map(([browser, url]) => (
           <li key={browser} style={{ color: 'var(--text-secondary)', fontSize: 15, lineHeight: 1.75, marginBottom: 6 }}>
-            <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: '#39FF14', textDecoration: 'none' }}>{browser}</a>
+            <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)', textDecoration: 'none' }}>{browser}</a>
           </li>
         ))}
       </ul>
@@ -132,7 +132,7 @@ export default function CookiesPage() {
         Please note: blocking essential cookies (Supabase) will prevent you from staying logged in to TennisAce. You can still browse the public parts of the site without them.
       </P>
       <P>
-        To opt out of Google Analytics tracking specifically, you can install the <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer" style={{ color: '#39FF14', textDecoration: 'none' }}>Google Analytics Opt-out Browser Add-on</a>.
+        To opt out of Google Analytics tracking specifically, you can install the <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)', textDecoration: 'none' }}>Google Analytics Opt-out Browser Add-on</a>.
       </P>
 
       <H2>6. Changes to This Policy</H2>
@@ -142,7 +142,7 @@ export default function CookiesPage() {
 
       <H2>7. Contact</H2>
       <P>
-        Questions? Email us at <a href="mailto:privacy@tennisace.live" style={{ color: '#39FF14', textDecoration: 'none' }}>privacy@tennisace.live</a>.
+        Questions? Email us at <a href="mailto:privacy@tennisace.live" style={{ color: 'var(--accent)', textDecoration: 'none' }}>privacy@tennisace.live</a>.
       </P>
     </div>
   )

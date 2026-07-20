@@ -515,7 +515,7 @@ function RequestModal({ profile, onClose }: { profile: Profile; onClose: () => v
               {profile.name} will see your request. If they accept, you'll both get each other's number.
             </p>
             <button onClick={onClose}
-              style={{ background:'#39FF14', border:'none', borderRadius:10, color:'#000', fontWeight:800, fontSize:14, padding:'13px 32px', cursor:'pointer' }}>
+              style={{ background:'var(--accent)', border:'none', borderRadius:10, color:'#000', fontWeight:800, fontSize:14, padding:'13px 32px', cursor:'pointer' }}>
               Done
             </button>
           </div>
@@ -580,8 +580,8 @@ function RequestModal({ profile, onClose }: { profile: Profile; onClose: () => v
 
             <button onClick={submit} disabled={sending}
               style={{
-                width:'100%', background: sending ? 'rgba(57,255,20,0.3)' : '#39FF14',
-                border:'none', borderRadius:10, color: sending ? '#39FF14' : '#000',
+                width:'100%', background: sending ? 'color-mix(in srgb, var(--accent) 30%, transparent)' : 'var(--accent)',
+                border:'none', borderRadius:10, color: sending ? 'var(--accent)' : '#000',
                 fontWeight:800, fontSize:15, padding:'14px', cursor: sending ? 'not-allowed' : 'pointer',
                 minHeight:48, letterSpacing:-0.2, transition:'opacity 0.15s',
               }}>
@@ -629,7 +629,7 @@ function MatchHistoryTab({ profileId }: { profileId: string }) {
     <div>
       <div style={{ display:'flex', gap:10, marginBottom:24 }}>
         {[
-          { label:'Wins',   val: data?.wins   ?? 0, color:'#39FF14' },
+          { label:'Wins',   val: data?.wins   ?? 0, color:'var(--accent)' },
           { label:'Losses', val: data?.losses ?? 0, color:'#f87171' },
           { label:'Draws',  val: data?.draws  ?? 0, color:'var(--sr-muted)' },
         ].map(s => (
@@ -650,7 +650,7 @@ function MatchHistoryTab({ profileId }: { profileId: string }) {
         <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
           {matches.map((m: any) => {
             const opp = m.opponent ?? {}
-            const resultColor = m.result === 'win' ? '#39FF14' : m.result === 'loss' ? '#f87171' : 'var(--sr-muted)'
+            const resultColor = m.result === 'win' ? 'var(--accent)' : m.result === 'loss' ? '#f87171' : 'var(--sr-muted)'
             const resultLabel = m.result === 'win' ? 'W' : m.result === 'loss' ? 'L' : 'D'
             return (
               <div key={m.id} style={{ background:'var(--sr-card)', border:'1px solid var(--sr-border)', borderRadius:12, padding:'12px 14px', display:'flex', alignItems:'center', gap:12 }}>
@@ -743,7 +743,7 @@ function CoachInquiryModal({ profile, onClose }: { profile: Profile; onClose: ()
             <p style={{ color:'#7a9cc4', fontSize:14, margin:'0 0 28px', lineHeight:1.6 }}>
               {profile.name} will get your details by email and reach out.
             </p>
-            <button onClick={onClose} style={{ background:'#39FF14', border:'none', borderRadius:10, color:'#000', fontWeight:800, fontSize:14, padding:'13px 32px', cursor:'pointer' }}>Done</button>
+            <button onClick={onClose} style={{ background:'var(--accent)', border:'none', borderRadius:10, color:'#000', fontWeight:800, fontSize:14, padding:'13px 32px', cursor:'pointer' }}>Done</button>
           </div>
         ) : (
           <>
@@ -789,7 +789,7 @@ function CoachInquiryModal({ profile, onClose }: { profile: Profile; onClose: ()
               <textarea value={cMsg} onChange={e => setCMsg(e.target.value)} rows={2} placeholder="Anything else you'd like to share" style={{ ...inp, resize:'none', lineHeight:1.55 }} />
             </div>
             <button onClick={submit} disabled={sending}
-              style={{ width:'100%', background:sending ? 'rgba(57,255,20,0.3)' : '#39FF14', border:'none', borderRadius:10, color:sending ? '#39FF14' : '#000', fontWeight:800, fontSize:15, padding:'14px', cursor:sending ? 'not-allowed' : 'pointer', minHeight:48, letterSpacing:-0.2, transition:'opacity 0.15s' }}>
+              style={{ width:'100%', background:sending ? 'color-mix(in srgb, var(--accent) 30%, transparent)' : 'var(--accent)', border:'none', borderRadius:10, color:sending ? 'var(--accent)' : '#000', fontWeight:800, fontSize:15, padding:'14px', cursor:sending ? 'not-allowed' : 'pointer', minHeight:48, letterSpacing:-0.2, transition:'opacity 0.15s' }}>
               {sending ? 'Sending…' : 'Send Inquiry'}
             </button>
           </>
@@ -845,7 +845,7 @@ function ReferralCard({ profileId }: { profileId: string }) {
           <p style={{ color:'var(--sr-muted)', fontSize:10, fontWeight:700, margin:0, textTransform:'uppercase', letterSpacing:0.5 }}>Clicks</p>
         </div>
         <div>
-          <p style={{ color:'#39FF14', fontWeight:900, fontSize:20, margin:'0 0 1px', letterSpacing:-0.5 }}>{data.converted ?? 0}</p>
+          <p style={{ color:'var(--accent)', fontWeight:900, fontSize:20, margin:'0 0 1px', letterSpacing:-0.5 }}>{data.converted ?? 0}</p>
           <p style={{ color:'var(--sr-muted)', fontSize:10, fontWeight:700, margin:0, textTransform:'uppercase', letterSpacing:0.5 }}>Joined</p>
         </div>
       </div>
@@ -1166,9 +1166,9 @@ export default function SparringProfilePage() {
                     display:'inline-flex', alignItems:'center', justifyContent:'center', flexDirection:'column',
                     width:38, height:42, flexShrink:0,
                     clipPath:'polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)',
-                    background:'rgba(57,255,20,0.08)', border:'1px solid #39FF14',
-                    boxShadow:'0 0 12px rgba(57,255,20,0.3)',
-                    color:'#39FF14', cursor:'default', gap:1,
+                    background:'color-mix(in srgb, var(--accent) 8%, transparent)', border:'1px solid var(--accent)',
+                    boxShadow:'0 0 12px color-mix(in srgb, var(--accent) 30%, transparent)',
+                    color:'var(--accent)', cursor:'default', gap:1,
                   }}
                 >
                   <span style={{ fontSize:7, fontWeight:800, letterSpacing:0.5 }}>FM</span>
@@ -1190,7 +1190,7 @@ export default function SparringProfilePage() {
               return (
                 <>
                   {hasRate && (
-                    <p style={{ color:'#39FF14', fontSize:15, fontWeight:800, margin:'0 0 4px', letterSpacing:-0.3 }}>
+                    <p style={{ color:'var(--accent)', fontSize:15, fontWeight:800, margin:'0 0 4px', letterSpacing:-0.3 }}>
                       {rateFrom && rateTo ? `${rateFrom} – ${rateTo}` : rateFrom ?? rateTo} / hr
                     </p>
                   )}
@@ -1280,13 +1280,13 @@ export default function SparringProfilePage() {
             <div>
               {/* H2H panel — only when viewing someone you've played */}
               {!isOwn && h2h && h2h.total > 0 && (
-                <div style={{ background:'rgba(57,255,20,0.05)', border:'1px solid rgba(57,255,20,0.2)', borderRadius:12, padding:'14px 16px', marginBottom:20 }}>
+                <div style={{ background:'color-mix(in srgb, var(--accent) 5%, transparent)', border:'1px solid color-mix(in srgb, var(--accent) 20%, transparent)', borderRadius:12, padding:'14px 16px', marginBottom:20 }}>
                   <p style={{ color:'var(--sr-muted)', fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:0.7, margin:'0 0 12px' }}>
                     Head to Head
                   </p>
                   <div style={{ display:'flex', alignItems:'center', gap:16, justifyContent:'center' }}>
                     <div style={{ textAlign:'center' }}>
-                      <p style={{ color:'#39FF14', fontSize:32, fontWeight:900, margin:'0 0 2px', letterSpacing:-1 }}>{h2h.player1_wins}</p>
+                      <p style={{ color:'var(--accent)', fontSize:32, fontWeight:900, margin:'0 0 2px', letterSpacing:-1 }}>{h2h.player1_wins}</p>
                       <p style={{ color:'var(--sr-muted)', fontSize:11, fontWeight:700, margin:0 }}>You</p>
                     </div>
                     <p style={{ color:'var(--sr-muted)', fontSize:15, fontWeight:700, margin:0 }}>vs</p>

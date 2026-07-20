@@ -207,8 +207,8 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
             <div className="card overflow-hidden" style={{ background: '#0d1b2e', border: '1px solid #1a3050' }}>
               <div className="p-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: '#39FF14' }}>Live Scores</span>
-                  <div className="w-2 h-2 rounded-full" style={{ background: '#39FF14', opacity: 0.4 }} />
+                  <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--accent)' }}>Live Scores</span>
+                  <div className="w-2 h-2 rounded-full" style={{ background: 'var(--accent)', opacity: 0.4 }} />
                 </div>
                 <p className="text-white text-[22px] font-black leading-tight mb-2">
                   Live scores are taking a break.
@@ -218,7 +218,7 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
                 </p>
                 <Link href="/tournament/us-open-2026"
                   className="inline-flex items-center gap-2 text-[13px] font-bold px-4 py-2.5 rounded-full"
-                  style={{ background: 'rgba(57,255,20,0.15)', border: '1px solid rgba(57,255,20,0.3)', color: '#39FF14' }}>
+                  style={{ background: 'color-mix(in srgb, var(--accent) 15%, transparent)', border: '1px solid color-mix(in srgb, var(--accent) 30%, transparent)', color: 'var(--accent)' }}>
                   US Open hub — Aug 25 →
                 </Link>
               </div>
@@ -227,7 +227,7 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
             {/* Join community card */}
             <div className="card overflow-hidden" style={{ background: '#080f1a', border: '1px solid #1a2535' }}>
               <div className="p-6">
-                <p className="text-[10px] font-black uppercase tracking-widest mb-3" style={{ color: '#39FF14' }}>
+                <p className="text-[10px] font-black uppercase tracking-widest mb-3" style={{ color: 'var(--accent)' }}>
                   While we rebuild
                 </p>
                 <p className="text-white text-[18px] font-black mb-1">
@@ -240,7 +240,7 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
                 <div className="flex flex-col gap-3">
                   <Link href="/sparring/create"
                     className="flex items-center justify-between px-4 py-3.5 rounded-xl font-bold text-[14px]"
-                    style={{ background: '#39FF14', color: '#000' }}>
+                    style={{ background: 'var(--accent)', color: '#000' }}>
                     <span>Create your player profile</span>
                     <span>→</span>
                   </Link>
@@ -258,14 +258,14 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
             <Link href="/tournament/us-open-2026" className="block">
               <div className="card p-5 cursor-pointer hover:border-yellow-200/20 transition-all"
                 style={{ background: '#0d1b2e', border: '1px solid #1a3050' }}>
-                <p className="text-[10px] font-black text-center uppercase tracking-widest mb-3" style={{ color: '#39FF14' }}>
+                <p className="text-[10px] font-black text-center uppercase tracking-widest mb-3" style={{ color: 'var(--accent)' }}>
                   Grand Slam · Hard Court · New York
                 </p>
                 <p className="text-white text-[20px] font-black text-center mb-1">US Open 2026</p>
                 <p className="text-center text-[13px] mb-4" style={{ color: '#8ba3c0' }}>Aug 25 – Sep 7 · USTA Billie Jean King NTC</p>
                 <div className="flex justify-center">
                   <span className="inline-flex items-center gap-1.5 text-[12px] font-bold px-4 py-2 rounded-full"
-                    style={{ background: 'rgba(57,255,20,0.15)', border: '1px solid rgba(57,255,20,0.3)', color: '#39FF14' }}>
+                    style={{ background: 'color-mix(in srgb, var(--accent) 15%, transparent)', border: '1px solid color-mix(in srgb, var(--accent) 30%, transparent)', color: 'var(--accent)' }}>
                     View Tournament Hub →
                   </span>
                 </div>
@@ -330,11 +330,11 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
             <Link href="/tournament/us-open-2026">
               <div className="card p-8 cursor-pointer hover:border-yellow-200 transition-all"
                 style={{ background: '#0d1b2e', border: '1px solid #1a3050' }}>
-                <p className="text-[11px] font-black uppercase tracking-widest mb-3" style={{ color: '#39FF14' }}>Grand Slam · Hard Court</p>
+                <p className="text-[11px] font-black uppercase tracking-widest mb-3" style={{ color: 'var(--accent)' }}>Grand Slam · Hard Court</p>
                 <p className="text-[22px] font-black text-white mb-1">US Open 2026</p>
                 <p className="text-[14px] mb-4" style={{ color: '#8ba3c0' }}>Aug 25 – Sep 7 · USTA Billie Jean King NTC · NY</p>
                 <span className="inline-flex items-center gap-1.5 text-[13px] font-bold px-4 py-2 rounded-full"
-                  style={{ background: '#39FF14', color: '#000' }}>
+                  style={{ background: 'var(--accent)', color: '#000' }}>
                   View Tournament Hub →
                 </span>
               </div>

@@ -61,7 +61,7 @@ function CityCard({ data, flag, slug, accentColor, gradient, featured }: {
   return (
     <div className="city-hero-card" style={{
       background:   gradient,
-      border:       `1.5px solid ${featured ? 'rgba(57,255,20,0.28)' : 'rgba(245,158,11,0.22)'}`,
+      border:       `1.5px solid ${featured ? 'color-mix(in srgb, var(--accent) 28%, transparent)' : 'rgba(245,158,11,0.22)'}`,
       borderRadius: 20,
       padding:      '28px 24px 24px',
       minHeight:    200,
@@ -213,15 +213,15 @@ export default async function HomeCommunityHero() {
         @keyframes hero-fade  { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
         .hero-dot { animation: hero-pulse 2.2s ease-in-out infinite; }
         .city-hero-card { transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease; cursor: pointer; }
-        .city-hero-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(57,255,20,0.1); }
+        .city-hero-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px color-mix(in srgb, var(--accent) 10%, transparent); }
         .vp-card { transition: border-color 0.18s ease; }
-        .vp-card:hover { border-color: rgba(57,255,20,0.2) !important; }
-        .cta-outline:hover { background: rgba(57,255,20,0.08) !important; }
-        .proof-link:hover { background: rgba(57,255,20,0.12) !important; }
+        .vp-card:hover { border-color: color-mix(in srgb, var(--accent) 20%, transparent) !important; }
+        .cta-outline:hover { background: color-mix(in srgb, var(--accent) 8%, transparent) !important; }
+        .proof-link:hover { background: color-mix(in srgb, var(--accent) 12%, transparent) !important; }
         .member-av { transition: transform 0.14s ease; }
         .member-av:hover { transform: scale(1.1); }
         .hw-card { transition: border-color 0.18s ease, transform 0.18s ease; }
-        .hw-card:hover { border-color: rgba(57,255,20,0.18) !important; transform: translateY(-2px); }
+        .hw-card:hover { border-color: color-mix(in srgb, var(--accent) 18%, transparent) !important; transform: translateY(-2px); }
         .hero-content { animation: hero-fade 0.6s ease 0.1s both; }
         .hero-cities  { animation: hero-fade 0.6s ease 0.2s both; }
         @media (max-width: 600px) {
@@ -241,7 +241,7 @@ export default async function HomeCommunityHero() {
         backgroundImage: `
           linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
           linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px),
-          radial-gradient(ellipse 100% 55% at 50% 0%, rgba(57,255,20,0.055) 0%, transparent 72%)
+          radial-gradient(ellipse 100% 55% at 50% 0%, color-mix(in srgb, var(--accent) 6%, transparent) 0%, transparent 72%)
         `,
         backgroundSize: '80px 80px, 80px 80px, 100% 100%',
         padding:        'clamp(60px, 9vw, 100px) 24px clamp(72px, 9vw, 100px)',
@@ -252,14 +252,14 @@ export default async function HomeCommunityHero() {
           {/* Live badge */}
           <div style={{
             display:      'inline-flex', alignItems: 'center', gap: 8,
-            background:   'rgba(57,255,20,0.08)', border: '1px solid rgba(57,255,20,0.22)',
+            background:   'color-mix(in srgb, var(--accent) 8%, transparent)', border: '1px solid color-mix(in srgb, var(--accent) 22%, transparent)',
             borderRadius: 100, padding: '7px 16px', marginBottom: 32,
           }}>
             <span className="hero-dot" style={{
               width: 7, height: 7, borderRadius: '50%',
-              background: '#39FF14', flexShrink: 0, display: 'inline-block',
+              background: 'var(--accent)', flexShrink: 0, display: 'inline-block',
             }} />
-            <span style={{ color: '#39FF14', fontSize: 12, fontWeight: 800, letterSpacing: 0.4 }}>
+            <span style={{ color: 'var(--accent)', fontSize: 12, fontWeight: 800, letterSpacing: 0.4 }}>
               Now building in Barcelona &amp; Dubai
             </span>
           </div>
@@ -288,9 +288,9 @@ export default async function HomeCommunityHero() {
           <div className="hero-ctas" style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 28 }}>
             <Link href="/community/Barcelona" style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
-              background: '#39FF14', color: '#000', fontWeight: 900, fontSize: 15,
+              background: 'var(--accent)', color: '#000', fontWeight: 900, fontSize: 15,
               padding: '15px 30px', borderRadius: 12, textDecoration: 'none',
-              boxShadow: '0 0 32px rgba(57,255,20,0.3), 0 4px 20px rgba(0,0,0,0.25)',
+              boxShadow: '0 0 32px color-mix(in srgb, var(--accent) 30%, transparent), 0 4px 20px rgba(0,0,0,0.25)',
               letterSpacing: -0.2, whiteSpace: 'nowrap',
             }}>
               🇪🇸 Join Barcelona
@@ -299,7 +299,7 @@ export default async function HomeCommunityHero() {
               display: 'inline-flex', alignItems: 'center', gap: 8,
               background: 'rgba(255,255,255,0.04)', color: '#fff', fontWeight: 800, fontSize: 15,
               padding: '15px 30px', borderRadius: 12, textDecoration: 'none',
-              border: '1.5px solid rgba(57,255,20,0.38)', letterSpacing: -0.2, whiteSpace: 'nowrap',
+              border: '1.5px solid color-mix(in srgb, var(--accent) 38%, transparent)', letterSpacing: -0.2, whiteSpace: 'nowrap',
             }}>
               🇦🇪 Join Dubai
             </Link>
@@ -323,7 +323,7 @@ export default async function HomeCommunityHero() {
           }}>
             <CityCard
               data={barcelona} flag="🇪🇸" slug="Barcelona"
-              accentColor="#39FF14"
+              accentColor="var(--accent)"
               gradient="linear-gradient(135deg, #1a0f0a 0%, #0d1b2e 100%)"
               featured
             />
@@ -358,7 +358,7 @@ export default async function HomeCommunityHero() {
               }}>
                 <span style={{
                   position:   'absolute', top: 16, right: 16,
-                  color:      'rgba(57,255,20,0.18)', fontSize: 28, fontWeight: 900, lineHeight: 1,
+                  color:      'color-mix(in srgb, var(--accent) 18%, transparent)', fontSize: 28, fontWeight: 900, lineHeight: 1,
                 }}>
                   {s.step}
                 </span>
@@ -426,11 +426,11 @@ export default async function HomeCommunityHero() {
                           width: 50, height: 50, borderRadius: '50%',
                           backgroundImage: m.photo_url ? `url(${m.photo_url})` : undefined,
                           backgroundSize:  'cover', backgroundPosition: 'center',
-                          background:      m.photo_url ? undefined : 'rgba(57,255,20,0.12)',
+                          background:      m.photo_url ? undefined : 'color-mix(in srgb, var(--accent) 12%, transparent)',
                           border:          '2px solid #0d1b2e',
-                          outline:         '1.5px solid rgba(57,255,20,0.22)',
+                          outline:         '1.5px solid color-mix(in srgb, var(--accent) 22%, transparent)',
                           display:         'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize:        17, fontWeight: 900, color: '#39FF14',
+                          fontSize:        17, fontWeight: 900, color: 'var(--accent)',
                           overflow:        'hidden',
                           marginLeft:      i > 0 ? -12 : 0,
                           position:        'relative',
@@ -455,8 +455,8 @@ export default async function HomeCommunityHero() {
 
             <Link href="/sparring/create" className="proof-link" style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
-              background:     'rgba(57,255,20,0.09)', border: '1px solid rgba(57,255,20,0.25)',
-              color:          '#39FF14', fontWeight: 800, fontSize: 14,
+              background:     'color-mix(in srgb, var(--accent) 9%, transparent)', border: '1px solid color-mix(in srgb, var(--accent) 25%, transparent)',
+              color:          'var(--accent)', fontWeight: 800, fontSize: 14,
               padding:        '12px 26px', borderRadius: 10, textDecoration: 'none',
             }}>
               Be next →

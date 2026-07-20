@@ -45,7 +45,7 @@ export default async function FoundingWallPage({ params }: { params: { city: str
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)' }}>
       <style>{`
         @keyframes fade-up { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
-        .fm-card:hover { border-color: rgba(57,255,20,0.35) !important; transform: translateY(-2px); }
+        .fm-card:hover { border-color: color-mix(in srgb, var(--accent) 35%, transparent) !important; transform: translateY(-2px); }
         .fm-card { transition: all 0.18s ease; }
       `}</style>
 
@@ -60,9 +60,9 @@ export default async function FoundingWallPage({ params }: { params: { city: str
       {/* ── Hero ── */}
       <div style={{ padding: '40px 20px 32px', textAlign: 'center', animation: 'fade-up 0.5s ease' }}>
         <div style={{
-          display: 'inline-block', background: 'rgba(57,255,20,0.08)', border: '1px solid rgba(57,255,20,0.2)',
+          display: 'inline-block', background: 'color-mix(in srgb, var(--accent) 8%, transparent)', border: '1px solid color-mix(in srgb, var(--accent) 20%, transparent)',
           borderRadius: 20, padding: '4px 16px', fontSize: 11, fontWeight: 800,
-          color: '#39FF14', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 16,
+          color: 'var(--accent)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 16,
         }}>
           {total} Founding Member{total !== 1 ? 's' : ''}
         </div>
@@ -86,7 +86,7 @@ export default async function FoundingWallPage({ params }: { params: { city: str
               Be the first founding member of {city}.
             </p>
             <Link href="/sparring/create"
-              style={{ background: '#39FF14', color: '#000', fontWeight: 900, fontSize: 14, padding: '13px 28px', borderRadius: 10, textDecoration: 'none', display: 'inline-block' }}>
+              style={{ background: 'var(--accent)', color: '#000', fontWeight: 900, fontSize: 14, padding: '13px 28px', borderRadius: 10, textDecoration: 'none', display: 'inline-block' }}>
               Join as Founding Member #1 →
             </Link>
           </div>
@@ -126,10 +126,10 @@ export default async function FoundingWallPage({ params }: { params: { city: str
                     <div style={{ position: 'relative' }}>
                       <div style={{
                         width: 72, height: 72, borderRadius: '50%',
-                        background: m.photo_url ? `url(${m.photo_url}) center/cover no-repeat` : 'rgba(57,255,20,0.15)',
-                        border: '2px solid rgba(57,255,20,0.25)',
+                        background: m.photo_url ? `url(${m.photo_url}) center/cover no-repeat` : 'color-mix(in srgb, var(--accent) 15%, transparent)',
+                        border: '2px solid color-mix(in srgb, var(--accent) 25%, transparent)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 26, fontWeight: 900, color: '#39FF14',
+                        fontSize: 26, fontWeight: 900, color: 'var(--accent)',
                         overflow: 'hidden',
                       }}>
                         {!m.photo_url && init}
@@ -141,8 +141,8 @@ export default async function FoundingWallPage({ params }: { params: { city: str
                           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                           width: 28, height: 32,
                           clipPath: 'polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)',
-                          background: 'rgba(57,255,20,0.15)',
-                          color: '#39FF14',
+                          background: 'color-mix(in srgb, var(--accent) 15%, transparent)',
+                          color: 'var(--accent)',
                         }}>
                           <span style={{ fontSize: 5, fontWeight: 800 }}>FM</span>
                           <span style={{ fontSize: 8, fontWeight: 900 }}>#{m.founding_number}</span>
@@ -158,9 +158,9 @@ export default async function FoundingWallPage({ params }: { params: { city: str
                     {/* Type badge */}
                     <span style={{
                       padding: '2px 8px', borderRadius: 20,
-                      background: m.profile_type === 'coach' ? 'rgba(96,165,250,0.1)' : 'rgba(57,255,20,0.08)',
-                      border: `1px solid ${m.profile_type === 'coach' ? 'rgba(96,165,250,0.3)' : 'rgba(57,255,20,0.2)'}`,
-                      color: m.profile_type === 'coach' ? '#60a5fa' : '#39FF14',
+                      background: m.profile_type === 'coach' ? 'rgba(96,165,250,0.1)' : 'color-mix(in srgb, var(--accent) 8%, transparent)',
+                      border: `1px solid ${m.profile_type === 'coach' ? 'rgba(96,165,250,0.3)' : 'color-mix(in srgb, var(--accent) 20%, transparent)'}`,
+                      color: m.profile_type === 'coach' ? '#60a5fa' : 'var(--accent)',
                       fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5,
                     }}>
                       {typeLabel}
@@ -179,15 +179,15 @@ export default async function FoundingWallPage({ params }: { params: { city: str
 
             {/* ── Join CTA ── */}
             <div style={{
-              background: 'linear-gradient(135deg, rgba(57,255,20,0.1) 0%, rgba(0,200,117,0.05) 100%)',
-              border: '1.5px solid rgba(57,255,20,0.3)',
+              background: 'linear-gradient(135deg, color-mix(in srgb, var(--accent) 10%, transparent) 0%, rgba(0,200,117,0.05) 100%)',
+              border: '1.5px solid color-mix(in srgb, var(--accent) 30%, transparent)',
               borderRadius: 16, padding: '28px 24px', textAlign: 'center',
             }}>
               <div style={{
                 display: 'inline-flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                 width: 48, height: 56, marginBottom: 14,
                 clipPath: 'polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)',
-                background: 'rgba(57,255,20,0.12)', color: '#39FF14',
+                background: 'color-mix(in srgb, var(--accent) 12%, transparent)', color: 'var(--accent)',
               }}>
                 <span style={{ fontSize: 8, fontWeight: 800 }}>FM</span>
                 <span style={{ fontSize: 12, fontWeight: 900 }}>#{nextNumber}</span>
@@ -201,9 +201,9 @@ export default async function FoundingWallPage({ params }: { params: { city: str
               <Link href="/sparring/create"
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: 8,
-                  background: '#39FF14', color: '#000', fontWeight: 900, fontSize: 14,
+                  background: 'var(--accent)', color: '#000', fontWeight: 900, fontSize: 14,
                   padding: '13px 26px', borderRadius: 10, textDecoration: 'none',
-                  boxShadow: '0 0 20px rgba(57,255,20,0.3)',
+                  boxShadow: '0 0 20px color-mix(in srgb, var(--accent) 30%, transparent)',
                 }}>
                 Join as Founding Member #{nextNumber} →
               </Link>

@@ -157,7 +157,7 @@ export default function CityPicker({ value, onChange, label = 'City', required, 
   const baseInput: React.CSSProperties = {
     width: '100%', boxSizing: 'border-box',
     background: 'var(--sr-input, rgba(255,255,255,0.05))',
-    border: `1px solid ${confirmed ? 'rgba(57,255,20,0.35)' : 'var(--sr-border, rgba(255,255,255,0.1))'}`,
+    border: `1px solid ${confirmed ? 'color-mix(in srgb, var(--accent) 35%, transparent)' : 'var(--sr-border, rgba(255,255,255,0.1))'}`,
     borderRadius: 8, color: 'var(--sr-text, #fff)',
     padding: '0 36px 0 14px', fontSize: 14, outline: 'none', height: 48,
     ...extStyle,
@@ -168,7 +168,7 @@ export default function CityPicker({ value, onChange, label = 'City', required, 
       <style>{`
         .cp-drop { animation: cp-in 0.14s ease; }
         @keyframes cp-in { from { opacity:0; transform:translateY(-6px) } to { opacity:1; transform:translateY(0) } }
-        .cp-item:hover { background: rgba(57,255,20,0.1) !important; color: #39FF14 !important; }
+        .cp-item:hover { background: color-mix(in srgb, var(--accent) 10%, transparent) !important; color: var(--accent) !important; }
       `}</style>
 
       {label && (
@@ -192,7 +192,7 @@ export default function CityPicker({ value, onChange, label = 'City', required, 
         {/* Icon */}
         <span style={{
           position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
-          color: confirmed ? '#39FF14' : 'rgba(255,255,255,0.25)', fontSize: 14, pointerEvents: 'none',
+          color: confirmed ? 'var(--accent)' : 'rgba(255,255,255,0.25)', fontSize: 14, pointerEvents: 'none',
         }}>
           {loading ? '…' : confirmed ? '✓' : '⌕'}
         </span>
@@ -202,7 +202,7 @@ export default function CityPicker({ value, onChange, label = 'City', required, 
       {open && results.length > 0 && (
         <div className="cp-drop" style={{
           position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, zIndex: 999,
-          background: '#0f1520', border: '1px solid rgba(57,255,20,0.2)',
+          background: '#0f1520', border: '1px solid color-mix(in srgb, var(--accent) 20%, transparent)',
           borderRadius: 10, overflow: 'hidden',
           boxShadow: '0 12px 40px rgba(0,0,0,0.5)',
         }}>
@@ -214,8 +214,8 @@ export default function CityPicker({ value, onChange, label = 'City', required, 
               onMouseDown={() => select(r)}
               style={{
                 display: 'block', width: '100%', textAlign: 'left',
-                padding: '10px 14px', background: i === active ? 'rgba(57,255,20,0.1)' : 'transparent',
-                color: i === active ? '#39FF14' : 'rgba(255,255,255,0.75)',
+                padding: '10px 14px', background: i === active ? 'color-mix(in srgb, var(--accent) 10%, transparent)' : 'transparent',
+                color: i === active ? 'var(--accent)' : 'rgba(255,255,255,0.75)',
                 fontSize: 14, fontWeight: i === active ? 700 : 500,
                 border: 'none', cursor: 'pointer',
                 borderBottom: i < results.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',

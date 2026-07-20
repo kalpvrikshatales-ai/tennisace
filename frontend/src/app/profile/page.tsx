@@ -250,13 +250,13 @@ export default function ProfilePage() {
                     <p style={{ color: 'var(--text)', fontWeight: 800, fontSize: 15, margin: '0 0 3px' }}>{sparringProfile.name}</p>
                     <p style={{ color: 'var(--text-2)', fontSize: 12, margin: 0 }}>{sparringProfile.level} · {sparringProfile.city}</p>
                   </div>
-                  <Link href={`/sparring/${sparringProfile.id}`} style={{ background: '#39FF14', color: '#000', fontWeight: 800, fontSize: 12, padding: '8px 14px', borderRadius: 6, textDecoration: 'none' }}>
+                  <Link href={`/sparring/${sparringProfile.id}`} style={{ background: 'var(--accent)', color: '#000', fontWeight: 800, fontSize: 12, padding: '8px 14px', borderRadius: 6, textDecoration: 'none' }}>
                     View →
                   </Link>
                 </div>
               ) : (
                 <Link href="/sparring/create" style={{ display: 'block', border: '1px dashed #1a3a1a', borderRadius: 10, padding: '20px', textDecoration: 'none', textAlign: 'center' }}>
-                  <p style={{ color: '#39FF14', fontWeight: 800, fontSize: 14, margin: '0 0 4px' }}>Find a hitting partner</p>
+                  <p style={{ color: 'var(--accent)', fontWeight: 800, fontSize: 14, margin: '0 0 4px' }}>Find a hitting partner</p>
                   <p style={{ color: '#444', fontSize: 12, margin: 0 }}>Create your sparring profile →</p>
                 </Link>
               )}

@@ -62,14 +62,14 @@ function PlayRequestMiniCard({
 
   return (
     <div style={{
-      background: 'var(--sr-card)', border: `1px solid ${joined ? 'rgba(57,255,20,0.35)' : 'var(--sr-border)'}`,
+      background: 'var(--sr-card)', border: `1px solid ${joined ? 'color-mix(in srgb, var(--accent) 35%, transparent)' : 'var(--sr-border)'}`,
       borderRadius: 12, padding: '14px 14px', display: 'flex', flexDirection: 'column', gap: 10,
     }}>
       <div>
         <p style={{ color: 'var(--sr-text)', fontSize: 16, fontWeight: 900, margin: '0 0 2px', letterSpacing: -0.3 }}>
           {fmtDateShort(req.date)}
         </p>
-        <p style={{ color: 'rgba(57,255,20,0.8)', fontSize: 11, fontWeight: 700, margin: 0 }}>
+        <p style={{ color: 'color-mix(in srgb, var(--accent) 80%, transparent)', fontSize: 11, fontWeight: 700, margin: 0 }}>
           {req.time_slot}{req.location_name ? ` · ${req.location_name}` : ''}
         </p>
       </div>
@@ -80,9 +80,9 @@ function PlayRequestMiniCard({
           width: 26, height: 26, borderRadius: '50%', flexShrink: 0,
           background: req.creator.photo_url
             ? `url(${req.creator.photo_url}) center/cover no-repeat`
-            : 'rgba(57,255,20,0.15)',
+            : 'color-mix(in srgb, var(--accent) 15%, transparent)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 10, fontWeight: 900, color: '#39FF14', overflow: 'hidden',
+          fontSize: 10, fontWeight: 900, color: 'var(--accent)', overflow: 'hidden',
         }}>
           {!req.creator.photo_url && (req.creator.name ?? '?')[0].toUpperCase()}
         </div>
@@ -92,15 +92,15 @@ function PlayRequestMiniCard({
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
             width: 18, height: 20, flexShrink: 0,
             clipPath: 'polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)',
-            background: 'rgba(57,255,20,0.1)', border: '1px solid #39FF14',
-            color: '#39FF14', fontSize: 5, fontWeight: 900,
+            background: 'color-mix(in srgb, var(--accent) 10%, transparent)', border: '1px solid var(--accent)',
+            color: 'var(--accent)', fontSize: 5, fontWeight: 900,
           }}>#{req.creator.founding_number}</span>
         )}
       </div>
 
       {/* Chips */}
       <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-        {req.format  && <span style={{ padding: '2px 8px', borderRadius: 5, background: 'rgba(57,255,20,0.08)', border: '1px solid rgba(57,255,20,0.2)', color: '#39FF14', fontSize: 9, fontWeight: 800, textTransform: 'capitalize' }}>{FORMAT_LABEL[req.format] ?? req.format}</span>}
+        {req.format  && <span style={{ padding: '2px 8px', borderRadius: 5, background: 'color-mix(in srgb, var(--accent) 8%, transparent)', border: '1px solid color-mix(in srgb, var(--accent) 20%, transparent)', color: 'var(--accent)', fontSize: 9, fontWeight: 800, textTransform: 'capitalize' }}>{FORMAT_LABEL[req.format] ?? req.format}</span>}
         {req.level   && <span style={{ padding: '2px 8px', borderRadius: 5, background: 'var(--sr-card-2)', border: '1px solid var(--sr-border)', color: 'var(--sr-muted)', fontSize: 9, fontWeight: 700 }}>{req.level}</span>}
         {req.surface && <span style={{ padding: '2px 8px', borderRadius: 5, background: 'var(--sr-card-2)', border: '1px solid var(--sr-border)', color: 'var(--sr-muted)', fontSize: 9, fontWeight: 700 }}>{req.surface}</span>}
       </div>
@@ -111,7 +111,7 @@ function PlayRequestMiniCard({
           {isFull ? 'Full' : `${req.spots_left} spot${req.spots_left !== 1 ? 's' : ''} left`}
         </span>
         {joined ? (
-          <span style={{ color: '#39FF14', fontSize: 11, fontWeight: 800 }}>
+          <span style={{ color: 'var(--accent)', fontSize: 11, fontWeight: 800 }}>
             Joined ✓{phone ? ` · ${phone}` : ''}
           </span>
         ) : isOwn ? (
@@ -122,7 +122,7 @@ function PlayRequestMiniCard({
         ) : (
           <button onClick={handleJoin} disabled={joining || isFull}
             style={{
-              background: '#39FF14', color: '#000', fontWeight: 900, fontSize: 12,
+              background: 'var(--accent)', color: '#000', fontWeight: 900, fontSize: 12,
               padding: '7px 14px', borderRadius: 7, border: 'none',
               cursor: (joining || isFull) ? 'default' : 'pointer',
               opacity: isFull ? 0.4 : 1,
@@ -140,7 +140,7 @@ const LEVEL_BADGE: Record<string, { bg: string; color: string }> = {
   beginner:     { bg: 'rgba(110,232,110,0.12)', color: '#6ee86e' },
   intermediate: { bg: 'rgba(110,184,232,0.12)', color: '#6eb8e8' },
   advanced:     { bg: 'rgba(232,112,112,0.12)', color: '#e87070' },
-  competitive:  { bg: 'rgba(57,255,20,0.12)',   color: 'var(--sr-accent)' },
+  competitive:  { bg: 'color-mix(in srgb, var(--accent) 12%, transparent)',   color: 'var(--sr-accent)' },
 }
 
 function availLine(availability: any[]): string | null {
@@ -170,11 +170,11 @@ function PlayerCard({ p, mutualSlots }: { p: any; mutualSlots?: number }) {
         onMouseLeave={() => setHov(false)}
         style={{
           background: 'var(--sr-card)',
-          border: `1px solid ${hov ? 'rgba(57,255,20,0.25)' : 'var(--sr-border)'}`,
+          border: `1px solid ${hov ? 'color-mix(in srgb, var(--accent) 25%, transparent)' : 'var(--sr-border)'}`,
           borderRadius: 14,
           overflow: 'hidden',
           transform: hov ? 'translateY(-3px)' : 'none',
-          boxShadow: hov ? '0 8px 32px rgba(57,255,20,0.08), var(--sr-shadow)' : 'var(--sr-shadow-s)',
+          boxShadow: hov ? '0 8px 32px color-mix(in srgb, var(--accent) 8%, transparent), var(--sr-shadow)' : 'var(--sr-shadow-s)',
           transition: 'all 0.2s ease',
           cursor: 'pointer',
         }}
@@ -186,7 +186,7 @@ function PlayerCard({ p, mutualSlots }: { p: any; mutualSlots?: number }) {
               style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }} />
           ) : (
             <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: p.role === 'coach' ? 'rgba(128,128,255,0.08)' : 'rgba(57,255,20,0.05)' }}>
+              background: p.role === 'coach' ? 'rgba(128,128,255,0.08)' : 'color-mix(in srgb, var(--accent) 5%, transparent)' }}>
               <div style={{ width: 60, height: 60, borderRadius: '50%',
                 background: p.role === 'coach' ? '#8080ff' : 'var(--sr-accent)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -206,7 +206,7 @@ function PlayerCard({ p, mutualSlots }: { p: any; mutualSlots?: number }) {
 
           {/* Role badge */}
           <span style={{ position: 'absolute', top: 10, left: 10,
-            background: p.role === 'coach' ? 'rgba(128,128,255,0.2)' : 'rgba(57,255,20,0.12)',
+            background: p.role === 'coach' ? 'rgba(128,128,255,0.2)' : 'color-mix(in srgb, var(--accent) 12%, transparent)',
             color: p.role === 'coach' ? '#8080ff' : 'var(--sr-accent)',
             fontSize: 9, fontWeight: 800, padding: '3px 7px', borderRadius: 5,
             textTransform: 'uppercase', letterSpacing: 0.5 }}>
@@ -216,7 +216,7 @@ function PlayerCard({ p, mutualSlots }: { p: any; mutualSlots?: number }) {
           {/* Mutual slots */}
           {mutualSlots != null && mutualSlots > 0 && (
             <span style={{ position: 'absolute', bottom: 10, left: 10,
-              background: 'rgba(57,255,20,0.15)', border: '1px solid var(--sr-accent)',
+              background: 'color-mix(in srgb, var(--accent) 15%, transparent)', border: '1px solid var(--sr-accent)',
               color: 'var(--sr-accent)', fontSize: 10, fontWeight: 800,
               padding: '3px 8px', borderRadius: 6 }}>
               {mutualSlots} mutual slot{mutualSlots > 1 ? 's' : ''}
@@ -235,9 +235,9 @@ function PlayerCard({ p, mutualSlots }: { p: any; mutualSlots?: number }) {
                   display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                   width: 28, height: 30, flexShrink: 0,
                   clipPath: 'polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)',
-                  background: 'rgba(57,255,20,0.12)',
-                  filter: 'drop-shadow(0 0 4px rgba(57,255,20,0.5))',
-                  color: '#39FF14', fontSize: 7, fontWeight: 900, letterSpacing: 0,
+                  background: 'color-mix(in srgb, var(--accent) 12%, transparent)',
+                  filter: 'drop-shadow(0 0 4px color-mix(in srgb, var(--accent) 50%, transparent))',
+                  color: 'var(--accent)', fontSize: 7, fontWeight: 900, letterSpacing: 0,
                 }}
               >#{p.founding_number}</span>
             )}

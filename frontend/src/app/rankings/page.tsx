@@ -213,7 +213,7 @@ export default function RankingsPage() {
         {/* Rankings paused notice */}
         <div className="card mb-5 overflow-hidden" style={{ background: '#0d1b2e', border: '1px solid #1a3050' }}>
           <div className="p-5">
-            <p className="text-[10px] font-black uppercase tracking-widest mb-2" style={{ color: '#39FF14' }}>Rankings</p>
+            <p className="text-[10px] font-black uppercase tracking-widest mb-2" style={{ color: 'var(--accent)' }}>Rankings</p>
             <p className="text-white text-[16px] font-black mb-1">Rankings paused — back for US Open.</p>
             <p className="text-[13px] mb-4" style={{ color: '#8ba3c0' }}>
               Live data feed is rebuilding ahead of the US Open on Aug 25.
@@ -221,7 +221,7 @@ export default function RankingsPage() {
             </p>
             <Link href="/sparring/create"
               className="inline-flex items-center gap-2 text-[13px] font-bold px-4 py-2 rounded-full"
-              style={{ background: 'rgba(57,255,20,0.15)', border: '1px solid rgba(57,255,20,0.3)', color: '#39FF14' }}>
+              style={{ background: 'color-mix(in srgb, var(--accent) 15%, transparent)', border: '1px solid color-mix(in srgb, var(--accent) 30%, transparent)', color: 'var(--accent)' }}>
               Create your player profile →
             </Link>
           </div>

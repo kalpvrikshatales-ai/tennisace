@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 }
 
 const H2 = ({ children }: { children: React.ReactNode }) => (
-  <h2 style={{ color: '#39FF14', fontSize: 16, fontWeight: 800, margin: '36px 0 10px', letterSpacing: -0.2 }}>
+  <h2 style={{ color: 'var(--accent)', fontSize: 16, fontWeight: 800, margin: '36px 0 10px', letterSpacing: -0.2 }}>
     {children}
   </h2>
 )
@@ -32,7 +32,7 @@ export default function TermsPage() {
       padding: '32px 24px 80px',
       fontFamily: 'var(--font-dm-sans, DM Sans, sans-serif)',
     }}>
-      <Link href="/" style={{ color: '#39FF14', fontSize: 13, fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 32 }}>
+      <Link href="/" style={{ color: 'var(--accent)', fontSize: 13, fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 32 }}>
         ← Back
       </Link>
 
@@ -126,7 +126,7 @@ export default function TermsPage() {
 
       <H2>15. Contact</H2>
       <P>
-        For questions about these Terms, contact us at <a href="mailto:legal@tennisace.live" style={{ color: '#39FF14', textDecoration: 'none' }}>legal@tennisace.live</a>.
+        For questions about these Terms, contact us at <a href="mailto:legal@tennisace.live" style={{ color: 'var(--accent)', textDecoration: 'none' }}>legal@tennisace.live</a>.
       </P>
     </div>
   )

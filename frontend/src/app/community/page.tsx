@@ -22,7 +22,7 @@ const CITIES = [
     description: 'Barcelona is our first city launch. Join the founding members shaping the local scene before it opens.',
     featured:    true,
     status:      'Founding members open',
-    statusColor: '#39FF14',
+    statusColor: 'var(--accent)',
   },
   {
     city:        'Dubai',
@@ -42,17 +42,17 @@ export default function CommunityPage() {
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--text)' }}>
       <style>{`
         @keyframes fade-up { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
-        .city-card:hover { border-color: rgba(57,255,20,0.4) !important; transform: translateY(-4px); }
+        .city-card:hover { border-color: color-mix(in srgb, var(--accent) 40%, transparent) !important; transform: translateY(-4px); }
         .city-card { transition: all 0.2s ease; }
       `}</style>
 
       {/* Hero */}
       <div style={{ padding: '56px 24px 40px', textAlign: 'center', animation: 'fade-up 0.5s ease' }}>
         <div style={{
-          display: 'inline-block', background: 'rgba(57,255,20,0.08)',
-          border: '1px solid rgba(57,255,20,0.2)', borderRadius: 20,
+          display: 'inline-block', background: 'color-mix(in srgb, var(--accent) 8%, transparent)',
+          border: '1px solid color-mix(in srgb, var(--accent) 20%, transparent)', borderRadius: 20,
           padding: '4px 16px', fontSize: 11, fontWeight: 800,
-          color: '#39FF14', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 20,
+          color: 'var(--accent)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 20,
         }}>
           City by City
         </div>
@@ -76,8 +76,8 @@ export default function CommunityPage() {
             <div
               className="city-card"
               style={{
-                background: c.featured ? 'rgba(57,255,20,0.05)' : 'rgba(255,255,255,0.03)',
-                border: `1.5px solid ${c.featured ? 'rgba(57,255,20,0.25)' : 'rgba(255,255,255,0.08)'}`,
+                background: c.featured ? 'color-mix(in srgb, var(--accent) 5%, transparent)' : 'rgba(255,255,255,0.03)',
+                border: `1.5px solid ${c.featured ? 'color-mix(in srgb, var(--accent) 25%, transparent)' : 'rgba(255,255,255,0.08)'}`,
                 borderRadius: 20, padding: '28px 24px',
                 animation: `fade-up 0.5s ease ${0.1 + i * 0.1}s both`,
                 cursor: 'pointer', position: 'relative', overflow: 'hidden',
@@ -88,7 +88,7 @@ export default function CommunityPage() {
                 <div style={{
                   position: 'absolute', top: -40, right: -40,
                   width: 140, height: 140, borderRadius: '50%',
-                  background: 'radial-gradient(circle, rgba(57,255,20,0.12) 0%, transparent 70%)',
+                  background: 'radial-gradient(circle, color-mix(in srgb, var(--accent) 12%, transparent) 0%, transparent 70%)',
                   pointerEvents: 'none',
                 }} />
               )}
@@ -124,7 +124,7 @@ export default function CommunityPage() {
               </div>
 
               {/* Tagline */}
-              <p style={{ color: c.featured ? '#39FF14' : 'rgba(255,255,255,0.5)', fontSize: 12, fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase', margin: '0 0 10px' }}>
+              <p style={{ color: c.featured ? 'var(--accent)' : 'rgba(255,255,255,0.5)', fontSize: 12, fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase', margin: '0 0 10px' }}>
                 {c.tagline}
               </p>
 
@@ -139,7 +139,7 @@ export default function CommunityPage() {
               }}>
                 <span style={{
                   fontSize: 13, fontWeight: 800,
-                  color: c.featured ? '#39FF14' : 'var(--text-2)',
+                  color: c.featured ? 'var(--accent)' : 'var(--text-2)',
                 }}>
                   View community →
                 </span>
@@ -148,8 +148,8 @@ export default function CommunityPage() {
                     display: 'inline-flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                     width: 36, height: 40,
                     clipPath: 'polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)',
-                    background: 'rgba(57,255,20,0.15)', border: '1px solid #39FF14',
-                    color: '#39FF14',
+                    background: 'color-mix(in srgb, var(--accent) 15%, transparent)', border: '1px solid var(--accent)',
+                    color: 'var(--accent)',
                   }}>
                     <span style={{ fontSize: 7, fontWeight: 800 }}>FM</span>
                     <span style={{ fontSize: 9, fontWeight: 900 }}>#1</span>
@@ -169,9 +169,9 @@ export default function CommunityPage() {
         <Link href="/sparring/create"
           style={{
             display: 'inline-flex', alignItems: 'center', gap: 8,
-            background: '#39FF14', color: '#000', fontWeight: 900,
+            background: 'var(--accent)', color: '#000', fontWeight: 900,
             fontSize: 14, padding: '13px 28px', borderRadius: 10, textDecoration: 'none',
-            boxShadow: '0 0 24px rgba(57,255,20,0.25)',
+            boxShadow: '0 0 24px color-mix(in srgb, var(--accent) 25%, transparent)',
           }}>
           Join the founding members →
         </Link>

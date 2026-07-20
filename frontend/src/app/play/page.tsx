@@ -122,7 +122,7 @@ function LogMatchModal({
             <p style={{ fontSize:36, margin:'0 0 12px' }}>✅</p>
             <p style={{ color:'#fff', fontWeight:900, fontSize:18, margin:'0 0 8px' }}>Match logged!</p>
             <p style={{ color:'rgba(255,255,255,0.5)', fontSize:13, margin:'0 0 24px' }}>Result saved to your match history.</p>
-            <button onClick={onClose} style={{ background:'#39FF14', border:'none', borderRadius:10, color:'#000', fontWeight:800, fontSize:14, padding:'12px 28px', cursor:'pointer' }}>Done</button>
+            <button onClick={onClose} style={{ background:'var(--accent)', border:'none', borderRadius:10, color:'#000', fontWeight:800, fontSize:14, padding:'12px 28px', cursor:'pointer' }}>Done</button>
           </div>
         ) : (
           <>
@@ -142,8 +142,8 @@ function LogMatchModal({
             )}
 
             {opponentId && opponentName && (
-              <div style={{ background:'rgba(57,255,20,0.06)', border:'1px solid rgba(57,255,20,0.2)', borderRadius:8, padding:'10px 14px', marginBottom:16, display:'flex', alignItems:'center', gap:10 }}>
-                <div style={{ width:32, height:32, borderRadius:'50%', background:'rgba(57,255,20,0.15)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:14, fontWeight:900, color:'#39FF14', flexShrink:0 }}>
+              <div style={{ background:'color-mix(in srgb, var(--accent) 6%, transparent)', border:'1px solid color-mix(in srgb, var(--accent) 20%, transparent)', borderRadius:8, padding:'10px 14px', marginBottom:16, display:'flex', alignItems:'center', gap:10 }}>
+                <div style={{ width:32, height:32, borderRadius:'50%', background:'color-mix(in srgb, var(--accent) 15%, transparent)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:14, fontWeight:900, color:'var(--accent)', flexShrink:0 }}>
                   {opponentName[0].toUpperCase()}
                 </div>
                 <p style={{ color:'#fff', fontWeight:800, fontSize:14, margin:0 }}>vs {opponentName}</p>
@@ -155,7 +155,7 @@ function LogMatchModal({
               <div style={{ display:'flex', gap:8 }}>
                 {(['me','them','draw'] as const).map(opt => (
                   <button key={opt} onClick={() => setWinner(opt)}
-                    style={{ flex:1, background:winner===opt ? '#39FF14' : 'rgba(255,255,255,0.06)', border:`1px solid ${winner===opt ? '#39FF14' : 'rgba(255,255,255,0.12)'}`, borderRadius:8, color:winner===opt ? '#000' : 'rgba(255,255,255,0.6)', fontWeight:700, fontSize:13, padding:'10px 8px', cursor:'pointer', textTransform:'capitalize' }}>
+                    style={{ flex:1, background:winner===opt ? 'var(--accent)' : 'rgba(255,255,255,0.06)', border:`1px solid ${winner===opt ? 'var(--accent)' : 'rgba(255,255,255,0.12)'}`, borderRadius:8, color:winner===opt ? '#000' : 'rgba(255,255,255,0.6)', fontWeight:700, fontSize:13, padding:'10px 8px', cursor:'pointer', textTransform:'capitalize' }}>
                     {opt === 'me' ? 'You' : opt === 'them' ? (opponentName ?? 'Them') : 'Draw'}
                   </button>
                 ))}
@@ -173,7 +173,7 @@ function LogMatchModal({
             </div>
 
             <button onClick={submit} disabled={saving}
-              style={{ width:'100%', background:saving ? 'rgba(57,255,20,0.4)' : '#39FF14', border:'none', borderRadius:10, color:saving ? '#39FF14' : '#000', fontWeight:800, fontSize:15, padding:'14px', cursor:saving ? 'not-allowed' : 'pointer', minHeight:48, transition:'background 0.15s' }}>
+              style={{ width:'100%', background:saving ? 'color-mix(in srgb, var(--accent) 40%, transparent)' : 'var(--accent)', border:'none', borderRadius:10, color:saving ? 'var(--accent)' : '#000', fontWeight:800, fontSize:15, padding:'14px', cursor:saving ? 'not-allowed' : 'pointer', minHeight:48, transition:'background 0.15s' }}>
               {saving ? 'Saving…' : 'Log Result'}
             </button>
           </>
@@ -221,7 +221,7 @@ function RequestCard({
   return (
     <div style={{
       background: 'rgba(255,255,255,0.04)',
-      border: `1.5px solid ${joined ? 'rgba(57,255,20,0.4)' : expired ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.1)'}`,
+      border: `1.5px solid ${joined ? 'color-mix(in srgb, var(--accent) 40%, transparent)' : expired ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.1)'}`,
       borderRadius: 14, padding: '20px 18px',
       opacity: expired && !joined ? 0.6 : 1,
       transition: 'border-color 0.2s',
@@ -230,7 +230,7 @@ function RequestCard({
       {/* Date + time hero */}
       <div style={{ marginBottom: 14 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-          <span style={{ color: '#39FF14', fontSize: 12, fontWeight: 900, letterSpacing: 1.5 }}>{day}</span>
+          <span style={{ color: 'var(--accent)', fontSize: 12, fontWeight: 900, letterSpacing: 1.5 }}>{day}</span>
           <span style={{ color: '#fff', fontSize: 22, fontWeight: 900, letterSpacing: -0.5 }}>{dLabel}</span>
           <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, fontWeight: 600 }}>· {req.time_slot}</span>
         </div>
@@ -247,10 +247,10 @@ function RequestCard({
           width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
           background: req.creator.photo_url
             ? `url(${req.creator.photo_url}) center/cover no-repeat`
-            : 'rgba(57,255,20,0.15)',
-          border: '1.5px solid rgba(57,255,20,0.25)',
+            : 'color-mix(in srgb, var(--accent) 15%, transparent)',
+          border: '1.5px solid color-mix(in srgb, var(--accent) 25%, transparent)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 14, fontWeight: 900, color: '#39FF14', overflow: 'hidden',
+          fontSize: 14, fontWeight: 900, color: 'var(--accent)', overflow: 'hidden',
         }}>
           {!req.creator.photo_url && (req.creator.name ?? '?')[0].toUpperCase()}
         </div>
@@ -263,8 +263,8 @@ function RequestCard({
                 display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                 width: 20, height: 22, flexShrink: 0,
                 clipPath: 'polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)',
-                background: 'rgba(57,255,20,0.1)', border: '1px solid #39FF14',
-                color: '#39FF14', fontSize: 6, fontWeight: 900,
+                background: 'color-mix(in srgb, var(--accent) 10%, transparent)', border: '1px solid var(--accent)',
+                color: 'var(--accent)', fontSize: 6, fontWeight: 900,
               }}>
               #{req.creator.founding_number}
             </span>
@@ -274,7 +274,7 @@ function RequestCard({
 
       {/* Chips */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 14 }}>
-        {req.format  && <Chip label={FORMAT_LABEL[req.format as keyof typeof FORMAT_LABEL] ?? req.format} color='rgba(57,255,20,0.7)' />}
+        {req.format  && <Chip label={FORMAT_LABEL[req.format as keyof typeof FORMAT_LABEL] ?? req.format} color='color-mix(in srgb, var(--accent) 70%, transparent)' />}
         {req.level   && <Chip label={req.level} />}
         {req.surface && <Chip label={req.surface} />}
       </div>
@@ -288,7 +288,7 @@ function RequestCard({
       {/* Footer */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
         <span style={{
-          color: isFull ? 'rgba(255,80,80,0.7)' : '#39FF14',
+          color: isFull ? 'rgba(255,80,80,0.7)' : 'var(--accent)',
           fontSize: 12, fontWeight: 800,
         }}>
           {isFull ? 'Full' : `${req.spots_left} spot${req.spots_left !== 1 ? 's' : ''} left`}
@@ -296,7 +296,7 @@ function RequestCard({
 
         {joined ? (
           <div style={{ textAlign: 'right' }}>
-            <span style={{ color: '#39FF14', fontSize: 12, fontWeight: 800 }}>Joined ✓</span>
+            <span style={{ color: 'var(--accent)', fontSize: 12, fontWeight: 800 }}>Joined ✓</span>
             {creatorPh && (
               <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 11, margin: '3px 0 0' }}>
                 Contact: <strong style={{ color: '#fff' }}>{creatorPh}</strong>
@@ -320,11 +320,11 @@ function RequestCard({
             onClick={handleJoin}
             disabled={joining}
             style={{
-              background: joining ? 'rgba(57,255,20,0.4)' : '#39FF14',
+              background: joining ? 'color-mix(in srgb, var(--accent) 40%, transparent)' : 'var(--accent)',
               color: '#000', fontWeight: 900, fontSize: 13,
               padding: '9px 20px', borderRadius: 9, border: 'none',
               cursor: joining ? 'default' : 'pointer',
-              boxShadow: '0 0 12px rgba(57,255,20,0.25)',
+              boxShadow: '0 0 12px color-mix(in srgb, var(--accent) 25%, transparent)',
               transition: 'background 0.15s',
             }}>
             {joining ? '…' : 'Join →'}
@@ -482,10 +482,10 @@ export default function PlayPage() {
         <style>{`
           @keyframes fade-up { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
           .play-input { width:100%; padding:10px 12px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:9px; color:#fff; font-size:14px; outline:none; box-sizing:border-box; }
-          .play-input:focus { border-color:rgba(57,255,20,0.4); }
+          .play-input:focus { border-color:color-mix(in srgb, var(--accent) 40%, transparent); }
           .play-input option { background:#1a2a3e; color:#fff; }
           .play-slot { padding:9px 14px; border-radius:9px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.5); font-size:12px; font-weight:700; cursor:pointer; transition:all 0.15s; }
-          .play-slot.active { background:rgba(57,255,20,0.12); border-color:rgba(57,255,20,0.4); color:#39FF14; }
+          .play-slot.active { background:color-mix(in srgb, var(--accent) 12%, transparent); border-color:color-mix(in srgb, var(--accent) 40%, transparent); color:var(--accent); }
         `}</style>
 
         {/* ── Header ── */}
@@ -504,9 +504,9 @@ export default function PlayPage() {
               <button
                 onClick={() => { setShowForm(s => !s); setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth' }), 50) }}
                 style={{
-                  background: '#39FF14', color: '#000', fontWeight: 900, fontSize: 13,
+                  background: 'var(--accent)', color: '#000', fontWeight: 900, fontSize: 13,
                   padding: '10px 18px', borderRadius: 10, border: 'none', cursor: 'pointer',
-                  whiteSpace: 'nowrap', minHeight: 44, boxShadow: '0 0 12px rgba(57,255,20,0.2)',
+                  whiteSpace: 'nowrap', minHeight: 44, boxShadow: '0 0 12px color-mix(in srgb, var(--accent) 20%, transparent)',
                 }}>
                 + Post request
               </button>
@@ -519,9 +519,9 @@ export default function PlayPage() {
           {/* ── Success toast ── */}
           {submitOk && (
             <div style={{
-              background: 'rgba(57,255,20,0.1)', border: '1px solid rgba(57,255,20,0.3)',
+              background: 'color-mix(in srgb, var(--accent) 10%, transparent)', border: '1px solid color-mix(in srgb, var(--accent) 30%, transparent)',
               borderRadius: 10, padding: '12px 16px', marginBottom: 20,
-              color: '#39FF14', fontSize: 13, fontWeight: 700,
+              color: 'var(--accent)', fontSize: 13, fontWeight: 700,
               animation: 'fade-up 0.3s ease',
             }}>
               ✓ Request posted! Players near you will see it.
@@ -554,7 +554,7 @@ export default function PlayPage() {
                 <button
                   onClick={() => setShowForm(true)}
                   style={{
-                    background: '#39FF14', color: '#000', fontWeight: 900,
+                    background: 'var(--accent)', color: '#000', fontWeight: 900,
                     fontSize: 13, padding: '11px 22px', borderRadius: 9, border: 'none', cursor: 'pointer',
                   }}>
                   Post a request →
@@ -580,7 +580,7 @@ export default function PlayPage() {
           <div ref={formRef}>
             <div style={{
               background: 'rgba(255,255,255,0.03)',
-              border: `1px solid ${showForm ? 'rgba(57,255,20,0.25)' : 'rgba(255,255,255,0.08)'}`,
+              border: `1px solid ${showForm ? 'color-mix(in srgb, var(--accent) 25%, transparent)' : 'rgba(255,255,255,0.08)'}`,
               borderRadius: 16, overflow: 'hidden',
               transition: 'border-color 0.2s',
             }}>
@@ -601,17 +601,17 @@ export default function PlayPage() {
                 <form onSubmit={handleSubmit} style={{ padding: '0 20px 24px' }}>
                   {!ownProfileId && (
                     <div style={{
-                      background: 'rgba(57,255,20,0.08)', border: '1px solid rgba(57,255,20,0.2)',
+                      background: 'color-mix(in srgb, var(--accent) 8%, transparent)', border: '1px solid color-mix(in srgb, var(--accent) 20%, transparent)',
                       borderRadius: 10, padding: '12px 14px', marginBottom: 20,
                     }}>
-                      <p style={{ color: '#39FF14', fontSize: 13, fontWeight: 700, margin: '0 0 6px' }}>
+                      <p style={{ color: 'var(--accent)', fontSize: 13, fontWeight: 700, margin: '0 0 6px' }}>
                         Create a profile first
                       </p>
                       <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12, margin: '0 0 10px' }}>
                         You need a sparring profile to post requests.
                       </p>
                       <Link href="/sparring/create"
-                        style={{ color: '#39FF14', fontWeight: 800, fontSize: 12, textDecoration: 'none' }}>
+                        style={{ color: 'var(--accent)', fontWeight: 800, fontSize: 12, textDecoration: 'none' }}>
                         Create profile →
                       </Link>
                     </div>
@@ -705,11 +705,11 @@ export default function PlayPage() {
 
                   <button type="submit" disabled={submitting || !ownProfileId}
                     style={{
-                      width: '100%', background: '#39FF14', color: '#000',
+                      width: '100%', background: 'var(--accent)', color: '#000',
                       fontWeight: 900, fontSize: 15, padding: '13px', borderRadius: 10,
                       border: 'none', cursor: (!ownProfileId || submitting) ? 'default' : 'pointer',
                       opacity: (!ownProfileId || submitting) ? 0.5 : 1,
-                      boxShadow: '0 0 16px rgba(57,255,20,0.2)',
+                      boxShadow: '0 0 16px color-mix(in srgb, var(--accent) 20%, transparent)',
                     }}>
                     {submitting ? 'Posting…' : 'Post request →'}
                   </button>
