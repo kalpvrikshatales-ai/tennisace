@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   title: 'TennisAce — Live Tennis Scores | ATP, WTA & Grand Slam Results',
   description: 'Live tennis scores, ATP rankings, WTA results and Wimbledon 2026 updates. Real-time match tracker for every tournament worldwide.',
   manifest: '/manifest.json',
-  themeColor: '#FFFFFF',
+  themeColor: '#0a0f1a',
   viewport: 'width=device-width, initial-scale=1',
   icons: {
     icon: '/icon.png',

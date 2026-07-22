@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'ta-v4'
+const CACHE_VERSION = 'ta-v5'
 const CACHE_NAME = `tennisace-${CACHE_VERSION}`
 
 // Assets to cache on install
