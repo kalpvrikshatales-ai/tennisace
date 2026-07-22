@@ -146,7 +146,7 @@ function SidebarPanel({ onClose }: { onClose?: () => void }) {
       <div style={{ padding:'18px 16px 14px', borderBottom:'1px solid #1a1a1a', flexShrink:0 }}>
         <Link href="/" onClick={() => { setHomeTab('home'); closeDrawer() }}
           style={{ textDecoration:'none', display:'flex', alignItems:'center', gap:8 }}>
-          <img src="/logo.png" alt="" style={{ width:28, height:28, borderRadius:8, objectFit:'cover', flexShrink:0 }} />
+          <img src="/logo.png" alt="TennisAce" style={{ width:32, height:32, borderRadius:'50%', objectFit:'cover', flexShrink:0 }} />
           <span style={{ fontSize:16, fontWeight:900, color:'#fff', letterSpacing:-0.5 }}>
             Tennis<span style={{ color:'#00C875' }}>Ace</span>
           </span>

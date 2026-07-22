@@ -3,36 +3,41 @@
 import { useState, useEffect } from 'react'
 
 export default function SplashScreen({ onComplete }: { onComplete: () => void }) {
-  const [show, setShow] = useState(true)
+  const [visible, setVisible] = useState(true)
+  const [fading, setFading] = useState(false)
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShow(false)
+    const fadeTimer = setTimeout(() => setFading(true), 1300)
+    const doneTimer = setTimeout(() => {
+      setVisible(false)
       onComplete()
-    }, 1500)
+    }, 1700)
 
-    return () => clearTimeout(timer)
+    return () => { clearTimeout(fadeTimer); clearTimeout(doneTimer) }
   }, [onComplete])
 
-  if (!show) return null
+  if (!visible) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center"
+      style={{
+        background: '#0a0f1a',
+        opacity: fading ? 0 : 1,
+        transition: 'opacity 0.4s ease',
+        pointerEvents: fading ? 'none' : 'auto',
+      }}
+    >
       <div className="flex flex-col items-center justify-center gap-6">
-        {/* Logo */}
-        <div className="w-24 h-24 rounded-3xl overflow-hidden shadow-[0_0_40px_rgba(0,200,117,0.25)]">
+        {/* New logo */}
+        <div className="w-28 h-28 rounded-full overflow-hidden shadow-[0_0_60px_rgba(0,200,117,0.2)]">
           <img src="/logo.png" alt="TennisAce" className="w-full h-full object-cover" />
         </div>
 
-        {/* Brand */}
-        <div className="text-center">
-          <h1 className="text-3xl font-black text-white tracking-tight">
-            Tennis<span className="text-[#00C875]">Ace</span>
-          </h1>
-          <p className="mt-1 text-[11px] text-gray-500 tracking-widest uppercase">
-            Feel every match. Live.
-          </p>
-        </div>
+        {/* Tagline */}
+        <p className="text-[11px] text-gray-500 tracking-widest uppercase">
+          Feel every match. Live.
+        </p>
 
         {/* Loading dots */}
         <div className="flex gap-1.5">
