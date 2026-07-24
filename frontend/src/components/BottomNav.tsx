@@ -25,11 +25,6 @@ const ResultsIcon = (active: boolean) => (
     <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" opacity={active ? 0.6 : 0.2} />
   </svg>
 )
-const RankingsIcon = (active: boolean) => (
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-    <path d="M18 20V10M12 20V4M6 20v-6" stroke={active ? '#00C875' : 'currentColor'} opacity={active ? 1 : 0.35} />
-  </svg>
-)
 const LoungesIcon = (active: boolean) => (
   <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
     <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke={active ? '#8B5CF6' : 'currentColor'} opacity={active ? 1 : 0.35} />
@@ -61,7 +56,6 @@ export default function BottomNav({ tab, setTab, liveCount }: Props) {
   const tabItems = [
     { key: 'live' as Tab, label: 'Live', icon: LiveIcon },
     { key: 'results' as Tab, label: 'Results', icon: ResultsIcon },
-    { key: 'rankings' as Tab, label: 'Rankings', icon: RankingsIcon },
     { key: 'news' as Tab, label: 'News', icon: NewsIcon },
   ]
 

@@ -28,13 +28,19 @@ async function fetchFromBackend(playerKey: string, slug: string): Promise<any | 
     })
     if (!res.ok) return null
     const data = await res.json()
+
+    // Upstream data provider can be down/unavailable (e.g. billing gate) —
+    // never let that poison the cache with a blank profile or the raw slug as name.
+    const hasRealName = Boolean(data.player_full_name || data.player_name)
+    if (data.profile_unavailable || !hasRealName) return null
+
     if (supabaseServer && slug) {
       try {
         await supabaseServer.from('players_cache').upsert(
           {
             player_key: playerKey,
             slug,
-            name: data.player_full_name || data.player_name || slug,
+            name: data.player_full_name || data.player_name,
             data,
             cached_at: new Date().toISOString(),
           },

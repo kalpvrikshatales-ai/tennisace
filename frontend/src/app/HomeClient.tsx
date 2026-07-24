@@ -346,12 +346,6 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
                   <p className="text-[12px] text-gray-400 mt-1">Head-to-head player stats</p>
                 </div>
               </Link>
-              <Link href="/rankings">
-                <div className="card p-4 text-left hover:border-gray-300 transition-all cursor-pointer">
-                  <p className="text-[15px] font-black text-gray-900">📊 Rankings</p>
-                  <p className="text-[12px] text-gray-400 mt-1">ATP · WTA · World rankings</p>
-                </div>
-              </Link>
               <Link href="/sparring">
                 <div className="card p-4 text-left hover:border-gray-300 transition-all cursor-pointer">
                   <p className="text-[15px] font-black text-gray-900">🤝 Find a Partner</p>

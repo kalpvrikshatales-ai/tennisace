@@ -15,6 +15,13 @@ BASE = "https://api.api-tennis.com/tennis/"
 CACHE_TTL_HOURS = 6
 
 
+def _is_upstream_error(item) -> bool:
+    """api-tennis.com returns {"cod": ..., "msg": ..., "param": ...} instead of
+    real data when the account hits a billing/plan gate. Detect that shape so
+    we never cache or serve it as if it were real player/ranking data."""
+    return isinstance(item, dict) and "cod" in item and "msg" in item
+
+
 async def _get_rankings_cached(league: str) -> list:
     cache_key = f"rankings:{league}"
     cached = await get_cached(cache_key)
@@ -25,6 +32,11 @@ async def _get_rankings_cached(league: str) -> list:
         r = await c.get(BASE, params={"method": "get_standings", "APIkey": API_KEY, "event_type": league}, timeout=10)
         data = r.json().get("result", [])
         now = datetime.now(timezone.utc)
+
+        if data and _is_upstream_error(data[0]):
+            # Upstream account error (e.g. payment lapsed) — never cache this,
+            # raise so the caller's Supabase-backed fallback kicks in.
+            raise RuntimeError(f"api-tennis.com error: {data[0].get('msg')}")
 
         if data:
             await set_cached(cache_key, data, ttl=CACHE_TTL_HOURS * 3600)
@@ -224,10 +236,15 @@ async def player_profile(player_key: str, response: Response):
 
     # Parse profile
     player = {}
+    profile_unavailable = False
     if not isinstance(profile_r, Exception):
         try:
             result = profile_r.json().get("result", [])
-            player = result[0] if result else {}
+            candidate = result[0] if result else {}
+            if _is_upstream_error(candidate):
+                profile_unavailable = True  # e.g. billing/plan gate — never trust as real profile
+            else:
+                player = candidate
         except Exception:
             pass
 
@@ -313,9 +330,12 @@ async def player_profile(player_key: str, response: Response):
         "upcoming_matches": upcoming,
         "form":             form,
         "prediction":       prediction,
+        "profile_unavailable": profile_unavailable,
     }
 
-    await set_cached(cache_key, result_data, ttl=3600)
+    # Don't lock in a broken/empty profile for an hour — only cache real data.
+    if not profile_unavailable:
+        await set_cached(cache_key, result_data, ttl=3600)
     return result_data
 
 
