@@ -33,8 +33,9 @@ export default async function PlayersPage() {
     fetchRankings('WTA'),
   ])
 
-  // Seed slug ↔ player_key mappings so profile pages can resolve without scanning rankings
+  // Seed slug ↔ player_key mappings + rankings data so profile pages can resolve without scanning rankings
   if (supabaseServer) {
+    const now = new Date().toISOString()
     const mappings = [
       ...atpRankings.filter((r: any) => r.player_key && r.player),
       ...wtaRankings.filter((r: any) => r.player_key && r.player),
@@ -42,13 +43,15 @@ export default async function PlayersPage() {
       player_key: String(r.player_key),
       slug: toSlug(r.player),
       name: r.player,
+      data: r,
+      cached_at: now,
     }))
 
     if (mappings.length > 0) {
       try {
         await supabaseServer
           .from('players_cache')
-          .upsert(mappings, { onConflict: 'player_key', ignoreDuplicates: true })
+          .upsert(mappings, { onConflict: 'player_key', ignoreDuplicates: false })
       } catch {}
     }
   }

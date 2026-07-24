@@ -21,6 +21,7 @@ const NAV: NavItem[] = [
   { icon:'🎾', label:'Matches',        tab:'matches'     },
   { icon:'📡', label:'Live',           tab:'matches', filter:'live' },
   { icon:'🏆', label:'Rankings',       href:'/rankings'  },
+  { icon:'🏅', label:'Players',        href:'/players'   },
   { icon:'📰', label:'News',           tab:'news'        },
   { icon:'🏆', label:'US Open',         href:'/tournament/us-open-2026' },
   { icon:'🤝', label:'Find a Partner', href:'/sparring'  },
