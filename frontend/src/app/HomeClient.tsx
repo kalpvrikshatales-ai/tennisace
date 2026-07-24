@@ -214,7 +214,7 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
                   Live scores are taking a break.
                 </p>
                 <p className="text-[15px] mb-6" style={{ color: '#8ba3c0' }}>
-                  We're rebuilding the data feed for the US Open. Back August 25.
+                  We're upgrading our live data feed. In the meantime, check out the US Open hub.
                 </p>
                 <Link href="/tournament/us-open-2026"
                   className="inline-flex items-center gap-2 text-[13px] font-bold px-4 py-2.5 rounded-full"
