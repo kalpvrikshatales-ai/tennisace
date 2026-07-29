@@ -20,10 +20,18 @@ export default function OGImage() {
           fontFamily: 'sans-serif',
         }}
       >
-        {/* Grid lines for court feel */}
+        {/* Grid lines for court feel — two separate single-gradient layers, each with an explicit
+            direction. Satori's CSS parser requires a direction/angle as the first arg — omitting
+            it (defaulting to "to bottom" like real CSS) crashes the parser. */}
         <div style={{
           position: 'absolute', inset: 0,
-          backgroundImage: 'linear-gradient(rgba(0,200,117,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,200,117,0.04) 1px, transparent 1px)',
+          backgroundImage: 'linear-gradient(to bottom, rgba(0,200,117,0.04) 1px, transparent 1px)',
+          backgroundSize: '60px 60px',
+          display: 'flex',
+        }} />
+        <div style={{
+          position: 'absolute', inset: 0,
+          backgroundImage: 'linear-gradient(90deg, rgba(0,200,117,0.04) 1px, transparent 1px)',
           backgroundSize: '60px 60px',
           display: 'flex',
         }} />
@@ -56,7 +64,10 @@ export default function OGImage() {
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 2 }}>Wimbledon · QF</span>
-            <span style={{ fontSize: 12, color: '#00C875', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2 }}>● LIVE</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#00C875', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 2 }}>
+              <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#00C875', display: 'flex' }} />
+              LIVE
+            </span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', color: 'white', fontSize: 22, fontWeight: 700 }}>
             <span>🎾 Djokovic</span>
