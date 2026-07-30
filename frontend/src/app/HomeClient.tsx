@@ -102,11 +102,15 @@ interface HomeClientProps {
 }
 
 export default function HomeClient({ initialLive, initialFixtures, initialResults }: HomeClientProps) {
-  const { homeTab: tab, setHomeTab: setTab, matchFilter, setMatchFilter, searchOpen, setSearchOpen } = useSidebar()
+  const { homeTab: tab, setHomeTab: setTab, searchOpen, setSearchOpen } = useSidebar()
   const activeTab = tab === 'home' ? 'matches' : tab
   const [profileOpen, setProfileOpen] = useState(false)
 
-  // Matches tab data — seeded from server-rendered initial props
+  // Matches data — seeded from server-rendered initial props, used only to power
+  // the Search modal (the Matches/Live tab UI itself is a static fallback card
+  // while live scores are deprioritized — see below). Fetched once on mount,
+  // deliberately NOT polled: live scores are off for now, and search doesn't need
+  // fresher-than-page-load data.
   const [liveMatches, setLiveMatches] = useState<Match[]>(() => {
     const v = validateMatches(initialLive)
     return v.data ? sortByPriority(v.data) : []
@@ -117,44 +121,29 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
     return v.data ?? []
   })
 
-  // Skip loading skeleton when server already provided data
-  const [loadingLive, setLoadingLive] = useState(initialLive.length === 0)
-  const [loadingFixtures, setLoadingFixtures] = useState(initialFixtures.length === 0)
-  const [loadingResults, setLoadingResults] = useState(initialResults.length === 0)
-
-  // True once the first client-side fetchAllMatches() completes (or SSR gave us data).
-  // Empty state is only shown after hasFetched — prevents flash of "no matches" on mobile pull-to-refresh.
-  const [hasFetched, setHasFetched] = useState(
-    initialLive.length > 0 || initialFixtures.length > 0 || initialResults.length > 0
-  )
-
   // Other tabs
   const [news, setNews] = useState<any[]>([])
   const [loadingNews, setLoadingNews] = useState(false)
 
-  // ── Fetch all matches data simultaneously ─────────────────
+  // ── Fetch all matches data simultaneously (once, for Search — not polled) ──
   const fetchAllMatches = useCallback(async () => {
     await Promise.allSettled([
       getLiveMatches().then(data => {
         const m = data.matches ?? []
         const valid = validateMatches(m)
         setLiveMatches(valid.data ? sortByPriority(valid.data) : [])
-        setLoadingLive(false)
-      }).catch(() => setLoadingLive(false)),
+      }).catch(() => {}),
 
       getFixtures(7).then(data => {
         setFixtures(data.fixtures ?? [])
-        setLoadingFixtures(false)
-      }).catch(() => setLoadingFixtures(false)),
+      }).catch(() => {}),
 
       getResults(7).then(data => {
         const r = data.results ?? []
         const valid = validateMatches(r)
         setResults(valid.data ?? [])
-        setLoadingResults(false)
-      }).catch(() => setLoadingResults(false)),
+      }).catch(() => {}),
     ])
-    setHasFetched(true)
   }, [])
 
   // Handle OAuth redirect landing on root page — Supabase puts #access_token in hash
@@ -173,15 +162,6 @@ export default function HomeClient({ initialLive, initialFixtures, initialResult
 
   useEffect(() => {
     fetchAllMatches()
-    const interval = setInterval(() => {
-      // Only refresh live every 30s
-      getLiveMatches().then(data => {
-        const m = data.matches ?? []
-        const valid = validateMatches(m)
-        setLiveMatches(valid.data ? sortByPriority(valid.data) : [])
-      }).catch(() => {})
-    }, 30_000)
-    return () => clearInterval(interval)
   }, [fetchAllMatches])
 
   useEffect(() => {

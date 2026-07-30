@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { getPlayer, getH2H } from '@/lib/api'
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
@@ -14,8 +15,6 @@ export default function WimbledonMatchDetail({ params }: { params: { 'match-id':
   const [player1Data, setPlayer1Data] = useState<any>(null)
   const [player2Data, setPlayer2Data] = useState<any>(null)
   const [h2h, setH2h] = useState<any>(null)
-  const [votes, setVotes] = useState({ player1: 0, player2: 0 })
-  const [userVote, setUserVote] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -46,18 +45,6 @@ export default function WimbledonMatchDetail({ params }: { params: { 'match-id':
 
     fetchMatchData()
   }, [params])
-
-  const handleVote = (player: '1' | '2') => {
-    setUserVote(player)
-    setVotes(prev => ({
-      ...prev,
-      [player === '1' ? 'player1' : 'player2']: prev[player === '1' ? 'player1' : 'player2'] + 1,
-    }))
-  }
-
-  const total = votes.player1 + votes.player2
-  const p1Pct = total > 0 ? Math.round((votes.player1 / total) * 100) : 50
-  const p2Pct = total > 0 ? Math.round((votes.player2 / total) * 100) : 50
 
   if (loading) {
     return (
@@ -120,9 +107,11 @@ export default function WimbledonMatchDetail({ params }: { params: { 'match-id':
               <Link key={i} href={p.key ? `/players/${p.key}` : '#'}>
                 <div className="flex items-center gap-4 p-4 rounded-2xl hover:bg-gray-50 transition-colors cursor-pointer border border-gray-100">
                   {p.img && (
-                    <img
+                    <Image
                       src={p.img}
                       alt={p.name}
+                      width={64}
+                      height={64}
                       className="w-16 h-16 rounded-full object-cover flex-shrink-0"
                       onError={e => (e.currentTarget.style.display = 'none')}
                     />
@@ -175,49 +164,29 @@ export default function WimbledonMatchDetail({ params }: { params: { 'match-id':
           </div>
         )}
 
-        {/* Voting */}
-        <div className="card p-6">
-          <h3 className="text-[16px] font-bold text-gray-900 mb-4">Who do you think will win?</h3>
+        {/* Voting — disabled for now (not wired up to real vote counts yet) */}
+        <div className="card p-6 opacity-60">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-[16px] font-bold text-gray-900">Who do you think will win?</h3>
+            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider bg-gray-100 px-2 py-1 rounded-full">
+              Coming soon
+            </span>
+          </div>
           <div className="space-y-3">
             {[
               { player: '1', name: match.player1 },
               { player: '2', name: match.player2 },
-            ].map((option, i) => {
-              const pct = option.player === '1' ? p1Pct : p2Pct
-              const count = option.player === '1' ? votes.player1 : votes.player2
-              const isUserVote = userVote === option.player
-
-              return (
-                <button
-                  key={i}
-                  onClick={() => handleVote(option.player as '1' | '2')}
-                  className={`w-full p-4 rounded-2xl border-2 transition-all text-left ${
-                    isUserVote
-                      ? 'border-green-500 bg-green-50'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="font-bold text-gray-900">{option.name}</p>
-                    <span className={`text-[14px] font-bold ${isUserVote ? 'text-green-600' : 'text-gray-400'}`}>
-                      {pct}%
-                    </span>
-                  </div>
-                  <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <div
-                      className="h-full transition-all"
-                      style={{
-                        width: `${pct}%`,
-                        background: GREEN,
-                      }}
-                    />
-                  </div>
-                  <p className="text-[11px] text-gray-400 mt-2">{count} vote{count !== 1 ? 's' : ''}</p>
-                </button>
-              )
-            })}
+            ].map((option, i) => (
+              <div
+                key={i}
+                className="w-full p-4 rounded-2xl border-2 border-gray-200 text-left cursor-not-allowed"
+              >
+                <p className="font-bold text-gray-900">{option.name}</p>
+                <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden mt-2" />
+              </div>
+            ))}
           </div>
-          <p className="text-[11px] text-gray-400 mt-4 text-center">Total votes: {total}</p>
+          <p className="text-[11px] text-gray-400 mt-4 text-center">Match predictions are coming soon</p>
         </div>
       </main>
     </div>
