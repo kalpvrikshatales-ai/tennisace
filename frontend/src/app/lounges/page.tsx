@@ -3,10 +3,11 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { getFlag } from '@/lib/flags'
 
-const SUPABASE_URL = 'https://wffxyjuecritbiyfdane.supabase.co'
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmZnh5anVlY3JpdGJpeWZkYW5lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzMjc0NDMsImV4cCI6MjA5NzkwMzQ0M30.Df8puFsrY35AUbFnogzlSFwve9nlcHz2vk-emc4jiZM'
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+const SUPABASE_ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 
 const LOUNGES = [
   { id: 'wimbledon',    name: 'Wimbledon',       emoji: '🌿', color: '#22C55E', bg: '#F0FDF4', desc: '5 days to go · Grass · SW19' },
@@ -148,7 +149,7 @@ export default function LoungesPage() {
             Back
           </Link>
           <div className="h-4 w-px bg-gray-200" />
-          <img src="/logo.png" alt="TennisAce" className="h-7 w-7 rounded-xl object-cover flex-shrink-0" />
+          <Image src="/logo.png" alt="TennisAce" width={28} height={28} className="h-7 w-7 rounded-xl object-cover flex-shrink-0" />
           <span className="text-lg font-black text-gray-900 ml-1">Lounges</span>
           {profile && (
             <button onClick={() => setShowProfile(true)} className="ml-auto flex items-center gap-2">
