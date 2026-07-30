@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { getUser, signInWithGoogle, signOut } from '@/lib/supabase'
 
 const TOP_PLAYERS = [
@@ -86,7 +87,7 @@ export default function ProfilePanel({ open, onClose }: Props) {
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-100">
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="" className="h-7 w-7 rounded-xl object-cover flex-shrink-0" />
+            <Image src="/logo.png" alt="" width={28} height={28} className="h-7 w-7 rounded-xl object-cover flex-shrink-0" />
             <span className="font-black text-[16px]">Tennis<span className="text-[#00C875]">Ace</span></span>
           </div>
           <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400">
@@ -101,7 +102,7 @@ export default function ProfilePanel({ open, onClose }: Props) {
           {user ? (
             <div className="flex items-center gap-3">
               {user.user_metadata?.avatar_url ? (
-                <img src={user.user_metadata.avatar_url} alt="" className="w-12 h-12 rounded-full object-cover" />
+                <Image src={user.user_metadata.avatar_url} alt="" width={48} height={48} className="w-12 h-12 rounded-full object-cover" />
               ) : (
                 <div className="w-12 h-12 rounded-full bg-[#00C875]/20 flex items-center justify-center">
                   <span className="text-[#00C875] font-black text-lg">

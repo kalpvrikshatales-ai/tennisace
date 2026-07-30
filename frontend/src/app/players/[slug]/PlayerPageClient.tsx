@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { getFlag } from '@/lib/flags'
 import { PlayStyleSection, StrengthsWeaknesses, FavoriteSurface, TitlesByService, RecentFormGraph } from '@/components/PlayerInsights'
 import { toSlug } from '@/lib/playerSlug'
@@ -62,7 +63,7 @@ function MatchRow({ m, playerKey }: { m: any; playerKey: number }) {
           won ? 'bg-[#00C875]/15 text-[#00C875]' : 'bg-gray-100 text-gray-500'
         }`}>{won ? 'W' : 'L'}</span>
         <div className="flex items-center gap-2 flex-1 min-w-0">
-          {oppImg && <img src={oppImg} alt="" className="w-7 h-7 rounded-full object-cover bg-gray-100 flex-shrink-0"
+          {oppImg && <Image src={oppImg} alt="" width={28} height={28} className="w-7 h-7 rounded-full object-cover bg-gray-100 flex-shrink-0"
             onError={e => e.currentTarget.style.display='none'} />}
           <div className="min-w-0">
             <p className="text-[13px] font-bold text-gray-900 truncate">vs {opp}</p>
@@ -200,7 +201,7 @@ export default function PlayerPageClient({ player, playerKey }: { player: any; p
         {/* Player hero */}
         <div className="flex items-start gap-4 mb-6 pt-2">
           {player.player_logo ? (
-            <img src={player.player_logo} alt={player.player_full_name || player.player_name}
+            <Image src={player.player_logo} alt={player.player_full_name || player.player_name} width={80} height={80}
               className="w-20 h-20 rounded-2xl object-cover border-2 border-gray-100 flex-shrink-0"
               onError={e => e.currentTarget.style.display='none'} />
           ) : (
@@ -392,7 +393,7 @@ export default function PlayerPageClient({ player, playerKey }: { player: any; p
                           <span className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-black flex-shrink-0 bg-gray-100 text-gray-400">VS</span>
                           <div className="flex items-center gap-2 flex-1 min-w-0">
                             {oppImg && (
-                              <img src={oppImg} alt="" className="w-7 h-7 rounded-full object-cover bg-gray-100 flex-shrink-0"
+                              <Image src={oppImg} alt="" width={28} height={28} className="w-7 h-7 rounded-full object-cover bg-gray-100 flex-shrink-0"
                                 onError={e => e.currentTarget.style.display = 'none'} />
                             )}
                             <div className="min-w-0">

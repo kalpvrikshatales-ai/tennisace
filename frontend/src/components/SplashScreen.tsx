@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 
 export default function SplashScreen({ onComplete }: { onComplete: () => void }) {
   const [visible,  setVisible]  = useState(true)
@@ -39,10 +40,13 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
             overflow: 'hidden',
             border: '2px solid rgba(141,214,48,0.22)',
           }}>
-            <img
+            <Image
               src="/logo.png"
               alt="TennisAce"
-              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              width={112}
+              height={112}
+              priority
+              style={{ objectFit: 'contain' }}
             />
           </div>
         </div>

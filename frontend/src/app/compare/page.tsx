@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import Image from 'next/image'
 import { getRankings, getPlayer, getH2H } from '@/lib/api'
 import { getFlag } from '@/lib/flags'
 
@@ -76,7 +77,7 @@ function ComparePageInner() {
     return (
       <div className={`flex-1 glass rounded-2xl p-4 ${side === 'right' ? 'text-right' : ''}`}>
         {player.player_logo && (
-          <img src={player.player_logo} alt="" className={`w-16 h-16 rounded-full object-cover border-2 border-[#00C875]/30 mb-2 ${side === 'right' ? 'ml-auto' : ''}`} onError={e => e.currentTarget.style.display='none'} />
+          <Image src={player.player_logo} alt="" width={64} height={64} className={`w-16 h-16 rounded-full object-cover border-2 border-[#00C875]/30 mb-2 ${side === 'right' ? 'ml-auto' : ''}`} onError={e => e.currentTarget.style.display='none'} />
         )}
         <p className="text-base font-black text-gray-900 leading-tight">{player.player_full_name}</p>
         <p className="text-[11px] text-gray-900/40 mt-0.5">{getFlag(player.player_country)} {player.player_country}</p>

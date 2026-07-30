@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import ThemeToggle from './ThemeToggle'
 import { useSidebar } from './SidebarContext'
 import type { HomeTab } from './SidebarContext'
@@ -56,7 +57,7 @@ export default function MobileHeader() {
 
         {/* Logo */}
         <Link href="/" className="flex-1 flex items-center justify-center gap-2 hover:opacity-80 transition-opacity">
-          <img src="/logo.png" alt="TennisAce" className="h-8 w-8 rounded-full object-contain flex-shrink-0" />
+          <Image src="/logo.png" alt="TennisAce" width={32} height={32} priority className="h-8 w-8 rounded-full object-contain flex-shrink-0" />
           <span className="text-[18px] font-black tracking-tight" style={{ color: 'var(--text-primary)' }}>
             Tennis<span style={{ color: '#00C875' }}>Ace</span>
           </span>

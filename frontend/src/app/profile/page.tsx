@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useAuth } from '@/components/AuthProvider'
 import { createSupabaseBrowserClient } from '@/lib/supabase-browser'
 import BackButton from '@/components/BackButton'
@@ -181,7 +182,7 @@ export default function ProfilePage() {
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: -48, marginBottom: 16 }}>
           <div style={{ position: 'relative' }}>
             {avatarUrl ? (
-              <img src={avatarUrl} alt="avatar" style={{ width: 96, height: 96, borderRadius: '50%', objectFit: 'cover', border: '4px solid var(--bg)', display: 'block' }} />
+              <Image src={avatarUrl} alt="avatar" width={96} height={96} style={{ width: 96, height: 96, borderRadius: '50%', objectFit: 'cover', border: '4px solid var(--bg)', display: 'block' }} />
             ) : (
               <div style={{ width: 96, height: 96, borderRadius: '50%', border: '4px solid var(--bg)', background: '#00C875', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, fontWeight: 900, color: '#000' }}>
                 {initials}

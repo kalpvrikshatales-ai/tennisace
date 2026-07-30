@@ -1,3 +1,5 @@
+import Image from 'next/image'
+
 interface Article {
   title: string
   link: string
@@ -28,11 +30,13 @@ export default function NewsCard({ article, index }: Props) {
       style={{ animationDelay: `${index * 40}ms` }}
     >
       {article.image && (
-        <div className="w-full h-40 overflow-hidden bg-gray-100">
-          <img
+        <div className="relative w-full h-40 overflow-hidden bg-gray-100">
+          <Image
             src={article.image}
             alt=""
-            className="w-full h-full object-cover"
+            fill
+            sizes="(max-width: 768px) 100vw, 768px"
+            className="object-cover"
             onError={e => (e.currentTarget.parentElement!.style.display = 'none')}
           />
         </div>

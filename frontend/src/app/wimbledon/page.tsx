@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { getFlag } from '@/lib/flags'
 import { getLiveMatches, getPlayer, getRankings } from '@/lib/api'
@@ -158,7 +159,7 @@ function MatchRow({ match, isLive }: { match: any; isLive: boolean }) {
               <div key={i} className="flex items-center justify-between">
                 <div className="flex items-center gap-2 min-w-0">
                   {p.img && (
-                    <img src={p.img} alt="" className="w-7 h-7 rounded-full object-cover bg-gray-100 flex-shrink-0"
+                    <Image src={p.img} alt="" width={28} height={28} className="w-7 h-7 rounded-full object-cover bg-gray-100 flex-shrink-0"
                       onError={e => e.currentTarget.style.display = 'none'} />
                   )}
                   {p.serving && <span className="text-[10px] flex-shrink-0">🎾</span>}
@@ -199,7 +200,7 @@ function PlayerRow({ name, imgUrl, playerKey, rankInfo }: {
     <div className="flex items-center justify-between gap-2">
       <div className="flex items-center gap-2 min-w-0 flex-1">
         {imgUrl ? (
-          <img src={imgUrl} alt="" className="w-8 h-8 rounded-full object-cover bg-gray-100 flex-shrink-0"
+          <Image src={imgUrl} alt="" width={32} height={32} className="w-8 h-8 rounded-full object-cover bg-gray-100 flex-shrink-0"
             onError={e => (e.currentTarget.style.display = 'none')} />
         ) : (
           <div className="w-8 h-8 rounded-full bg-gray-100 flex-shrink-0 flex items-center justify-center">
@@ -318,7 +319,7 @@ function SeedCard({ s }: { s: typeof SEEDS[0] }) {
     <Link href={`/players/${s.key}`}>
       <div className="card p-4 cursor-pointer card-glow flex items-center gap-3">
         {data?.player_logo && (
-          <img src={data.player_logo} alt="" className="w-12 h-12 rounded-full object-cover border-2 flex-shrink-0"
+          <Image src={data.player_logo} alt="" width={48} height={48} className="w-12 h-12 rounded-full object-cover border-2 flex-shrink-0"
             style={{ borderColor: `${GREEN}30` }}
             onError={e => e.currentTarget.style.display = 'none'} />
         )}
@@ -362,7 +363,7 @@ function WinnerCard({ winner }: { winner: typeof PAST_WINNERS[0] }) {
     <Link href={`/players/${winner.key}`}>
       <div className="card p-4 cursor-pointer hover:border-green-200 transition-all flex items-center gap-3">
         {data?.player_logo && (
-          <img src={data.player_logo} alt="" className="w-14 h-14 rounded-full object-cover border-2 flex-shrink-0"
+          <Image src={data.player_logo} alt="" width={56} height={56} className="w-14 h-14 rounded-full object-cover border-2 flex-shrink-0"
             style={{ borderColor: `${GREEN}20` }}
             onError={e => e.currentTarget.style.display = 'none'} />
         )}
@@ -470,10 +471,10 @@ export default function WimbledonHub() {
               <path d="M19 12H5M12 5l-7 7 7 7"/>
             </svg>
           </button>
-          <img src="/logo.png" alt="TennisAce" className="h-7 w-7 rounded-xl object-cover flex-shrink-0" />
+          <Image src="/logo.png" alt="TennisAce" width={28} height={28} className="h-7 w-7 rounded-xl object-cover flex-shrink-0" />
           <div className="h-4 w-px bg-gray-200" />
           <div className="flex items-center gap-2">
-            <img src="/gs-wimbledon.png" alt="Wimbledon" className="h-6 w-auto object-contain" />
+            <Image src="/gs-wimbledon.png" alt="Wimbledon" width={24} height={24} className="h-6 w-auto object-contain" />
             <span className="text-[15px] font-black text-gray-900">Wimbledon 2026</span>
           </div>
           {isLive && <LiveBadge />}
@@ -510,7 +511,7 @@ export default function WimbledonHub() {
 
               {/* Logo + headline */}
               <div className="flex items-center gap-3 mb-5">
-                <img src="/gs-wimbledon.png" alt="Wimbledon"
+                <Image src="/gs-wimbledon.png" alt="Wimbledon" width={56} height={56}
                   className="h-14 w-14 object-contain flex-shrink-0 drop-shadow-lg" />
                 <div>
                   <p className="text-[11px] font-bold uppercase tracking-[0.18em] mb-0.5"

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import Image from 'next/image'
 import { supabaseServer } from '@/lib/supabase-server'
 import { toSlug } from '@/lib/playerSlug'
 import PlayersIndexClient from './PlayersIndexClient'
@@ -66,7 +67,7 @@ export default async function PlayersPage() {
               <path d="M19 12H5M12 5l-7 7 7 7"/>
             </svg>
           </Link>
-          <img src="/logo.png" alt="TennisAce" className="h-7 w-7 rounded-xl object-cover flex-shrink-0" />
+          <Image src="/logo.png" alt="TennisAce" width={28} height={28} className="h-7 w-7 rounded-xl object-cover flex-shrink-0" />
           <span className="text-[15px] font-black text-gray-900">Players</span>
         </div>
       </header>

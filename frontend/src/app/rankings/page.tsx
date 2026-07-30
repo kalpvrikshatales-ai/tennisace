@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { getFlag } from '@/lib/flags'
 import VirtualizedRankingsList from '@/components/VirtualizedRankingsList'
@@ -187,7 +188,7 @@ export default function RankingsPage() {
               <path d="M19 12H5M12 5l-7 7 7 7"/>
             </svg>
           </button>
-          <img src="/logo.png" alt="TennisAce" className="h-7 w-7 rounded-xl object-cover flex-shrink-0" />
+          <Image src="/logo.png" alt="TennisAce" width={28} height={28} className="h-7 w-7 rounded-xl object-cover flex-shrink-0" />
           <span className="text-[15px] font-black text-gray-900">Rankings</span>
           <Link href="/players" className="ml-auto text-[13px] font-bold text-[#00C875]">Players →</Link>
         </div>

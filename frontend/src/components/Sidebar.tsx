@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from './AuthProvider'
 import { useSidebar, HomeTab } from './SidebarContext'
@@ -145,7 +146,7 @@ function SidebarPanel({ onClose }: { onClose?: () => void }) {
       <div style={{ padding:'18px 16px 14px', borderBottom:'1px solid #1a1a1a', flexShrink:0 }}>
         <Link href="/" onClick={() => { setHomeTab('home'); closeDrawer() }}
           style={{ textDecoration:'none', display:'flex', alignItems:'center', gap:8 }}>
-          <img src="/logo.png" alt="TennisAce" style={{ width:32, height:32, borderRadius:'50%', objectFit:'contain', flexShrink:0 }} />
+          <Image src="/logo.png" alt="TennisAce" width={32} height={32} priority style={{ width:32, height:32, borderRadius:'50%', objectFit:'contain', flexShrink:0 }} />
           <span style={{ fontSize:16, fontWeight:900, color:'#fff', letterSpacing:-0.5 }}>
             Tennis<span style={{ color:'#00C875' }}>Ace</span>
           </span>
@@ -190,7 +191,7 @@ function SidebarPanel({ onClose }: { onClose?: () => void }) {
           <Link href="/profile" onClick={closeDrawer}
             style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', borderRadius:8, textDecoration:'none', background:'#111', border:'1px solid #1e1e1e', marginBottom:8 }}>
             {avatarUrl ? (
-              <img src={avatarUrl} alt="" style={{ width:32, height:32, borderRadius:'50%', objectFit:'cover', flexShrink:0 }} />
+              <Image src={avatarUrl} alt="" width={32} height={32} style={{ width:32, height:32, borderRadius:'50%', objectFit:'cover', flexShrink:0 }} />
             ) : (
               <div style={{ width:32, height:32, borderRadius:'50%', background:'#00C875', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:900, color:'#000', flexShrink:0 }}>
                 {initials}

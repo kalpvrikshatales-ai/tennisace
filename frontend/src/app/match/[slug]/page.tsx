@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import type { Metadata } from 'next'
 import type { Match } from '@/types'
 import { parseMatchSlug } from '@/lib/matchSlug'
@@ -427,7 +428,7 @@ export default async function MatchPage({ params }: { params: { slug: string } }
                     <div key={rowIdx} className="flex items-center gap-3 py-2">
                       <div className="w-10 h-10 flex-shrink-0">
                         {p.img ? (
-                          <img src={p.img} alt="" className="w-10 h-10 rounded-full object-cover bg-gray-100" />
+                          <Image src={p.img} alt="" width={40} height={40} className="w-10 h-10 rounded-full object-cover bg-gray-100" />
                         ) : (
                           <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
                             <span className="text-sm font-bold text-gray-400">{p.name[0]}</span>
@@ -495,7 +496,7 @@ export default async function MatchPage({ params }: { params: { slug: string } }
                 {/* P1 */}
                 <div className="flex flex-col items-center gap-1.5 flex-1 min-w-0">
                   {match.player1_img ? (
-                    <img src={match.player1_img} alt="" className="w-12 h-12 rounded-full object-cover bg-gray-100" />
+                    <Image src={match.player1_img} alt="" width={48} height={48} className="w-12 h-12 rounded-full object-cover bg-gray-100" />
                   ) : (
                     <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
                       <span className="text-base font-black text-gray-400">{match.player1[0]}</span>
@@ -518,7 +519,7 @@ export default async function MatchPage({ params }: { params: { slug: string } }
                 {/* P2 */}
                 <div className="flex flex-col items-center gap-1.5 flex-1 min-w-0">
                   {match.player2_img ? (
-                    <img src={match.player2_img} alt="" className="w-12 h-12 rounded-full object-cover bg-gray-100" />
+                    <Image src={match.player2_img} alt="" width={48} height={48} className="w-12 h-12 rounded-full object-cover bg-gray-100" />
                   ) : (
                     <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
                       <span className="text-base font-black text-gray-400">{match.player2[0]}</span>

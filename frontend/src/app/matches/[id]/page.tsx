@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { getH2H, getMatchDetail } from '@/lib/api-reliable'
 import PointByPoint from '@/components/PointByPoint'
 
@@ -267,9 +268,9 @@ export default function MatchPage() {
               return (
                 <div key={rowIdx} className="flex items-center gap-3">
                   {/* Avatar */}
-                  <div className="w-11 h-11 rounded-full overflow-hidden bg-white/8 flex-shrink-0 ring-1 ring-white/10">
+                  <div className="relative w-11 h-11 rounded-full overflow-hidden bg-white/8 flex-shrink-0 ring-1 ring-white/10">
                     {p.img ? (
-                      <img src={p.img} alt="" className="w-full h-full object-cover"
+                      <Image src={p.img} alt="" fill sizes="44px" className="object-cover"
                         onError={e => { e.currentTarget.style.display = 'none' }} />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
@@ -388,9 +389,9 @@ export default function MatchPage() {
               {players.map(p => (
                 <Link key={p.idx} href={p.pkey ? `/players/${p.pkey}` : '#'}>
                   <div className="card p-4 flex flex-col items-center text-center gap-2.5 card-glow cursor-pointer">
-                    <div className="w-16 h-16 rounded-2xl overflow-hidden bg-gray-100 flex-shrink-0">
+                    <div className="relative w-16 h-16 rounded-2xl overflow-hidden bg-gray-100 flex-shrink-0">
                       {p.img ? (
-                        <img src={p.img} alt="" className="w-full h-full object-cover"
+                        <Image src={p.img} alt="" fill sizes="64px" className="object-cover"
                           onError={e => { e.currentTarget.style.display = 'none' }} />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">

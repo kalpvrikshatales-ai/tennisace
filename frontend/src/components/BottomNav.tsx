@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/components/AuthProvider'
 
@@ -124,7 +125,7 @@ export default function BottomNav({ tab, setTab, liveCount }: Props) {
           <div className="relative z-10">
             {user && (profile?.full_name || user.user_metadata?.avatar_url) ? (
               user.user_metadata?.avatar_url ? (
-                <img src={user.user_metadata.avatar_url} alt=""
+                <Image src={user.user_metadata.avatar_url} alt="" width={26} height={26}
                   className="w-[26px] h-[26px] rounded-full object-cover border-2 border-transparent"
                   style={{ borderColor: isProfile ? '#00C875' : 'transparent' }} />
               ) : (

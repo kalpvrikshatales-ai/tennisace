@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { createSupabaseBrowserClient } from '@/lib/supabase-browser'
 
 function GoogleIcon() {
@@ -81,7 +82,7 @@ export default function LoginPage() {
     }}>
       {/* Logo */}
       <div style={{ marginBottom: 40, textAlign: 'center' }}>
-        <img src="/logo.png" alt="TennisAce"
+        <Image src="/logo.png" alt="TennisAce" width={60} height={60} priority
           style={{ width: 60, height: 60, borderRadius: 16, marginBottom: 14, display: 'block', margin: '0 auto 14px' }} />
         <p style={{ color: '#fff', fontWeight: 900, fontSize: 24, letterSpacing: -0.5, margin: 0 }}>TennisAce</p>
         <p style={{ color: '#555', fontSize: 14, margin: '4px 0 0' }}>Sign in to continue</p>

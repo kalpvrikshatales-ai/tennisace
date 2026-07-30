@@ -16,6 +16,9 @@ export const metadata: Metadata = {
     title: 'TennisAce — Find Tennis Players & Coaches Near You',
     description: 'Find tennis players and coaches near you. Join the founding community in Barcelona and Dubai.',
   },
+  alternates: {
+    canonical: 'https://tennisace.live',
+  },
 }
 
 const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'

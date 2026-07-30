@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { Suspense, useEffect, useState } from 'react'
 import SparringFilters from './SparringFilters'
 import SparringShell from './SparringShell'
@@ -182,8 +183,8 @@ function PlayerCard({ p, mutualSlots }: { p: any; mutualSlots?: number }) {
         {/* Photo */}
         <div style={{ height: 148, background: 'var(--sr-card-2)', position: 'relative', overflow: 'hidden' }}>
           {p.photo_url ? (
-            <img src={p.photo_url} alt={p.name}
-              style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }} />
+            <Image src={p.photo_url} alt={p.name} fill sizes="(max-width: 768px) 50vw, 300px"
+              style={{ objectFit: 'cover', objectPosition: 'top' }} />
           ) : (
             <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
               background: p.role === 'coach' ? 'rgba(128,128,255,0.08)' : 'color-mix(in srgb, var(--accent) 5%, transparent)' }}>
@@ -439,7 +440,7 @@ export default function SparringDiscover({ initialProfiles }: { initialProfiles:
                       background: 'var(--sr-card)', border: '1px solid var(--sr-border)',
                       borderRadius: 10, padding: '6px 10px' }}>
                     {avatarUrl
-                      ? <img src={avatarUrl} alt="" style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover' }} />
+                      ? <Image src={avatarUrl} alt="" width={22} height={22} style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover' }} />
                       : <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#00C875',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           fontSize: 9, fontWeight: 900, color: '#0a0f1a' }}>{initials}</div>

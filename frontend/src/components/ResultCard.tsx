@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { getPlayerCountry } from '@/lib/playerCountries'
 
 interface Result {
@@ -96,7 +97,7 @@ export default function ResultCard({ result, hideMeta }: Props) {
                 {/* Avatar */}
                 <div className="flex-shrink-0 w-6 h-6">
                   {p.img ? (
-                    <img src={p.img} alt="" className="w-6 h-6 rounded-full object-cover bg-gray-100"
+                    <Image src={p.img} alt="" width={24} height={24} className="w-6 h-6 rounded-full object-cover bg-gray-100"
                       onError={e => (e.currentTarget.style.display = 'none')} />
                   ) : (
                     <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center">
