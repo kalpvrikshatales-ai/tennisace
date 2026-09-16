@@ -11,8 +11,8 @@ const inter   = Inter({ subsets: ['latin'], variable: '--font-inter' })
 const dmSans  = DM_Sans({ subsets: ['latin'], variable: '--font-dm-sans', weight: ['400','500','600','700','800','900'] })
 
 export const metadata: Metadata = {
-  title: 'TennisAce — Live Tennis Scores | ATP, WTA & Grand Slam Results',
-  description: 'Live tennis scores, ATP rankings, WTA results and Wimbledon 2026 updates. Real-time match tracker for every tournament worldwide.',
+  title: 'TennisAce — Find Tennis Players & Coaches Near You',
+  description: 'Find tennis players and coaches near you. Join the founding community in Barcelona and Dubai.',
   manifest: '/manifest.json',
   themeColor: '#0a0f1a',
   viewport: 'width=device-width, initial-scale=1',
@@ -27,17 +27,17 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
-    title: 'TennisAce — Live Tennis Scores | ATP, WTA & Grand Slam Results',
-    description: 'Live tennis scores, ATP rankings, WTA results and Wimbledon 2026 updates. Real-time match tracker for every tournament worldwide.',
+    title: 'TennisAce — Find Tennis Players & Coaches Near You',
+    description: 'Find tennis players and coaches near you. Join the founding community in Barcelona and Dubai.',
     url: 'https://tennisace.live',
     siteName: 'TennisAce',
     type: 'website',
-    images: [{ url: 'https://tennisace.live/og.png', width: 1200, height: 630, alt: 'TennisAce Live Scores' }],
+    images: [{ url: 'https://tennisace.live/og.png', width: 1200, height: 630, alt: 'TennisAce — Find Tennis Players & Coaches Near You' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'TennisAce — Feel every match. Live.',
-    description: 'Live tennis scores from every tournament worldwide.',
+    title: 'TennisAce — Find Tennis Players & Coaches Near You',
+    description: 'Find tennis players and coaches near you.',
     images: ['https://tennisace.live/og.png'],
   },
   verification: {

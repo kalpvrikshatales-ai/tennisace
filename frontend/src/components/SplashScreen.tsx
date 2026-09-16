@@ -68,7 +68,7 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
             letterSpacing: '2.5px', color: '#4a6fa5',
             textTransform: 'uppercase',
           }}>
-            Feel every match. Live.
+            Find your tennis partner
           </p>
         </div>
 

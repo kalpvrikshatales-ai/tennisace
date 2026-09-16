@@ -61,7 +61,7 @@ function CityCard({ data, flag, slug, accentColor, gradient, featured }: {
   return (
     <div className="city-hero-card" style={{
       background:   gradient,
-      border:       `1.5px solid ${featured ? 'color-mix(in srgb, var(--accent) 28%, transparent)' : 'rgba(245,158,11,0.22)'}`,
+      border:       '1.5px solid color-mix(in srgb, var(--accent) 22%, transparent)',
       borderRadius: 20,
       padding:      '28px 24px 24px',
       minHeight:    200,
@@ -329,7 +329,7 @@ export default async function HomeCommunityHero() {
             />
             <CityCard
               data={dubai} flag="🇦🇪" slug="Dubai"
-              accentColor="#f59e0b"
+              accentColor="var(--accent)"
               gradient="linear-gradient(135deg, #1a1408 0%, #0d1b2e 100%)"
             />
           </div>

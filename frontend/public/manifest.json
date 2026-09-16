@@ -1,13 +1,13 @@
 {
   "name": "TennisAce",
   "short_name": "TennisAce",
-  "description": "Feel every match. Live.",
+  "description": "Find tennis players and coaches near you.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0a0f1a",
   "theme_color": "#0a0f1a",
-  "categories": ["sports", "news"],
+  "categories": ["sports", "social"],
   "icons": [
     { "src": "/favicon-32.png",      "sizes": "32x32",   "type": "image/png" },
     { "src": "/apple-touch-icon.png","sizes": "180x180", "type": "image/png" },
@@ -16,8 +16,8 @@
     { "src": "/icon.png",            "sizes": "512x512", "type": "image/png", "purpose": "any" }
   ],
   "shortcuts": [
-    { "name": "Live Scores", "url": "/?tab=live",     "description": "See live matches" },
-    { "name": "Rankings",    "url": "/?tab=rankings", "description": "ATP & WTA rankings" },
-    { "name": "Lounges",     "url": "/lounges",       "description": "Chat with tennis fans" }
+    { "name": "Find a Partner", "url": "/sparring",  "description": "Browse players and coaches near you" },
+    { "name": "Play",           "url": "/play",      "description": "Post or join a play request" },
+    { "name": "Community",      "url": "/community", "description": "See your city's founding members" }
   ]
 }
