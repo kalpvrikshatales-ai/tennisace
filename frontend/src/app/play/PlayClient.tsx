@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import SparringShell from '@/app/sparring/SparringShell'
 import CityPicker from '@/components/CityPicker'
 import BackButton from '@/components/BackButton'
@@ -488,6 +489,12 @@ export default function PlayClient() {
           .play-slot { padding:9px 14px; border-radius:9px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.5); font-size:12px; font-weight:700; cursor:pointer; transition:all 0.15s; }
           .play-slot.active { background:color-mix(in srgb, var(--accent) 12%, transparent); border-color:color-mix(in srgb, var(--accent) 40%, transparent); color:var(--accent); }
         `}</style>
+
+        {/* ── Cover photo ── */}
+        <div style={{ position: 'relative', height: 120, overflow: 'hidden' }}>
+          <Image src="/photos/play-serve.jpg" alt="" fill style={{ objectFit: 'cover', objectPosition: 'center 30%' }} />
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(10,15,26,0.35) 0%, var(--bg) 100%)' }} />
+        </div>
 
         {/* ── Header ── */}
         <div style={{ borderBottom: '1px solid rgba(255,255,255,0.07)', padding: '20px 20px 0' }}>

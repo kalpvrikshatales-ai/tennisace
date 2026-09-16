@@ -27,7 +27,20 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
         pointerEvents: fading ? 'none' : 'auto',
       }}
     >
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      {/* Real court photo, dimmed so the logo stays crisp */}
+      <Image
+        src="/photos/splash-court.jpg"
+        alt=""
+        fill
+        priority
+        style={{ objectFit: 'cover', opacity: entered ? 0.4 : 0.15, transition: 'opacity 0.8s ease' }}
+      />
+      <div style={{
+        position: 'absolute', inset: 0,
+        background: 'linear-gradient(180deg, rgba(10,15,26,0.55) 0%, rgba(10,15,26,0.85) 100%)',
+      }} />
+
+      <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
         {/* Logo — spring entrance, green ring, object-contain so full circle shows */}
         <div style={{

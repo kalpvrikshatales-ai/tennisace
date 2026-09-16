@@ -399,6 +399,12 @@ export default function SparringDiscover({ initialProfiles }: { initialProfiles:
   return (
     <SparringShell>
       <div className="sr-page">
+        {/* ── Cover photo ── */}
+        <div style={{ position: 'relative', height: 120, overflow: 'hidden' }}>
+          <Image src="/photos/partner-handshake.jpg" alt="" fill style={{ objectFit: 'cover', objectPosition: 'center 35%' }} />
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(10,15,26,0.35) 0%, var(--sr-bg, var(--bg)) 100%)' }} />
+        </div>
+
         {/* ── Header ── */}
         <div style={{ borderBottom: '1px solid var(--sr-border)', padding: '18px 16px 0' }}>
           <div style={{ maxWidth: 760, margin: '0 auto' }}>

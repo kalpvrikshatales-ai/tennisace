@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { IconRing } from '@/components/CardKit'
 
 const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
@@ -42,12 +43,12 @@ async function fetchTotalCount(): Promise<number> {
   } catch { return 0 }
 }
 
-function CityCard({ data, flag, slug, accentColor, gradient, featured }: {
+function CityCard({ data, flag, slug, accentColor, photo, featured }: {
   data:        CityProgress | null
   flag:        string
   slug:        string
   accentColor: string
-  gradient:    string
+  photo:       string
   featured?:   boolean
 }) {
   const total     = data ? data.player_count + data.coach_count : 0
@@ -61,7 +62,6 @@ function CityCard({ data, flag, slug, accentColor, gradient, featured }: {
 
   return (
     <div className="city-hero-card" style={{
-      background:   gradient,
       border:       '1.5px solid color-mix(in srgb, var(--accent) 22%, transparent)',
       borderRadius: 20,
       padding:      '28px 24px 24px',
@@ -71,13 +71,23 @@ function CityCard({ data, flag, slug, accentColor, gradient, featured }: {
       position:     'relative',
       overflow:     'hidden',
     }}>
+      {/* Real court photo background */}
+      <Image src={photo} alt="" fill style={{ objectFit: 'cover' }} />
+      <div style={{
+        position: 'absolute', inset: 0,
+        background: 'linear-gradient(180deg, rgba(13,20,30,0.82) 0%, rgba(13,20,30,0.5) 35%, rgba(13,20,30,0.55) 65%, rgba(13,20,30,0.9) 100%)',
+      }} />
+
       {/* Radial glow top-right */}
       <div style={{
         position:   'absolute', top: -40, right: -40,
         width:      160, height: 160, borderRadius: '50%',
         background: `radial-gradient(circle, ${accentColor}18 0%, transparent 70%)`,
         pointerEvents: 'none',
+        zIndex: 1,
       }} />
+
+      <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', flex: 1 }}>
 
       {/* Milestone pill */}
       <div style={{
@@ -167,6 +177,7 @@ function CityCard({ data, flag, slug, accentColor, gradient, featured }: {
       }}>
         Founding Member · Always Free · Limited spots
       </p>
+      </div>
     </div>
   )
 }
@@ -325,14 +336,38 @@ export default async function HomeCommunityHero() {
             <CityCard
               data={barcelona} flag="🇪🇸" slug="Barcelona"
               accentColor="var(--accent)"
-              gradient="linear-gradient(135deg, #1a0f0a 0%, #0d1b2e 100%)"
+              photo="/photos/barcelona-court.jpg"
               featured
             />
             <CityCard
               data={dubai} flag="🇦🇪" slug="Dubai"
               accentColor="var(--accent)"
-              gradient="linear-gradient(135deg, #1a1408 0%, #0d1b2e 100%)"
+              photo="/photos/dubai-court.jpg"
             />
+          </div>
+        </div>
+      </section>
+
+      {/* ━━━ FEATURED PHOTO ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      <section style={{ background: '#080f1a', padding: '0 20px 52px' }}>
+        <div style={{ maxWidth: 760, margin: '0 auto', position: 'relative', borderRadius: 20, overflow: 'hidden', minHeight: 320 }}>
+          <Image
+            src="/photos/hero-players.jpg"
+            alt="Two players in a rally on a golden-hour clay court"
+            width={1600} height={914}
+            style={{ width: '100%', height: 'auto', display: 'block' }}
+          />
+          <div style={{
+            position: 'absolute', left: 0, right: 0, bottom: 0,
+            background: 'linear-gradient(0deg, rgba(8,15,26,0.85) 0%, transparent 55%)',
+            padding: '48px 28px 22px',
+          }}>
+            <p style={{ color: '#fff', fontSize: 20, fontWeight: 900, margin: '0 0 4px', letterSpacing: -0.5 }}>
+              Real courts. Real players. Real games.
+            </p>
+            <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: 13, margin: 0, fontWeight: 600 }}>
+              No fake stats, no bots — just tennis players finding each other.
+            </p>
           </div>
         </div>
       </section>
