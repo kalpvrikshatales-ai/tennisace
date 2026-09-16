@@ -35,6 +35,10 @@ export default function SparringBottomBar() {
     setOwnId(localStorage.getItem('sparring_profile_id'))
   }, [])
 
+  // SparringShell is also reused by /play — only show this bar on actual
+  // /sparring pages, where its Discover/My Profile/Requests tabs make sense.
+  if (!pathname.startsWith('/sparring')) return null
+
   const profileHref = ownId ? `/sparring/${ownId}` : '/sparring/create'
 
   const isDiscover  = pathname === '/sparring'

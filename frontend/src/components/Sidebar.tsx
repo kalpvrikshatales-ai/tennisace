@@ -4,28 +4,17 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from './AuthProvider'
-import { useSidebar, HomeTab } from './SidebarContext'
+import { useSidebar } from './SidebarContext'
 import { signInWithGoogle } from '@/lib/supabase'
 import ThemeToggle from './ThemeToggle'
 
-
-type NavItem = {
-  icon:    string
-  label:   string
-  href?:   string            // hard link (navigates to a route)
-  tab?:    HomeTab           // sets home-page tab (stays on /)
-  filter?: 'live'            // also sets matchFilter
-}
+type NavItem = { icon: string; label: string; href: string }
 
 const NAV: NavItem[] = [
-  { icon:'🏠', label:'Home',           href:'/'          },
-  { icon:'🎾', label:'Matches',        tab:'matches'     },
-  { icon:'📡', label:'Live',           tab:'matches', filter:'live' },
-  { icon:'📰', label:'News',           tab:'news'        },
-  { icon:'🏆', label:'US Open',         href:'/tournament/us-open-2026' },
-  { icon:'🤝', label:'Find a Partner', href:'/sparring'  },
-  { icon:'🎾', label:'Play',           href:'/play'      },
-  { icon:'🏘️', label:'Community',      href:'/community' },
+  { icon: '🏠', label: 'Home',           href: '/' },
+  { icon: '🤝', label: 'Find a Partner', href: '/sparring' },
+  { icon: '🎾', label: 'Play',           href: '/play' },
+  { icon: '🏘️', label: 'Community',     href: '/community' },
 ]
 
 // ─── Single nav item ──────────────────────────────────────────────────────────
@@ -53,23 +42,13 @@ function NavRow({
     </span>
   )
 
-  if (item.href) {
-    return (
-      <Link href={item.href} onClick={onClick}
-        style={{ ...base, textDecoration:'none' }}
-        onMouseEnter={e => { if (!active) (e.currentTarget as HTMLElement).style.color='#fff' }}
-        onMouseLeave={e => { if (!active) (e.currentTarget as HTMLElement).style.color='#888' }}>
-        {inner}
-      </Link>
-    )
-  }
-
   return (
-    <button onClick={onClick} style={base}
+    <Link href={item.href} onClick={onClick}
+      style={{ ...base, textDecoration:'none' }}
       onMouseEnter={e => { if (!active) (e.currentTarget as HTMLElement).style.color='#fff' }}
       onMouseLeave={e => { if (!active) (e.currentTarget as HTMLElement).style.color='#888' }}>
       {inner}
-    </button>
+    </Link>
   )
 }
 
@@ -78,36 +57,18 @@ function SidebarPanel({ onClose }: { onClose?: () => void }) {
   const pathname              = usePathname()
   const router                = useRouter()
   const { user, profile, signOut } = useAuth()
-  const { homeTab, setHomeTab, setMatchFilter, closeDrawer } = useSidebar()
+  const { closeDrawer } = useSidebar()
 
   const avatarUrl  = user?.user_metadata?.avatar_url
   const firstName  = (profile?.full_name ?? user?.email ?? '').split(/[\s@]/)[0]
   const initials   = ((profile?.full_name ?? user?.email) || 'U').slice(0,2).toUpperCase()
 
   function isActive(item: NavItem): boolean {
-    if (item.href === '/')           return pathname === '/' && homeTab === 'home'
-    if (item.href === '/community') return pathname === '/community' || pathname.startsWith('/community/')
-    if (item.href === '/play')      return pathname === '/play'
-    if (item.href === '/sparring') return pathname === '/sparring' || pathname.startsWith('/sparring/')
-    if (item.href === '/rankings') return pathname === '/rankings' || pathname.startsWith('/rankings')
-    if (item.href === '/tournament/us-open-2026') return pathname.startsWith('/tournament')
-    if (item.tab) {
-      if (pathname !== '/') return false
-      if (item.filter === 'live') return false
-      return homeTab === item.tab
-    }
-    return false
+    if (item.href === '/') return pathname === '/'
+    return pathname === item.href || pathname.startsWith(item.href + '/')
   }
 
-  function handleNav(item: NavItem) {
-    if (item.href === '/') {
-      setHomeTab('home')
-      router.push('/')
-    } else if (item.tab) {
-      setHomeTab(item.tab)
-      if (item.filter === 'live') setMatchFilter('live')
-      if (pathname !== '/') router.push('/')
-    }
+  function handleNav() {
     closeDrawer()
     onClose?.()
   }
@@ -144,11 +105,11 @@ function SidebarPanel({ onClose }: { onClose?: () => void }) {
       )}
       {/* Logo */}
       <div style={{ padding:'18px 16px 14px', borderBottom:'1px solid #1a1a1a', flexShrink:0 }}>
-        <Link href="/" onClick={() => { setHomeTab('home'); closeDrawer() }}
+        <Link href="/" onClick={closeDrawer}
           style={{ textDecoration:'none', display:'flex', alignItems:'center', gap:8 }}>
           <Image src="/logo.png" alt="TennisAce" width={32} height={32} priority style={{ width:32, height:32, borderRadius:'50%', objectFit:'contain', flexShrink:0 }} />
           <span style={{ fontSize:16, fontWeight:900, color:'#fff', letterSpacing:-0.5 }}>
-            Tennis<span style={{ color:'#00C875' }}>Ace</span>
+            Tennis<span style={{ color:'var(--accent)' }}>Ace</span>
           </span>
         </Link>
       </div>
@@ -156,7 +117,7 @@ function SidebarPanel({ onClose }: { onClose?: () => void }) {
       {/* Nav items */}
       <nav style={{ padding:'10px 8px', flex:1 }}>
         {NAV.map(item => (
-          <NavRow key={item.label} item={item} active={isActive(item)} onClick={() => handleNav(item)} />
+          <NavRow key={item.label} item={item} active={isActive(item)} onClick={handleNav} />
         ))}
       </nav>
 
@@ -193,7 +154,7 @@ function SidebarPanel({ onClose }: { onClose?: () => void }) {
             {avatarUrl ? (
               <Image src={avatarUrl} alt="" width={32} height={32} style={{ width:32, height:32, borderRadius:'50%', objectFit:'cover', flexShrink:0 }} />
             ) : (
-              <div style={{ width:32, height:32, borderRadius:'50%', background:'#00C875', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:900, color:'#000', flexShrink:0 }}>
+              <div style={{ width:32, height:32, borderRadius:'50%', background:'var(--accent)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:900, color:'#000', flexShrink:0 }}>
                 {initials}
               </div>
             )}
@@ -212,7 +173,7 @@ function SidebarPanel({ onClose }: { onClose?: () => void }) {
           {/* Sign in panel */}
           <div style={{ background:'#111', border:'1px solid #1e1e1e', borderRadius:10, padding:'14px 14px 12px', marginBottom:8 }}>
             <p style={{ color:'#fff', fontSize:13, fontWeight:800, margin:'0 0 3px', letterSpacing:-0.2 }}>Sign in to unlock</p>
-            <p style={{ color:'#555', fontSize:11, margin:'0 0 12px', lineHeight:1.4 }}>Vote history · Match alerts · Community</p>
+            <p style={{ color:'#555', fontSize:11, margin:'0 0 12px', lineHeight:1.4 }}>Your profile · Partner requests · Community</p>
             <button
               onClick={() => signInWithGoogle(typeof window !== 'undefined' ? window.location.pathname : '/')}
               style={{ width:'100%', display:'flex', alignItems:'center', justifyContent:'center', gap:8, background:'#fff', border:'none', borderRadius:8, color:'#000', fontSize:13, fontWeight:700, padding:'9px 12px', cursor:'pointer', marginBottom:14 }}>
@@ -234,9 +195,9 @@ function SidebarPanel({ onClose }: { onClose?: () => void }) {
                 <span style={{ color:'#fff', fontSize:12, fontWeight:700 }}>🇪🇸 Barcelona</span>
                 <span style={{ color:'var(--accent)', fontSize:11, fontWeight:700 }}>0 / 500</span>
               </div>
-              <div style={{ background:'#0d1b2e', border:'1px solid rgba(245,158,11,0.2)', borderRadius:8, padding:'8px 10px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+              <div style={{ background:'#0d1b2e', border:'1px solid color-mix(in srgb, var(--accent) 15%, transparent)', borderRadius:8, padding:'8px 10px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                 <span style={{ color:'#fff', fontSize:12, fontWeight:700 }}>🇦🇪 Dubai</span>
-                <span style={{ color:'#f59e0b', fontSize:11, fontWeight:700 }}>0 / 300</span>
+                <span style={{ color:'var(--accent)', fontSize:11, fontWeight:700 }}>0 / 300</span>
               </div>
             </div>
             <p style={{ color:'rgba(255,255,255,0.28)', fontSize:10, fontWeight:700, textAlign:'center', margin:'0 0 10px', letterSpacing:0.2 }}>

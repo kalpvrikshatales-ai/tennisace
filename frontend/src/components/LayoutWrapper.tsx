@@ -4,6 +4,7 @@ import { useState } from 'react'
 import SplashScreen from './SplashScreen'
 import Sidebar from './Sidebar'
 import MobileHeader from './MobileHeader'
+import BottomNav from './BottomNav'
 import { SidebarProvider } from './SidebarContext'
 import ThemeInitializer from './ThemeInitializer'
 
@@ -25,6 +26,9 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
       <div className="md:ml-[220px]">
         {children}
       </div>
+
+      {/* Mobile bottom nav — hidden on desktop */}
+      <BottomNav />
     </SidebarProvider>
   )
 }
