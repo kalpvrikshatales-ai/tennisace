@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { IconRing } from '@/components/CardKit'
 
 const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
 
@@ -362,7 +363,7 @@ export default async function HomeCommunityHero() {
                 }}>
                   {s.step}
                 </span>
-                <div style={{ fontSize: 30, marginBottom: 14, lineHeight: 1 }}>{s.icon}</div>
+                <div style={{ marginBottom: 14 }}><IconRing icon={s.icon} size={44} /></div>
                 <p style={{ color: '#fff', fontSize: 14, fontWeight: 800, margin: '0 0 7px', letterSpacing: -0.2 }}>
                   {s.title}
                 </p>
@@ -390,7 +391,7 @@ export default async function HomeCommunityHero() {
                 background: '#0d1b2e', border: '1px solid rgba(255,255,255,0.07)',
                 borderRadius: 14, padding: '22px 18px',
               }}>
-                <div style={{ fontSize: 28, marginBottom: 14, lineHeight: 1 }}>{vp.icon}</div>
+                <div style={{ marginBottom: 14 }}><IconRing icon={vp.icon} size={40} /></div>
                 <p style={{ color: '#fff', fontSize: 14, fontWeight: 800, margin: '0 0 7px', letterSpacing: -0.2 }}>{vp.title}</p>
                 <p style={{ color: 'rgba(255,255,255,0.38)', fontSize: 12, margin: 0, lineHeight: 1.6 }}>{vp.desc}</p>
               </div>

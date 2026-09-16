@@ -5,6 +5,7 @@ import Link from 'next/link'
 import SparringShell from '@/app/sparring/SparringShell'
 import CityPicker from '@/components/CityPicker'
 import BackButton from '@/components/BackButton'
+import { IconRing } from '@/components/CardKit'
 
 const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
 
@@ -493,13 +494,19 @@ export default function PlayClient() {
           <div style={{ maxWidth: 680, margin: '0 auto' }}>
             <BackButton />
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, paddingBottom: 18 }}>
-              <div>
-                <h1 style={{ color: '#fff', fontSize: 24, fontWeight: 900, margin: '0 0 4px', letterSpacing: -0.5 }}>
-                  Play Requests
-                </h1>
-                <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, margin: 0 }}>
-                  {ownCity ? `Open games in ${ownCity}` : 'Find a game or post your own'}
-                </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <IconRing icon="🎾" size={40} />
+                <div>
+                  <p style={{ color: 'var(--accent)', fontSize: 10, fontWeight: 800, letterSpacing: 1.6, textTransform: 'uppercase', margin: '0 0 2px' }}>
+                    Game On
+                  </p>
+                  <h1 style={{ color: '#fff', fontSize: 22, fontWeight: 900, margin: 0, letterSpacing: -0.5 }}>
+                    Play Requests
+                  </h1>
+                  <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13, margin: '2px 0 0' }}>
+                    {ownCity ? `Open games in ${ownCity}` : 'Find a game or post your own'}
+                  </p>
+                </div>
               </div>
               <button
                 onClick={() => { setShowForm(s => !s); setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth' }), 50) }}

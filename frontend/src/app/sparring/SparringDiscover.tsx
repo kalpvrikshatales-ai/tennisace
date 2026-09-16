@@ -6,6 +6,7 @@ import { Suspense, useEffect, useState } from 'react'
 import SparringFilters from './SparringFilters'
 import SparringShell from './SparringShell'
 import { useAuth } from '@/components/AuthProvider'
+import { IconRing } from '@/components/CardKit'
 
 const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
 
@@ -404,21 +405,27 @@ export default function SparringDiscover({ initialProfiles }: { initialProfiles:
 
             {/* Title row */}
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 14 }}>
-              <div style={{ minWidth: 0 }}>
-                <h1 style={{ color: 'var(--sr-text)', fontSize: 24, fontWeight: 900, margin: 0, letterSpacing: -0.5 }}>
-                  Find a Partner
-                </h1>
-                <p style={{ color: 'var(--sr-muted)', fontSize: 13, margin: '3px 0 0' }}>
-                  Find a hitting partner near you
-                </p>
-                {cityLine && cityLine.count > 0 && (
-                  <p style={{ color: 'var(--sr-accent)', fontSize: 13, margin: '4px 0 0', fontWeight: 600 }}>
-                    🎾 {cityLine.count}{' '}
-                    {cityLine.city
-                      ? `player${cityLine.count !== 1 ? 's' : ''} looking in ${cityLine.city}`
-                      : `player${cityLine.count !== 1 ? 's' : ''} on TennisAce`}
+              <div style={{ minWidth: 0, display: 'flex', alignItems: 'center', gap: 12 }}>
+                <IconRing icon="🤝" size={40} />
+                <div style={{ minWidth: 0 }}>
+                  <p style={{ color: 'var(--sr-accent)', fontSize: 10, fontWeight: 800, letterSpacing: 1.6, textTransform: 'uppercase', margin: '0 0 2px' }}>
+                    The Roster
                   </p>
-                )}
+                  <h1 style={{ color: 'var(--sr-text)', fontSize: 22, fontWeight: 900, margin: 0, letterSpacing: -0.5 }}>
+                    Find a Partner
+                  </h1>
+                  <p style={{ color: 'var(--sr-muted)', fontSize: 13, margin: '3px 0 0' }}>
+                    Find a hitting partner near you
+                  </p>
+                  {cityLine && cityLine.count > 0 && (
+                    <p style={{ color: 'var(--sr-accent)', fontSize: 13, margin: '4px 0 0', fontWeight: 600 }}>
+                      🎾 {cityLine.count}{' '}
+                      {cityLine.city
+                        ? `player${cityLine.count !== 1 ? 's' : ''} looking in ${cityLine.city}`
+                        : `player${cityLine.count !== 1 ? 's' : ''} on TennisAce`}
+                    </p>
+                  )}
+                </div>
               </div>
 
               {/* Action buttons */}

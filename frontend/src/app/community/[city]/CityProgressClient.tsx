@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react'
 import Link from 'next/link'
+import { SectionLabel, UrgencyBadge } from '@/components/CardKit'
 
 const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
 
@@ -115,6 +116,7 @@ function HexBadge({ number }: { number: number }) {
   )
 }
 
+
 function AnimatedBar({ pct, delay = 0 }: { pct: number; delay?: number }) {
   const [width, setWidth] = useState(0)
   const ref = useRef<HTMLDivElement>(null)
@@ -162,13 +164,13 @@ function MemberAvatar({ member, blur }: { member: Member; blur: boolean }) {
         {member.founding_number && (
           <span style={{
             position: 'absolute', bottom: 22, right: -2,
-            background: 'var(--bg)', border: '1px solid var(--accent)',
-            borderRadius: 6, color: 'var(--accent)', fontSize: 8, fontWeight: 900,
+            background: 'var(--accent)', border: '1px solid var(--accent)',
+            borderRadius: 6, color: '#000', fontSize: 8, fontWeight: 900,
             padding: '1px 4px', lineHeight: 1.4,
           }}>#{member.founding_number}</span>
         )}
         {!blur && (
-          <span style={{ color: 'var(--text-2)', fontSize: 10, fontWeight: 600, textAlign: 'center', maxWidth: 60, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <span style={{ color: 'var(--text)', fontSize: 11, fontWeight: 800, textAlign: 'center', maxWidth: 60, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {member.name.split(' ')[0]}
           </span>
         )}
@@ -240,13 +242,13 @@ export default function CityProgressClient({ city, initialData }: { city: string
         }}>
           {data.country} · Tennis Community
         </div>
-        <h1 style={{ fontSize: 40, fontWeight: 900, margin: '0 0 10px', letterSpacing: -1, lineHeight: 1.1 }}>
+        <h1 style={{ fontSize: 44, fontWeight: 900, margin: '0 0 8px', letterSpacing: -1.5, lineHeight: 1.05, textTransform: 'uppercase' }}>
           {city}
         </h1>
-        <p style={{ color: 'var(--text-2)', fontSize: 16, margin: '0 0 6px' }}>
+        <p style={{ color: 'var(--text-2)', fontSize: 15, fontWeight: 600, margin: '0 0 10px' }}>
           Building the tennis community
         </p>
-        <p style={{ color: 'var(--accent)', fontSize: 14, fontWeight: 700, margin: 0 }}>
+        <p style={{ color: 'var(--accent)', fontSize: 15, fontWeight: 900, margin: 0, letterSpacing: -0.2 }}>
           {total} founding member{total !== 1 ? 's' : ''} and counting
         </p>
       </div>
@@ -259,25 +261,23 @@ export default function CityProgressClient({ city, initialData }: { city: string
           borderRadius: 16, padding: 24, marginBottom: 24,
           animation: 'fade-up 0.5s ease 0.1s both',
         }}>
-          <p style={{ color: 'var(--text-2)', fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', margin: '0 0 20px' }}>
-            Community Progress
-          </p>
+          <SectionLabel icon="📊" kicker="Live Stats" title="Community Progress" />
 
           <div style={{ marginBottom: 20 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-              <span style={{ color: 'var(--text)', fontSize: 14, fontWeight: 700 }}>🎾 Players</span>
-              <span style={{ color: 'var(--text-2)', fontSize: 13 }}>
-                {data.player_count} / {data.player_target}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <span style={{ color: 'var(--text)', fontSize: 14, fontWeight: 800 }}>🎾 Players</span>
+              <span style={{ color: 'var(--text)', fontSize: 13, fontWeight: 700 }}>
+                {data.player_count} <span style={{ color: 'var(--text-2)', fontWeight: 600 }}>/ {data.player_target}</span>
               </span>
             </div>
             <AnimatedBar pct={playerPct} delay={200} />
           </div>
 
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-              <span style={{ color: 'var(--text)', fontSize: 14, fontWeight: 700 }}>🎓 Coaches</span>
-              <span style={{ color: 'var(--text-2)', fontSize: 13 }}>
-                {data.coach_count} / {data.coach_target}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <span style={{ color: 'var(--text)', fontSize: 14, fontWeight: 800 }}>🎓 Coaches</span>
+              <span style={{ color: 'var(--text)', fontSize: 13, fontWeight: 700 }}>
+                {data.coach_count} <span style={{ color: 'var(--text-2)', fontWeight: 600 }}>/ {data.coach_target}</span>
               </span>
             </div>
             <AnimatedBar pct={coachPct} delay={400} />
@@ -290,9 +290,7 @@ export default function CityProgressClient({ city, initialData }: { city: string
           borderRadius: 16, padding: 24, marginBottom: 24,
           animation: 'fade-up 0.5s ease 0.2s both',
         }}>
-          <p style={{ color: 'var(--text-2)', fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', margin: '0 0 20px' }}>
-            Milestones
-          </p>
+          <SectionLabel icon="🏆" kicker="Next Goal" title="Milestones" />
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {MILESTONES.map((m, i) => {
               const reached  = total >= m.count
@@ -322,11 +320,7 @@ export default function CityProgressClient({ city, initialData }: { city: string
                       {m.count} members
                     </p>
                   </div>
-                  {isCurrent && (
-                    <span style={{ color: 'var(--accent)', fontSize: 11, fontWeight: 800, animation: 'pulse 2s ease-in-out infinite' }}>
-                      {milestoneLeft} to go
-                    </span>
-                  )}
+                  {isCurrent && <UrgencyBadge label={`${milestoneLeft} to go`} />}
                   {reached && (
                     <span style={{ color: 'var(--accent)', fontSize: 11, fontWeight: 800 }}>Done</span>
                   )}
@@ -343,9 +337,7 @@ export default function CityProgressClient({ city, initialData }: { city: string
             borderRadius: 16, padding: 24, marginBottom: 24,
             animation: 'fade-up 0.5s ease 0.3s both',
           }}>
-            <p style={{ color: 'var(--text-2)', fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', margin: '0 0 20px' }}>
-              Founding Members
-            </p>
+            <SectionLabel icon="👥" kicker="The Roster" title="Founding Members" />
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
               {first20.map((m, i) => (
                 <MemberAvatar key={m.id} member={m} blur={i >= blurFrom} />
@@ -371,12 +363,10 @@ export default function CityProgressClient({ city, initialData }: { city: string
           borderRadius: 16, padding: 24, marginBottom: 24,
           animation: 'fade-up 0.5s ease 0.35s both',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-            <p style={{ color: 'var(--text-2)', fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', margin: 0 }}>
-              This Weekend
-            </p>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+            <SectionLabel icon="🔥" kicker="Happening Soon" title="This Weekend" />
             <Link href="/play"
-              style={{ color: 'color-mix(in srgb, var(--accent) 70%, transparent)', fontSize: 11, fontWeight: 800, textDecoration: 'none' }}>
+              style={{ color: 'color-mix(in srgb, var(--accent) 70%, transparent)', fontSize: 11, fontWeight: 800, textDecoration: 'none', flexShrink: 0, marginTop: 8 }}>
               See all →
             </Link>
           </div>
