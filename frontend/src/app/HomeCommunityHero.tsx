@@ -43,13 +43,14 @@ async function fetchTotalCount(): Promise<number> {
   } catch { return 0 }
 }
 
-function CityCard({ data, flag, slug, accentColor, photo, featured }: {
-  data:        CityProgress | null
-  flag:        string
-  slug:        string
-  accentColor: string
-  photo:       string
-  featured?:   boolean
+function CityCard({ data, flag, slug, accentColor, photo, photoPosition, featured }: {
+  data:          CityProgress | null
+  flag:          string
+  slug:          string
+  accentColor:   string
+  photo:         string
+  photoPosition?: string
+  featured?:     boolean
 }) {
   const total     = data ? data.player_count + data.coach_count : 0
   const target    = data?.player_target ?? 500
@@ -72,7 +73,7 @@ function CityCard({ data, flag, slug, accentColor, photo, featured }: {
       overflow:     'hidden',
     }}>
       {/* Real court photo background */}
-      <Image src={photo} alt="" fill style={{ objectFit: 'cover' }} />
+      <Image src={photo} alt="" fill style={{ objectFit: 'cover', objectPosition: photoPosition ?? 'center' }} />
       <div style={{
         position: 'absolute', inset: 0,
         background: 'linear-gradient(180deg, rgba(13,20,30,0.82) 0%, rgba(13,20,30,0.5) 35%, rgba(13,20,30,0.55) 65%, rgba(13,20,30,0.9) 100%)',
@@ -337,12 +338,14 @@ export default async function HomeCommunityHero() {
               data={barcelona} flag="🇪🇸" slug="Barcelona"
               accentColor="var(--accent)"
               photo="/photos/barcelona-court.jpg"
+              photoPosition="78% 78%"
               featured
             />
             <CityCard
               data={dubai} flag="🇦🇪" slug="Dubai"
               accentColor="var(--accent)"
               photo="/photos/dubai-court.jpg"
+              photoPosition="center 60%"
             />
           </div>
         </div>
