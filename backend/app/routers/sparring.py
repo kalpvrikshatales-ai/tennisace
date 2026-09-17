@@ -71,6 +71,7 @@ async def list_profiles(
     surface:   Optional[str] = Query(None),
     day:       Optional[str] = Query(None),
     time_slot: Optional[str] = Query(None),
+    search:    Optional[str] = Query(None),
     limit:     int = Query(50, le=100),
     offset:    int = Query(0),
 ):
@@ -96,6 +97,8 @@ async def list_profiles(
     }
     if city:
         params["city"] = f"ilike.*{city}*"
+    if search:
+        params["name"] = f"ilike.*{search}*"
     if level:
         params["level"] = f"eq.{level}"
     if surface:
@@ -285,7 +288,7 @@ async def update_profile(profile_id: str, body: dict):
     availability: list = body.pop("availability", None)
 
     update_fields = {k: v for k, v in body.items()
-                     if k in ("name", "photo_url", "cover_url", "city", "country", "level",
+                     if k in ("name", "photo_url", "cover_url", "video_url", "city", "country", "level",
                               "surface", "play_type", "bio", "role",
                               "favorite_players", "coaching_level", "coaching_fee",
                               "email", "email_verified", "phone",

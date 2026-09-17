@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, Query
 from typing import Optional
+from datetime import date
 import httpx
 from app.services.db import _headers, _ready, SUPABASE_URL
 
@@ -59,7 +60,7 @@ async def log_match(body: dict):
         "score":              (body.get("score") or "").strip() or None,
         "surface":            body.get("surface") or None,
         "format":             body.get("format") or None,
-        "played_at":          body.get("played_at") or None,
+        "played_at":          body.get("played_at") or date.today().isoformat(),
         "notes":              (body.get("notes") or "").strip() or None,
     }
     return await _post("match_history", row)

@@ -7,6 +7,7 @@ import { useAuth } from '@/components/AuthProvider'
 import { supabase } from '@/lib/supabase'
 import SparringShell from '../SparringShell'
 import CityPicker from '@/components/CityPicker'
+import { primaryButtonStyle } from '@/components/CardKit'
 
 const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
 const BUCKET  = 'sparring-photos'
@@ -237,6 +238,60 @@ function EditModal({ field, value, onSave, onClose, saving }: {
 const FIELD_ICONS: Record<string, string> = {
   level:'🎾', play_style:'🎯', dominant_hand:'✋', backhand:'🔄',
   surface:'🏟️', years_playing:'📅', city:'📍', country:'🌍', bio:'📝',
+}
+
+// ─── Highlight video (YouTube / Instagram link → embed) ──────────────────────
+function getEmbedUrl(url: string): string | null {
+  try {
+    const u = new URL(url)
+    if (u.hostname.includes('youtube.com')) {
+      const id = u.searchParams.get('v')
+      if (id) return `https://www.youtube.com/embed/${id}`
+    }
+    if (u.hostname.includes('youtu.be')) {
+      const id = u.pathname.slice(1)
+      if (id) return `https://www.youtube.com/embed/${id}`
+    }
+    if (u.hostname.includes('instagram.com')) {
+      const m = u.pathname.match(/\/(p|reel)\/([^/]+)/)
+      if (m) return `https://www.instagram.com/${m[1]}/${m[2]}/embed`
+    }
+  } catch {}
+  return null
+}
+
+const VIDEO_FIELD: FieldDef = { key:'video_url', label:'Highlight Video (YouTube or Instagram link)', type:'text' }
+
+function VideoSection({ videoUrl, isOwn, onEdit }: { videoUrl?: string; isOwn: boolean; onEdit: () => void }) {
+  const embed = videoUrl ? getEmbedUrl(videoUrl) : null
+  if (!videoUrl && !isOwn) return null
+
+  return (
+    <div style={{ background:'var(--sr-card)', border:'1px solid var(--sr-border)', borderRadius:12, padding:16, marginBottom:24 }}>
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom: videoUrl ? 12 : 0 }}>
+        <p style={{ color:'var(--sr-muted)', fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:0.7, margin:0 }}>Highlight Video</p>
+        {isOwn && (
+          <button onClick={onEdit} style={{ background:'none', border:'none', color:'var(--sr-accent)', fontSize:12, fontWeight:700, cursor:'pointer' }}>
+            {videoUrl ? 'Change' : '+ Add video'}
+          </button>
+        )}
+      </div>
+      {embed ? (
+        <div style={{ position:'relative', width:'100%', paddingTop:'56.25%', borderRadius:8, overflow:'hidden' }}>
+          <iframe src={embed} title="Highlight video" allowFullScreen
+            style={{ position:'absolute', inset:0, width:'100%', height:'100%', border:'none' }} />
+        </div>
+      ) : videoUrl ? (
+        <a href={videoUrl} target="_blank" rel="noopener noreferrer" style={{ color:'var(--sr-accent)', fontSize:13, fontWeight:600 }}>
+          {videoUrl} ↗
+        </a>
+      ) : (
+        <p style={{ color:'var(--sr-muted)', fontSize:13, margin:0 }}>
+          Add a link to a YouTube or Instagram clip of you playing.
+        </p>
+      )}
+    </div>
+  )
 }
 
 function FieldCard({ fieldKey, label, value, isOwn, onClick }: {
@@ -608,12 +663,132 @@ function UploadBtn({ onFile, children, style }: { onFile: (f: File) => void; chi
   )
 }
 
-// ─── Match History tab ────────────────────────────────────────────────────────
-function MatchHistoryTab({ profileId }: { profileId: string }) {
-  const [data, setData] = useState<{ matches: any[]; wins: number; losses: number; draws: number } | null>(null)
-  const [loading, setLoading] = useState(true)
+// ─── Log a Result modal ───────────────────────────────────────────────────────
+function LogResultModal({ profileId, onClose, onLogged }: { profileId: string; onClose: () => void; onLogged: () => void }) {
+  const [search,    setSearch]    = useState('')
+  const [options,   setOptions]   = useState<any[]>([])
+  const [opponent,  setOpponent]  = useState<any|null>(null)
+  const [result,    setResult]    = useState<'win'|'loss'|'draw'>('win')
+  const [score,     setScore]     = useState('')
+  const [playedAt,  setPlayedAt]  = useState(() => new Date().toISOString().slice(0,10))
+  const [saving,    setSaving]    = useState(false)
+  const [error,     setError]     = useState('')
 
   useEffect(() => {
+    if (!search.trim() || opponent) { setOptions([]); return }
+    const t = setTimeout(() => {
+      fetch(`${BACKEND}/sparring/profiles?search=${encodeURIComponent(search.trim())}&limit=6`)
+        .then(r => r.ok ? r.json() : null)
+        .then(d => setOptions((d?.profiles ?? []).filter((p:any) => p.id !== profileId)))
+        .catch(() => {})
+    }, 250)
+    return () => clearTimeout(t)
+  }, [search, opponent, profileId])
+
+  async function submit() {
+    if (!opponent) { setError('Pick an opponent'); return }
+    setSaving(true); setError('')
+    try {
+      const winner = result === 'win' ? profileId : result === 'loss' ? opponent.id : 'draw'
+      const res = await fetch(`${BACKEND}/match-history`, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          player1_profile_id: profileId,
+          player2_profile_id: opponent.id,
+          winner_profile_id:  winner,
+          score:      score.trim() || undefined,
+          played_at:  playedAt,
+        }),
+      })
+      if (!res.ok) throw new Error('Failed to log result')
+      onLogged()
+      onClose()
+    } catch (e:any) { setError(e.message ?? 'Something went wrong') }
+    finally { setSaving(false) }
+  }
+
+  const inp: React.CSSProperties = {
+    width:'100%', background:'var(--sr-input)', border:'1px solid var(--sr-border)', borderRadius:8,
+    color:'var(--sr-text)', fontSize:14, padding:'11px 13px', outline:'none', boxSizing:'border-box', fontFamily:'inherit',
+  }
+  const lbl: React.CSSProperties = {
+    color:'var(--sr-muted)', fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:0.6, display:'block', marginBottom:6,
+  }
+
+  return (
+    <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.88)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:200, padding:16 }}
+      onClick={e => { if (e.target===e.currentTarget) onClose() }}>
+      <div style={{ background:'var(--sr-card)', border:'1px solid var(--sr-border)', borderRadius:14, padding:24, maxWidth:440, width:'100%', maxHeight:'90vh', overflowY:'auto' }}>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
+          <p style={{ color:'var(--sr-text)', fontWeight:800, fontSize:16, margin:0 }}>Log a Result</p>
+          <button onClick={onClose} style={{ background:'none', border:'none', color:'var(--sr-muted)', fontSize:22, cursor:'pointer', lineHeight:1, padding:4 }}>×</button>
+        </div>
+
+        <div style={{ marginBottom:14 }}>
+          <label style={lbl}>Opponent</label>
+          {opponent ? (
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', background:'var(--sr-input)', border:'1px solid var(--sr-border)', borderRadius:8, padding:'10px 12px' }}>
+              <span style={{ color:'var(--sr-text)', fontWeight:700, fontSize:14 }}>{opponent.name}</span>
+              <button onClick={() => { setOpponent(null); setSearch('') }} style={{ background:'none', border:'none', color:'var(--sr-muted)', cursor:'pointer', fontSize:13 }}>Change</button>
+            </div>
+          ) : (
+            <>
+              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name…" style={inp} />
+              {options.length > 0 && (
+                <div style={{ marginTop:6, border:'1px solid var(--sr-border)', borderRadius:8, overflow:'hidden' }}>
+                  {options.map(o => (
+                    <button key={o.id} onClick={() => { setOpponent(o); setOptions([]) }}
+                      style={{ display:'block', width:'100%', textAlign:'left', background:'var(--sr-input)', border:'none', borderBottom:'1px solid var(--sr-border)', color:'var(--sr-text)', fontSize:13, fontWeight:600, padding:'9px 12px', cursor:'pointer' }}>
+                      {o.name} {o.city ? `· ${o.city}` : ''}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        <div style={{ marginBottom:14 }}>
+          <label style={lbl}>Result</label>
+          <div style={{ display:'flex', gap:8 }}>
+            {(['win','loss','draw'] as const).map(opt => (
+              <button key={opt} onClick={() => setResult(opt)}
+                style={{ flex:1, background:result===opt ? 'var(--sr-accent)' : 'var(--sr-input)', border:`1px solid ${result===opt ? 'var(--sr-accent)' : 'var(--sr-border)'}`, borderRadius:8, color:result===opt ? 'var(--sr-on-acc)' : 'var(--sr-text-2)', fontWeight:700, fontSize:13, padding:'10px 8px', cursor:'pointer', textTransform:'capitalize' }}>
+                {opt}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ marginBottom:14 }}>
+          <label style={lbl}>Score (optional)</label>
+          <input value={score} onChange={e => setScore(e.target.value)} placeholder="6-4, 3-6, 10-8" style={inp} />
+        </div>
+
+        <div style={{ marginBottom:20 }}>
+          <label style={lbl}>Date</label>
+          <input type="date" value={playedAt} onChange={e => setPlayedAt(e.target.value)} style={inp} />
+        </div>
+
+        {error && <p style={{ color:'#f87171', fontSize:13, margin:'0 0 12px' }}>{error}</p>}
+
+        <button onClick={submit} disabled={saving || !opponent}
+          style={{ width:'100%', background: saving || !opponent ? 'color-mix(in srgb, var(--accent) 40%, transparent)' : 'var(--accent)', border:'none', borderRadius:10, color:'#000', fontWeight:800, fontSize:15, padding:14, cursor: saving || !opponent ? 'not-allowed' : 'pointer', minHeight:48 }}>
+          {saving ? 'Saving…' : 'Log Result'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ─── Match History tab ────────────────────────────────────────────────────────
+function MatchHistoryTab({ profileId, isOwn }: { profileId: string; isOwn: boolean }) {
+  const [data, setData] = useState<{ matches: any[]; wins: number; losses: number; draws: number } | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [showLog, setShowLog] = useState(false)
+
+  const refresh = useCallback(() => {
+    setLoading(true)
     fetch(`${BACKEND}/match-history?profile_id=${profileId}`)
       .then(r => r.ok ? r.json() : null)
       .then(d => setData(d))
@@ -621,13 +796,15 @@ function MatchHistoryTab({ profileId }: { profileId: string }) {
       .finally(() => setLoading(false))
   }, [profileId])
 
+  useEffect(() => { refresh() }, [refresh])
+
   if (loading) return <p style={{ color:'var(--sr-muted)', textAlign:'center', padding:'40px 0', fontSize:14 }}>Loading…</p>
 
   const matches = data?.matches ?? []
 
   return (
     <div>
-      <div style={{ display:'flex', gap:10, marginBottom:24 }}>
+      <div style={{ display:'flex', gap:10, marginBottom: isOwn ? 14 : 24 }}>
         {[
           { label:'Wins',   val: data?.wins   ?? 0, color:'var(--accent)' },
           { label:'Losses', val: data?.losses ?? 0, color:'#f87171' },
@@ -639,6 +816,17 @@ function MatchHistoryTab({ profileId }: { profileId: string }) {
           </div>
         ))}
       </div>
+
+      {isOwn && (
+        <button onClick={() => setShowLog(true)}
+          style={{ ...primaryButtonStyle({ compact:true }), width:'100%', marginBottom:24 }}>
+          + Log a Result
+        </button>
+      )}
+
+      {showLog && (
+        <LogResultModal profileId={profileId} onClose={() => setShowLog(false)} onLogged={refresh} />
+      )}
 
       {matches.length === 0 ? (
         <div style={{ textAlign:'center', padding:'40px 0' }}>
@@ -905,6 +1093,10 @@ export default function SparringProfilePage() {
   const [partnersCount,    setPartnersCount]    = useState(0)
   const [showCoachInquiry, setShowCoachInquiry] = useState(false)
   const [h2h,              setH2h]              = useState<any>(null)
+  const [followCounts,     setFollowCounts]     = useState({ followers: 0, following: 0 })
+  const [isFollowing,      setIsFollowing]      = useState(false)
+  const [followBusy,       setFollowBusy]       = useState(false)
+  const [ownProfileId,     setOwnProfileId]     = useState<string|null>(null)
 
   useEffect(() => {
     fetch(`${BACKEND}/sparring/profiles/${id}`)
@@ -915,8 +1107,42 @@ export default function SparringProfilePage() {
   }, [id])
 
   useEffect(() => {
-    setIsOwn(localStorage.getItem('sparring_profile_id') === id)
+    const own = localStorage.getItem('sparring_profile_id')
+    setIsOwn(own === id)
+    setOwnProfileId(own)
   }, [id])
+
+  const refreshFollowCounts = useCallback(() => {
+    fetch(`${BACKEND}/social/counts/${id}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d) setFollowCounts({ followers: d.followers, following: d.following }) })
+      .catch(() => {})
+  }, [id])
+
+  useEffect(() => { refreshFollowCounts() }, [refreshFollowCounts])
+
+  useEffect(() => {
+    if (!ownProfileId || ownProfileId === id) return
+    fetch(`${BACKEND}/social/status?follower_id=${ownProfileId}&following_id=${id}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d) setIsFollowing(d.following) })
+      .catch(() => {})
+  }, [ownProfileId, id])
+
+  async function toggleFollow() {
+    if (!ownProfileId) { router.push(`/sparring/create?from=follow&redirect=/sparring/${id}`); return }
+    setFollowBusy(true)
+    const next = !isFollowing
+    setIsFollowing(next)
+    try {
+      await fetch(`${BACKEND}/social/${next ? 'follow' : 'unfollow'}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ follower_id: ownProfileId, following_id: id }),
+      })
+      refreshFollowCounts()
+    } catch { setIsFollowing(!next) }
+    finally { setFollowBusy(false) }
+  }
 
   useEffect(() => {
     const email = localStorage.getItem('sparring_email')
@@ -1111,23 +1337,38 @@ export default function SparringProfilePage() {
                   </Link>
                 </>
               ) : (
-                (profile as any).profile_type === 'coach' ? (
+                <>
                   <button
-                    className="rtp-btn"
-                    onClick={() => setShowCoachInquiry(true)}
-                    style={{ background:'var(--sr-accent)', border:'none', borderRadius:10, color:'var(--sr-on-acc)', fontWeight:800, fontSize:13, padding:'9px 22px', cursor:'pointer', whiteSpace:'nowrap', minHeight:44, display:'flex', alignItems:'center' }}
+                    onClick={toggleFollow}
+                    disabled={followBusy}
+                    style={{
+                      background: isFollowing ? 'transparent' : 'var(--sr-accent)',
+                      border: isFollowing ? '1px solid var(--sr-border)' : 'none',
+                      borderRadius:10, color: isFollowing ? 'var(--sr-text-2)' : 'var(--sr-on-acc)',
+                      fontWeight:800, fontSize:13, padding:'9px 16px', cursor: followBusy ? 'not-allowed' : 'pointer',
+                      whiteSpace:'nowrap', minHeight:44, display:'flex', alignItems:'center',
+                    }}
                   >
-                    Contact Coach
+                    {isFollowing ? 'Following' : '+ Follow'}
                   </button>
-                ) : (
-                  <button
-                    className="rtp-btn"
-                    onClick={handleRequestToPlay}
-                    style={{ background:'var(--sr-accent)', border:'none', borderRadius:10, color:'var(--sr-on-acc)', fontWeight:800, fontSize:13, padding:'9px 22px', cursor:'pointer', whiteSpace:'nowrap', minHeight:44, display:'flex', alignItems:'center' }}
-                  >
-                    Request to Play
-                  </button>
-                )
+                  {(profile as any).profile_type === 'coach' ? (
+                    <button
+                      className="rtp-btn"
+                      onClick={() => setShowCoachInquiry(true)}
+                      style={{ background:'var(--sr-accent)', border:'none', borderRadius:10, color:'var(--sr-on-acc)', fontWeight:800, fontSize:13, padding:'9px 22px', cursor:'pointer', whiteSpace:'nowrap', minHeight:44, display:'flex', alignItems:'center' }}
+                    >
+                      Contact Coach
+                    </button>
+                  ) : (
+                    <button
+                      className="rtp-btn"
+                      onClick={handleRequestToPlay}
+                      style={{ background:'var(--sr-accent)', border:'none', borderRadius:10, color:'var(--sr-on-acc)', fontWeight:800, fontSize:13, padding:'9px 22px', cursor:'pointer', whiteSpace:'nowrap', minHeight:44, display:'flex', alignItems:'center' }}
+                    >
+                      Request to Play
+                    </button>
+                  )}
+                </>
               )}
             </div>
           </div>
@@ -1220,15 +1461,22 @@ export default function SparringProfilePage() {
               )
             })()}
 
-            {partnersCount === 0 && isOwn ? (
-              <a href="/sparring" style={{ color:'var(--sr-accent)', fontSize:13, fontWeight:700, textDecoration:'none' }}>
-                Find your first partner →
-              </a>
-            ) : (
+            <div style={{ display:'flex', alignItems:'center', gap:12, flexWrap:'wrap' }}>
+              {partnersCount === 0 && isOwn ? (
+                <a href="/sparring" style={{ color:'var(--sr-accent)', fontSize:13, fontWeight:700, textDecoration:'none' }}>
+                  Find your first partner →
+                </a>
+              ) : (
+                <p style={{ color:'var(--sr-muted)', fontSize:13, margin:0 }}>
+                  {partnersCount} Tennis Partner{partnersCount !== 1 ? 's' : ''}
+                </p>
+              )}
               <p style={{ color:'var(--sr-muted)', fontSize:13, margin:0 }}>
-                {partnersCount} Tennis Partner{partnersCount !== 1 ? 's' : ''}
+                <span style={{ color:'var(--sr-text)', fontWeight:800 }}>{followCounts.followers}</span> follower{followCounts.followers !== 1 ? 's' : ''}
+                {' · '}
+                <span style={{ color:'var(--sr-text)', fontWeight:800 }}>{followCounts.following}</span> following
               </p>
-            )}
+            </div>
           </div>
 
           {/* Profile completion bar */}
@@ -1330,6 +1578,8 @@ export default function SparringProfilePage() {
                 )
               })()}
 
+              <VideoSection videoUrl={(profile as any).video_url} isOwn={isOwn} onEdit={() => setEditField(VIDEO_FIELD)} />
+
               <div style={{ background:'var(--sr-card)', border:'1px solid var(--sr-border)', borderRadius:12, padding:'16px' }}>
                 <p style={{ color:'var(--sr-muted)', fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:0.7, margin:'0 0 14px' }}>Availability</p>
                 <AvailGrid
@@ -1342,7 +1592,7 @@ export default function SparringProfilePage() {
           )}
 
           {/* History */}
-          {activeTab==='history' && <MatchHistoryTab profileId={id} />}
+          {activeTab==='history' && <MatchHistoryTab profileId={id} isOwn={isOwn} />}
 
           {/* Partners */}
           {activeTab==='partners' && <PartnersTab profileId={id} />}
