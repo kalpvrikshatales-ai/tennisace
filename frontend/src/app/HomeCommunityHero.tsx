@@ -235,6 +235,11 @@ export default async function HomeCommunityHero() {
         .hw-card:hover { border-color: color-mix(in srgb, var(--accent) 18%, transparent) !important; transform: translateY(-2px); }
         .hero-content { animation: hero-fade 0.6s ease 0.1s both; }
         .hero-cities  { animation: hero-fade 0.6s ease 0.2s both; }
+        @keyframes float-card { 0%,100% { transform: translateY(0) rotate(-7deg); } 50% { transform: translateY(-16px) rotate(-4deg); } }
+        .hero-float-card { animation: float-card 4.5s ease-in-out infinite; }
+        @media (max-width: 900px) {
+          .hero-float-card { display: none !important; }
+        }
         @media (max-width: 600px) {
           .hero-h1     { font-size: 36px !important; letter-spacing: -1px !important; }
           .hero-ctas   { flex-direction: column !important; align-items: stretch !important; }
@@ -260,6 +265,33 @@ export default async function HomeCommunityHero() {
         position:       'relative',
         overflow:       'hidden',
       }}>
+        {/* Floating Power Card — decorative, echoes the cards below, lives near the headline */}
+        <div className="hero-float-card" style={{
+          position: 'absolute', top: '8%', right: '2%', width: 176,
+          background: 'linear-gradient(160deg, rgba(20,40,20,0.9) 0%, #0d1b2e 60%)',
+          border: '1px solid color-mix(in srgb, var(--accent) 40%, transparent)',
+          borderRadius: 16, padding: '16px 14px 14px', textAlign: 'center',
+          boxShadow: '0 18px 44px rgba(0,0,0,0.45), 0 0 32px color-mix(in srgb, var(--accent) 18%, transparent)',
+          pointerEvents: 'none',
+        }}>
+          <span style={{ position: 'absolute', top: 10, left: 13, color: 'var(--accent)', fontSize: 12, fontWeight: 900 }}>01</span>
+          <span style={{ position: 'absolute', top: 10, right: 13, textAlign: 'right', color: 'var(--accent)', fontSize: 7, fontWeight: 800, letterSpacing: 0.5, opacity: 0.75, lineHeight: 1.4 }}>
+            <span style={{ display: 'block' }}>PROFILE</span>
+            <span style={{ display: 'block' }}>CARD</span>
+          </span>
+          <div style={{
+            width: 56, height: 56, borderRadius: '50%', margin: '24px auto 10px',
+            background: 'radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--accent) 85%, white) 0%, var(--accent) 55%, color-mix(in srgb, var(--accent) 55%, #0d1b2e) 100%)',
+            border: '2px solid color-mix(in srgb, var(--accent) 60%, transparent)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24,
+            boxShadow: '0 0 22px color-mix(in srgb, var(--accent) 45%, transparent)',
+          }}>
+            🎾
+          </div>
+          <p style={{ color: '#fff', fontSize: 12, fontWeight: 900, margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: -0.1 }}>Your Identity</p>
+          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 10, margin: 0, lineHeight: 1.5 }}>Video · Followers<br />Match history</p>
+        </div>
+
         <div className="hero-content" style={{ maxWidth: 620, margin: '0 auto', position: 'relative' }}>
 
           {/* Live badge */}
