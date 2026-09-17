@@ -18,4 +18,4 @@ create index if not exists idx_follows_following on follows(following_id);
 
 alter table follows enable row level security;
 create policy "public_read_follows"  on follows for select using (true);
-create policy "public_write_follows" on follows for insert, update, delete using (true);
+create policy "public_write_follows" on follows for all using (true) with check (true);
