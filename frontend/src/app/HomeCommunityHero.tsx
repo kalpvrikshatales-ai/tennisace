@@ -171,9 +171,9 @@ function CityCard({ data, flag, slug, accentColor, photo, photoPosition, feature
 }
 
 const HOW_IT_WORKS = [
-  { step: 1, icon: '🎾', title: 'Create your profile',  desc: 'Player or Coach — takes 3 minutes' },
-  { step: 2, icon: '🌍', title: 'Join your city',        desc: 'Become a founding member — anywhere in the world' },
-  { step: 3, icon: '🤝', title: 'Connect & play',        desc: 'Find partners, book coaches, post play requests' },
+  { step: 1, icon: '🎾', tag: 'STEP ONE',   title: 'Create your profile', desc: 'Player or Coach — takes 3 minutes',              when: 'right now, from any device' },
+  { step: 2, icon: '🌍', tag: 'STEP TWO',   title: 'Join your city',      desc: 'Become a founding member — anywhere in the world', when: 'as soon as you sign up' },
+  { step: 3, icon: '🤝', tag: 'STEP THREE', title: 'Connect & play',      desc: 'Find partners, book coaches, post play requests', when: 'the moment you\'re ready' },
 ]
 
 const VALUE_PROPS = [
@@ -427,11 +427,15 @@ export default async function HomeCommunityHero() {
         </div>
       </section>
 
-      {/* ━━━ HOW IT WORKS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      <section style={{ background: 'rgba(8,15,26,0.88)', padding: '0 20px 52px' }}>
-        <div style={{ maxWidth: 760, margin: '0 auto' }}>
+      {/* ━━━ HOW IT WORKS — "Power Card" treatment ━━━━━━━━━━━━━━━━━ */}
+      <section style={{ position: 'relative', padding: '48px 20px 40px', overflow: 'hidden' }}>
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'radial-gradient(ellipse 70% 60% at 50% 20%, color-mix(in srgb, var(--accent) 8%, transparent) 0%, transparent 70%), rgba(8,15,26,0.9)',
+        }} />
+        <div style={{ position: 'relative', maxWidth: 760, margin: '0 auto' }}>
           <p style={{
-            color: 'rgba(255,255,255,0.22)', fontSize: 11, fontWeight: 800,
+            color: 'var(--accent)', fontSize: 11, fontWeight: 800,
             letterSpacing: 2, textTransform: 'uppercase', textAlign: 'center', margin: '0 0 24px',
           }}>
             How it works
@@ -441,25 +445,45 @@ export default async function HomeCommunityHero() {
           }}>
             {HOW_IT_WORKS.map(s => (
               <div key={s.step} className="hw-card" style={{
-                background:   '#0d1b2e',
-                border:       '1px solid rgba(255,255,255,0.07)',
-                borderRadius: 16,
-                padding:      '24px 18px',
-                position:     'relative',
+                background: 'linear-gradient(160deg, rgba(20,40,20,0.6) 0%, #0d1b2e 55%)',
+                border: '1px solid color-mix(in srgb, var(--accent) 25%, transparent)',
+                borderRadius: 16, padding: '20px 16px 22px', position: 'relative',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
               }}>
-                <span style={{
-                  position:   'absolute', top: 16, right: 16,
-                  color:      'color-mix(in srgb, var(--accent) 18%, transparent)', fontSize: 28, fontWeight: 900, lineHeight: 1,
-                }}>
-                  {s.step}
+                <span style={{ position: 'absolute', top: 14, left: 16, color: 'var(--accent)', fontSize: 16, fontWeight: 900 }}>
+                  0{s.step}
                 </span>
-                <div style={{ marginBottom: 14 }}><IconRing icon={s.icon} size={44} /></div>
-                <p style={{ color: '#fff', fontSize: 14, fontWeight: 800, margin: '0 0 7px', letterSpacing: -0.2 }}>
+                <span style={{
+                  position: 'absolute', top: 14, right: 16, textAlign: 'right',
+                  color: 'var(--accent)', fontSize: 9, fontWeight: 800, letterSpacing: 0.6,
+                  opacity: 0.7, lineHeight: 1.4,
+                }}>
+                  {s.tag}
+                </span>
+
+                <div style={{
+                  width: 92, height: 92, borderRadius: '50%', margin: '30px 0 16px',
+                  background: 'radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--accent) 85%, white) 0%, var(--accent) 55%, color-mix(in srgb, var(--accent) 55%, #0d1b2e) 100%)',
+                  border: '3px solid color-mix(in srgb, var(--accent) 60%, transparent)',
+                  outline: '1px solid color-mix(in srgb, var(--accent) 25%, transparent)',
+                  outlineOffset: 4,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 40, boxShadow: '0 0 28px color-mix(in srgb, var(--accent) 45%, transparent), inset -6px -6px 14px rgba(0,0,0,0.25)',
+                }}>
+                  {s.icon}
+                </div>
+
+                <p style={{ color: '#fff', fontSize: 16, fontWeight: 900, margin: '0 0 8px', letterSpacing: -0.2, textTransform: 'uppercase' }}>
                   {s.title}
                 </p>
-                <p style={{ color: 'rgba(255,255,255,0.38)', fontSize: 12, margin: 0, lineHeight: 1.6 }}>
+                <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 12, margin: '0 0 16px', lineHeight: 1.6 }}>
                   {s.desc}
                 </p>
+                <div style={{ width: '100%', borderTop: '1px solid color-mix(in srgb, var(--accent) 18%, transparent)', paddingTop: 10, marginTop: 'auto' }}>
+                  <span style={{ color: 'var(--accent)', fontSize: 9, fontWeight: 800, letterSpacing: 0.6, textTransform: 'uppercase' }}>Best </span>
+                  <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, fontWeight: 600 }}>{s.when}</span>
+                </div>
               </div>
             ))}
           </div>
