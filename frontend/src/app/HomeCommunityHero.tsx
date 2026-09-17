@@ -172,25 +172,31 @@ function CityCard({ data, flag, slug, accentColor, photo, photoPosition, feature
 
 const HOW_IT_WORKS = [
   { step: 1, icon: '🎾', title: 'Create your profile',  desc: 'Player or Coach — takes 3 minutes' },
-  { step: 2, icon: '🌍', title: 'Join your city',        desc: 'Become a founding member of Barcelona or Dubai' },
+  { step: 2, icon: '🌍', title: 'Join your city',        desc: 'Become a founding member — anywhere in the world' },
   { step: 3, icon: '🤝', title: 'Connect & play',        desc: 'Find partners, book coaches, post play requests' },
 ]
 
 const VALUE_PROPS = [
   {
     icon:  '🤝',
+    tag:   'PARTNER CARD',
     title: 'Find a hitting partner',
     desc:  'Browse players in your city, filter by level, surface, and availability.',
+    when:  'when you\'re free to play',
   },
   {
     icon:  '🏫',
+    tag:   'COACH CARD',
     title: 'Connect with coaches',
     desc:  'Find certified coaches and book your first session.',
+    when:  'when you want to level up',
   },
   {
     icon:  '🎾',
+    tag:   'PROFILE CARD',
     title: 'Build your tennis identity',
-    desc:  'Earn your founding badge, post play requests, and track your game.',
+    desc:  'Video, followers, match results — your whole game on one profile.',
+    when:  'always on, always yours',
   },
 ]
 
@@ -210,7 +216,7 @@ export default async function HomeCommunityHero() {
     <div style={{ fontFamily: 'var(--font-dm-sans, system-ui, sans-serif)', position: 'relative' }}>
       {/* Ambient clay-court texture behind the whole page — fixed so it stays put while scrolling */}
       <div style={{ position: 'fixed', inset: 0, zIndex: 0, overflow: 'hidden', pointerEvents: 'none' }}>
-        <Image src="/photos/splash-court.jpg" alt="" fill style={{ objectFit: 'cover', opacity: 0.14 }} />
+        <Image src="/photos/splash-court.jpg" alt="" fill style={{ objectFit: 'cover', opacity: 0.2 }} />
       </div>
       <div style={{ position: 'relative', zIndex: 1 }}>
       <style>{`
@@ -265,7 +271,7 @@ export default async function HomeCommunityHero() {
               background: 'var(--accent)', flexShrink: 0, display: 'inline-block',
             }} />
             <span style={{ color: 'var(--accent)', fontSize: 12, fontWeight: 800, letterSpacing: 0.4 }}>
-              Now building in Barcelona &amp; Dubai
+              Built for tennis players everywhere
             </span>
           </div>
 
@@ -278,26 +284,44 @@ export default async function HomeCommunityHero() {
             lineHeight:   1.03,
             margin:       '0 0 22px',
           }}>
-            Tennis is better<br />together.
+            Tennis is better<br /><span style={{ color: 'var(--accent)' }}>together.</span>
           </h1>
 
           {/* Subheadline */}
           <p style={{
             color: 'rgba(255,255,255,0.5)', fontSize: 18, fontWeight: 500,
-            lineHeight: 1.65, margin: '0 auto 40px', maxWidth: 450,
+            lineHeight: 1.65, margin: '0 auto 28px', maxWidth: 450,
           }}>
-            Find players. Find coaches. Build your tennis community — in your city.
+            Wherever you play — find players, find coaches, and build your city's tennis community.
           </p>
+
+          {/* Chip row — quick-scan value props, Breakers-style punch */}
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 32 }}>
+            {[
+              { icon: '🌍', label: 'ANY CITY' },
+              { icon: '🤝', label: 'REAL PLAYERS' },
+              { icon: '🆓', label: 'FREE FOREVER' },
+            ].map(c => (
+              <span key={c.label} style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: 20, padding: '6px 14px', color: 'rgba(255,255,255,0.65)',
+                fontSize: 11, fontWeight: 800, letterSpacing: 0.6,
+              }}>
+                {c.icon} {c.label}
+              </span>
+            ))}
+          </div>
 
           {/* CTAs */}
           <div className="hero-ctas" style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 28 }}>
-            <PrimaryButton href="/community/Barcelona">🇪🇸 Join Barcelona</PrimaryButton>
-            <SecondaryButton href="/community/Dubai">🇦🇪 Join Dubai</SecondaryButton>
+            <PrimaryButton href="/sparring/create">Join TennisAce →</PrimaryButton>
+            <SecondaryButton href="/sparring">Browse Players</SecondaryButton>
           </div>
 
           {/* Proof micro-copy */}
           <p style={{ color: 'rgba(255,255,255,0.28)', fontSize: 13, fontWeight: 600, margin: 0, letterSpacing: 0.1 }}>
-            🎾 {totalMembers} founding member{totalMembers !== 1 ? 's' : ''} · Barcelona &amp; Dubai · Founding Members Free
+            🎾 {totalMembers} founding member{totalMembers !== 1 ? 's' : ''} worldwide · Live in Barcelona &amp; Dubai, growing every day
           </p>
         </div>
       </section>
@@ -327,6 +351,16 @@ export default async function HomeCommunityHero() {
       {/* ━━━ CITY CARDS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       <section style={{ background: 'rgba(8,15,26,0.88)', padding: '0 20px 48px' }}>
         <div style={{ maxWidth: 760, margin: '0 auto' }}>
+          <div style={{ transform: 'translateY(-36px)', textAlign: 'center', marginBottom: -20 }}>
+            <p style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              color: 'var(--accent)', fontSize: 11, fontWeight: 800, letterSpacing: 1.6, textTransform: 'uppercase',
+              background: 'color-mix(in srgb, var(--accent) 10%, transparent)', border: '1px solid color-mix(in srgb, var(--accent) 25%, transparent)',
+              borderRadius: 20, padding: '5px 14px', margin: '0 0 20px',
+            }}>
+              🔥 Live now
+            </p>
+          </div>
           <div className="city-grid" style={{
             display:             'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
@@ -346,6 +380,23 @@ export default async function HomeCommunityHero() {
               photo="/photos/dubai-court.jpg"
               photoPosition="center 60%"
             />
+          </div>
+
+          {/* Start-your-city CTA — makes clear these two are momentum, not the whole map */}
+          <div style={{
+            transform: 'translateY(-16px)', textAlign: 'center',
+            border: '1.5px dashed color-mix(in srgb, var(--accent) 35%, transparent)',
+            borderRadius: 16, padding: '22px 20px',
+          }}>
+            <p style={{ color: '#fff', fontSize: 16, fontWeight: 800, margin: '0 0 4px', letterSpacing: -0.3 }}>
+              Don't see your city?
+            </p>
+            <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 13, margin: '0 0 16px' }}>
+              Every city starts with one founding member. Be the first in yours.
+            </p>
+            <PrimaryButton href="/sparring/create" style={{ fontSize: 14, padding: '11px 22px' }}>
+              Start Your City →
+            </PrimaryButton>
           </div>
         </div>
       </section>
@@ -413,11 +464,16 @@ export default async function HomeCommunityHero() {
         </div>
       </section>
 
-      {/* ━━━ VALUE PROPS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      <section style={{ background: 'rgba(8,15,26,0.88)', padding: '0 20px 52px' }}>
-        <div style={{ maxWidth: 760, margin: '0 auto' }}>
+      {/* ━━━ VALUE PROPS — "Power Card" treatment ━━━━━━━━━━━━━━━━━ */}
+      <section style={{ position: 'relative', padding: '48px 20px 56px', overflow: 'hidden' }}>
+        {/* Court-glow backdrop, stronger presence for this section */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'radial-gradient(ellipse 70% 60% at 50% 20%, color-mix(in srgb, var(--accent) 10%, transparent) 0%, transparent 70%), rgba(8,15,26,0.9)',
+        }} />
+        <div style={{ position: 'relative', maxWidth: 760, margin: '0 auto' }}>
           <p style={{
-            color: 'rgba(255,255,255,0.22)', fontSize: 11, fontWeight: 800,
+            color: 'var(--accent)', fontSize: 11, fontWeight: 800,
             letterSpacing: 2, textTransform: 'uppercase', textAlign: 'center', margin: '0 0 24px',
           }}>
             What you get
@@ -425,12 +481,31 @@ export default async function HomeCommunityHero() {
           <div className="vp-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
             {VALUE_PROPS.map(vp => (
               <div key={vp.title} className="vp-card" style={{
-                background: '#0d1b2e', border: '1px solid rgba(255,255,255,0.07)',
-                borderRadius: 14, padding: '22px 18px',
+                background: 'linear-gradient(160deg, rgba(20,40,20,0.6) 0%, #0d1b2e 55%)',
+                border: '1px solid color-mix(in srgb, var(--accent) 25%, transparent)',
+                borderRadius: 14, padding: '20px 18px 18px', position: 'relative',
+                boxShadow: '0 0 0 1px transparent, 0 8px 24px rgba(0,0,0,0.25)',
               }}>
-                <div style={{ marginBottom: 14 }}><IconRing icon={vp.icon} size={40} /></div>
-                <p style={{ color: '#fff', fontSize: 14, fontWeight: 800, margin: '0 0 7px', letterSpacing: -0.2 }}>{vp.title}</p>
-                <p style={{ color: 'rgba(255,255,255,0.38)', fontSize: 12, margin: 0, lineHeight: 1.6 }}>{vp.desc}</p>
+                <span style={{
+                  position: 'absolute', top: 14, right: 14,
+                  color: 'var(--accent)', fontSize: 9, fontWeight: 800, letterSpacing: 0.8,
+                  opacity: 0.6,
+                }}>
+                  {vp.tag}
+                </span>
+                <div style={{
+                  width: 44, height: 44, borderRadius: '50%', marginBottom: 14,
+                  background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 20, boxShadow: '0 0 18px color-mix(in srgb, var(--accent) 45%, transparent)',
+                }}>
+                  {vp.icon}
+                </div>
+                <p style={{ color: '#fff', fontSize: 15, fontWeight: 900, margin: '0 0 7px', letterSpacing: -0.3 }}>{vp.title}</p>
+                <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 12, margin: '0 0 14px', lineHeight: 1.6 }}>{vp.desc}</p>
+                <div style={{ borderTop: '1px solid color-mix(in srgb, var(--accent) 18%, transparent)', paddingTop: 10 }}>
+                  <span style={{ color: 'var(--accent)', fontSize: 9, fontWeight: 800, letterSpacing: 0.6, textTransform: 'uppercase' }}>Best </span>
+                  <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, fontWeight: 600 }}>{vp.when}</span>
+                </div>
               </div>
             ))}
           </div>
@@ -448,7 +523,7 @@ export default async function HomeCommunityHero() {
               color: 'rgba(255,255,255,0.32)', fontSize: 11, fontWeight: 800,
               letterSpacing: 1.5, textTransform: 'uppercase', margin: '0 0 22px',
             }}>
-              🇪🇸 Barcelona vs 🇦🇪 Dubai — which city builds first?
+              🌍 Barcelona, Dubai, and whoever's next — which city builds first?
             </p>
 
             {allMembers.length > 0 && (
