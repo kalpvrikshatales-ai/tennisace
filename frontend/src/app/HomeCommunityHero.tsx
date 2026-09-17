@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { IconRing } from '@/components/CardKit'
+import { IconRing, PrimaryButton, SecondaryButton } from '@/components/CardKit'
 
 const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
 
@@ -150,22 +150,9 @@ function CityCard({ data, flag, slug, accentColor, photo, photoPosition, feature
       <div style={{ flex: 1 }} />
 
       {/* Full-width CTA */}
-      <Link href={`/community/${slug}`} style={{ textDecoration: 'none' }}>
-        <div style={{
-          display:       'flex', alignItems: 'center', justifyContent: 'center',
-          gap:           8,
-          background:    accentColor,
-          color:         '#000',
-          fontWeight:    900,
-          fontSize:      14,
-          padding:       '14px',
-          borderRadius:  12,
-          textAlign:     'center',
-          letterSpacing: -0.2,
-        }}>
-          Join as Founding Member →
-        </div>
-      </Link>
+      <PrimaryButton href={`/community/${slug}`} fullWidth style={{ fontSize: 14, padding: '14px' }}>
+        Join as Founding Member →
+      </PrimaryButton>
 
       {/* Free forever note */}
       <p style={{
@@ -220,7 +207,12 @@ export default async function HomeCommunityHero() {
   ].slice(0, 6)
 
   return (
-    <div style={{ fontFamily: 'var(--font-dm-sans, system-ui, sans-serif)' }}>
+    <div style={{ fontFamily: 'var(--font-dm-sans, system-ui, sans-serif)', position: 'relative' }}>
+      {/* Ambient clay-court texture behind the whole page — fixed so it stays put while scrolling */}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+        <Image src="/photos/splash-court.jpg" alt="" fill style={{ objectFit: 'cover', opacity: 0.14 }} />
+      </div>
+      <div style={{ position: 'relative', zIndex: 1 }}>
       <style>{`
         @keyframes hero-pulse { 0%,100%{opacity:1} 50%{opacity:0.38} }
         @keyframes hero-fade  { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
@@ -299,23 +291,8 @@ export default async function HomeCommunityHero() {
 
           {/* CTAs */}
           <div className="hero-ctas" style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 28 }}>
-            <Link href="/community/Barcelona" style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8,
-              background: 'var(--accent)', color: '#000', fontWeight: 900, fontSize: 15,
-              padding: '15px 30px', borderRadius: 12, textDecoration: 'none',
-              boxShadow: '0 0 32px color-mix(in srgb, var(--accent) 30%, transparent), 0 4px 20px rgba(0,0,0,0.25)',
-              letterSpacing: -0.2, whiteSpace: 'nowrap',
-            }}>
-              🇪🇸 Join Barcelona
-            </Link>
-            <Link href="/community/Dubai" className="cta-outline" style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8,
-              background: 'rgba(255,255,255,0.04)', color: '#fff', fontWeight: 800, fontSize: 15,
-              padding: '15px 30px', borderRadius: 12, textDecoration: 'none',
-              border: '1.5px solid color-mix(in srgb, var(--accent) 38%, transparent)', letterSpacing: -0.2, whiteSpace: 'nowrap',
-            }}>
-              🇦🇪 Join Dubai
-            </Link>
+            <PrimaryButton href="/community/Barcelona">🇪🇸 Join Barcelona</PrimaryButton>
+            <SecondaryButton href="/community/Dubai">🇦🇪 Join Dubai</SecondaryButton>
           </div>
 
           {/* Proof micro-copy */}
@@ -325,8 +302,30 @@ export default async function HomeCommunityHero() {
         </div>
       </section>
 
+      {/* ━━━ FIND A PARTNER CTA ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      <section style={{ background: 'rgba(8,15,26,0.88)', padding: '48px 20px', textAlign: 'center' }}>
+        <div style={{ maxWidth: 560, margin: '0 auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 18 }}>
+            <IconRing icon="🤝" size={48} />
+          </div>
+          <p style={{ color: 'var(--accent)', fontSize: 11, fontWeight: 800, letterSpacing: 1.6, textTransform: 'uppercase', margin: '0 0 10px' }}>
+            Your next match is waiting
+          </p>
+          <h2 style={{ color: '#fff', fontSize: 'clamp(24px, 4vw, 32px)', fontWeight: 900, letterSpacing: -0.6, margin: '0 0 12px', lineHeight: 1.15 }}>
+            Create your profile, find your partner.
+          </h2>
+          <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 15, lineHeight: 1.6, margin: '0 auto 28px', maxWidth: 420 }}>
+            Set your level, surface, and city — then browse real players ready to hit near you.
+          </p>
+          <div className="hero-ctas" style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <PrimaryButton href="/sparring/create">Create Your Profile →</PrimaryButton>
+            <SecondaryButton href="/sparring">Browse Players</SecondaryButton>
+          </div>
+        </div>
+      </section>
+
       {/* ━━━ CITY CARDS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      <section style={{ background: '#080f1a', padding: '0 20px 48px' }}>
+      <section style={{ background: 'rgba(8,15,26,0.88)', padding: '0 20px 48px' }}>
         <div style={{ maxWidth: 760, margin: '0 auto' }}>
           <div className="city-grid" style={{
             display:             'grid',
@@ -352,7 +351,7 @@ export default async function HomeCommunityHero() {
       </section>
 
       {/* ━━━ FEATURED PHOTO ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      <section style={{ background: '#080f1a', padding: '0 20px 52px' }}>
+      <section style={{ background: 'rgba(8,15,26,0.88)', padding: '0 20px 52px' }}>
         <div style={{ maxWidth: 760, margin: '0 auto', position: 'relative', borderRadius: 20, overflow: 'hidden', minHeight: 320 }}>
           <Image
             src="/photos/hero-players.jpg"
@@ -376,7 +375,7 @@ export default async function HomeCommunityHero() {
       </section>
 
       {/* ━━━ HOW IT WORKS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      <section style={{ background: '#080f1a', padding: '0 20px 52px' }}>
+      <section style={{ background: 'rgba(8,15,26,0.88)', padding: '0 20px 52px' }}>
         <div style={{ maxWidth: 760, margin: '0 auto' }}>
           <p style={{
             color: 'rgba(255,255,255,0.22)', fontSize: 11, fontWeight: 800,
@@ -415,7 +414,7 @@ export default async function HomeCommunityHero() {
       </section>
 
       {/* ━━━ VALUE PROPS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      <section style={{ background: '#080f1a', padding: '0 20px 52px' }}>
+      <section style={{ background: 'rgba(8,15,26,0.88)', padding: '0 20px 52px' }}>
         <div style={{ maxWidth: 760, margin: '0 auto' }}>
           <p style={{
             color: 'rgba(255,255,255,0.22)', fontSize: 11, fontWeight: 800,
@@ -439,7 +438,7 @@ export default async function HomeCommunityHero() {
       </section>
 
       {/* ━━━ SOCIAL PROOF ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      <section style={{ background: '#080f1a', padding: '0 20px 60px' }}>
+      <section style={{ background: 'rgba(8,15,26,0.88)', padding: '0 20px 60px' }}>
         <div style={{ maxWidth: 760, margin: '0 auto' }}>
           <div style={{
             background:   '#0d1b2e', border: '1px solid rgba(255,255,255,0.07)',
@@ -503,6 +502,7 @@ export default async function HomeCommunityHero() {
           </div>
         </div>
       </section>
+      </div>
     </div>
   )
 }
