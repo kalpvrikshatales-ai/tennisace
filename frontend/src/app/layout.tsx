@@ -11,8 +11,9 @@ const inter   = Inter({ subsets: ['latin'], variable: '--font-inter' })
 const dmSans  = DM_Sans({ subsets: ['latin'], variable: '--font-dm-sans', weight: ['400','500','600','700','800','900'] })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://tennisace.live'),
   title: 'TennisAce — Find Tennis Players & Coaches Near You',
-  description: 'Find tennis players and coaches near you. Join the founding community in Barcelona and Dubai.',
+  description: 'Find players, find coaches, and build your city\'s tennis community — anywhere in the world.',
   manifest: '/manifest.json',
   themeColor: '#0a0f1a',
   viewport: 'width=device-width, initial-scale=1',
@@ -28,17 +29,15 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'TennisAce — Find Tennis Players & Coaches Near You',
-    description: 'Find tennis players and coaches near you. Join the founding community in Barcelona and Dubai.',
+    description: 'Find players, find coaches, and build your city\'s tennis community — anywhere in the world.',
     url: 'https://tennisace.live',
     siteName: 'TennisAce',
     type: 'website',
-    images: [{ url: 'https://tennisace.live/og.png', width: 1200, height: 630, alt: 'TennisAce — Find Tennis Players & Coaches Near You' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'TennisAce — Find Tennis Players & Coaches Near You',
-    description: 'Find tennis players and coaches near you.',
-    images: ['https://tennisace.live/og.png'],
+    description: 'Find players, find coaches, and build your city\'s tennis community — anywhere in the world.',
   },
   verification: {
     google: 'SGBHDbGl7iiOC1QnXy5-8PxZrqnPzjyt94iCI85Ydh4',

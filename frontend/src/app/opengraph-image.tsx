@@ -5,6 +5,8 @@ export const alt = 'TennisAce — Find tennis players and coaches near you'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
+const ACCENT = '#39FF14'
+
 export default function OGImage() {
   return new ImageResponse(
     (
@@ -16,73 +18,61 @@ export default function OGImage() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          background: '#000000',
+          background: '#0a0f1a',
           fontFamily: 'sans-serif',
+          position: 'relative',
         }}
       >
-        {/* Grid lines for court feel — two separate single-gradient layers, each with an explicit
-            direction. Satori's CSS parser requires a direction/angle as the first arg — omitting
-            it (defaulting to "to bottom" like real CSS) crashes the parser. */}
+        {/* Real court photo backdrop, dimmed */}
+        <img
+          src="https://tennisace.live/photos/hero-players.jpg"
+          width={1200}
+          height={630}
+          style={{ position: 'absolute', inset: 0, width: 1200, height: 630, objectFit: 'cover', opacity: 0.35 }}
+        />
         <div style={{
-          position: 'absolute', inset: 0,
-          backgroundImage: 'linear-gradient(to bottom, rgba(0,200,117,0.04) 1px, transparent 1px)',
-          backgroundSize: '60px 60px',
-          display: 'flex',
-        }} />
-        <div style={{
-          position: 'absolute', inset: 0,
-          backgroundImage: 'linear-gradient(90deg, rgba(0,200,117,0.04) 1px, transparent 1px)',
-          backgroundSize: '60px 60px',
-          display: 'flex',
+          position: 'absolute', inset: 0, display: 'flex',
+          background: 'linear-gradient(180deg, rgba(10,15,26,0.55) 0%, rgba(10,15,26,0.92) 100%)',
         }} />
 
         {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
           <div style={{
-            width: 64, height: 64, borderRadius: '50%',
-            background: '#00C875', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 32,
+            width: 60, height: 60, borderRadius: '50%',
+            background: ACCENT, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 30,
           }}>🎾</div>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontSize: 56, fontWeight: 800, color: 'white', letterSpacing: -2 }}>
-              Tennis<span style={{ color: '#00C875' }}>Ace</span>
-            </span>
-          </div>
+          <span style={{ fontSize: 54, fontWeight: 900, color: 'white', letterSpacing: -2 }}>
+            Tennis<span style={{ color: ACCENT }}>Ace</span>
+          </span>
+        </div>
+
+        {/* Headline */}
+        <div style={{ position: 'relative', display: 'flex', fontSize: 44, fontWeight: 900, color: 'white', letterSpacing: -1, marginBottom: 14 }}>
+          Tennis is better <span style={{ color: ACCENT, marginLeft: 14 }}>together.</span>
         </div>
 
         {/* Tagline */}
-        <div style={{ fontSize: 26, color: 'rgba(255,255,255,0.5)', letterSpacing: 1, textAlign: 'center' }}>
-          Find tennis players &amp; coaches near you
+        <div style={{ position: 'relative', display: 'flex', fontSize: 24, color: 'rgba(255,255,255,0.6)', letterSpacing: 0.5, textAlign: 'center' }}>
+          Wherever you play — find players, find coaches, find your city
         </div>
 
-        {/* Connect card */}
-        <div style={{
-          marginTop: 48, background: 'rgba(255,255,255,0.05)',
-          borderRadius: 16, padding: '28px 40px',
-          border: '1px solid rgba(0,200,117,0.3)',
-          display: 'flex', alignItems: 'center', gap: 24, minWidth: 480,
-        }}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-            <div style={{
-              width: 56, height: 56, borderRadius: '50%',
-              background: 'rgba(0,200,117,0.15)', border: '2px solid #00C875',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24,
-            }}>🎾</div>
-            <span style={{ color: 'white', fontSize: 15, fontWeight: 700 }}>You</span>
-          </div>
-          <div style={{ fontSize: 28, color: '#00C875' }}>🤝</div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-            <div style={{
-              width: 56, height: 56, borderRadius: '50%',
-              background: 'rgba(255,255,255,0.08)', border: '2px solid rgba(255,255,255,0.25)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24,
-            }}>🎾</div>
-            <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: 15, fontWeight: 700 }}>A player near you</span>
-          </div>
+        {/* Chip row */}
+        <div style={{ position: 'relative', display: 'flex', gap: 14, marginTop: 32 }}>
+          {['🌍 ANY CITY', '🤝 REAL PLAYERS', '🆓 FREE FOREVER'].map(label => (
+            <div key={label} style={{
+              display: 'flex', alignItems: 'center',
+              background: 'rgba(255,255,255,0.06)', border: `1px solid rgba(255,255,255,0.15)`,
+              borderRadius: 30, padding: '10px 22px', color: 'rgba(255,255,255,0.8)',
+              fontSize: 17, fontWeight: 700, letterSpacing: 0.5,
+            }}>
+              {label}
+            </div>
+          ))}
         </div>
 
         {/* URL */}
-        <div style={{ marginTop: 40, fontSize: 18, color: 'rgba(255,255,255,0.25)', letterSpacing: 3 }}>
+        <div style={{ position: 'relative', display: 'flex', marginTop: 36, fontSize: 18, color: 'rgba(255,255,255,0.35)', letterSpacing: 3 }}>
           tennisace.live
         </div>
       </div>
