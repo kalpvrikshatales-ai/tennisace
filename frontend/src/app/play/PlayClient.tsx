@@ -6,7 +6,7 @@ import Image from 'next/image'
 import SparringShell from '@/app/sparring/SparringShell'
 import CityPicker from '@/components/CityPicker'
 import BackButton from '@/components/BackButton'
-import { IconRing } from '@/components/CardKit'
+import { IconRing, primaryButtonStyle } from '@/components/CardKit'
 
 const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
 
@@ -517,11 +517,7 @@ export default function PlayClient() {
               </div>
               <button
                 onClick={() => { setShowForm(s => !s); setTimeout(() => formRef.current?.scrollIntoView({ behavior: 'smooth' }), 50) }}
-                style={{
-                  background: 'var(--accent)', color: '#000', fontWeight: 900, fontSize: 13,
-                  padding: '10px 18px', borderRadius: 10, border: 'none', cursor: 'pointer',
-                  whiteSpace: 'nowrap', minHeight: 44, boxShadow: '0 0 12px color-mix(in srgb, var(--accent) 20%, transparent)',
-                }}>
+                style={{ ...primaryButtonStyle({ compact: true }), minHeight: 44 }}>
                 + Post request
               </button>
             </div>

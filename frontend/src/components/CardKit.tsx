@@ -5,40 +5,55 @@
 
 import Link from 'next/link'
 
-type ButtonProps = {
+type ButtonOpts = { fullWidth?: boolean; compact?: boolean }
+
+/* Dark/filled style — the one primary action per screen (join, create, post).
+   Exported as a plain style object so both <Link> and <button onClick> can share
+   the exact same look — not every primary action is a navigation. */
+export function primaryButtonStyle({ fullWidth, compact }: ButtonOpts = {}): React.CSSProperties {
+  return {
+    display: fullWidth ? 'flex' : 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+    background: 'var(--accent)', color: '#000', fontWeight: 900, fontSize: compact ? 13 : 15,
+    padding: compact ? '10px 18px' : '15px 30px', borderRadius: compact ? 10 : 12, textDecoration: 'none',
+    boxShadow: compact
+      ? '0 0 16px color-mix(in srgb, var(--accent) 22%, transparent)'
+      : '0 0 32px color-mix(in srgb, var(--accent) 30%, transparent), 0 4px 20px rgba(0,0,0,0.25)',
+    letterSpacing: -0.2, whiteSpace: 'nowrap', width: fullWidth ? '100%' : undefined,
+    border: 'none', cursor: 'pointer',
+  }
+}
+
+/* Light/outline style — the secondary action alongside a primary one. */
+export function secondaryButtonStyle({ fullWidth, compact }: ButtonOpts = {}): React.CSSProperties {
+  return {
+    display: fullWidth ? 'flex' : 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+    background: 'rgba(255,255,255,0.04)', color: 'var(--text)', fontWeight: 800, fontSize: compact ? 13 : 15,
+    padding: compact ? '10px 18px' : '15px 30px', borderRadius: compact ? 10 : 12, textDecoration: 'none',
+    border: '1.5px solid color-mix(in srgb, var(--accent) 38%, transparent)',
+    letterSpacing: -0.2, whiteSpace: 'nowrap', width: fullWidth ? '100%' : undefined,
+    cursor: 'pointer',
+  }
+}
+
+type ButtonProps = ButtonOpts & {
   href:      string
   children:  React.ReactNode
-  fullWidth?: boolean
   style?:    React.CSSProperties
 }
 
 /* Dark/filled button — the one primary action per screen (join, create, post). */
-export function PrimaryButton({ href, children, fullWidth, style }: ButtonProps) {
+export function PrimaryButton({ href, children, style, ...opts }: ButtonProps) {
   return (
-    <Link href={href} className="ta-btn-primary" style={{
-      display: fullWidth ? 'flex' : 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-      background: 'var(--accent)', color: '#000', fontWeight: 900, fontSize: 15,
-      padding: '15px 30px', borderRadius: 12, textDecoration: 'none',
-      boxShadow: '0 0 32px color-mix(in srgb, var(--accent) 30%, transparent), 0 4px 20px rgba(0,0,0,0.25)',
-      letterSpacing: -0.2, whiteSpace: 'nowrap', width: fullWidth ? '100%' : undefined,
-      ...style,
-    }}>
+    <Link href={href} className="ta-btn-primary" style={{ ...primaryButtonStyle(opts), ...style }}>
       {children}
     </Link>
   )
 }
 
 /* Light/outline button — the secondary action alongside a primary one. */
-export function SecondaryButton({ href, children, fullWidth, style }: ButtonProps) {
+export function SecondaryButton({ href, children, style, ...opts }: ButtonProps) {
   return (
-    <Link href={href} className="ta-btn-secondary" style={{
-      display: fullWidth ? 'flex' : 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-      background: 'rgba(255,255,255,0.04)', color: 'var(--text)', fontWeight: 800, fontSize: 15,
-      padding: '15px 30px', borderRadius: 12, textDecoration: 'none',
-      border: '1.5px solid color-mix(in srgb, var(--accent) 38%, transparent)',
-      letterSpacing: -0.2, whiteSpace: 'nowrap', width: fullWidth ? '100%' : undefined,
-      ...style,
-    }}>
+    <Link href={href} className="ta-btn-secondary" style={{ ...secondaryButtonStyle(opts), ...style }}>
       {children}
     </Link>
   )

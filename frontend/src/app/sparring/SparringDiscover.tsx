@@ -6,7 +6,7 @@ import { Suspense, useEffect, useState } from 'react'
 import SparringFilters from './SparringFilters'
 import SparringShell from './SparringShell'
 import { useAuth } from '@/components/AuthProvider'
-import { IconRing } from '@/components/CardKit'
+import { IconRing, primaryButtonStyle } from '@/components/CardKit'
 
 const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
 
@@ -465,16 +465,12 @@ export default function SparringDiscover({ initialProfiles }: { initialProfiles:
                 {/* Primary CTA */}
                 {ownId ? (
                   <Link href="/sparring/profile"
-                    style={{ background: 'var(--sr-accent)', color: 'var(--sr-on-acc)', fontWeight: 800,
-                      fontSize: 13, padding: '10px 18px', borderRadius: 10, textDecoration: 'none',
-                      whiteSpace: 'nowrap', minHeight: 44, display: 'flex', alignItems: 'center' }}>
+                    style={{ ...primaryButtonStyle({ compact: true }), background: 'var(--sr-accent)', color: 'var(--sr-on-acc)', minHeight: 44 }}>
                     My Profile
                   </Link>
                 ) : (
                   <Link href="/sparring/create"
-                    style={{ background: 'var(--sr-accent)', color: 'var(--sr-on-acc)', fontWeight: 800,
-                      fontSize: 13, padding: '10px 18px', borderRadius: 10, textDecoration: 'none',
-                      whiteSpace: 'nowrap', minHeight: 44, display: 'flex', alignItems: 'center' }}>
+                    style={{ ...primaryButtonStyle({ compact: true }), background: 'var(--sr-accent)', color: 'var(--sr-on-acc)', minHeight: 44 }}>
                     + Add profile
                   </Link>
                 )}
@@ -522,11 +518,7 @@ export default function SparringDiscover({ initialProfiles }: { initialProfiles:
                 {ownCity ? `Open games in ${ownCity}` : 'Open games near you'}
               </p>
               <Link href="/play"
-                style={{
-                  background: 'var(--sr-accent)', color: 'var(--sr-on-acc)',
-                  fontWeight: 800, fontSize: 12, padding: '8px 16px',
-                  borderRadius: 8, textDecoration: 'none',
-                }}>
+                style={{ ...primaryButtonStyle({ compact: true }), background: 'var(--sr-accent)', color: 'var(--sr-on-acc)', fontSize: 12, padding: '8px 16px', borderRadius: 8 }}>
                 + Post request
               </Link>
             </div>
