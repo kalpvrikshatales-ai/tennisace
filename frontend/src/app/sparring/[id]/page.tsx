@@ -7,7 +7,7 @@ import { useAuth } from '@/components/AuthProvider'
 import { supabase } from '@/lib/supabase'
 import SparringShell from '../SparringShell'
 import CityPicker from '@/components/CityPicker'
-import { primaryButtonStyle } from '@/components/CardKit'
+import { primaryButtonStyle, IconRing } from '@/components/CardKit'
 
 const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
 const BUCKET  = 'sparring-photos'
@@ -303,14 +303,15 @@ function FieldCard({ fieldKey, label, value, isOwn, onClick }: {
       onClick={isOwn ? onClick : undefined}
       disabled={!isOwn}
       style={{
-        background:'var(--sr-card)', border:'1px solid var(--sr-border)', borderRadius:10,
-        padding:'14px 12px', textAlign:'left', display:'flex', flexDirection:'column',
-        gap:5, cursor:isOwn ? 'pointer' : 'default', minHeight:90, width:'100%', transition:'border-color 0.15s',
+        background: 'linear-gradient(160deg, color-mix(in srgb, var(--accent) 6%, transparent) 0%, var(--sr-card) 60%)',
+        border: '1px solid color-mix(in srgb, var(--accent) 20%, transparent)', borderRadius: 12,
+        padding: '14px 12px', textAlign: 'left', display: 'flex', flexDirection: 'column',
+        gap: 7, cursor: isOwn ? 'pointer' : 'default', minHeight: 96, width: '100%', transition: 'border-color 0.15s, transform 0.15s',
       }}
-      onMouseEnter={e => isOwn && (e.currentTarget.style.borderColor='var(--sr-accent)')}
-      onMouseLeave={e => (e.currentTarget.style.borderColor='var(--sr-border)')}
+      onMouseEnter={e => { if (isOwn) { e.currentTarget.style.borderColor = 'var(--sr-accent)'; e.currentTarget.style.transform = 'translateY(-2px)' } }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor = 'color-mix(in srgb, var(--accent) 20%, transparent)'; e.currentTarget.style.transform = 'none' }}
     >
-      <span style={{ fontSize:16 }}>{FIELD_ICONS[fieldKey] ?? '•'}</span>
+      <IconRing icon={FIELD_ICONS[fieldKey] ?? '•'} size={28} />
       <span style={{ color:'var(--sr-muted)', fontSize:10, fontWeight:700, textTransform:'uppercase', letterSpacing:0.7 }}>{label}</span>
       <span style={{ color:empty ? 'var(--sr-accent)' : 'var(--sr-text)', fontSize:12, fontWeight:700, textTransform:fieldKey==='level' ? 'capitalize' : 'none', wordBreak:'break-word', opacity: empty ? 0.6 : 1 }}>
         {empty ? '+ Add' : value}

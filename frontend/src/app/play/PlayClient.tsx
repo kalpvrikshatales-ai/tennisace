@@ -223,7 +223,7 @@ function RequestCard({
   return (
     <div style={{
       background: 'rgba(255,255,255,0.04)',
-      border: `1.5px solid ${joined ? 'color-mix(in srgb, var(--accent) 40%, transparent)' : expired ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.1)'}`,
+      border: `1.5px solid ${joined ? 'color-mix(in srgb, var(--accent) 40%, transparent)' : expired ? 'rgba(255,255,255,0.06)' : 'color-mix(in srgb, var(--accent) 18%, transparent)'}`,
       borderRadius: 14, padding: '20px 18px',
       opacity: expired && !joined ? 0.6 : 1,
       transition: 'border-color 0.2s',

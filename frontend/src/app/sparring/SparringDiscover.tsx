@@ -172,11 +172,11 @@ function PlayerCard({ p, mutualSlots }: { p: any; mutualSlots?: number }) {
         onMouseLeave={() => setHov(false)}
         style={{
           background: 'var(--sr-card)',
-          border: `1px solid ${hov ? 'color-mix(in srgb, var(--accent) 25%, transparent)' : 'var(--sr-border)'}`,
+          border: `1px solid ${hov ? 'color-mix(in srgb, var(--accent) 45%, transparent)' : 'color-mix(in srgb, var(--accent) 16%, transparent)'}`,
           borderRadius: 14,
           overflow: 'hidden',
           transform: hov ? 'translateY(-3px)' : 'none',
-          boxShadow: hov ? '0 8px 32px color-mix(in srgb, var(--accent) 8%, transparent), var(--sr-shadow)' : 'var(--sr-shadow-s)',
+          boxShadow: hov ? '0 8px 32px color-mix(in srgb, var(--accent) 12%, transparent), var(--sr-shadow)' : 'var(--sr-shadow-s)',
           transition: 'all 0.2s ease',
           cursor: 'pointer',
         }}
