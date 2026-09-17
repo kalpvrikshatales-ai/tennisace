@@ -243,10 +243,6 @@ export default async function HomeCommunityHero() {
           .city-hero-card { min-height: 180px !important; }
           .vp-grid     { grid-template-columns: 1fr !important; }
           .hw-grid     { grid-template-columns: 1fr !important; }
-          .hero-orb    { display:none !important; }
-        }
-        @media (min-width: 601px) and (max-width: 900px) {
-          .hero-orb    { width:160px !important; height:160px !important; top:-10px !important; right:-40px !important; }
         }
       `}</style>
 
@@ -264,19 +260,6 @@ export default async function HomeCommunityHero() {
         position:       'relative',
         overflow:       'hidden',
       }}>
-        {/* Floating 3D orb — decorative, desktop only */}
-        <div className="hero-orb" style={{
-          position: 'absolute', top: '6%', right: '-90px',
-          width: 320, height: 320, borderRadius: '50%',
-          background: `radial-gradient(circle at 32% 28%,
-            color-mix(in srgb, var(--accent) 92%, white) 0%,
-            var(--accent) 32%,
-            color-mix(in srgb, var(--accent) 45%, #0d1b2e) 68%,
-            color-mix(in srgb, var(--accent) 12%, #0d1b2e) 100%)`,
-          boxShadow: '0 0 140px color-mix(in srgb, var(--accent) 40%, transparent), inset -24px -24px 70px rgba(0,0,0,0.45)',
-          pointerEvents: 'none',
-        }} />
-
         <div className="hero-content" style={{ maxWidth: 620, margin: '0 auto', position: 'relative' }}>
 
           {/* Live badge */}
@@ -498,30 +481,42 @@ export default async function HomeCommunityHero() {
             What you get
           </p>
           <div className="vp-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
-            {VALUE_PROPS.map(vp => (
+            {VALUE_PROPS.map((vp, i) => (
               <div key={vp.title} className="vp-card" style={{
                 background: 'linear-gradient(160deg, rgba(20,40,20,0.6) 0%, #0d1b2e 55%)',
                 border: '1px solid color-mix(in srgb, var(--accent) 25%, transparent)',
-                borderRadius: 14, padding: '20px 18px 18px', position: 'relative',
-                boxShadow: '0 0 0 1px transparent, 0 8px 24px rgba(0,0,0,0.25)',
+                borderRadius: 16, padding: '20px 16px 22px', position: 'relative',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
               }}>
-                <span style={{
-                  position: 'absolute', top: 14, right: 14,
-                  color: 'var(--accent)', fontSize: 9, fontWeight: 800, letterSpacing: 0.8,
-                  opacity: 0.6,
-                }}>
-                  {vp.tag}
+                {/* Corner markers — number left, card-type tag right, like a real card */}
+                <span style={{ position: 'absolute', top: 14, left: 16, color: 'var(--accent)', fontSize: 16, fontWeight: 900 }}>
+                  0{i + 1}
                 </span>
+                <span style={{
+                  position: 'absolute', top: 14, right: 16, textAlign: 'right',
+                  color: 'var(--accent)', fontSize: 9, fontWeight: 800, letterSpacing: 0.6,
+                  opacity: 0.7, lineHeight: 1.4,
+                }}>
+                  {vp.tag.split(' ').map(w => <span key={w} style={{ display: 'block' }}>{w}</span>)}
+                </span>
+
+                {/* Big centered badge — the card's "artwork" */}
                 <div style={{
-                  width: 44, height: 44, borderRadius: '50%', marginBottom: 14,
-                  background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 20, boxShadow: '0 0 18px color-mix(in srgb, var(--accent) 45%, transparent)',
+                  width: 92, height: 92, borderRadius: '50%', margin: '30px 0 16px',
+                  background: 'radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--accent) 85%, white) 0%, var(--accent) 55%, color-mix(in srgb, var(--accent) 55%, #0d1b2e) 100%)',
+                  border: '3px solid color-mix(in srgb, var(--accent) 60%, transparent)',
+                  outline: '1px solid color-mix(in srgb, var(--accent) 25%, transparent)',
+                  outlineOffset: 4,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 40, boxShadow: '0 0 28px color-mix(in srgb, var(--accent) 45%, transparent), inset -6px -6px 14px rgba(0,0,0,0.25)',
                 }}>
                   {vp.icon}
                 </div>
-                <p style={{ color: '#fff', fontSize: 15, fontWeight: 900, margin: '0 0 7px', letterSpacing: -0.3 }}>{vp.title}</p>
-                <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 12, margin: '0 0 14px', lineHeight: 1.6 }}>{vp.desc}</p>
-                <div style={{ borderTop: '1px solid color-mix(in srgb, var(--accent) 18%, transparent)', paddingTop: 10 }}>
+
+                <p style={{ color: '#fff', fontSize: 16, fontWeight: 900, margin: '0 0 8px', letterSpacing: -0.2, textTransform: 'uppercase' }}>{vp.title}</p>
+                <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: 12, margin: '0 0 16px', lineHeight: 1.6 }}>{vp.desc}</p>
+                <div style={{ width: '100%', borderTop: '1px solid color-mix(in srgb, var(--accent) 18%, transparent)', paddingTop: 10, marginTop: 'auto' }}>
                   <span style={{ color: 'var(--accent)', fontSize: 9, fontWeight: 800, letterSpacing: 0.6, textTransform: 'uppercase' }}>Best </span>
                   <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, fontWeight: 600 }}>{vp.when}</span>
                 </div>
