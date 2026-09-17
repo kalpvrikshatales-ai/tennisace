@@ -243,6 +243,10 @@ export default async function HomeCommunityHero() {
           .city-hero-card { min-height: 180px !important; }
           .vp-grid     { grid-template-columns: 1fr !important; }
           .hw-grid     { grid-template-columns: 1fr !important; }
+          .hero-orb    { display:none !important; }
+        }
+        @media (min-width: 601px) and (max-width: 900px) {
+          .hero-orb    { width:160px !important; height:160px !important; top:-10px !important; right:-40px !important; }
         }
       `}</style>
 
@@ -257,8 +261,23 @@ export default async function HomeCommunityHero() {
         backgroundSize: '80px 80px, 80px 80px, 100% 100%',
         padding:        'clamp(60px, 9vw, 100px) 24px clamp(72px, 9vw, 100px)',
         textAlign:      'center',
+        position:       'relative',
+        overflow:       'hidden',
       }}>
-        <div className="hero-content" style={{ maxWidth: 620, margin: '0 auto' }}>
+        {/* Floating 3D orb — decorative, desktop only */}
+        <div className="hero-orb" style={{
+          position: 'absolute', top: '6%', right: '-90px',
+          width: 320, height: 320, borderRadius: '50%',
+          background: `radial-gradient(circle at 32% 28%,
+            color-mix(in srgb, var(--accent) 92%, white) 0%,
+            var(--accent) 32%,
+            color-mix(in srgb, var(--accent) 45%, #0d1b2e) 68%,
+            color-mix(in srgb, var(--accent) 12%, #0d1b2e) 100%)`,
+          boxShadow: '0 0 140px color-mix(in srgb, var(--accent) 40%, transparent), inset -24px -24px 70px rgba(0,0,0,0.45)',
+          pointerEvents: 'none',
+        }} />
+
+        <div className="hero-content" style={{ maxWidth: 620, margin: '0 auto', position: 'relative' }}>
 
           {/* Live badge */}
           <div style={{
