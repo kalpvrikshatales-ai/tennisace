@@ -1,7 +1,7 @@
 {
   "name": "TennisAce",
   "short_name": "TennisAce",
-  "description": "Find tennis players and coaches near you.",
+  "description": "Find tennis players and coaches near you — anywhere in the world.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
