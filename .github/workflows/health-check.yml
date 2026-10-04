@@ -16,7 +16,7 @@ jobs:
       - name: Check homepage
         run: |
           sleep 20   # let the new deployment alias propagate
-          for path in "/" "/players" "/tournament/us-open-2026"; do
+          for path in "/" "/play" "/sparring" "/community"; do
             STATUS=$(curl -sL -o /dev/null -w "%{http_code}" "https://tennisace.live${path}")
             echo "${path} -> ${STATUS}"
             if [ "$STATUS" != "200" ]; then

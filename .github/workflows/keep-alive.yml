@@ -1,0 +1,23 @@
+name: Backend Keep-Alive
+
+# Render's free tier spins the backend down after ~15 min of no traffic,
+# and the next real visitor eats a ~30-50s cold start waking it back up.
+# This pings /health every 10 minutes so it never gets the chance to sleep.
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    name: Ping backend health endpoint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 60 "https://tennisace.onrender.com/health")
+          echo "health -> ${STATUS}"
+          if [ "$STATUS" != "200" ]; then
+            echo "::warning::Backend health check returned ${STATUS} (may just be a cold start in progress)"
+          fi
