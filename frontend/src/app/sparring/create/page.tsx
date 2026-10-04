@@ -278,6 +278,7 @@ export default function CreateSparringPage() {
     if (!name.trim())    return 'Name is required'
     if (!city.trim())    return 'City is required'
     if (!country.trim()) return 'Country is required'
+    if (!email.trim() || !email.includes('@')) return 'Enter a valid email address'
     if (profileType === 'coach') {
       if (!coachingLevel)        return 'Select your coaching level'
       if (surfaces.length === 0) return 'Select at least one surface'
@@ -327,7 +328,6 @@ export default function CreateSparringPage() {
   async function submit() {
     const err = validate()
     if (err) { setError(err); return }
-    if (!emailVerified) { setError('Verify your email first.'); return }
     setError(''); setCreating(true)
     try {
       let photo_url: string | undefined
@@ -365,7 +365,7 @@ export default function CreateSparringPage() {
             rate_to:         rateTo   ? parseInt(rateTo)   : undefined,
           } : {}),
           photo_url,
-          email: email.trim().toLowerCase(), email_verified: true,
+          email: email.trim().toLowerCase(), email_verified: emailVerified,
           phone: phoneNumber.trim() ? `${countryCode}${phoneNumber.trim()}` : undefined,
           availability,
         }),
@@ -652,6 +652,11 @@ export default function CreateSparringPage() {
         {/* Email + OTP */}
         <div style={{ marginBottom: 18 }}>
           <Label text="Email * (used to access your requests)" />
+          {!user && (
+            <p style={{ color: 'var(--sr-muted)', fontSize: 12, margin: '0 0 8px' }}>
+              Verifying is optional for now — you can do it later from your profile.
+            </p>
+          )}
           {user ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--sr-success)', border: '1px solid var(--sr-succ-t)', borderRadius: 8, padding: '11px 14px' }}>
               <span style={{ color: 'var(--sr-succ-t)', fontSize: 14, fontWeight: 800 }}>✓</span>
@@ -672,7 +677,7 @@ export default function CreateSparringPage() {
                     style={{ padding: '0 14px', borderRadius: 8, border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: 13, whiteSpace: 'nowrap', height: 48,
                       background: sending || !email.includes('@') ? 'var(--sr-card)' : 'var(--sr-accent)',
                       color: sending || !email.includes('@') ? 'var(--sr-muted)' : 'var(--sr-on-acc)' }}>
-                    {sending ? '…' : otpSent ? 'Resend' : 'Send Code'}
+                    {sending ? '…' : otpSent ? 'Resend' : 'Verify (optional)'}
                   </button>
                 )}
               </div>
@@ -952,14 +957,14 @@ export default function CreateSparringPage() {
       {/* Sticky submit */}
       {!alreadyExists && (
         <div className="sr-cta" style={{ padding: '14px 16px', paddingBottom: 'calc(14px + env(safe-area-inset-bottom, 0px))', maxWidth: 540, margin: '0 auto' }}>
-          <button onClick={submit} disabled={!emailVerified || creating}
+          <button onClick={submit} disabled={creating}
             style={{
               width: '100%', border: 'none', borderRadius: 10, fontWeight: 900, fontSize: 16, padding: '16px', letterSpacing: -0.3,
-              background: emailVerified && !creating ? 'var(--sr-accent)' : 'var(--sr-card)',
-              color: emailVerified && !creating ? 'var(--sr-on-acc)' : 'var(--sr-muted)',
-              cursor: emailVerified && !creating ? 'pointer' : 'not-allowed',
+              background: !creating ? 'var(--sr-accent)' : 'var(--sr-card)',
+              color: !creating ? 'var(--sr-on-acc)' : 'var(--sr-muted)',
+              cursor: !creating ? 'pointer' : 'not-allowed',
             }}>
-            {creating ? 'Creating profile…' : emailVerified ? `Create ${roleLabel} Profile` : 'Verify your email first'}
+            {creating ? 'Creating profile…' : `Create ${roleLabel} Profile`}
           </button>
           <p style={{ color: 'var(--sr-muted)', fontSize: 12, textAlign: 'center', margin: '12px 0 0', lineHeight: 1.5 }}>
             By creating a profile you agree to our{' '}
