@@ -201,15 +201,17 @@ const VALUE_PROPS = [
 ]
 
 export default async function HomeCommunityHero() {
-  const [barcelona, dubai, totalMembers] = await Promise.all([
+  const [barcelona, dubai, bangalore, totalMembers] = await Promise.all([
     fetchCity('Barcelona'),
     fetchCity('Dubai'),
+    fetchCity('Bangalore'),
     fetchTotalCount(),
   ])
 
   const allMembers = [
     ...(barcelona?.founding_members?.slice(0, 3) ?? []),
     ...(dubai?.founding_members?.slice(0, 3) ?? []),
+    ...(bangalore?.founding_members?.slice(0, 3) ?? []),
   ].slice(0, 6)
 
   return (
@@ -355,7 +357,7 @@ export default async function HomeCommunityHero() {
 
           {/* Proof micro-copy */}
           <p style={{ color: 'rgba(255,255,255,0.28)', fontSize: 13, fontWeight: 600, margin: 0, letterSpacing: 0.1 }}>
-            🎾 {totalMembers} founding member{totalMembers !== 1 ? 's' : ''} worldwide · Live in Barcelona &amp; Dubai, growing every day
+            🎾 {totalMembers} founding member{totalMembers !== 1 ? 's' : ''} worldwide · Live in Barcelona, Dubai &amp; Bangalore, growing every day
           </p>
         </div>
       </section>
@@ -414,9 +416,15 @@ export default async function HomeCommunityHero() {
               photo="/photos/dubai-court.jpg"
               photoPosition="center 60%"
             />
+            <CityCard
+              data={bangalore} flag="🇮🇳" slug="Bangalore"
+              accentColor="var(--accent)"
+              photo="/photos/partner-handshake.jpg"
+              photoPosition="center 35%"
+            />
           </div>
 
-          {/* Start-your-city CTA — makes clear these two are momentum, not the whole map */}
+          {/* Start-your-city CTA — makes clear these are momentum, not the whole map */}
           <div style={{
             transform: 'translateY(-16px)', textAlign: 'center',
             border: '1.5px dashed color-mix(in srgb, var(--accent) 35%, transparent)',
@@ -593,7 +601,7 @@ export default async function HomeCommunityHero() {
               color: 'rgba(255,255,255,0.32)', fontSize: 11, fontWeight: 800,
               letterSpacing: 1.5, textTransform: 'uppercase', margin: '0 0 22px',
             }}>
-              🌍 Barcelona, Dubai, and whoever's next — which city builds first?
+              🌍 Barcelona, Dubai, Bangalore, and whoever's next — which city builds first?
             </p>
 
             {allMembers.length > 0 && (

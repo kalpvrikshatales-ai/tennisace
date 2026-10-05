@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
@@ -7,6 +8,13 @@ import { useAuth } from './AuthProvider'
 import { useSidebar } from './SidebarContext'
 import { signInWithGoogle } from '@/lib/supabase'
 import ThemeToggle from './ThemeToggle'
+
+const BACKEND = process.env.NEXT_PUBLIC_API_URL || 'https://tennisace.onrender.com'
+const SIDEBAR_CITIES = [
+  { city: 'Barcelona', flag: '🇪🇸' },
+  { city: 'Dubai',     flag: '🇦🇪' },
+  { city: 'Bangalore', flag: '🇮🇳' },
+] as const
 
 type NavItem = { icon: string; label: string; href: string }
 
@@ -62,6 +70,23 @@ function SidebarPanel({ onClose }: { onClose?: () => void }) {
   const avatarUrl  = user?.user_metadata?.avatar_url
   const firstName  = (profile?.full_name ?? user?.email ?? '').split(/[\s@]/)[0]
   const initials   = ((profile?.full_name ?? user?.email) || 'U').slice(0,2).toUpperCase()
+
+  const [cityCounts, setCityCounts] = useState<Record<string, { count: number; target: number }>>({})
+
+  useEffect(() => {
+    SIDEBAR_CITIES.forEach(({ city }) => {
+      fetch(`${BACKEND}/sparring/city-progress/${city}`)
+        .then(r => r.ok ? r.json() : null)
+        .then(d => {
+          if (!d) return
+          setCityCounts(prev => ({
+            ...prev,
+            [city]: { count: (d.player_count ?? 0) + (d.coach_count ?? 0), target: d.player_target ?? 500 },
+          }))
+        })
+        .catch(() => {})
+    })
+  }, [])
 
   function isActive(item: NavItem): boolean {
     if (item.href === '/') return pathname === '/'
@@ -191,14 +216,14 @@ function SidebarPanel({ onClose }: { onClose?: () => void }) {
               🌍 Building tennis communities
             </p>
             <div style={{ display:'flex', flexDirection:'column', gap:6, marginBottom:12 }}>
-              <div style={{ background:'#0d1b2e', border:'1px solid color-mix(in srgb, var(--accent) 15%, transparent)', borderRadius:8, padding:'8px 10px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                <span style={{ color:'#fff', fontSize:12, fontWeight:700 }}>🇪🇸 Barcelona</span>
-                <span style={{ color:'var(--accent)', fontSize:11, fontWeight:700 }}>0 / 500</span>
-              </div>
-              <div style={{ background:'#0d1b2e', border:'1px solid color-mix(in srgb, var(--accent) 15%, transparent)', borderRadius:8, padding:'8px 10px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                <span style={{ color:'#fff', fontSize:12, fontWeight:700 }}>🇦🇪 Dubai</span>
-                <span style={{ color:'var(--accent)', fontSize:11, fontWeight:700 }}>0 / 300</span>
-              </div>
+              {SIDEBAR_CITIES.map(({ city, flag }) => (
+                <div key={city} style={{ background:'#0d1b2e', border:'1px solid color-mix(in srgb, var(--accent) 15%, transparent)', borderRadius:8, padding:'8px 10px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                  <span style={{ color:'#fff', fontSize:12, fontWeight:700 }}>{flag} {city}</span>
+                  <span style={{ color:'var(--accent)', fontSize:11, fontWeight:700 }}>
+                    {cityCounts[city]?.count ?? 0} / {cityCounts[city]?.target ?? 500}
+                  </span>
+                </div>
+              ))}
             </div>
             <p style={{ color:'rgba(255,255,255,0.28)', fontSize:10, fontWeight:700, textAlign:'center', margin:'0 0 10px', letterSpacing:0.2 }}>
               Founding Members are free. Always.
