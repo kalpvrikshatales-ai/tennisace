@@ -59,7 +59,7 @@ export default function OGImage() {
 
         {/* Chip row */}
         <div style={{ position: 'relative', display: 'flex', gap: 14, marginTop: 32 }}>
-          {['🌍 ANY CITY', '🤝 REAL PLAYERS', '🆓 FREE FOREVER'].map(label => (
+          {['🌍 ANY CITY', '🤝 REAL PLAYERS', '🆓 FREE RIGHT NOW'].map(label => (
             <div key={label} style={{
               display: 'flex', alignItems: 'center',
               background: 'rgba(255,255,255,0.06)', border: `1px solid rgba(255,255,255,0.15)`,

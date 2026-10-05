@@ -226,7 +226,7 @@ function SidebarPanel({ onClose }: { onClose?: () => void }) {
               ))}
             </div>
             <p style={{ color:'rgba(255,255,255,0.28)', fontSize:10, fontWeight:700, textAlign:'center', margin:'0 0 10px', letterSpacing:0.2 }}>
-              Founding Members are free. Always.
+              Founding Members are free — for now. Grow with us.
             </p>
             <Link href="/community" onClick={closeDrawer}
               style={{ display:'block', textAlign:'center', background:'color-mix(in srgb, var(--accent) 10%, transparent)', border:'1px solid color-mix(in srgb, var(--accent) 25%, transparent)', color:'var(--accent)', fontWeight:800, fontSize:12, padding:'8px', borderRadius:8, textDecoration:'none' }}>

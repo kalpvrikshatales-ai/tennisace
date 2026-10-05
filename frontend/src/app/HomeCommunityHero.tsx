@@ -163,7 +163,7 @@ function CityCard({ data, flag, slug, accentColor, photo, photoPosition, feature
         margin:        '10px 0 0',
         letterSpacing: 0.2,
       }}>
-        Founding Member · Always Free · Limited spots
+        Founding Member · Free For Now · Grow With Us
       </p>
       </div>
     </div>
@@ -336,7 +336,7 @@ export default async function HomeCommunityHero() {
             {[
               { icon: '🌍', label: 'ANY CITY' },
               { icon: '🤝', label: 'REAL PLAYERS' },
-              { icon: '🆓', label: 'FREE FOREVER' },
+              { icon: '🆓', label: 'FREE RIGHT NOW' },
             ].map(c => (
               <span key={c.label} style={{
                 display: 'inline-flex', alignItems: 'center', gap: 6,
